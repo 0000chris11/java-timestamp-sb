@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+
+
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="347.0" prefWidth="340.0" spacing="5.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cofii.ts.login.VLController">
+   <children>
+      <Label text="User" fx:id="lbUser"/>
+      <ComboBox maxWidth="1.7976931348623157E308" fx:id="cbUser"/>
+      <Label text="Password" fx:id="lbPassword"/>
+      <PasswordField fx:id="tfPassword"/>
+      <Label text="Database" fx:id="lbDB"/>
+      <ComboBox maxWidth="1.7976931348623157E308" prefWidth="150.0" fx:id="cbDB"/>
+      <Region prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS" />
+      <HBox>
+         <children>
+            <CheckBox mnemonicParsing="false" prefHeight="17.0" prefWidth="139.0" text="Remeber Login" fx:id="ckLogin"/>
+            <Region HBox.hgrow="ALWAYS" />
+            <Button mnemonicParsing="false" prefHeight="25.0" prefWidth="90.0" text="Login" fx:id="btnLogin"/>
+         </children>
+      </HBox>
+   </children>
+   <padding>
+      <Insets bottom="20.0" left="20.0" right="20.0" top="30.0" />
+   </padding>
+</VBox>

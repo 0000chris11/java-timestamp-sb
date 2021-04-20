@@ -1,0 +1,12 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Launch Java Program",
+            "request": "launch",
+            "mainClass": "com.cofii.ts.login.VL",
+            "vmArgs": "--module-path C:/C0F/Programming/JAVA/Programs/javafx-sdk-11.0.2/lib --add-modules javafx.controls,javafx.fxml",
+            "projectName": "java-timestamp-sb"
+        }
+    ]
+}
