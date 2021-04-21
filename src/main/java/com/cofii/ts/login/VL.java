@@ -8,6 +8,8 @@ import javafx.stage.Stage;
 
 public class VL extends Application{
 
+    private Stage stage;
+
     public static void main(String[] args) {
         launch(args);
     }
@@ -16,6 +18,17 @@ public class VL extends Application{
     public void start(Stage stage) throws Exception {
         Parent root = FXMLLoader.load(getClass().getResource("VL.fxml"));
         stage.setScene(new Scene(root));
-        stage.show();
+
+        this.stage = stage;
     }
+    //--------------------------------------------------
+    public Stage getStage() {
+        return stage;
+    }
+
+    public void setStage(Stage stage) {
+        this.stage = stage;
+    }
+
+    
 }

@@ -1,0 +1,3 @@
+CHANGE
+    DEFAULT USER TABLE (ROOTCONFIG)
+        TO "default_user"
