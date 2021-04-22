@@ -6,7 +6,7 @@ import java.sql.SQLException;
 import com.cofii.ts.sql.MSQL;
 import com.cofii2.myInterfaces.IActions;
 
-public class ShowTables implements IActions{
+public class ShowTableCurrentDB implements IActions{
 
     @Override
     public void beforeQuery() {
@@ -17,17 +17,20 @@ public class ShowTables implements IActions{
     @Override
     public void setData(ResultSet rs, int row) throws SQLException {
         String table = rs.getString(1);
-        if(table.equalsIgnoreCase(MSQL.TABLE_DEFAULT_USER)){
-            MSQL.setTableDefaultUserExist(true);
+        if(table.equalsIgnoreCase(MSQL.TABLE_NAMES)){
+            MSQL.setTableNamesExist(true);
         }
-        
+        if(table.equalsIgnoreCase(MSQL.TABLE_DEFAULT)){
+            MSQL.setTableDefaultExist(true);
+        }
+        if(table.equalsIgnoreCase(MSQL.TABLE_CONFIG)){
+            MSQL.setTableConfigExist(true);
+        }
     }
 
     @Override
     public void afterQuery(String query, boolean rsValue) {
-        if(!rsValue){
-            MSQL.setTableDefaultUserExist(false);
-        }
+        // TODO Auto-generated method stub
         
     }
     

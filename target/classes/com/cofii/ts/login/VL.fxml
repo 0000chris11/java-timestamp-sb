@@ -8,17 +8,17 @@
 <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="347.0" prefWidth="340.0" spacing="5.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cofii.ts.login.VLController">
    <children>
       <Label fx:id="lbUser" text="User" />
-      <ComboBox fx:id="cbUser" maxWidth="1.7976931348623157E308" />
+      <ComboBox fx:id="cbUser" editable="true" maxWidth="1.7976931348623157E308" />
       <Label fx:id="lbPassword" text="Password" />
-      <PasswordField fx:id="tfPassword" />
+      <PasswordField fx:id="tfPassword" onKeyReleased="#tfPasswordKR" />
       <Label fx:id="lbDB" text="Database" />
-      <ComboBox fx:id="cbDB" maxWidth="1.7976931348623157E308" prefWidth="150.0" />
+      <ComboBox fx:id="cbDB" editable="true" maxWidth="1.7976931348623157E308" prefWidth="150.0" />
       <Region prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS" />
       <HBox fx:id="layout">
          <children>
             <CheckBox fx:id="cbRemember" mnemonicParsing="false" prefHeight="17.0" prefWidth="139.0" text="Remeber Login" />
             <Region HBox.hgrow="ALWAYS" />
-            <Button fx:id="btnLogin" mnemonicParsing="false" prefHeight="25.0" prefWidth="90.0" text="Login" />
+            <Button fx:id="btnLogin" disable="true" mnemonicParsing="false" onAction="#btnLoginAction" prefHeight="25.0" prefWidth="90.0" text="Login" />
          </children>
       </HBox>
    </children>

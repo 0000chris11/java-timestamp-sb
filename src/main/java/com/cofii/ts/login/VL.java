@@ -4,6 +4,7 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 public class VL extends Application{
@@ -16,19 +17,15 @@ public class VL extends Application{
 
     @Override
     public void start(Stage stage) throws Exception {
-        Parent root = FXMLLoader.load(getClass().getResource("VL.fxml"));
-        stage.setScene(new Scene(root));
-
-        this.stage = stage;
+        //System.out.println(FXMLLoader.load(getClass().getResource("VL.fxml")).getClass());
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("VL.fxml"));
+        stage.setScene(new Scene(loader.load()));
+        
+        VLController controller = (VLController)loader.getController();
+        controller.setStage(stage);
+        if(controller.isShowStage()){
+            stage.show();
+        }
     }
     //--------------------------------------------------
-    public Stage getStage() {
-        return stage;
-    }
-
-    public void setStage(Stage stage) {
-        this.stage = stage;
-    }
-
-    
 }
