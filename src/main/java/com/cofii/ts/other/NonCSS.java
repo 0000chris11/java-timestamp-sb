@@ -10,6 +10,8 @@ public class NonCSS {
     public static final Color TEXT_FILL_ERROR = Color.RED;
     public static final String TEXT_FILL_ERROR_STYLE = "-fx-text-inner-color: red;";
 
+    public static final Color TEXT_FILL_HINT = Color.BLUE;
+
     private NonCSS(){
 
     }

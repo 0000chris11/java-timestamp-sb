@@ -6,6 +6,10 @@ import java.sql.SQLException;
 import com.cofii.ts.sql.MSQL;
 import com.cofii2.myInterfaces.IActions;
 
+/**
+ * Determine if the necessary tables exist in the current Database
+ * 
+ */
 public class ShowTableCurrentDB implements IActions{
 
     @Override
