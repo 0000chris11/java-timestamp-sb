@@ -1,11 +1,15 @@
 package com.cofii.ts.first;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import com.cofii.ts.login.VLController;
 import com.cofii.ts.sql.CurrenConnection;
 import com.cofii.ts.sql.MSQL;
 import com.cofii.ts.sql.WrongPassword;
+import com.cofii.ts.sql.querys.SelectData;
 import com.cofii.ts.sql.querys.SelectTableDefault;
 import com.cofii.ts.sql.querys.SelectTableNames;
 import com.cofii.ts.sql.querys.ShowColumns;
@@ -13,24 +17,94 @@ import com.cofii.ts.sql.querys.ShowTableCurrentDB;
 import com.cofii.ts.store.TableS;
 import com.cofii2.mysql.MSQLP;
 
+import javafx.beans.property.ReadOnlyObjectWrapper;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.TableColumn;
 import javafx.stage.Stage;
 
 public class VF {
 
+    private VFController controller;
     private Stage stage = new Stage();
     private MSQLP ms;
     private TableS tables = TableS.getInstance();
+
+    private void afterFirstQuerySucces() {
+        ms.selectTables(new ShowTableCurrentDB());
+        if (!MSQL.isTableNamesExist()) {
+            ms.executeUpdate(MSQL.CREATE_TABLE_NAMES);// NOT TESTED
+        }
+        if (!MSQL.isTableDefaultExist()) {
+            ms.executeUpdate(MSQL.CREATE_TABLE_DEFAUT);// NOT TESTED
+        }
+        if (!MSQL.isTableConfigExist()) {
+            ms.executeUpdate(MSQL.CREATE_TABLE_CONFIG);// NOT TESTED
+        }
+        // TABLE LIST
+        ms.executeQuery(MSQL.SELECT_TABLE_NAMES, new SelectTableNames());
+        if (tables.size() == 0) {
+            controller.getMenuSelection().getItems().clear();
+            controller.getMenuSelection().getItems().add(new MenuItem("No tables added"));
+        } else {
+            controller.getMenuSelection().getItems().clear();
+            for (int a = 0; a < tables.size(); a++) {
+                controller.getMenuSelection().getItems().add(new MenuItem(tables.getTable(a)));
+            }
+        }
+
+        ms.executeQuery(MSQL.SELECT_TABLE_ROW_DEFAULT, new SelectTableDefault());
+        if (MSQL.getTable() != null) {
+            String table = MSQL.getTable().getName();
+            String dist = MSQL.getTable().getDist();
+            controller.getLbTable().setText(table);
+
+            System.out.println(
+                    MSQL.getTable().getId() + " - " + MSQL.getTable().getName() + " - " + MSQL.getTable().getDist());
+
+            ms.selectColumns(table.replace(" ", "_"), new ShowColumns(controller));
+            distOldWay(dist);
+            tableInit();
+
+            ms.selectData(table.replace(" ", "_"), new SelectData(controller));
+        }
+    }
+
+    private void distOldWay(String dist) {
+        int length = dist.length();
+        int p = 5;
+        // X2: 3_4 :: 7
+        while (p <= length) {
+            int c = Character.getNumericValue(dist.charAt(p - 1));
+            controller.getGridPane().getChildren().remove(controller.getTfs()[c - 1]);
+            controller.getGridPane().add(controller.getCbs()[c - 1], 1, c - 1);
+
+            p += 2;
+        }
+
+    }
+
+    private void tableInit() {
+        // ADDING COLUMNS
+        /*
+         * List<String> columnNames = new ArrayList<>(Arrays.asList(MSQL.getColumns()));
+         * for(int a = 0;a < columnNames.size(); a++){ final int index = a;
+         * TableColumn<ObservableList<String>, String> column = new
+         * TableColumn<>(columnNames.get(a)); column.setCellValueFactory(e -> new
+         * ReadOnlyObjectWrapper<>(e.getValue().get(index)));
+         * controller.getTable().getColumns().add(column); }
+         */
+    }
 
     public VF(VLController vl) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("VF.fxml"));
             stage.setScene(new Scene(loader.load()));
             // -------------------------------------------------
-            VFController controller = (VFController) loader.getController();
+            controller = (VFController) loader.getController();
             controller.setStage(stage);
             controller.setVl(vl);
 
@@ -38,38 +112,10 @@ public class VF {
                     new WrongPassword(vl, controller));
 
             if (!MSQL.isWrongPassword()) {
-
-
-                ms.selectTables(new ShowTableCurrentDB());
-                if (!MSQL.isTableNamesExist()) {
-                    ms.executeUpdate(MSQL.CREATE_TABLE_NAMES);// NOT TESTED
-                }
-                if (!MSQL.isTableDefaultExist()) {
-                    ms.executeUpdate(MSQL.CREATE_TABLE_DEFAUT);// NOT TESTED
-                }
-                if (!MSQL.isTableConfigExist()) {
-                    ms.executeUpdate(MSQL.CREATE_TABLE_CONFIG);// NOT TESTED
-                }
-                //TABLE LIST
-                ms.executeQuery(MSQL.SELECT_TABLE_NAMES, new SelectTableNames());
-                if(tables.size() == 0){
-                    controller.getMenuSelection().getItems().clear();
-                    controller.getMenuSelection().getItems().add(new MenuItem("No tables added"));
-                }else{
-                    controller.getMenuSelection().getItems().clear();
-                    for(int a = 0; a < tables.size(); a++){
-                        controller.getMenuSelection().getItems().add(new MenuItem(tables.getTable(a)));
-                    }
-                }
-
-                ms.executeQuery(MSQL.SELECT_TABLE_ROW_DEFAULT, new SelectTableDefault());
-                if(MSQL.getTable() != null){
-                    System.out.println(MSQL.getTable().getId() + " - " + MSQL.getTable().getName() + " - " + MSQL.getTable().getDist());
-                    ms.selectColumns(MSQL.getTable().getName().replace(" ", "_"), new ShowColumns(controller));
-                }
+                afterFirstQuerySucces();
             }
             // -------------------------------------------------
-            
+
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -1,5 +1,8 @@
 package com.cofii.ts.login;
 
+import com.cofii.ts.first.VF;
+import com.cofii.ts.sql.MSQL;
+
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -27,6 +30,11 @@ public class VL extends Application{
         //scene.setOnKeyReleased(controller::sceneKR); //FIND A SOLUTION
 
         controller.setStage(stage);
+        System.out.println("\nVL");
+        System.out.println(controller.getStage() == null ? "controller.getStage() NULL" : "controller.getStage() NOT NULL");
+        if (!MSQL.getUser().equals("NONE")) {
+            new VF(controller);
+        }
         if(controller.isShowStage()){
             stage.show();
         }

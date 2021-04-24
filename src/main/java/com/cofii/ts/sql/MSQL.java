@@ -19,6 +19,7 @@ public class MSQL {
     private static String password;
     private static String database;
     private static Table table = null;
+    private static String[] columns;
 
     private static int columnsLength;
     public static final int MAX_COLUMNS = 10;
@@ -141,6 +142,14 @@ public class MSQL {
 
     public static void setColumnsLength(int columnsLength) {
         MSQL.columnsLength = columnsLength;
+    }
+
+    public static String[] getColumns() {
+        return columns;
+    }
+
+    public static void setColumns(String[] columns) {
+        MSQL.columns = columns;
     }
 
     //-------------------------------------------------

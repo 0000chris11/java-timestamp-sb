@@ -197,9 +197,6 @@ public class VLController implements Initializable {
             msRoot.selectUsers(new ShowUsers(this));
 
             showStage = true;
-        } else {
-            // VF.getInstance(this);
-            new VF(this);
         }
 
     }

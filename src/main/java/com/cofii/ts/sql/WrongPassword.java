@@ -19,16 +19,17 @@ public class WrongPassword implements IConnectionException {
 
     @Override
     public void exception(SQLException ex) {
-        vl.getLbPassword().setText(vl.getLbPassword().getText() + " ~ Wrong password");
-        vl.getLbPassword().setTextFill(NonCSS.TEXT_FILL_ERROR);
-        vl.getBtnLogin().setDisable(true);
+        vf.getVl().getLbPassword().setText(vf.getVl().getLbPassword().getText() + " ~ Wrong password");
+        vf.getVl().getLbPassword().setTextFill(NonCSS.TEXT_FILL_ERROR);
+        vf.getVl().getBtnLogin().setDisable(true);
         MSQL.setWrongPassword(true);
     }
 
     @Override
     public void succes() {
         vf.getStage().show();
-        vl.getStage().close();
+        vf.getVl().getStage().close();
+        //vl.getStage().close();
     }
 
 }
