@@ -69,7 +69,7 @@ public class VF {
             distOldWay(dist);
             tableInit();
 
-            ms.selectData(table.replace(" ", "_"), new SelectData(controller));
+            ms.selectData(table.replace(" ", "_"), new SelectData(controller, null));
         }
     }
 
@@ -110,6 +110,8 @@ public class VF {
 
             ms = new MSQLP(new CurrenConnection(MSQL.getDatabase(), MSQL.getUser(), MSQL.getPassword()),
                     new WrongPassword(vl, controller));
+
+            controller.setMs(ms);
 
             if (!MSQL.isWrongPassword()) {
                 afterFirstQuerySucces();

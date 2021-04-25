@@ -7,11 +7,13 @@ import com.cofii.ts.login.VLController;
 import com.cofii.ts.sql.CurrenConnection;
 import com.cofii.ts.sql.MSQL;
 import com.cofii.ts.sql.WrongPassword;
+import com.cofii.ts.sql.querys.SelectData;
 import com.cofii.ts.sql.querys.SelectTableNames;
 import com.cofii.ts.sql.querys.ShowTableCurrentDB;
 import com.cofii2.mysql.MSQLP;
 
 import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -51,49 +53,95 @@ public class VFController implements Initializable {
     private Button[] btns = new Button[MSQL.MAX_COLUMNS];
 
     @FXML
-    private TableView<ObservableList<String>> table;
+    private Label lbStatus;
+    @FXML
+    private Button btnDelete;
 
+    @FXML
+    private TableView<ObservableList<Object>> table;
+    private Object[] rowData;
+    private MSQLP ms;
+
+    // ------------------------------------------
     // -----------------------------------------
     // NON-FXML
     private <T> void tableRowSelected(ObservableValue<? extends T> observable, T oldValue, T newValue) {
-        ObservableList<ObservableList<String>> list = table.getSelectionModel().getSelectedItems();
+        ObservableList<ObservableList<Object>> list = table.getSelectionModel().getSelectedItems();
         System.out.println("\ntable length selection: " + list.size());
-        System.out.println("table sub-list length selection: " + list.get(0).size());
+        if (!list.isEmpty()) {
+            System.out.println("table sub-list length selection: " + list.get(0).size());
+            rowData = new Object[list.get(0).size()];
+            int c = 0;
+            for (Object element : list.get(0)) {
+                if (!tfs[c].isNeedsLayout()) {
+                    System.out.println("\tadding to tfs " + (c + 1) + ": " + element);
+                    tfs[c].setText(element.toString());
+                } else if (!cbs[c].isNeedsLayout()) {
+                    System.out.println("\tadding to cbs " + (c + 1) + ": " + element);
+                    cbs[c].getEditor().setText(element.toString());
+                } 
 
-        int c = 0;
-        for (String element : list.get(0)) {
-            if (!tfs[c].isNeedsLayout()) {
-                System.out.println("\tadding to tfs " + (c + 1) + ": " + element);
-                tfs[c].setText(element);
-            } else if (!cbs[c].isNeedsLayout()) {
-                System.out.println("\tadding to cbs " + (c + 1) + ": " + element);
-                cbs[c].getEditor().setText(element);
-            }else{
-                System.out.println("\tERROR");
+                rowData[c] = element;
+                c++;
             }
-            c++;
+            btnDelete.setDisable(false);
+        } else {
+            btnDelete.setDisable(true);
         }
+
     }
 
     @FXML
-    private void btnDeleteAction(){
-        //NOT IMPLEMENTED YET
+    private void btnDeleteAction() {
+        String table = MSQL.getTable().getName().replace(" ", "_");
+        /*
+        Object[] valueWhere = new Object[MSQL.getColumns().length];
+        for (int a = 0; a < valueWhere.length; a++) {
+            valueWhere[a] = 
+        }
+        */
+        boolean returnValue = ms.deleteRow(table, rowData);
+        if(returnValue){
+            ms.selectData(table, new SelectData(this, "Deleted Row on " + table));
+        }
+        ms.close();
     }
 
     @FXML
-    private void btnUpdateAction(){
-        //NOT IMPLEMENTED YET
+    private void btnUpdateAction() {
+        // NOT IMPLEMENTED YET
     }
 
     @FXML
-    private void btnFindAction(){
-        //NOT IMPLEMENTED YET
+    private void btnFindAction() {
+        // NOT IMPLEMENTED YET
     }
 
     @FXML
-    private void btnAddAction(){
-        //NOT IMPLEMENTED YET
+    private void btnAddAction() {
+        System.out.println("\nINSERT");
+        int length = MSQL.getColumns().length;
+        Object[] values = new Object[length];
+        for (int a = 0; a < length; a++) {
+            // MISING FOR PRIMARY KEY
+            if (!tfs[a].isNeedsLayout()) {
+                if (!tfs[a].getText().trim().isEmpty()) {
+                    values[a] = tfs[a].getText().trim();
+                }
+            } else if (!cbs[a].isNeedsLayout()) {
+                if (!cbs[a].getEditor().getText().trim().isEmpty()) {
+                    values[a] = cbs[a].getEditor().getText().trim();
+                }
+            }
+        }
+        String table = MSQL.getTable().getName().replace(" ", "_");
+        boolean update = ms.insert(table, values);
+        if (update) {
+            ms.selectData(table, new SelectData(this, "Inserted on " + table));
+        }
+        ms.close();
     }
+
     // -------------------------------------------
     private void nonFXMLNodesInit() {
         for (int a = 0; a < MSQL.MAX_COLUMNS; a++) {
@@ -103,9 +151,10 @@ public class VFController implements Initializable {
             btns[a] = new Button();
 
             cbs[a].setEditable(true);
+            cbs[a].setMaxWidth(Short.MAX_VALUE);
             /*
              * lbs[a].setMinWidth(60); lbs[a].setPrefWidth(60); lbs[a].setMaxWidth(60);
-             * tfs[a].setMaxWidth(Short.MAX_VALUE); cbs[a].setMaxWidth(Short.MAX_VALUE);
+             * 
              * btns[a].setMinWidth(20); btns[a].setMaxWidth(20);
              */
 
@@ -226,12 +275,28 @@ public class VFController implements Initializable {
         this.cbs = cbs;
     }
 
-    public TableView<ObservableList<String>> getTable() {
+    public TableView<ObservableList<Object>> getTable() {
         return table;
     }
 
-    public void setTable(TableView<ObservableList<String>> table) {
+    public void setTable(TableView<ObservableList<Object>> table) {
         this.table = table;
+    }
+
+    public MSQLP getMs() {
+        return ms;
+    }
+
+    public void setMs(MSQLP ms) {
+        this.ms = ms;
+    }
+
+    public Label getLbStatus() {
+        return lbStatus;
+    }
+
+    public void setLbStatus(Label lbStatus) {
+        this.lbStatus = lbStatus;
     }
 
 }

@@ -12,6 +12,8 @@ public class NonCSS {
 
     public static final Color TEXT_FILL_HINT = Color.BLUE;
 
+    public static final Color TEXT_FILL_OK = Color.GREEN;
+
     private NonCSS(){
 
     }

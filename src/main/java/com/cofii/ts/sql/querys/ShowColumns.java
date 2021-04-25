@@ -5,6 +5,8 @@ import java.sql.SQLException;
 
 import com.cofii.ts.first.VFController;
 import com.cofii.ts.sql.MSQL;
+import com.cofii.ts.store.Column;
+import com.cofii.ts.store.ColumnS;
 import com.cofii2.myInterfaces.IActions;
 
 import javafx.beans.property.ReadOnlyObjectWrapper;
@@ -15,6 +17,7 @@ public class ShowColumns implements IActions {
 
     private int rows;
     private VFController vf;
+    private ColumnS columns = ColumnS.getInstance();
 
     public ShowColumns(VFController vf) {
         this.vf = vf;
@@ -23,21 +26,25 @@ public class ShowColumns implements IActions {
     @Override
     public void beforeQuery() {
         vf.getTable().getColumns().clear();
+        columns.clearColumn();
     }
 
     @Override
     public void setData(ResultSet rs, int row) throws SQLException {
         String columnName = rs.getString(1);
+        String type = rs.getString(2).toUpperCase();
         vf.getLbs()[row - 1].setText(columnName);
 
         vf.getLbs()[row - 1].setVisible(true);
         vf.getTfs()[row - 1].setVisible(true);
         vf.getBtns()[row - 1].setVisible(true);
 
+        columns.addColumn(new Column(columnName, type));
+
         rows = row;
         //ADDING COLUMNS
         final int index = row - 1;
-        TableColumn<ObservableList<String>, String> column = new TableColumn<>(columnName);
+        TableColumn<ObservableList<Object>, Object> column = new TableColumn<>(columnName);
         column.setCellValueFactory(e -> new ReadOnlyObjectWrapper<>(e.getValue().get(index)));
         vf.getTable().getColumns().add(column);
   
