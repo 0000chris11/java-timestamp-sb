@@ -4,25 +4,26 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 import com.cofii.ts.login.VLController;
-import com.cofii.ts.sql.CurrenConnection;
+import com.cofii.ts.other.ActionForEachNode;
+import com.cofii.ts.other.GetNodesValuesImpl;
+import com.cofii.ts.other.MultipleValuesSelectedImpl;
+import com.cofii.ts.other.GetRowSelectedImpl;
 import com.cofii.ts.sql.MSQL;
-import com.cofii.ts.sql.WrongPassword;
 import com.cofii.ts.sql.querys.SelectData;
-import com.cofii.ts.sql.querys.SelectTableNames;
-import com.cofii.ts.sql.querys.ShowTableCurrentDB;
+import com.cofii.ts.store.ColumnS;
 import com.cofii2.mysql.MSQLP;
+import com.cofii2.stores.CC;
 
 import javafx.beans.value.ObservableValue;
-import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
+import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
@@ -36,7 +37,7 @@ public class VFController implements Initializable {
     @FXML
     private MenuBar menuBar;
     @FXML
-    private Menu menuOptions;
+    private Menu menuOpen;
     @FXML
     private Menu menuSelection;
     @FXML
@@ -56,93 +57,116 @@ public class VFController implements Initializable {
     private Label lbStatus;
     @FXML
     private Button btnDelete;
+    @FXML
+    private Button btnUpdate;
 
     @FXML
     private TableView<ObservableList<Object>> table;
+    private ColumnS columns = ColumnS.getInstance();
     private Object[] rowData;
+    private Object[] selectedRow;
     private MSQLP ms;
+    //----------------------
+    private static final String SUCCESS = "\tsuccess";
+    private static final String FAILED = "\tfailed";
+    // OTHER -------------------------------------------
+    private void forEachAction(int length, ActionForEachNode en) {
+        for (int a = 0; a < length; a++) {
+            // MISING FOR PRIMARY KEY
+            if (!tfs[a].isNeedsLayout()) {
+                en.forTFS(tfs[a], a);
 
-    // ------------------------------------------
-    // -----------------------------------------
+            } else if (!cbs[a].isNeedsLayout()) {
+                en.forCBS(cbs[a], a);
+
+            }
+
+            en.either(a);
+        }
+    }
+    // LISTENER -----------------------------------------
     // NON-FXML
     private <T> void tableRowSelected(ObservableValue<? extends T> observable, T oldValue, T newValue) {
         ObservableList<ObservableList<Object>> list = table.getSelectionModel().getSelectedItems();
         System.out.println("\ntable length selection: " + list.size());
-        if (!list.isEmpty()) {
+        if (list.size() == 1) {
             System.out.println("table sub-list length selection: " + list.get(0).size());
             rowData = new Object[list.get(0).size()];
-            int c = 0;
-            for (Object element : list.get(0)) {
-                if (!tfs[c].isNeedsLayout()) {
-                    System.out.println("\tadding to tfs " + (c + 1) + ": " + element);
-                    tfs[c].setText(element.toString());
-                } else if (!cbs[c].isNeedsLayout()) {
-                    System.out.println("\tadding to cbs " + (c + 1) + ": " + element);
-                    cbs[c].getEditor().setText(element.toString());
-                } 
 
-                rowData[c] = element;
-                c++;
-            }
+            selectedRow = list.get(0).toArray();
+            GetRowSelectedImpl nr = new GetRowSelectedImpl(selectedRow);
+            forEachAction(rowData.length, nr);
+
             btnDelete.setDisable(false);
-        } else {
+            btnUpdate.setDisable(false);
+        } else if (list.size() > 1) {
+            forEachAction(columns.size(), new MultipleValuesSelectedImpl());
             btnDelete.setDisable(true);
+            btnUpdate.setDisable(true);
+
+        } else if (list.isEmpty()) {
+            btnDelete.setDisable(true);
+            btnUpdate.setDisable(true);
         }
 
     }
 
     @FXML
     private void btnDeleteAction() {
-        String table = MSQL.getTable().getName().replace(" ", "_");
-        /*
-        Object[] valueWhere = new Object[MSQL.getColumns().length];
-        for (int a = 0; a < valueWhere.length; a++) {
-            valueWhere[a] = 
+        System.out.println(CC.CYAN + "\nDELETE ROW" + CC.RESET);
+        String tableName = MSQL.getTable().getName().replace(" ", "_");
+        boolean returnValue = ms.deleteRow(tableName, rowData);
+        if (returnValue) {
+            ms.selectData(tableName, new SelectData(this, "Deleted Row on " + tableName));
+            System.out.println(SUCCESS);
+        }else{
+            System.out.println(FAILED);
         }
-        */
-        boolean returnValue = ms.deleteRow(table, rowData);
-        if(returnValue){
-            ms.selectData(table, new SelectData(this, "Deleted Row on " + table));
-        }
-        ms.close();
     }
 
     @FXML
     private void btnUpdateAction() {
-        // NOT IMPLEMENTED YET
+        System.out.println(CC.CYAN + "\nUPDATE ROW" + CC.RESET);
+        String tableName = MSQL.getTable().getName().replace(" ", "_");
+        int length = MSQL.getColumnsLength();
+        Object[] newValues = new Object[length];
+
+        GetNodesValuesImpl gn = new GetNodesValuesImpl(newValues);
+        forEachAction(length, gn);
+
+        boolean returnValue = ms.updateRow(tableName, selectedRow, gn.getValues());
+        if (returnValue) {
+            ms.selectData(tableName, new SelectData(this, "Updated on " + tableName));
+            System.out.println(SUCCESS);
+        }else{
+            System.out.println(FAILED);
+        }
     }
 
     @FXML
     private void btnFindAction() {
-        // NOT IMPLEMENTED YET
+        // CHANGE
     }
 
     @FXML
     private void btnAddAction() {
-        System.out.println("\nINSERT");
+        System.out.println(CC.CYAN + "\nINSERT ROW" + CC.RESET);
         int length = MSQL.getColumns().length;
         Object[] values = new Object[length];
-        for (int a = 0; a < length; a++) {
-            // MISING FOR PRIMARY KEY
-            if (!tfs[a].isNeedsLayout()) {
-                if (!tfs[a].getText().trim().isEmpty()) {
-                    values[a] = tfs[a].getText().trim();
-                }
-            } else if (!cbs[a].isNeedsLayout()) {
-                if (!cbs[a].getEditor().getText().trim().isEmpty()) {
-                    values[a] = cbs[a].getEditor().getText().trim();
-                }
-            }
-        }
-        String table = MSQL.getTable().getName().replace(" ", "_");
-        boolean update = ms.insert(table, values);
+        GetNodesValuesImpl gn = new GetNodesValuesImpl(values);
+        forEachAction(length, gn);
+
+        String tableName = MSQL.getTable().getName().replace(" ", "_");
+        boolean update = ms.insert(tableName, gn.getValues());
         if (update) {
-            ms.selectData(table, new SelectData(this, "Inserted on " + table));
+            ms.selectData(tableName, new SelectData(this, "Inserted on " + tableName));
+            System.out.println(SUCCESS);
+        }else{
+            System.out.println(FAILED);
         }
-        ms.close();
     }
 
-    // -------------------------------------------
+    // INIT METHODS -------------------------------------------
     private void nonFXMLNodesInit() {
         for (int a = 0; a < MSQL.MAX_COLUMNS; a++) {
             lbs[a] = new Label("Column " + (a + 1));
@@ -171,13 +195,12 @@ public class VFController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        System.out.println("\nVFController STARTS");
-
         nonFXMLNodesInit();
-        // ----------------------------------
+
+        table.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         table.getSelectionModel().selectedItemProperty().addListener(this::tableRowSelected);
     }
-    // -------------------------------------------
+    // GET AND SET -------------------------------------------
 
     public Stage getStage() {
         return stage;
@@ -203,12 +226,12 @@ public class VFController implements Initializable {
         this.vl = vl;
     }
 
-    public Menu getMenuOptions() {
-        return menuOptions;
+    public Menu getMenuOpen() {
+        return menuOpen;
     }
 
-    public void setMenuOptions(Menu menuOptions) {
-        this.menuOptions = menuOptions;
+    public void setMenuOpen(Menu menuOptions) {
+        this.menuOpen = menuOptions;
     }
 
     public Menu getMenuSelection() {

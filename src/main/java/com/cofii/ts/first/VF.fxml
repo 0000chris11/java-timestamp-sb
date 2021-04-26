@@ -9,7 +9,7 @@
    <top>
       <MenuBar fx:id="menuBar" BorderPane.alignment="CENTER">
         <menus>
-          <Menu fx:id="menuOptions" mnemonicParsing="false" text="Options" />
+          <Menu fx:id="menuOpen" mnemonicParsing="false" text="Open" />
           <Menu fx:id="menuSelection" mnemonicParsing="false" text="Selection" />
           <Menu fx:id="menuTable" mnemonicParsing="false" text="Table" />
         </menus>
@@ -20,9 +20,9 @@
          <children>
             <Label fx:id="lbStatus" text="Waiting for action..." />
             <Region HBox.hgrow="ALWAYS" />
-            <Button fx:id="btnDelete" mnemonicParsing="false" onAction="#btnDeleteAction" text="Delete" />
-            <Button fx:id="btnUpdate" layoutX="238.0" layoutY="10.0" mnemonicParsing="false" onAction="#btnUpdateAction" text="Update" />
-            <Button fx:id="btnFind" layoutX="290.0" layoutY="10.0" mnemonicParsing="false" onAction="#btnFindAction" text="Find" />
+            <Button fx:id="btnDelete" disable="true" mnemonicParsing="false" onAction="#btnDeleteAction" text="Delete" />
+            <Button fx:id="btnUpdate" disable="true" layoutX="238.0" layoutY="10.0" mnemonicParsing="false" onAction="#btnUpdateAction" text="Update" />
+            <Button fx:id="btnFind" disable="true" layoutX="290.0" layoutY="10.0" mnemonicParsing="false" onAction="#btnFindAction" text="Find" />
             <Button fx:id="btnAdd" layoutX="342.0" layoutY="10.0" mnemonicParsing="false" onAction="#btnAddAction" text="Add" />
          </children>
          <padding>
@@ -69,7 +69,7 @@
             </VBox>
             <VBox fx:id="rightSplit" prefHeight="200.0" prefWidth="100.0">
                <children>
-                  <TableView fx:id="table" prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS" />
+                  <TableView fx:id="table" editable="true" prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS" />
                </children>
             </VBox>
         </items>

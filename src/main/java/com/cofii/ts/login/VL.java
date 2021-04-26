@@ -22,6 +22,7 @@ public class VL extends Application{
     public void start(Stage stage) throws Exception {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("VL.fxml"));
         Scene scene = new Scene(loader.load());
+        scene.getStylesheets().add(getClass().getResource("VL.css").toExternalForm());
         stage.setScene(scene);
 
         //AFTER INIT
@@ -30,8 +31,6 @@ public class VL extends Application{
         //scene.setOnKeyReleased(controller::sceneKR); //FIND A SOLUTION
 
         controller.setStage(stage);
-        System.out.println("\nVL");
-        System.out.println(controller.getStage() == null ? "controller.getStage() NULL" : "controller.getStage() NOT NULL");
         if (!MSQL.getUser().equals("NONE")) {
             new VF(controller);
         }

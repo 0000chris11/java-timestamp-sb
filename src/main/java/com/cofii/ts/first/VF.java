@@ -45,6 +45,22 @@ public class VF {
             ms.executeUpdate(MSQL.CREATE_TABLE_CONFIG);// NOT TESTED
         }
         // TABLE LIST
+        addMenuItems();
+
+        ms.executeQuery(MSQL.SELECT_TABLE_ROW_DEFAULT, new SelectTableDefault());
+        if (MSQL.getTable() != null) {
+            String table = MSQL.getTable().getName();
+            String dist = MSQL.getTable().getDist();
+            controller.getLbTable().setText(table);
+
+            ms.selectColumns(table.replace(" ", "_"), new ShowColumns(controller));
+            distOldWay(dist);
+
+            ms.selectData(table.replace(" ", "_"), new SelectData(controller, null));
+        }
+    }
+
+    private void addMenuItems(){
         ms.executeQuery(MSQL.SELECT_TABLE_NAMES, new SelectTableNames());
         if (tables.size() == 0) {
             controller.getMenuSelection().getItems().clear();
@@ -55,22 +71,8 @@ public class VF {
                 controller.getMenuSelection().getItems().add(new MenuItem(tables.getTable(a)));
             }
         }
-
-        ms.executeQuery(MSQL.SELECT_TABLE_ROW_DEFAULT, new SelectTableDefault());
-        if (MSQL.getTable() != null) {
-            String table = MSQL.getTable().getName();
-            String dist = MSQL.getTable().getDist();
-            controller.getLbTable().setText(table);
-
-            System.out.println(
-                    MSQL.getTable().getId() + " - " + MSQL.getTable().getName() + " - " + MSQL.getTable().getDist());
-
-            ms.selectColumns(table.replace(" ", "_"), new ShowColumns(controller));
-            distOldWay(dist);
-            tableInit();
-
-            ms.selectData(table.replace(" ", "_"), new SelectData(controller, null));
-        }
+        //ADDING REMAINING MENUS
+        Menus menus = Menus.getInstance(controller);
     }
 
     private void distOldWay(String dist) {
@@ -87,22 +89,12 @@ public class VF {
 
     }
 
-    private void tableInit() {
-        // ADDING COLUMNS
-        /*
-         * List<String> columnNames = new ArrayList<>(Arrays.asList(MSQL.getColumns()));
-         * for(int a = 0;a < columnNames.size(); a++){ final int index = a;
-         * TableColumn<ObservableList<String>, String> column = new
-         * TableColumn<>(columnNames.get(a)); column.setCellValueFactory(e -> new
-         * ReadOnlyObjectWrapper<>(e.getValue().get(index)));
-         * controller.getTable().getColumns().add(column); }
-         */
-    }
-
     public VF(VLController vl) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("VF.fxml"));
-            stage.setScene(new Scene(loader.load()));
+            Scene scene = new Scene(loader.load());
+            scene.getStylesheets().add(getClass().getResource("VF.css").toExternalForm());
+            stage.setScene(scene);
             // -------------------------------------------------
             controller = (VFController) loader.getController();
             controller.setStage(stage);

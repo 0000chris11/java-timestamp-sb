@@ -1,0 +1,27 @@
+.root{
+    -fx-background-color: #100c49;
+    background-color: #100c49;
+}
+.gridpane{
+    -fx-background-color: #100c49;
+    background-color: #100c49;
+}
+
+.label{
+    -fx-text-fill: rgb(241, 239, 239);
+}
+
+.button{
+    -fx-background-color: #2115c3;
+    background-color: #2115c3;
+
+    -fx-text-fill: rgb(241, 239, 239);
+}
+
+.menubar{
+    -fx-background-color: #110b6e;
+    background-color: #110b6e;
+
+    -fx-text-fill: rgb(241, 239, 239);
+}
+

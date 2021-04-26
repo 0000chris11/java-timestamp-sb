@@ -38,7 +38,7 @@ public class ShowColumns implements IActions {
         vf.getLbs()[row - 1].setVisible(true);
         vf.getTfs()[row - 1].setVisible(true);
         vf.getBtns()[row - 1].setVisible(true);
-
+        
         columns.addColumn(new Column(columnName, type));
 
         rows = row;

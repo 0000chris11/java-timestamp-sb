@@ -9,6 +9,7 @@ import com.cofii.ts.sql.MSQL;
 import com.cofii.ts.store.ColumnS;
 import com.cofii2.myInterfaces.IActions;
 
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
@@ -55,8 +56,8 @@ public class SelectData implements IActions {
             if (message != null) {
                 vf.getLbStatus().setText(message);
                 vf.getLbStatus().setTextFill(NonCSS.TEXT_FILL_OK);
-
-                new Thread(() -> {
+                
+                Platform.runLater(() -> {
                     try {
                         Thread.sleep(3000);
                         vf.getLbStatus().setText("Waiting for action...");
@@ -65,7 +66,7 @@ public class SelectData implements IActions {
                         e.printStackTrace();
                         Thread.currentThread().interrupt();
                     }
-                }).start();
+                });
             }
         }
     }
