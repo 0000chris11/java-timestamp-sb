@@ -1,5 +1,12 @@
 package com.cofii.ts.first;
 
+import com.cofii.ts.sql.MSQL;
+import com.cofii.ts.sql.querys.SelectData;
+import com.cofii.ts.sql.querys.SelectTableNames;
+import com.cofii.ts.sql.querys.ShowColumns;
+import com.cofii2.stores.CC;
+
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.Menu;
@@ -7,10 +14,10 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
 
 public class Menus {
-    //Open
+    // Open
     private MenuItem openChangeUserDB = new MenuItem("Change User or DB");
     private MenuItem openTableMain = new MenuItem("Open Tables Info");
-    //Table
+    // Table
     private Menu tableOp = new Menu("Options");
     private CheckMenuItem tableOpClearValues = new CheckMenuItem("Clear nodes values when a row is deleted");
     private CheckMenuItem tableOpReloacImage = new CheckMenuItem("Reload ImageC");
@@ -19,25 +26,68 @@ public class Menus {
     private MenuItem tableUpdate = new Menu("Update table");
     private MenuItem tableDelete = new Menu("Delete table");
     private MenuItem tableDeleteThis = new Menu("Delete this table");
-    //---------------------------------------------------
-    private void openChangeUserDBAction(ActionEvent e){
+
+    // ---------------------------------------------------
+    private void openChangeUserDBAction(ActionEvent e) {
         vf.getVl().getStage().show();
     }
-    //---------------------------------------------------
+
+    private void selectionForEachTable(ActionEvent e) {
+        System.out.println(CC.CYAN + "\nCHANGE TABLE" + CC.RESET);
+        MenuItem mi = (MenuItem) e.getSource();
+        String table = mi.getText();
+        System.out.println("\ttable: " + table);
+
+        vf.getLbTable().setText(table);
+        for (int a = 0; a < MSQL.MAX_COLUMNS; a++) {
+            if (vf.getLbs()[a].isVisible()) {
+                vf.getLbs()[a].setVisible(false);
+
+                if (!vf.getCbs()[a].isNeedsLayout()) {
+                    vf.getGridPane().getChildren().remove(vf.getCbs()[a]);
+                    
+                    if (vf.getTfs()[a].isNeedsLayout()) {
+                        vf.getGridPane().add(vf.getTfs()[a], 1, a);
+                    }
+                }
+                vf.getTfs()[a].setVisible(false);
+                vf.getBtns()[a].setVisible(false);
+
+                vf.getTfs()[a].setText("");
+                vf.getCbs()[a].getEditor().setText("");
+            }
+        }
+
+        String tableA = table.replace(" ", "_");
+        vf.getMs().selectDataWhere(MSQL.TABLE_NAMES, "name", table, new SelectTableNames(true));
+        vf.getMs().selectColumns(tableA, new ShowColumns(vf));
+        System.out.println("\tMSQL's table: " + MSQL.getTable().getId() + " - " + MSQL.getTable().getName() + " - "
+                + MSQL.getTable().getDist());
+        VF.distOldWay(MSQL.getTable().getDist());
+        vf.getMs().selectData(tableA, new SelectData(vf, "Change table to " + table));
+    }
+
+    // ---------------------------------------------------
     private static Menus instance;
     private static VFController vf;
-    public static Menus getInstance(VFController vf){
+
+    public static Menus getInstance(VFController vf) {
         Menus.vf = vf;
-        if(instance == null){
+        if (instance == null) {
             instance = new Menus();
         }
         return instance;
     }
 
-    private Menus(){
+    private Menus() {
         vf.getMenuOpen().getItems().addAll(openChangeUserDB, openTableMain);
-        vf.getMenuTable().getItems().addAll(tableOp, new SeparatorMenuItem(), tableChangeDTable, new SeparatorMenuItem(), tableCreate, tableUpdate, tableDelete, tableDeleteThis);
-
+        vf.getMenuTable().getItems().addAll(tableOp, new SeparatorMenuItem(), tableChangeDTable,
+                new SeparatorMenuItem(), tableCreate, tableUpdate, tableDelete, tableDeleteThis);
+        // LISTENERS
         openChangeUserDB.setOnAction(this::openChangeUserDBAction);
+        ObservableList<MenuItem> menuItems = vf.getMenuSelection().getItems();
+        for (MenuItem menuItem : menuItems) {
+            menuItem.setOnAction(this::selectionForEachTable);
+        }
     }
 }

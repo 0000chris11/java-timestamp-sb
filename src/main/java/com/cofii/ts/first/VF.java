@@ -28,7 +28,7 @@ import javafx.stage.Stage;
 
 public class VF {
 
-    private VFController controller;
+    private static VFController controller;
     private Stage stage = new Stage();
     private MSQLP ms;
     private TableS tables = TableS.getInstance();
@@ -57,11 +57,13 @@ public class VF {
             distOldWay(dist);
 
             ms.selectData(table.replace(" ", "_"), new SelectData(controller, null));
+        }else{
+            //NOT TESTED
         }
     }
 
     private void addMenuItems(){
-        ms.executeQuery(MSQL.SELECT_TABLE_NAMES, new SelectTableNames());
+        ms.executeQuery(MSQL.SELECT_TABLE_NAMES, new SelectTableNames(false));
         if (tables.size() == 0) {
             controller.getMenuSelection().getItems().clear();
             controller.getMenuSelection().getItems().add(new MenuItem("No tables added"));
@@ -75,7 +77,7 @@ public class VF {
         Menus menus = Menus.getInstance(controller);
     }
 
-    private void distOldWay(String dist) {
+    public static void distOldWay(String dist) {
         int length = dist.length();
         int p = 5;
         // X2: 3_4 :: 7
