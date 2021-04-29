@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="500.0" minWidth="800.0" prefHeight="500.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cofii.ts.first.VFController">
+   <top>
+      <MenuBar fx:id="menuBar" BorderPane.alignment="CENTER">
+        <menus>
+          <Menu fx:id="menuOpen" mnemonicParsing="false" text="Open" />
+          <Menu fx:id="menuSelection" mnemonicParsing="false" text="Selection" />
+          <Menu fx:id="menuTable" mnemonicParsing="false" text="Table" />
+        </menus>
+      </MenuBar>
+   </top>
+   <bottom>
+      <HBox fx:id="statusPanel" spacing="6.0" BorderPane.alignment="CENTER">
+         <children>
+            <Label fx:id="lbStatus" text="Waiting for action..." />
+            <Region HBox.hgrow="ALWAYS" />
+            <Button fx:id="btnDelete" disable="true" mnemonicParsing="false" onAction="#btnDeleteAction" text="Delete" />
+            <Button fx:id="btnUpdate" disable="true" layoutX="238.0" layoutY="10.0" mnemonicParsing="false" onAction="#btnUpdateAction" text="Update" />
+            <Button fx:id="btnFind" disable="true" layoutX="290.0" layoutY="10.0" mnemonicParsing="false" onAction="#btnFindAction" text="Find" />
+            <Button fx:id="btnAdd" layoutX="342.0" layoutY="10.0" mnemonicParsing="false" onAction="#btnAddAction" text="Add" />
+         </children>
+         <padding>
+            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+         </padding>
+      </HBox>
+   </bottom>
+   <center>
+      <SplitPane fx:id="splitPane" dividerPositions="0.29797979797979796" prefHeight="160.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+        <items>
+            <VBox fx:id="leftSplit">
+               <children>
+                  <HBox fx:id="leftSplitHBox" spacing="6.0">
+                     <children>
+                        <Label fx:id="lbTable" text="No Table Selected" />
+                     </children>
+                     <padding>
+                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                     </padding>
+                  </HBox>
+                  <GridPane fx:id="gridPane" hgap="4.0" VBox.vgrow="ALWAYS">
+                    <columnConstraints>
+                      <ColumnConstraints hgrow="NEVER" maxWidth="50.0" minWidth="60.0" prefWidth="60.0" />
+                      <ColumnConstraints hgrow="ALWAYS" maxWidth="1.7976931348623157E308" minWidth="10.0" prefWidth="100.0" />
+                        <ColumnConstraints hgrow="NEVER" maxWidth="20.0" minWidth="20.0" prefWidth="20.0" />
+                    </columnConstraints>
+                    <rowConstraints>
+                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
+                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
+                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
+                    </rowConstraints>
+                     <padding>
+                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                     </padding>
+                  </GridPane>
+               </children>
+            </VBox>
+            <VBox fx:id="rightSplit" prefHeight="200.0" prefWidth="100.0">
+               <children>
+                  <TableView fx:id="table" editable="true" prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS" />
+               </children>
+            </VBox>
+        </items>
+      </SplitPane>
+   </center>
+</BorderPane>

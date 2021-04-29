@@ -1,7 +1,17 @@
 /*DEFAULT VARIABLES*/
 *{
+    -fx-root-background-color: #100c49;
+
     -fx-menu-background-color: #05013a;
     -fx-menu-background-highlighted: #0b0375;
+
+    -fx-label-text-fill-color: white;
+
+    -fx-textfield-background-color: #090631;
+    -fx-textfield-text-fill-color: white;
+
+    -fx-button-background-color: #2115c3;
+    -fx-button-text-fill-color: white;
 
     -fx-menu-text-fill-color: white;
     -fx-menu-text-fill-color-highlighted: white;
@@ -15,26 +25,28 @@
 }
 /*LAYOUTS ----------------------------------------*/
 .root{
-    -fx-background-color: #080535;
-    background-color: #100c49;
+    -fx-background-color: -fx-root-background-color;
+    background-color: -fx-root-background-color;
 }
 .vbox{
-    -fx-background-color: #100c49;
-    background-color: #100c49;
+    -fx-background-color: -fx-root-background-color;
+    background-color: -fx-root-background-color;
 }
 .hbox{
-    -fx-background-color: #100c49;
-    background-color: #100c49;
+    -fx-background-color: -fx-root-background-color;
+    background-color: -fx-root-background-color;
 }
 .split-pane:horizontal{
-    -fx-background-color: #100c49;
-    background-color: #100c49;
+    -fx-background-color: -fx-root-background-color;
+    background-color: -fx-root-background-color;
 }
 /*TABLE ------------------------------------------*/
 
 .table-view{
     -fx-background-color: -fx-table-column-header-background;
     background-color: -fx-table-column-header-background;
+
+    -fx-table-cell-border-color: transparent;
 }
 /*
 .table-view .table-cell{
@@ -47,7 +59,9 @@
     -fx-background-color: transparent;
     background-color: transparent;
 }
-.table-view .column-header-background{/*NOT WORKING*/
+.table-view .column-header .filler,
+.table-view .column-header-background,
+.table-view .column-header-background .filler{/*NOT WORKING*/
     -fx-background-color: -fx-table-column-header-background;
     background-color: -fx-table-column-header-background;
 }
@@ -63,6 +77,7 @@
     /*-fx-background-insets: 0, 0 0 1 0;*/
     -fx-text-fill: -fx-table-row-cell-text-fill-color;
     /*-fx-padding: 0.0em;  0 */
+
 }
 .table-row-cell:odd{
     -fx-background-color: -fx-table-row-cell-odd-background-color;
@@ -77,19 +92,35 @@
     -fx-text-fill: -fx-table-row-cell-text-fill-color;
     /*-fx-background-insets: 0;
     -fx-background-radius: 1;*/
+    -fx-table-cell-border-color: transparent;
 }
 .table-view .table-cell{
     -fx-text-fill: -fx-table-row-cell-text-fill-color
 }
 /*SINGLE NODES ---------------------------------------*/
 .label{
-    -fx-text-fill: rgb(241, 239, 239);
+    -fx-text-fill: -fx-label-text-fill-color;
+}
+.text-field{
+    -fx-background-color: -fx-textfield-background-color;
+    background-color: -fx-textfield-background-color;
+
+    -fx-text-fill: -fx-textfield-text-fill-color;
+}
+.combo-box .list-cell {
+    -fx-background: rgb(200, 38, 38);
+    background: rgb(200, 38, 38);
+    -fx-background-color: transparent;
+    background-color: transparent;
+    -fx-text-fill: -fx-text-base-color;
+    /*-fx-padding: 3 0 2 7;
+    -fx-cell-size: 1.66667em; */
 }
 .button{
-    -fx-background-color: #2115c3;
-    background-color: #2115c3;
+    -fx-background-color: -fx-button-background-color;
+    background-color: -fx-button-background-color;
 
-    -fx-text-fill: rgb(241, 239, 239);
+    -fx-text-fill: -fx-button-text-fill-color;
 }
 /*MENU BAR ----------------------------------------------*/
 .menu-bar {

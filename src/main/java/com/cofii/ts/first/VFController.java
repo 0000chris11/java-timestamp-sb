@@ -7,6 +7,8 @@ import com.cofii.ts.login.VLController;
 import com.cofii.ts.other.ActionForEachNode;
 import com.cofii.ts.other.GetNodesValuesImpl;
 import com.cofii.ts.other.MultipleValuesSelectedImpl;
+import com.cofii.ts.other.NonCSS;
+import com.cofii.ts.other.Timers;
 import com.cofii.ts.other.GetRowSelectedImpl;
 import com.cofii.ts.sql.MSQL;
 import com.cofii.ts.sql.querys.SelectData;
@@ -115,9 +117,10 @@ public class VFController implements Initializable {
     private void btnDeleteAction() {
         System.out.println(CC.CYAN + "\nDELETE ROW" + CC.RESET);
         String tableName = MSQL.getTable().getName().replace(" ", "_");
+        System.out.println("\ttableName: " + tableName + " - rowData length" + rowData.length);
         boolean returnValue = ms.deleteRow(tableName, rowData);
         if (returnValue) {
-            ms.selectData(tableName, new SelectData(this, "Deleted Row on " + tableName));
+            ms.selectData(tableName, new SelectData(this, SelectData.MESSAGE_DELETE_ROW + tableName));
             System.out.println(SUCCESS);
         }else{
             System.out.println(FAILED);
@@ -136,7 +139,7 @@ public class VFController implements Initializable {
 
         boolean returnValue = ms.updateRow(tableName, selectedRow, gn.getValues());
         if (returnValue) {
-            ms.selectData(tableName, new SelectData(this, "Updated on " + tableName));
+            ms.selectData(tableName, new SelectData(this, SelectData.MESSAGE_UPDATED_ROW + tableName));
             System.out.println(SUCCESS);
         }else{
             System.out.println(FAILED);
@@ -157,9 +160,16 @@ public class VFController implements Initializable {
         forEachAction(length, gn);
 
         String tableName = MSQL.getTable().getName().replace(" ", "_");
+
+        ms.setIDataToLong(e -> {
+            System.out.println("\tData too long");
+            lbStatus.setText(e.getMessage());
+            lbStatus.setTextFill(NonCSS.TEXT_FILL_ERROR);
+            Timers.getInstance(this).playLbStatusReset();
+        });
         boolean update = ms.insert(tableName, gn.getValues());
         if (update) {
-            ms.selectData(tableName, new SelectData(this, "Inserted on " + tableName));
+            ms.selectData(tableName, new SelectData(this, SelectData.MESSAGE_INSERT + tableName));
             System.out.println(SUCCESS);
         }else{
             System.out.println(FAILED);

@@ -16,9 +16,9 @@ public class VL extends Application{
 
     @Override
     public void start(Stage stage) throws Exception {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("VL.fxml"));
+        FXMLLoader loader = new FXMLLoader(VL.class.getResource("/com/cofii/ts/login/VL.fxml"));
         Scene scene = new Scene(loader.load());
-        scene.getStylesheets().add(getClass().getResource("VL.css").toExternalForm());
+        scene.getStylesheets().add(VL.class.getResource("/com/cofii/ts/login/VL.css").toExternalForm());
         stage.setScene(scene);
 
         //AFTER INIT

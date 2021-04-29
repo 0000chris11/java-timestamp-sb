@@ -1,5 +1,6 @@
 package com.cofii.ts.first;
 
+import com.cofii.ts.info.VI;
 import com.cofii.ts.sql.MSQL;
 import com.cofii.ts.sql.querys.SelectData;
 import com.cofii.ts.sql.querys.SelectTableNames;
@@ -18,14 +19,15 @@ public class Menus {
     private MenuItem openChangeUserDB = new MenuItem("Change User or DB");
     private MenuItem openTableMain = new MenuItem("Open Tables Info");
     // Table
+    private MenuItem tableInfo = new MenuItem("Current Table Info");
     private Menu tableOp = new Menu("Options");
     private CheckMenuItem tableOpClearValues = new CheckMenuItem("Clear nodes values when a row is deleted");
     private CheckMenuItem tableOpReloacImage = new CheckMenuItem("Reload ImageC");
     private Menu tableChangeDTable = new Menu("Change Default Table");
-    private MenuItem tableCreate = new Menu("Create new table");
-    private MenuItem tableUpdate = new Menu("Update table");
-    private MenuItem tableDelete = new Menu("Delete table");
-    private MenuItem tableDeleteThis = new Menu("Delete this table");
+    private MenuItem tableCreate = new MenuItem("Create new table");
+    private MenuItem tableUpdate = new MenuItem("Update table");
+    private MenuItem tableDelete = new MenuItem("Delete table");
+    private MenuItem tableDeleteThis = new MenuItem("Delete this table");
 
     // ---------------------------------------------------
     private void openChangeUserDBAction(ActionEvent e) {
@@ -64,9 +66,12 @@ public class Menus {
         System.out.println("\tMSQL's table: " + MSQL.getTable().getId() + " - " + MSQL.getTable().getName() + " - "
                 + MSQL.getTable().getDist());
         VF.distOldWay(MSQL.getTable().getDist());
-        vf.getMs().selectData(tableA, new SelectData(vf, "Change table to " + table));
+        vf.getMs().selectData(tableA, new SelectData(vf, SelectData.MESSGE_TABLE_CHANGE + table));
     }
 
+    private void tableInfoAction(ActionEvent e){
+        new VI(vf);
+    }
     // ---------------------------------------------------
     private static Menus instance;
     private static VFController vf;
@@ -81,7 +86,7 @@ public class Menus {
 
     private Menus() {
         vf.getMenuOpen().getItems().addAll(openChangeUserDB, openTableMain);
-        vf.getMenuTable().getItems().addAll(tableOp, new SeparatorMenuItem(), tableChangeDTable,
+        vf.getMenuTable().getItems().addAll(tableInfo, tableOp, new SeparatorMenuItem(), tableChangeDTable,
                 new SeparatorMenuItem(), tableCreate, tableUpdate, tableDelete, tableDeleteThis);
         // LISTENERS
         openChangeUserDB.setOnAction(this::openChangeUserDBAction);
@@ -89,5 +94,7 @@ public class Menus {
         for (MenuItem menuItem : menuItems) {
             menuItem.setOnAction(this::selectionForEachTable);
         }
+
+        tableInfo.setOnAction(this::tableInfoAction);
     }
 }

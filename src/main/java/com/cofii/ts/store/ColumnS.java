@@ -26,13 +26,30 @@ public class ColumnS {
     public int size(){
         return list.size();
     }
-    
+    //---------------------------------------------------
     public String getColumn(int index){
         return list.get(index).getName();
     }
-
     public String getType(int index){
         return list.get(index).getType();
+    }
+    public int getTypeLength(int index){
+        return list.get(index).getTypeLength();
+    }
+    public boolean getNull(int index){
+        return list.get(index).isNulll();
+    }
+    public String getKey(int index){
+        return list.get(index).getKey();
+    }
+    public void setKey(int index, String key){
+        list.get(index).setKey(key);
+    }
+    public String getDefault(int index){
+        return list.get(index).getDefaultt();
+    }
+    public String getExtra(int index){
+        return list.get(index).getExtra();
     }
     //-----------------------------------------
     private ColumnS(){

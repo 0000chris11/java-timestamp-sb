@@ -93,9 +93,9 @@ public class VF {
 
     public VF(VLController vl) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("VF.fxml"));
+            FXMLLoader loader = new FXMLLoader(VF.class.getResource("/com/cofii/ts/first/VF.fxml"));
             Scene scene = new Scene(loader.load());
-            scene.getStylesheets().add(getClass().getResource("VF.css").toExternalForm());
+            scene.getStylesheets().add(VF.class.getResource("/com/cofii/ts/first/VF.css").toExternalForm());
             stage.setScene(scene);
             // -------------------------------------------------
             controller = (VFController) loader.getController();
