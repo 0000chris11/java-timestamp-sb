@@ -18,7 +18,7 @@ public class MSQL {
     private static String user;
     private static String password;
     private static String database;
-    private static Table table = null;
+    private static Table currentTable = null;
     private static String[] columns;
 
     private static int columnsLength;
@@ -128,12 +128,12 @@ public class MSQL {
         MSQL.wrongPassword = wrongPassword;
     }
 
-    public static Table getTable() {
-        return table;
+    public static Table getCurrentTable() {
+        return currentTable;
     }
 
-    public static void setTable(Table table) {
-        MSQL.table = table;
+    public static void setCurrentTable(Table table) {
+        MSQL.currentTable = table;
     }
     
     public static int getColumnsLength() {

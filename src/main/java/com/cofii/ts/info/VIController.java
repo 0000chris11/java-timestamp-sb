@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.ResourceBundle;
 
 import com.cofii.ts.sql.MSQL;
+import com.cofii.ts.store.ColumnDS;
 import com.cofii.ts.store.ColumnS;
 
 import javafx.fxml.FXML;
@@ -19,6 +20,7 @@ public class VIController implements Initializable {
     private GridPane gridPaneRight;
 
     private ColumnS columns = ColumnS.getInstance();
+    private ColumnDS columnsd = ColumnDS.getInstance();
 
     // NON-FXML
     private Label[] lbColumns = new Label[MSQL.MAX_COLUMNS];
@@ -28,6 +30,8 @@ public class VIController implements Initializable {
     private Label[] lbKeys = new Label[MSQL.MAX_COLUMNS];
     private Label[] lbDefaults = new Label[MSQL.MAX_COLUMNS];
     private Label[] lbExtras = new Label[MSQL.MAX_COLUMNS];
+
+    private Label[] lbDist = new Label[MSQL.MAX_COLUMNS];
     // -----------------------------------------------------------
     private void nonFXMLNodeInit() {
         for (int a = 0; a < MSQL.MAX_COLUMNS; a++) {
@@ -39,6 +43,8 @@ public class VIController implements Initializable {
             lbDefaults[a] = new Label();
             lbExtras[a] = new Label();
 
+            lbDist[a] = new Label();
+
             int row = a + 1;
             gridPaneLeft.add(lbColumns[a], 0, row);
             gridPaneLeft.add(lbTypes[a], 1, row);
@@ -47,6 +53,8 @@ public class VIController implements Initializable {
             gridPaneLeft.add(lbKeys[a], 4, row);
             gridPaneLeft.add(lbDefaults[a], 5, row);
             gridPaneLeft.add(lbExtras[a], 6, row);
+
+            gridPaneRight.add(lbDist[a], 0, row);
         }
     }
     private void nonFXMLNodeSet(){
@@ -60,6 +68,8 @@ public class VIController implements Initializable {
             String defaultt = columns.getDefault(a);
             String extra = columns.getExtra(a);
 
+            String dist = columnsd.getDist(a);
+
             lbColumns[a].setText(column);
             lbTypes[a].setText(type);
             lbTypeslength[a].setText(Integer.toString(typeLength));
@@ -67,6 +77,8 @@ public class VIController implements Initializable {
             lbKeys[a].setText(key);
             lbDefaults[a].setText(defaultt);
             lbExtras[a].setText(extra);
+
+            lbDist[a].setText(dist);
         }
     }
 

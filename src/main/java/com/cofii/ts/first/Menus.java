@@ -63,9 +63,9 @@ public class Menus {
         String tableA = table.replace(" ", "_");
         vf.getMs().selectDataWhere(MSQL.TABLE_NAMES, "name", table, new SelectTableNames(true));
         vf.getMs().selectColumns(tableA, new ShowColumns(vf));
-        System.out.println("\tMSQL's table: " + MSQL.getTable().getId() + " - " + MSQL.getTable().getName() + " - "
-                + MSQL.getTable().getDist());
-        VF.distOldWay(MSQL.getTable().getDist());
+        System.out.println("\tMSQL's table: " + MSQL.getCurrentTable().getId() + " - " + MSQL.getCurrentTable().getName() + " - "
+                + MSQL.getCurrentTable().getDist());
+        VF.distOldWay(MSQL.getCurrentTable().getDist());
         vf.getMs().selectData(tableA, new SelectData(vf, SelectData.MESSGE_TABLE_CHANGE + table));
     }
 

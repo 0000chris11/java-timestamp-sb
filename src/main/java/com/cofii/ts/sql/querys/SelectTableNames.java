@@ -28,7 +28,7 @@ public class SelectTableNames implements IActions {
         tables.addTable(table);
         
         if (selectTable) {
-            MSQL.setTable(table);
+            MSQL.setCurrentTable(table);
         }
     }
 

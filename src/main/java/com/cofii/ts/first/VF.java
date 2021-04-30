@@ -10,10 +10,14 @@ import com.cofii.ts.sql.CurrenConnection;
 import com.cofii.ts.sql.MSQL;
 import com.cofii.ts.sql.WrongPassword;
 import com.cofii.ts.sql.querys.SelectData;
+import com.cofii.ts.sql.querys.SelectDistinct;
 import com.cofii.ts.sql.querys.SelectTableDefault;
 import com.cofii.ts.sql.querys.SelectTableNames;
 import com.cofii.ts.sql.querys.ShowColumns;
 import com.cofii.ts.sql.querys.ShowTableCurrentDB;
+import com.cofii.ts.store.ColumnD;
+import com.cofii.ts.store.ColumnDS;
+import com.cofii.ts.store.ColumnS;
 import com.cofii.ts.store.TableS;
 import com.cofii2.mysql.MSQLP;
 
@@ -30,8 +34,10 @@ public class VF {
 
     private static VFController controller;
     private Stage stage = new Stage();
-    private MSQLP ms;
+    private static MSQLP ms;
     private TableS tables = TableS.getInstance();
+    private static ColumnS columns = ColumnS.getInstance();
+    private static ColumnDS columnsd = ColumnDS.getInstance();
 
     private void afterFirstQuerySucces() {
         ms.selectTables(new ShowTableCurrentDB());
@@ -48,9 +54,9 @@ public class VF {
         addMenuItems();
 
         ms.executeQuery(MSQL.SELECT_TABLE_ROW_DEFAULT, new SelectTableDefault());
-        if (MSQL.getTable() != null) {
-            String table = MSQL.getTable().getName();
-            String dist = MSQL.getTable().getDist();
+        if (MSQL.getCurrentTable() != null) {
+            String table = MSQL.getCurrentTable().getName();
+            String dist = MSQL.getCurrentTable().getDist();
             controller.getLbTable().setText(table);
 
             ms.selectColumns(table.replace(" ", "_"), new ShowColumns(controller));
@@ -80,12 +86,23 @@ public class VF {
     public static void distOldWay(String dist) {
         int length = dist.length();
         int p = 5;
+        columnsd.clear();
+        for(int a = 0;a < columns.size(); a++){
+            columnsd.addColumnD(new ColumnD());
+        }
         // X2: 3_4 :: 7
         while (p <= length) {
-            int c = Character.getNumericValue(dist.charAt(p - 1));
-            controller.getGridPane().getChildren().remove(controller.getTfs()[c - 1]);
-            controller.getGridPane().add(controller.getCbs()[c - 1], 1, c - 1);
+            int c = Character.getNumericValue(dist.charAt(p - 1)) - 1;
+            controller.getGridPane().getChildren().remove(controller.getTfs()[c]);
+            controller.getGridPane().add(controller.getCbs()[c], 1, c);
+            
+            columnsd.addColumnD(c, new ColumnD("Yes"));
 
+            String table = MSQL.getCurrentTable().getName().replace(" ", "_");
+            String column = columns.getColumn(c);
+
+            ms.setDistinctOrder(MSQLP.MOST_USE_ORDER);//WORK 50 50 WITH TAGS
+            ms.selectDistinctColumn(table, column, new SelectDistinct(controller, c));
             p += 2;
         }
 

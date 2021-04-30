@@ -1,6 +1,8 @@
 package com.cofii.ts.first;
 
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
 
 import com.cofii.ts.login.VLController;
@@ -12,6 +14,7 @@ import com.cofii.ts.other.Timers;
 import com.cofii.ts.other.GetRowSelectedImpl;
 import com.cofii.ts.sql.MSQL;
 import com.cofii.ts.sql.querys.SelectData;
+import com.cofii.ts.sql.querys.SelectDistinct;
 import com.cofii.ts.store.ColumnS;
 import com.cofii2.mysql.MSQLP;
 import com.cofii2.stores.CC;
@@ -28,6 +31,9 @@ import javafx.scene.control.MenuBar;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 
@@ -53,6 +59,7 @@ public class VFController implements Initializable {
     private Label[] lbs = new Label[MSQL.MAX_COLUMNS];
     private TextField[] tfs = new TextField[MSQL.MAX_COLUMNS];
     private ComboBox[] cbs = new ComboBox[MSQL.MAX_COLUMNS];
+    private List<List<String>> cbElements = new ArrayList<>(MSQL.MAX_COLUMNS);
     private Button[] btns = new Button[MSQL.MAX_COLUMNS];
 
     @FXML
@@ -68,9 +75,13 @@ public class VFController implements Initializable {
     private Object[] rowData;
     private Object[] selectedRow;
     private MSQLP ms;
-    //----------------------
+    // ----------------------
     private static final String SUCCESS = "\tsuccess";
     private static final String FAILED = "\tfailed";
+
+    private static final int CB_STARTS_WITH = 0;
+    private int cbSearchOption = CB_STARTS_WITH;
+
     // OTHER -------------------------------------------
     private void forEachAction(int length, ActionForEachNode en) {
         for (int a = 0; a < length; a++) {
@@ -86,8 +97,57 @@ public class VFController implements Initializable {
             en.either(a);
         }
     }
+
     // LISTENER -----------------------------------------
     // NON-FXML
+    private void cbsMouseClicked(MouseEvent e) {
+        for (int a = 0; a < cbs.length; a++) {
+            TextField tf = (TextField) e.getSource();
+            if (tf == cbs[a].getEditor()) {
+                cbs[a].show();
+            }
+        }
+    }
+
+    // LISTENER CBS-----------------------------------
+    private void searchFunction(KeyEvent e) {
+        for (int a = 0; a < cbs.length; a++) {
+            TextField tf = (TextField) e.getSource();
+            if (tf == cbs[a].getEditor()) {
+                // System.out.println("\nCB " + (a + 1));
+                cbs[a].getItems().clear();
+                cbs[a].getItems().addAll(cbElements.get(a));
+                if (!cbs[a].getItems().get(0).equals(SelectDistinct.NO_DISTINCT_ELEMENTS)) {
+                    String text = tf.getText().toUpperCase();
+                    // System.out.println("\ttext: " + text);
+                    // -----------------------------------------
+                    int originalLength = cbElements.get(a).size();
+                    // System.out.println("\toriginal length: " + originalLength);
+                    for (int b = 0; b < originalLength; b++) {
+                        String element = cbElements.get(a).get(b);
+                        if (cbSearchOption == CB_STARTS_WITH) {
+                            if (!element.toUpperCase().startsWith(text)) {
+                                cbs[a].getItems().remove(element);
+                            }
+                        }
+                    }
+                    // System.out.println("\tcurrent length: " + cbs[a].getItems().size());
+                    if (!cbs[a].isShowing()) {
+                        cbs[a].show();
+                    }
+                }
+            }
+        }
+    }
+
+    private void cbsKeyReleased(KeyEvent e) {
+        if (!e.getCode().isArrowKey() && !e.getCode().isFunctionKey()) {
+            searchFunction(e);
+        }else if(e.getCode() == KeyCode.UP || e.getCode() == KeyCode.DOWN){
+            
+        }
+    }
+
     private <T> void tableRowSelected(ObservableValue<? extends T> observable, T oldValue, T newValue) {
         ObservableList<ObservableList<Object>> list = table.getSelectionModel().getSelectedItems();
         System.out.println("\ntable length selection: " + list.size());
@@ -116,13 +176,13 @@ public class VFController implements Initializable {
     @FXML
     private void btnDeleteAction() {
         System.out.println(CC.CYAN + "\nDELETE ROW" + CC.RESET);
-        String tableName = MSQL.getTable().getName().replace(" ", "_");
+        String tableName = MSQL.getCurrentTable().getName().replace(" ", "_");
         System.out.println("\ttableName: " + tableName + " - rowData length" + rowData.length);
         boolean returnValue = ms.deleteRow(tableName, rowData);
         if (returnValue) {
             ms.selectData(tableName, new SelectData(this, SelectData.MESSAGE_DELETE_ROW + tableName));
             System.out.println(SUCCESS);
-        }else{
+        } else {
             System.out.println(FAILED);
         }
     }
@@ -130,7 +190,7 @@ public class VFController implements Initializable {
     @FXML
     private void btnUpdateAction() {
         System.out.println(CC.CYAN + "\nUPDATE ROW" + CC.RESET);
-        String tableName = MSQL.getTable().getName().replace(" ", "_");
+        String tableName = MSQL.getCurrentTable().getName().replace(" ", "_");
         int length = MSQL.getColumnsLength();
         Object[] newValues = new Object[length];
 
@@ -141,7 +201,7 @@ public class VFController implements Initializable {
         if (returnValue) {
             ms.selectData(tableName, new SelectData(this, SelectData.MESSAGE_UPDATED_ROW + tableName));
             System.out.println(SUCCESS);
-        }else{
+        } else {
             System.out.println(FAILED);
         }
     }
@@ -159,7 +219,7 @@ public class VFController implements Initializable {
         GetNodesValuesImpl gn = new GetNodesValuesImpl(values);
         forEachAction(length, gn);
 
-        String tableName = MSQL.getTable().getName().replace(" ", "_");
+        String tableName = MSQL.getCurrentTable().getName().replace(" ", "_");
 
         ms.setIDataToLong(e -> {
             System.out.println("\tData too long");
@@ -171,7 +231,7 @@ public class VFController implements Initializable {
         if (update) {
             ms.selectData(tableName, new SelectData(this, SelectData.MESSAGE_INSERT + tableName));
             System.out.println(SUCCESS);
-        }else{
+        } else {
             System.out.println(FAILED);
         }
     }
@@ -206,6 +266,15 @@ public class VFController implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         nonFXMLNodesInit();
+        // CB ELEMENTS
+        for (int a = 0; a < MSQL.MAX_COLUMNS; a++) {
+            cbElements.add(new ArrayList<>());
+        }
+        // LISTENERS
+        for (ComboBox<String> cb : cbs) {
+            cb.getEditor().setOnKeyReleased(this::cbsKeyReleased);
+            cb.getEditor().setOnMouseClicked(this::cbsMouseClicked);
+        }
 
         table.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         table.getSelectionModel().selectedItemProperty().addListener(this::tableRowSelected);
@@ -330,6 +399,14 @@ public class VFController implements Initializable {
 
     public void setLbStatus(Label lbStatus) {
         this.lbStatus = lbStatus;
+    }
+
+    public List<List<String>> getCbElements() {
+        return cbElements;
+    }
+
+    public void setCbElements(List<List<String>> cbElements) {
+        this.cbElements = cbElements;
     }
 
 }
