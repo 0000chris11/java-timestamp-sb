@@ -1,6 +1,7 @@
 package com.cofii.ts.first;
 
 import com.cofii.ts.info.VI;
+import com.cofii.ts.other.Dist;
 import com.cofii.ts.sql.MSQL;
 import com.cofii.ts.sql.querys.SelectData;
 import com.cofii.ts.sql.querys.SelectTableNames;
@@ -28,6 +29,8 @@ public class Menus {
     private MenuItem tableUpdate = new MenuItem("Update table");
     private MenuItem tableDelete = new MenuItem("Delete table");
     private MenuItem tableDeleteThis = new MenuItem("Delete this table");
+    // ---------------------------------------------------
+    private Dist dist = Dist.getInstance(vf);
 
     // ---------------------------------------------------
     private void openChangeUserDBAction(ActionEvent e) {
@@ -47,7 +50,7 @@ public class Menus {
 
                 if (!vf.getCbs()[a].isNeedsLayout()) {
                     vf.getGridPane().getChildren().remove(vf.getCbs()[a]);
-                    
+
                     if (vf.getTfs()[a].isNeedsLayout()) {
                         vf.getGridPane().add(vf.getTfs()[a], 1, a);
                     }
@@ -63,15 +66,17 @@ public class Menus {
         String tableA = table.replace(" ", "_");
         vf.getMs().selectDataWhere(MSQL.TABLE_NAMES, "name", table, new SelectTableNames(true));
         vf.getMs().selectColumns(tableA, new ShowColumns(vf));
-        System.out.println("\tMSQL's table: " + MSQL.getCurrentTable().getId() + " - " + MSQL.getCurrentTable().getName() + " - "
-                + MSQL.getCurrentTable().getDist());
-        VF.distOldWay(MSQL.getCurrentTable().getDist());
+        System.out.println("\tMSQL's table: " + MSQL.getCurrentTable().getId() + " - "
+                + MSQL.getCurrentTable().getName() + " - " + MSQL.getCurrentTable().getDist());
+
+        dist.distInitOldWay(MSQL.getCurrentTable().getDist());
         vf.getMs().selectData(tableA, new SelectData(vf, SelectData.MESSGE_TABLE_CHANGE + table));
     }
 
-    private void tableInfoAction(ActionEvent e){
+    private void tableInfoAction(ActionEvent e) {
         new VI(vf);
     }
+
     // ---------------------------------------------------
     private static Menus instance;
     private static VFController vf;

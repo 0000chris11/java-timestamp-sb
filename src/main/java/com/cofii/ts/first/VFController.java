@@ -7,6 +7,7 @@ import java.util.ResourceBundle;
 
 import com.cofii.ts.login.VLController;
 import com.cofii.ts.other.ActionForEachNode;
+import com.cofii.ts.other.Dist;
 import com.cofii.ts.other.GetNodesValuesImpl;
 import com.cofii.ts.other.MultipleValuesSelectedImpl;
 import com.cofii.ts.other.NonCSS;
@@ -19,6 +20,7 @@ import com.cofii.ts.store.ColumnS;
 import com.cofii2.mysql.MSQLP;
 import com.cofii2.stores.CC;
 
+import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -31,6 +33,7 @@ import javafx.scene.control.MenuBar;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.skin.ComboBoxListViewSkin;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
@@ -40,6 +43,8 @@ import javafx.stage.Stage;
 public class VFController implements Initializable {
 
     private VLController vl;
+    private Dist dist = Dist.getInstance(this);
+    // ----------------------------------------
     private Stage stage;
 
     @FXML
@@ -75,7 +80,7 @@ public class VFController implements Initializable {
     private Object[] rowData;
     private Object[] selectedRow;
     private MSQLP ms;
-    // ----------------------
+    // ----------------------------------------------
     private static final String SUCCESS = "\tsuccess";
     private static final String FAILED = "\tfailed";
 
@@ -98,6 +103,18 @@ public class VFController implements Initializable {
         }
     }
 
+    private void comboBoxConfig() {
+        for (int a = 0; a < cbs.length; a++) {
+            ComboBoxListViewSkin<String> comboBoxListViewSkin = new ComboBoxListViewSkin<>(cbs[a]);
+            comboBoxListViewSkin.getPopupContent().addEventFilter(KeyEvent.ANY, event -> {
+                if (event.getCode() == KeyCode.SPACE) {
+                    event.consume();
+                }
+            });
+            cbs[a].setSkin(comboBoxListViewSkin);
+        }
+    }
+
     // LISTENER -----------------------------------------
     // NON-FXML
     private void cbsMouseClicked(MouseEvent e) {
@@ -115,10 +132,16 @@ public class VFController implements Initializable {
             TextField tf = (TextField) e.getSource();
             if (tf == cbs[a].getEditor()) {
                 // System.out.println("\nCB " + (a + 1));
+
                 cbs[a].getItems().clear();
                 cbs[a].getItems().addAll(cbElements.get(a));
                 if (!cbs[a].getItems().get(0).equals(SelectDistinct.NO_DISTINCT_ELEMENTS)) {
                     String text = tf.getText().toUpperCase();
+                    // SEARCH BY TAGS
+                    if (text.contains("; ")) {
+                        text = text.substring(text.lastIndexOf("; ") + 2, text.length() - 1);
+                        System.out.println("\ttext ; : " + text);
+                    }
                     // System.out.println("\ttext: " + text);
                     // -----------------------------------------
                     int originalLength = cbElements.get(a).size();
@@ -132,19 +155,53 @@ public class VFController implements Initializable {
                         }
                     }
                     // System.out.println("\tcurrent length: " + cbs[a].getItems().size());
-                    if (!cbs[a].isShowing()) {
-                        cbs[a].show();
-                    }
+                    // if (!cbs[a].isShowing()) {
+                    // cbs[a].hide();
+
+                    int currentElementLength = cbs[a].getItems().size();
+                    System.out.println("\tcurrentElementLength: " + currentElementLength);
+                    int res = currentElementLength > 10 ? 10 : currentElementLength;
+                    System.out.println("\t\tres: " + res);
+                    // cbs[a].setVisibleRowCount(res);
+                    System.out.println("\tgetVisibleRowCount: " + cbs[a].getVisibleRowCount());
+
+                    cbs[a].hide();
+                    cbs[a].setVisibleRowCount(res);
+                    cbs[a].show();
                 }
+                break;
             }
         }
+        System.out.println("\tgetVisibleRowCount: " + cbs[4].getVisibleRowCount());
+    }
+
+    private void cbsKeyPressed(KeyEvent e) {
+        System.out.println("\ncbsKeyPressed");
+        for (int a = 0; a < cbs.length; a++) {
+            TextField tf = (TextField) e.getSource();
+            if (tf == cbs[a].getEditor()) {
+                if (cbs[a].isShowing()) {
+                    int caretPosition = tf.getCaretPosition();
+                    if (e.getCode() == KeyCode.LEFT && caretPosition != 0) {
+                        tf.positionCaret(--caretPosition);
+                    } else if (e.getCode() == KeyCode.RIGHT) {
+                        tf.positionCaret(++caretPosition);
+                    } else if (e.getCode() == KeyCode.END) {
+                        tf.positionCaret(tf.getText().length());
+                    } else if (e.getCode() == KeyCode.BEGIN) {
+                        tf.positionCaret(0);
+                    }
+                }
+                break;
+            }
+        }
+
     }
 
     private void cbsKeyReleased(KeyEvent e) {
-        if (!e.getCode().isArrowKey() && !e.getCode().isFunctionKey()) {
+        if (e.getCode().isLetterKey()) {
+            System.out.println("\nSEARCH FUNCTION STARTS");
             searchFunction(e);
-        }else if(e.getCode() == KeyCode.UP || e.getCode() == KeyCode.DOWN){
-            
         }
     }
 
@@ -182,6 +239,7 @@ public class VFController implements Initializable {
         if (returnValue) {
             ms.selectData(tableName, new SelectData(this, SelectData.MESSAGE_DELETE_ROW + tableName));
             System.out.println(SUCCESS);
+            dist.distAction();
         } else {
             System.out.println(FAILED);
         }
@@ -201,6 +259,7 @@ public class VFController implements Initializable {
         if (returnValue) {
             ms.selectData(tableName, new SelectData(this, SelectData.MESSAGE_UPDATED_ROW + tableName));
             System.out.println(SUCCESS);
+            dist.distAction();
         } else {
             System.out.println(FAILED);
         }
@@ -231,6 +290,7 @@ public class VFController implements Initializable {
         if (update) {
             ms.selectData(tableName, new SelectData(this, SelectData.MESSAGE_INSERT + tableName));
             System.out.println(SUCCESS);
+            dist.distAction();
         } else {
             System.out.println(FAILED);
         }
@@ -266,14 +326,17 @@ public class VFController implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         nonFXMLNodesInit();
+
+        comboBoxConfig();
         // CB ELEMENTS
         for (int a = 0; a < MSQL.MAX_COLUMNS; a++) {
             cbElements.add(new ArrayList<>());
         }
         // LISTENERS
         for (ComboBox<String> cb : cbs) {
-            cb.getEditor().setOnKeyReleased(this::cbsKeyReleased);
-            cb.getEditor().setOnMouseClicked(this::cbsMouseClicked);
+            //cb.getEditor().setOnKeyPressed(this::cbsKeyPressed);
+            //cb.getEditor().setOnKeyReleased(this::cbsKeyReleased);
+            // cb.getEditor().setOnMouseClicked(this::cbsMouseClicked);
         }
 
         table.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);

@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.cofii.ts.login.VLController;
+import com.cofii.ts.other.Dist;
 import com.cofii.ts.sql.CurrenConnection;
 import com.cofii.ts.sql.MSQL;
 import com.cofii.ts.sql.WrongPassword;
@@ -32,12 +33,14 @@ import javafx.stage.Stage;
 
 public class VF {
 
-    private static VFController controller;
+    private static VFController vf;
     private Stage stage = new Stage();
     private static MSQLP ms;
+
     private TableS tables = TableS.getInstance();
     private static ColumnS columns = ColumnS.getInstance();
     private static ColumnDS columnsd = ColumnDS.getInstance();
+    private Dist dist;
 
     private void afterFirstQuerySucces() {
         ms.selectTables(new ShowTableCurrentDB());
@@ -56,56 +59,31 @@ public class VF {
         ms.executeQuery(MSQL.SELECT_TABLE_ROW_DEFAULT, new SelectTableDefault());
         if (MSQL.getCurrentTable() != null) {
             String table = MSQL.getCurrentTable().getName();
-            String dist = MSQL.getCurrentTable().getDist();
-            controller.getLbTable().setText(table);
+            String distName = MSQL.getCurrentTable().getDist();
+            vf.getLbTable().setText(table);
 
-            ms.selectColumns(table.replace(" ", "_"), new ShowColumns(controller));
-            distOldWay(dist);
+            ms.selectColumns(table.replace(" ", "_"), new ShowColumns(vf));
+            dist.distInitOldWay(distName);
 
-            ms.selectData(table.replace(" ", "_"), new SelectData(controller, null));
-        }else{
-            //NOT TESTED
+            ms.selectData(table.replace(" ", "_"), new SelectData(vf, null));
+        } else {
+            // NOT TESTED
         }
     }
 
-    private void addMenuItems(){
+    private void addMenuItems() {
         ms.executeQuery(MSQL.SELECT_TABLE_NAMES, new SelectTableNames(false));
         if (tables.size() == 0) {
-            controller.getMenuSelection().getItems().clear();
-            controller.getMenuSelection().getItems().add(new MenuItem("No tables added"));
+            vf.getMenuSelection().getItems().clear();
+            vf.getMenuSelection().getItems().add(new MenuItem("No tables added"));
         } else {
-            controller.getMenuSelection().getItems().clear();
+            vf.getMenuSelection().getItems().clear();
             for (int a = 0; a < tables.size(); a++) {
-                controller.getMenuSelection().getItems().add(new MenuItem(tables.getTable(a)));
+                vf.getMenuSelection().getItems().add(new MenuItem(tables.getTable(a)));
             }
         }
-        //ADDING REMAINING MENUS
-        Menus menus = Menus.getInstance(controller);
-    }
-
-    public static void distOldWay(String dist) {
-        int length = dist.length();
-        int p = 5;
-        columnsd.clear();
-        for(int a = 0;a < columns.size(); a++){
-            columnsd.addColumnD(new ColumnD());
-        }
-        // X2: 3_4 :: 7
-        while (p <= length) {
-            int c = Character.getNumericValue(dist.charAt(p - 1)) - 1;
-            controller.getGridPane().getChildren().remove(controller.getTfs()[c]);
-            controller.getGridPane().add(controller.getCbs()[c], 1, c);
-            
-            columnsd.addColumnD(c, new ColumnD("Yes"));
-
-            String table = MSQL.getCurrentTable().getName().replace(" ", "_");
-            String column = columns.getColumn(c);
-
-            ms.setDistinctOrder(MSQLP.MOST_USE_ORDER);//WORK 50 50 WITH TAGS
-            ms.selectDistinctColumn(table, column, new SelectDistinct(controller, c));
-            p += 2;
-        }
-
+        // ADDING REMAINING MENUS
+        Menus menus = Menus.getInstance(vf);
     }
 
     public VF(VLController vl) {
@@ -115,15 +93,16 @@ public class VF {
             scene.getStylesheets().add(VF.class.getResource("/com/cofii/ts/first/VF.css").toExternalForm());
             stage.setScene(scene);
             // -------------------------------------------------
-            controller = (VFController) loader.getController();
-            controller.setStage(stage);
-            controller.setVl(vl);
+            vf = (VFController) loader.getController();
+            vf.setStage(stage);
+            vf.setVl(vl);
 
             ms = new MSQLP(new CurrenConnection(MSQL.getDatabase(), MSQL.getUser(), MSQL.getPassword()),
-                    new WrongPassword(vl, controller));
+                    new WrongPassword(vl, vf));
 
-            controller.setMs(ms);
-
+            vf.setMs(ms);
+            dist = Dist.getInstance(vf);
+            //-------------------------------------------
             if (!MSQL.isWrongPassword()) {
                 afterFirstQuerySucces();
             }

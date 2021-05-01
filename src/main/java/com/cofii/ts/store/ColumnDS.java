@@ -10,6 +10,9 @@ public class ColumnDS {
     public void clear(){
         list.clear();
     }
+    public int size(){
+        return list.size();
+    }
     public void addColumnD(ColumnD columnd){
         list.add(columnd);
     }
