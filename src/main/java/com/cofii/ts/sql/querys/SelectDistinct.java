@@ -10,6 +10,7 @@ import java.util.List;
 
 import com.cofii.ts.first.VF;
 import com.cofii.ts.first.VFController;
+import com.cofii2.components.javafx.TextFieldAutoC;
 import com.cofii2.methods.MList;
 import com.cofii2.myInterfaces.IActions;
 
@@ -55,7 +56,16 @@ public class SelectDistinct implements IActions {
 
             vf.getCbElements().get(index).clear();
             vf.getCbElements().get(index).addAll(list2);
-        }else{
+
+            TextFieldAutoC tf = new TextFieldAutoC(vf.getCbElements().get(4));
+            /*
+            vf.getGridPane().add(tf, 1, 5);
+            vf.getGridPane().getRowConstraints().get(5).setPrefHeight(160);
+            
+            System.out.println("grid pane 0: " + vf.getGridPane().getRowConstraints().get(0).getPrefHeight());
+            System.out.println("grid pane 5: " + vf.getGridPane().getRowConstraints().get(5).getPrefHeight());
+            */
+        } else {
             vf.getCbs()[index].getItems().add(NO_DISTINCT_ELEMENTS);
         }
     }

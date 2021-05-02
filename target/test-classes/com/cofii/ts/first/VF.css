@@ -10,6 +10,8 @@
     -fx-textfield-background-color: #090631;
     -fx-textfield-text-fill-color: white;
 
+    -fx-combo-box-background-color: #0c0750;
+
     -fx-button-background-color: #2115c3;
     -fx-button-text-fill-color: white;
 
@@ -36,6 +38,14 @@
     -fx-background-color: -fx-root-background-color;
     background-color: -fx-root-background-color;
 }
+.scroll-pane > .viewport {
+    -fx-background-color: transparent;
+    background-color: transparent;
+ }
+ .scroll-pane {
+    -fx-background-color: transparent;
+    background-color: transparent;
+ }
 .split-pane:horizontal{
     -fx-background-color: -fx-root-background-color;
     background-color: -fx-root-background-color;
@@ -107,6 +117,32 @@
 
     -fx-text-fill: -fx-textfield-text-fill-color;
 }
+.combo-box-base {
+    /*
+    -fx-background-color: transparent;
+    background-color: transparent;
+    */
+    -fx-background-color: -fx-shadow-highlight-color, -fx-outer-border, -fx-inner-border, -fx-combo-box-background-color;
+    background-color: -fx-shadow-highlight-color, -fx-outer-border, -fx-inner-border, -fx-combo-box-background-color;
+    -fx-background-insets: 0 0 -1 0, 0, 1, 2;
+    -fx-background-radius: 3px, 3px, 2px, 1px;
+}
+.combo-box .arrow, .combo-box .arrow-button{
+    -fx-background-color: white;
+    background-color: white;
+}
+.combo-box .combo-box-popup .list-view, .combo-box .combo-box-popup .list-cell {
+    -fx-background-color: -fx-textfield-background-color;
+    background-color: -fx-textfield-background-color;
+    -fx-text-fill: white ;
+    /*-fx-font-family: "Calibri" ;*/
+}
+.combo-box .combo-box-popup .list-cell:hover {
+    -fx-text-fill: white;
+    -fx-background-color: -fx-table-row-cell-selected-background-color;
+    background-color: -fx-table-row-cell-selected-background-color;
+}
+/*
 .combo-box .list-cell {
     -fx-background: rgb(200, 38, 38);
     background: rgb(200, 38, 38);
@@ -114,8 +150,9 @@
     background-color: transparent;
     -fx-text-fill: -fx-text-base-color;
     /*-fx-padding: 3 0 2 7;
-    -fx-cell-size: 1.66667em; */
+    -fx-cell-size: 1.66667em; 
 }
+*/
 .button{
     -fx-background-color: -fx-button-background-color;
     background-color: -fx-button-background-color;

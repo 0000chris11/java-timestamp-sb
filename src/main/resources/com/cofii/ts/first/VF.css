@@ -38,6 +38,14 @@
     -fx-background-color: -fx-root-background-color;
     background-color: -fx-root-background-color;
 }
+.scroll-pane > .viewport {
+    -fx-background-color: transparent;
+    background-color: transparent;
+ }
+ .scroll-pane {
+    -fx-background-color: transparent;
+    background-color: transparent;
+ }
 .split-pane:horizontal{
     -fx-background-color: -fx-root-background-color;
     background-color: -fx-root-background-color;

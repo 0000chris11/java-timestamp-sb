@@ -7,6 +7,7 @@ import java.util.ResourceBundle;
 
 import com.cofii.ts.login.VLController;
 import com.cofii.ts.other.ActionForEachNode;
+import com.cofii.ts.other.ComboBoxAutoComplete;
 import com.cofii.ts.other.Dist;
 import com.cofii.ts.other.GetNodesValuesImpl;
 import com.cofii.ts.other.MultipleValuesSelectedImpl;
@@ -17,6 +18,7 @@ import com.cofii.ts.sql.MSQL;
 import com.cofii.ts.sql.querys.SelectData;
 import com.cofii.ts.sql.querys.SelectDistinct;
 import com.cofii.ts.store.ColumnS;
+import com.cofii2.components.javafx.TextFieldAutoC;
 import com.cofii2.mysql.MSQLP;
 import com.cofii2.stores.CC;
 
@@ -341,6 +343,8 @@ public class VFController implements Initializable {
 
         table.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         table.getSelectionModel().selectedItemProperty().addListener(this::tableRowSelected);
+
+        
     }
     // GET AND SET -------------------------------------------
 
