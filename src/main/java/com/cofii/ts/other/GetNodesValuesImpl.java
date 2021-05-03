@@ -2,6 +2,7 @@ package com.cofii.ts.other;
 
 import com.cofii.ts.sql.MSQL;
 import com.cofii.ts.store.ColumnS;
+import com.cofii2.components.javafx.TextFieldAutoC;
 
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
@@ -34,12 +35,12 @@ public class GetNodesValuesImpl implements ActionForEachNode {
     }
 
     @Override
-    public void forCBS(ComboBox<String> cb, int c) {
+    public void forTFAS(TextFieldAutoC tfa, int c) {
         if (columns.getType(c).contains("CHAR")) {
-            values[c] = cb.getEditor().getText().trim();
+            values[c] = tfa.getTf().getText().trim();
         } else if (columns.getType(c).contains("INT")) {
             try {
-                values[c] = Integer.parseInt(cb.getEditor().getText().trim());
+                values[c] = Integer.parseInt(tfa.getTf().getText().trim());
             } catch (NumberFormatException e) {
                 throw new IllegalArgumentException("C0FII: Only integer are accepted in this column");
             }

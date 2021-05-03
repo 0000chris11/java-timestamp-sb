@@ -1,5 +1,7 @@
 package com.cofii.ts.other;
 
+import com.cofii2.components.javafx.TextFieldAutoC;
+
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
 
@@ -18,8 +20,8 @@ public class GetRowSelectedImpl implements ActionForEachNode {
     }
 
     @Override
-    public void forCBS(ComboBox<String> cb, int c) {
-        cb.getEditor().setText(values[c].toString());
+    public void forTFAS(TextFieldAutoC tfa, int c) {
+        tfa.getTf().setText(values[c].toString());
     }
 
     @Override

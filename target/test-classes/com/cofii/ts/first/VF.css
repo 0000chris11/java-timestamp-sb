@@ -46,6 +46,9 @@
     -fx-background-color: transparent;
     background-color: transparent;
  }
+ .grid-pane{
+    -fx-grid-lines-visible: true
+ }
 .split-pane:horizontal{
     -fx-background-color: -fx-root-background-color;
     background-color: -fx-root-background-color;

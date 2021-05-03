@@ -30,7 +30,8 @@ public class SelectDistinct implements IActions {
 
     @Override
     public void beforeQuery() {
-        vf.getCbs()[index].getItems().clear();
+        //vf.getCbs()[index].getItems().clear();
+        vf.getTfas()[index].getLv().getItems().clear();
 
     }
 
@@ -52,21 +53,23 @@ public class SelectDistinct implements IActions {
     public void afterQuery(String query, boolean rsValue) {
         if (rsValue) {
             List<String> list2 = new ArrayList<>(new LinkedHashSet<>(list));
-            vf.getCbs()[index].getItems().addAll(list2.toArray());
+            //vf.getCbs()[index].getItems().addAll(list2.toArray());
+            vf.getTfas()[index].getLv().getItems().addAll(list2);
+            vf.getTfas()[index].setLvOriginalElements(list2.toArray(new String[list2.size()]));
+            //vf.getCbElements().get(index).clear();
+            //vf.getCbElements().get(index).addAll(list2);
 
-            vf.getCbElements().get(index).clear();
-            vf.getCbElements().get(index).addAll(list2);
-
-            TextFieldAutoC tf = new TextFieldAutoC(vf.getCbElements().get(4));
-            /*
-            vf.getGridPane().add(tf, 1, 5);
-            vf.getGridPane().getRowConstraints().get(5).setPrefHeight(160);
+            //TextFieldAutoC tf = new TextFieldAutoC(vf.getCbElements().get(4));
             
-            System.out.println("grid pane 0: " + vf.getGridPane().getRowConstraints().get(0).getPrefHeight());
-            System.out.println("grid pane 5: " + vf.getGridPane().getRowConstraints().get(5).getPrefHeight());
-            */
+            //vf.getGridPane().add(tf, 1, 5);
+            //vf.getGridPane().getRowConstraints().get(5).setPrefHeight(160 + vf.getTfs()[0].getPrefHeight());
+            
+            //System.out.println("grid pane 0: " + vf.getGridPane().getRowConstraints().get(0).getPrefHeight());
+            //System.out.println("grid pane 5: " + vf.getGridPane().getRowConstraints().get(5).getPrefHeight());
+            
         } else {
-            vf.getCbs()[index].getItems().add(NO_DISTINCT_ELEMENTS);
+            //vf.getCbs()[index].getItems().add(NO_DISTINCT_ELEMENTS);
+            vf.getTfas()[index].getLv().getItems().add(NO_DISTINCT_ELEMENTS);
         }
     }
 

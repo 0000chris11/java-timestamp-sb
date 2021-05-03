@@ -48,8 +48,8 @@ public class Menus {
             if (vf.getLbs()[a].isVisible()) {
                 vf.getLbs()[a].setVisible(false);
 
-                if (!vf.getCbs()[a].isNeedsLayout()) {
-                    vf.getGridPane().getChildren().remove(vf.getCbs()[a]);
+                if (!vf.getTfas()[a].isNeedsLayout()) {
+                    vf.getGridPane().getChildren().remove(vf.getTfas()[a]);
 
                     if (vf.getTfs()[a].isNeedsLayout()) {
                         vf.getGridPane().add(vf.getTfs()[a], 1, a);
@@ -59,7 +59,8 @@ public class Menus {
                 vf.getBtns()[a].setVisible(false);
 
                 vf.getTfs()[a].setText("");
-                vf.getCbs()[a].getEditor().setText("");
+                //vf.getCbs()[a].getEditor().setText("");
+                vf.getTfas()[a].getTf().setText("");
             }
         }
 

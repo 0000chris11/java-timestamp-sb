@@ -7,36 +7,30 @@ import java.util.ResourceBundle;
 
 import com.cofii.ts.login.VLController;
 import com.cofii.ts.other.ActionForEachNode;
-import com.cofii.ts.other.ComboBoxAutoComplete;
 import com.cofii.ts.other.Dist;
 import com.cofii.ts.other.GetNodesValuesImpl;
+import com.cofii.ts.other.GetRowSelectedImpl;
 import com.cofii.ts.other.MultipleValuesSelectedImpl;
 import com.cofii.ts.other.NonCSS;
 import com.cofii.ts.other.Timers;
-import com.cofii.ts.other.GetRowSelectedImpl;
 import com.cofii.ts.sql.MSQL;
 import com.cofii.ts.sql.querys.SelectData;
-import com.cofii.ts.sql.querys.SelectDistinct;
 import com.cofii.ts.store.ColumnS;
 import com.cofii2.components.javafx.TextFieldAutoC;
 import com.cofii2.mysql.MSQLP;
 import com.cofii2.stores.CC;
 
-import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
-import javafx.scene.control.skin.ComboBoxListViewSkin;
-import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
@@ -65,7 +59,8 @@ public class VFController implements Initializable {
     private GridPane gridPane;
     private Label[] lbs = new Label[MSQL.MAX_COLUMNS];
     private TextField[] tfs = new TextField[MSQL.MAX_COLUMNS];
-    private ComboBox[] cbs = new ComboBox[MSQL.MAX_COLUMNS];
+    //private ComboBox[] cbs = new ComboBox[MSQL.MAX_COLUMNS];
+    private TextFieldAutoC[] tfas = new TextFieldAutoC[MSQL.MAX_COLUMNS];
     private List<List<String>> cbElements = new ArrayList<>(MSQL.MAX_COLUMNS);
     private Button[] btns = new Button[MSQL.MAX_COLUMNS];
 
@@ -96,8 +91,8 @@ public class VFController implements Initializable {
             if (!tfs[a].isNeedsLayout()) {
                 en.forTFS(tfs[a], a);
 
-            } else if (!cbs[a].isNeedsLayout()) {
-                en.forCBS(cbs[a], a);
+            } else if (!tfas[a].isNeedsLayout()) {
+                en.forTFAS(tfas[a], a);
 
             }
 
@@ -106,6 +101,7 @@ public class VFController implements Initializable {
     }
 
     private void comboBoxConfig() {
+        /*
         for (int a = 0; a < cbs.length; a++) {
             ComboBoxListViewSkin<String> comboBoxListViewSkin = new ComboBoxListViewSkin<>(cbs[a]);
             comboBoxListViewSkin.getPopupContent().addEventFilter(KeyEvent.ANY, event -> {
@@ -114,22 +110,26 @@ public class VFController implements Initializable {
                 }
             });
             cbs[a].setSkin(comboBoxListViewSkin);
-        }
+       }
+       */
     }
 
     // LISTENER -----------------------------------------
     // NON-FXML
     private void cbsMouseClicked(MouseEvent e) {
+        /*
         for (int a = 0; a < cbs.length; a++) {
             TextField tf = (TextField) e.getSource();
             if (tf == cbs[a].getEditor()) {
                 cbs[a].show();
             }
         }
+        */
     }
 
     // LISTENER CBS-----------------------------------
     private void searchFunction(KeyEvent e) {
+        /*
         for (int a = 0; a < cbs.length; a++) {
             TextField tf = (TextField) e.getSource();
             if (tf == cbs[a].getEditor()) {
@@ -175,9 +175,11 @@ public class VFController implements Initializable {
             }
         }
         System.out.println("\tgetVisibleRowCount: " + cbs[4].getVisibleRowCount());
+        */
     }
 
     private void cbsKeyPressed(KeyEvent e) {
+        /*
         System.out.println("\ncbsKeyPressed");
         for (int a = 0; a < cbs.length; a++) {
             TextField tf = (TextField) e.getSource();
@@ -197,13 +199,13 @@ public class VFController implements Initializable {
                 break;
             }
         }
-
+        */
     }
 
     private void cbsKeyReleased(KeyEvent e) {
         if (e.getCode().isLetterKey()) {
             System.out.println("\nSEARCH FUNCTION STARTS");
-            searchFunction(e);
+            //searchFunction(e);
         }
     }
 
@@ -303,11 +305,12 @@ public class VFController implements Initializable {
         for (int a = 0; a < MSQL.MAX_COLUMNS; a++) {
             lbs[a] = new Label("Column " + (a + 1));
             tfs[a] = new TextField();
-            cbs[a] = new ComboBox<String>();
+            tfas[a] = new TextFieldAutoC();
+            //cbs[a] = new ComboBox<String>();
             btns[a] = new Button();
 
-            cbs[a].setEditable(true);
-            cbs[a].setMaxWidth(Short.MAX_VALUE);
+            //cbs[a].setEditable(true);
+            //cbs[a].setMaxWidth(Short.MAX_VALUE);
             /*
              * lbs[a].setMinWidth(60); lbs[a].setPrefWidth(60); lbs[a].setMaxWidth(60);
              * 
@@ -335,12 +338,6 @@ public class VFController implements Initializable {
             cbElements.add(new ArrayList<>());
         }
         // LISTENERS
-        for (ComboBox<String> cb : cbs) {
-            //cb.getEditor().setOnKeyPressed(this::cbsKeyPressed);
-            //cb.getEditor().setOnKeyReleased(this::cbsKeyReleased);
-            // cb.getEditor().setOnMouseClicked(this::cbsMouseClicked);
-        }
-
         table.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         table.getSelectionModel().selectedItemProperty().addListener(this::tableRowSelected);
 
@@ -436,14 +433,6 @@ public class VFController implements Initializable {
         this.lbTable = lbTable;
     }
 
-    public ComboBox[] getCbs() {
-        return cbs;
-    }
-
-    public void setCbs(ComboBox[] cbs) {
-        this.cbs = cbs;
-    }
-
     public TableView<ObservableList<Object>> getTable() {
         return table;
     }
@@ -476,4 +465,12 @@ public class VFController implements Initializable {
         this.cbElements = cbElements;
     }
 
+    public TextFieldAutoC[] getTfas() {
+        return tfas;
+    }
+
+    public void setTfas(TextFieldAutoC[] tfas) {
+        this.tfas = tfas;
+    }
+    
 }
