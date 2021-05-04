@@ -1,0 +1,32 @@
+*{
+    -fx-cell-color: white ;
+    -fx-cell-border-color: black ;
+}
+
+.root{
+    -fx-background-color: #100c49;
+    background-color: #100c49;
+}
+.vbox{
+    -fx-background-color: -fx-root-background-color;
+    background-color: -fx-root-background-color;
+}
+.hbox{
+    -fx-background-color: -fx-root-background-color;
+    background-color: -fx-root-background-color;
+}
+.scroll-pane > .viewport {
+    -fx-background-color: transparent;
+    background-color: transparent;
+ }
+ .scroll-pane {
+    -fx-background-color: transparent;
+    background-color: transparent;
+ }
+ .split-pane:horizontal{
+    -fx-background-color: -fx-root-background-color;
+    background-color: -fx-root-background-color;
+}
+.label{
+    -fx-text-fill: white;
+}

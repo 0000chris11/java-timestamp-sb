@@ -46,8 +46,8 @@ public class Dist {
                 gp.getChildren().remove(vf.getTfs()[c]);
                 gp.add(vf.getTfas()[c], 1, c);
 
-                gp.getRowConstraints().get(c).setPrefHeight(180);
-                if (gp.getRowConstraints().get(c).getValignment() == null) {
+                //gp.getRowConstraints().get(c).setPrefHeight(180);
+                if (gp.getRowConstraints().get(c).getValignment() == null || gp.getRowConstraints().get(c).getValignment() == VPos.CENTER) {
                     System.out.println("changing vpos");
                     gp.getRowConstraints().get(c).setValignment(VPos.TOP);
                 }

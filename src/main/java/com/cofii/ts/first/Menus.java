@@ -1,5 +1,6 @@
 package com.cofii.ts.first;
 
+import com.cofii.ts.cu.VC;
 import com.cofii.ts.info.VI;
 import com.cofii.ts.other.Dist;
 import com.cofii.ts.sql.MSQL;
@@ -10,10 +11,14 @@ import com.cofii2.stores.CC;
 
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.geometry.Insets;
+import javafx.geometry.VPos;
 import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Priority;
 
 public class Menus {
     // Open
@@ -32,11 +37,14 @@ public class Menus {
     // ---------------------------------------------------
     private Dist dist = Dist.getInstance(vf);
 
-    // ---------------------------------------------------
+    // LISTENERS ---------------------------------------------------
     private void openChangeUserDBAction(ActionEvent e) {
         vf.getVl().getStage().show();
     }
 
+    private void tableCreateAction(ActionEvent e){
+        new VC(vf, true);
+    }
     private void selectionForEachTable(ActionEvent e) {
         System.out.println(CC.CYAN + "\nCHANGE TABLE" + CC.RESET);
         MenuItem mi = (MenuItem) e.getSource();
@@ -44,26 +52,33 @@ public class Menus {
         System.out.println("\ttable: " + table);
 
         vf.getLbTable().setText(table);
+        //RESET -------------------------
         for (int a = 0; a < MSQL.MAX_COLUMNS; a++) {
             if (vf.getLbs()[a].isVisible()) {
                 vf.getLbs()[a].setVisible(false);
 
                 if (!vf.getTfas()[a].isNeedsLayout()) {
                     vf.getGridPane().getChildren().remove(vf.getTfas()[a]);
-
+                    vf.getGridPane().getRowConstraints().get(a).setVgrow(Priority.NEVER);
                     if (vf.getTfs()[a].isNeedsLayout()) {
                         vf.getGridPane().add(vf.getTfs()[a], 1, a);
+
+                        GridPane.setMargin(vf.getLbs()[a], new Insets(0, 0, 0, 0));
+                        GridPane.setMargin(vf.getTfs()[a], new Insets(0, 0, 0, 0));
+                        GridPane.setMargin(vf.getBtns()[a], new Insets(0, 0, 0, 0));
+
+                        vf.getGridPane().getRowConstraints().get(a).setValignment(VPos.CENTER);
+                        //vf.getGridPane().getRowConstraints().get(a).setPrefHeight(30);
                     }
                 }
                 vf.getTfs()[a].setVisible(false);
                 vf.getBtns()[a].setVisible(false);
 
                 vf.getTfs()[a].setText("");
-                //vf.getCbs()[a].getEditor().setText("");
                 vf.getTfas()[a].getTf().setText("");
             }
         }
-
+        //SELECT -------------------------------------
         String tableA = table.replace(" ", "_");
         vf.getMs().selectDataWhere(MSQL.TABLE_NAMES, "name", table, new SelectTableNames(true));
         vf.getMs().selectColumns(tableA, new ShowColumns(vf));
@@ -77,7 +92,7 @@ public class Menus {
     private void tableInfoAction(ActionEvent e) {
         new VI(vf);
     }
-
+    
     // ---------------------------------------------------
     private static Menus instance;
     private static VFController vf;
@@ -102,5 +117,6 @@ public class Menus {
         }
 
         tableInfo.setOnAction(this::tableInfoAction);
+        tableCreate.setOnAction(this::tableCreateAction);
     }
 }
