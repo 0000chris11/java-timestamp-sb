@@ -34,7 +34,7 @@ public class Dist {
             columnsd.addColumnD(new ColumnD());
         }
         // X2: 3_4 :: 7
-        //TEST
+        // TEST
         GridPane gp = vf.getGridPane();
         RowConstraints row4 = gp.getRowConstraints().get(3);
         RowConstraints row5 = gp.getRowConstraints().get(4);
@@ -46,19 +46,13 @@ public class Dist {
                 gp.getChildren().remove(vf.getTfs()[c]);
                 gp.add(vf.getTfas()[c], 1, c);
 
-                //gp.getRowConstraints().get(c).setPrefHeight(180);
-                if (gp.getRowConstraints().get(c).getValignment() == null || gp.getRowConstraints().get(c).getValignment() == VPos.CENTER) {
-                    System.out.println("changing vpos");
-                    gp.getRowConstraints().get(c).setValignment(VPos.TOP);
-                }
-
+                /*
                 GridPane.setMargin(vf.getLbs()[c], new Insets(4, 0, 0, 0));
                 GridPane.setMargin(vf.getTfas()[c], new Insets(4, 0, 0, 0));
                 GridPane.setMargin(vf.getBtns()[c], new Insets(4, 0, 0, 0));
-
+                */
+                gp.getRowConstraints().get(c).setPrefHeight(30);
                 gp.getRowConstraints().get(c).setVgrow(Priority.ALWAYS);
-            }else{
-                gp.getRowConstraints().get(c).setVgrow(Priority.NEVER);
             }
 
             columnsd.addColumnD(c, new ColumnD("Yes"));
@@ -70,10 +64,7 @@ public class Dist {
             ms.selectDistinctColumn(table, column, new SelectDistinct(vf, c));
             p += 2;
         }
-        System.out.println("lb 4 padding: " + vf.getLbs()[3].getPadding());
-        System.out.println("lb 5 padding: " + vf.getLbs()[4].getPadding());
-        System.out.println("lb 4" + vf.getLbs()[3].getAlignment());
-        System.out.println("\trow 4 padding (BEFORE): " + gp.getVgap());
+        gp.getRowConstraints().get(4).setMaxHeight(Short.MAX_VALUE);
     }
 
     public void distAction() {

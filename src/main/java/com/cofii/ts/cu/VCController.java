@@ -79,7 +79,7 @@ public class VCController implements Initializable {
             btnsRenameColumn[a].setVisible(false);
             hbsName[a] = new HBox(tfsColumn[a], btnsRemoveColumn[a], btnsAddColumn[a], btnsRenameColumn[a]);
 
-            tfasType[a] = new TextFieldAutoC(types.getTypeNames());
+            tfasType[a] = new TextFieldAutoC(a, types.getTypeNames());
             tfsTypeLength[a] = new TextField("0");
             btnsChangeType[a] = new Button("C");
             btnsChangeType[a].setVisible(false);
@@ -96,7 +96,7 @@ public class VCController implements Initializable {
             hbsPK[a] = new HBox(cksPK[a], btnsChangePK[a]);
 
             cksFK[a] = new CheckBox();
-            tfasFK[a] = new TextFieldAutoC();
+            tfasFK[a] = new TextFieldAutoC(a);
             tfasFK[a].setVisible(false);
             btnsChangeFK[a] = new Button("C");
             btnsChangeFK[a].setVisible(false);

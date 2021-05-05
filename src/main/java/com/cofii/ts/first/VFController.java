@@ -2,6 +2,7 @@ package com.cofii.ts.first;
 
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -15,15 +16,19 @@ import com.cofii.ts.other.NonCSS;
 import com.cofii.ts.other.Timers;
 import com.cofii.ts.sql.MSQL;
 import com.cofii.ts.sql.querys.SelectData;
+import com.cofii.ts.store.ColumnDS;
 import com.cofii.ts.store.ColumnS;
 import com.cofii2.components.javafx.TextFieldAutoC;
 import com.cofii2.mysql.MSQLP;
 import com.cofii2.stores.CC;
 
 import javafx.beans.value.ObservableValue;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import javafx.collections.ListChangeListener.Change;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.VPos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
@@ -31,9 +36,11 @@ import javafx.scene.control.MenuBar;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TableColumn.CellEditEvent;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Priority;
 import javafx.stage.Stage;
 
 public class VFController implements Initializable {
@@ -73,7 +80,10 @@ public class VFController implements Initializable {
 
     @FXML
     private TableView<ObservableList<Object>> table;
+    private ObservableList<ObservableList<Object>> tableData;
+
     private ColumnS columns = ColumnS.getInstance();
+    private ColumnDS columnds = ColumnDS.getInstance();
     private Object[] rowData;
     private Object[] selectedRow;
     private MSQLP ms;
@@ -88,10 +98,10 @@ public class VFController implements Initializable {
     private void forEachAction(int length, ActionForEachNode en) {
         for (int a = 0; a < length; a++) {
             // MISING FOR PRIMARY KEY
-            if (!tfs[a].isNeedsLayout()) {
+            System.out.println("a: " + (a + 1));
+            if (columnds.getDist(a).equals("No")) {
                 en.forTFS(tfs[a], a);
-
-            } else if (!tfas[a].isNeedsLayout()) {
+            } else {
                 en.forTFAS(tfas[a], a);
 
             }
@@ -214,8 +224,8 @@ public class VFController implements Initializable {
         System.out.println("\ntable length selection: " + list.size());
         if (list.size() == 1) {
             System.out.println("table sub-list length selection: " + list.get(0).size());
-            rowData = new Object[list.get(0).size()];
 
+            rowData = new Object[list.get(0).size()];
             selectedRow = list.get(0).toArray();
             GetRowSelectedImpl nr = new GetRowSelectedImpl(selectedRow);
             forEachAction(rowData.length, nr);
@@ -234,6 +244,20 @@ public class VFController implements Initializable {
 
     }
 
+    public void tableCellChanged(Change<? extends ObservableList<Object>> c){
+        System.out.println("\nTABLE CHANGED");
+        while (c.next()) {
+            if(c.wasUpdated()){
+                System.out.println("\tRow original state: " + Arrays.toString(selectedRow));
+                tableData.subList(c.getFrom(), c.getTo()).forEach(System.out::println);
+            }
+        }
+        
+    }
+    public void tableCellEdit(CellEditEvent<ObservableList<Object>, Object> t){
+        System.out.println("OLD Value: " + t.getOldValue().toString());
+        System.out.println("NEW Value: " + t.getNewValue().toString());
+    }
     @FXML
     private void btnDeleteAction() {
         System.out.println(CC.CYAN + "\nDELETE ROW" + CC.RESET);
@@ -305,7 +329,7 @@ public class VFController implements Initializable {
         for (int a = 0; a < MSQL.MAX_COLUMNS; a++) {
             lbs[a] = new Label("Column " + (a + 1));
             tfs[a] = new TextField();
-            tfas[a] = new TextFieldAutoC();
+            tfas[a] = new TextFieldAutoC(a);
             //cbs[a] = new ComboBox<String>();
             btns[a] = new Button();
 
@@ -325,6 +349,8 @@ public class VFController implements Initializable {
             gridPane.add(tfs[a], 1, a);
             gridPane.add(btns[a], 2, a);
 
+            gridPane.getRowConstraints().get(a).setValignment(VPos.TOP);
+            gridPane.getRowConstraints().get(a).setVgrow(Priority.NEVER);
         }
     }
 
@@ -471,6 +497,16 @@ public class VFController implements Initializable {
 
     public void setTfas(TextFieldAutoC[] tfas) {
         this.tfas = tfas;
+    }
+
+    public ObservableList<ObservableList<Object>> getTableData() {
+        return tableData;
+    }
+
+    //+ LISTENER-----------------
+    public void setTableData(ObservableList<ObservableList<Object>> tableData) {
+        this.tableData = tableData;
+        //tableData.addListener(this::tableCellChanged);
     }
     
 }

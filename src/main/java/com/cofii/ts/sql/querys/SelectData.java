@@ -77,6 +77,12 @@ public class SelectData implements IActions {
                 }else if(message.contains(MESSAGE_DELETE_ROW)){
                     media = new Media(SelectData.class.getResource("/com/cofii/ts/sounds/pbobble-006.wav").toExternalForm());
                 }else{
+                    /*
+                    if(vf.getTableData() != null){
+                        vf.getTableData().removeListener(vf::tableCellChanged);
+                    }
+                    vf.setTableData(vf.getTable().getItems());
+                    */
                     media = new Media(SelectData.class.getResource("/com/cofii/ts/sounds/pbobble-032.wav").toExternalForm());
                 }
                 
@@ -84,6 +90,13 @@ public class SelectData implements IActions {
                 mediaPlayer.play();
 
                 Timers.getInstance(vf).playLbStatusReset();
+            }else{
+                /*
+                if(vf.getTableData() != null){
+                    vf.getTableData().removeListener(vf::tableCellChanged);
+                }
+                vf.setTableData(vf.getTable().getItems());
+                */
             }
         }
     }

@@ -42,9 +42,10 @@ public class Menus {
         vf.getVl().getStage().show();
     }
 
-    private void tableCreateAction(ActionEvent e){
+    private void tableCreateAction(ActionEvent e) {
         new VC(vf, true);
     }
+
     private void selectionForEachTable(ActionEvent e) {
         System.out.println(CC.CYAN + "\nCHANGE TABLE" + CC.RESET);
         MenuItem mi = (MenuItem) e.getSource();
@@ -52,24 +53,23 @@ public class Menus {
         System.out.println("\ttable: " + table);
 
         vf.getLbTable().setText(table);
-        //RESET -------------------------
+        // RESET -------------------------
         for (int a = 0; a < MSQL.MAX_COLUMNS; a++) {
             if (vf.getLbs()[a].isVisible()) {
                 vf.getLbs()[a].setVisible(false);
 
                 if (!vf.getTfas()[a].isNeedsLayout()) {
                     vf.getGridPane().getChildren().remove(vf.getTfas()[a]);
+                    vf.getGridPane().add(vf.getTfs()[a], 1, a);
+
                     vf.getGridPane().getRowConstraints().get(a).setVgrow(Priority.NEVER);
-                    if (vf.getTfs()[a].isNeedsLayout()) {
-                        vf.getGridPane().add(vf.getTfs()[a], 1, a);
+                    /*
+                     * GridPane.setMargin(vf.getLbs()[a], new Insets(0, 0, 0, 0));
+                     * GridPane.setMargin(vf.getTfs()[a], new Insets(0, 0, 0, 0));
+                     * GridPane.setMargin(vf.getBtns()[a], new Insets(0, 0, 0, 0));
+                     */
+                    // vf.getGridPane().getRowConstraints().get(a).setPrefHeight(30);
 
-                        GridPane.setMargin(vf.getLbs()[a], new Insets(0, 0, 0, 0));
-                        GridPane.setMargin(vf.getTfs()[a], new Insets(0, 0, 0, 0));
-                        GridPane.setMargin(vf.getBtns()[a], new Insets(0, 0, 0, 0));
-
-                        vf.getGridPane().getRowConstraints().get(a).setValignment(VPos.CENTER);
-                        //vf.getGridPane().getRowConstraints().get(a).setPrefHeight(30);
-                    }
                 }
                 vf.getTfs()[a].setVisible(false);
                 vf.getBtns()[a].setVisible(false);
@@ -78,7 +78,7 @@ public class Menus {
                 vf.getTfas()[a].getTf().setText("");
             }
         }
-        //SELECT -------------------------------------
+        // SELECT -------------------------------------
         String tableA = table.replace(" ", "_");
         vf.getMs().selectDataWhere(MSQL.TABLE_NAMES, "name", table, new SelectTableNames(true));
         vf.getMs().selectColumns(tableA, new ShowColumns(vf));
@@ -92,7 +92,7 @@ public class Menus {
     private void tableInfoAction(ActionEvent e) {
         new VI(vf);
     }
-    
+
     // ---------------------------------------------------
     private static Menus instance;
     private static VFController vf;

@@ -12,6 +12,8 @@ import com.cofii2.myInterfaces.IActions;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.ObservableList;
 import javafx.scene.control.TableColumn;
+import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.util.StringConverter;
 
 public class ShowColumns implements IActions {
 
@@ -62,6 +64,19 @@ public class ShowColumns implements IActions {
         final int index = row - 1;
         TableColumn<ObservableList<Object>, Object> column = new TableColumn<>(columnName);
         column.setCellValueFactory(e -> new ReadOnlyObjectWrapper<>(e.getValue().get(index)));
+        //EDITABLE CELL----------------------------------
+        column.setCellFactory(TextFieldTableCell.forTableColumn(new StringConverter<Object>(){
+            @Override
+            public String toString(Object object) {
+                return object.toString();
+            }
+            @Override
+            public Object fromString(String string) {
+                return string;
+            }
+        }));
+        column.setOnEditCommit(vf::tableCellEdit);
+        //--------------------------------------------------
         vf.getTable().getColumns().add(column);
   
     }

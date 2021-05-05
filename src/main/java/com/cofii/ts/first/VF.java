@@ -102,12 +102,10 @@ public class VF {
 
             vf.setMs(ms);
             dist = Dist.getInstance(vf);
-            //-------------------------------------------
+            // -------------------------------------------
             if (!MSQL.isWrongPassword()) {
                 afterFirstQuerySucces();
             }
-            // -------------------------------------------------
-
         } catch (IOException e) {
             e.printStackTrace();
         }
