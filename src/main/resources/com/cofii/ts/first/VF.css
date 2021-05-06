@@ -121,6 +121,26 @@
 
     -fx-text-fill: -fx-textfield-text-fill-color;
 }
+.list-cell:filled:selected:focused, .list-cell:filled:selected {
+    -fx-background-color: -fx-table-row-cell-selected-background-color;
+    background-color: -fx-table-row-cell-selected-background-color;
+    -fx-text-fill: white;
+}
+.list-cell:even {
+    -fx-background-color: -fx-table-row-cell-background-color;
+    background-color: -fx-table-row-cell-background-color;
+    -fx-text-fill: white;
+}
+.list-cell:odd {
+    -fx-background-color: -fx-table-row-cell-odd-background-color;
+    background-color: -fx-table-row-cell-odd-background-color;
+    -fx-text-fill: white;
+}
+.list-cell:filled:hover {
+    -fx-background-color: -fx-table-row-cell-selected-background-color;
+    background-color: -fx-table-row-cell-selected-background-color;
+    -fx-text-fill: white;
+}
 .combo-box-base {
     /*
     -fx-background-color: transparent;
@@ -189,3 +209,4 @@
     -fx-padding: 0.333333em 0.083333em 0.666667em 0.083333em;  4 1 8 1 
     */
 }
+

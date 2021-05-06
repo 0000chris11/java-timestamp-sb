@@ -66,7 +66,7 @@ public class VFController implements Initializable {
     private GridPane gridPane;
     private Label[] lbs = new Label[MSQL.MAX_COLUMNS];
     private TextField[] tfs = new TextField[MSQL.MAX_COLUMNS];
-    //private ComboBox[] cbs = new ComboBox[MSQL.MAX_COLUMNS];
+    // private ComboBox[] cbs = new ComboBox[MSQL.MAX_COLUMNS];
     private TextFieldAutoC[] tfas = new TextFieldAutoC[MSQL.MAX_COLUMNS];
     private List<List<String>> cbElements = new ArrayList<>(MSQL.MAX_COLUMNS);
     private Button[] btns = new Button[MSQL.MAX_COLUMNS];
@@ -112,110 +112,73 @@ public class VFController implements Initializable {
 
     private void comboBoxConfig() {
         /*
-        for (int a = 0; a < cbs.length; a++) {
-            ComboBoxListViewSkin<String> comboBoxListViewSkin = new ComboBoxListViewSkin<>(cbs[a]);
-            comboBoxListViewSkin.getPopupContent().addEventFilter(KeyEvent.ANY, event -> {
-                if (event.getCode() == KeyCode.SPACE) {
-                    event.consume();
-                }
-            });
-            cbs[a].setSkin(comboBoxListViewSkin);
-       }
-       */
+         * for (int a = 0; a < cbs.length; a++) { ComboBoxListViewSkin<String>
+         * comboBoxListViewSkin = new ComboBoxListViewSkin<>(cbs[a]);
+         * comboBoxListViewSkin.getPopupContent().addEventFilter(KeyEvent.ANY, event ->
+         * { if (event.getCode() == KeyCode.SPACE) { event.consume(); } });
+         * cbs[a].setSkin(comboBoxListViewSkin); }
+         */
     }
 
     // LISTENER -----------------------------------------
     // NON-FXML
     private void cbsMouseClicked(MouseEvent e) {
         /*
-        for (int a = 0; a < cbs.length; a++) {
-            TextField tf = (TextField) e.getSource();
-            if (tf == cbs[a].getEditor()) {
-                cbs[a].show();
-            }
-        }
-        */
+         * for (int a = 0; a < cbs.length; a++) { TextField tf = (TextField)
+         * e.getSource(); if (tf == cbs[a].getEditor()) { cbs[a].show(); } }
+         */
     }
 
     // LISTENER CBS-----------------------------------
     private void searchFunction(KeyEvent e) {
         /*
-        for (int a = 0; a < cbs.length; a++) {
-            TextField tf = (TextField) e.getSource();
-            if (tf == cbs[a].getEditor()) {
-                // System.out.println("\nCB " + (a + 1));
-
-                cbs[a].getItems().clear();
-                cbs[a].getItems().addAll(cbElements.get(a));
-                if (!cbs[a].getItems().get(0).equals(SelectDistinct.NO_DISTINCT_ELEMENTS)) {
-                    String text = tf.getText().toUpperCase();
-                    // SEARCH BY TAGS
-                    if (text.contains("; ")) {
-                        text = text.substring(text.lastIndexOf("; ") + 2, text.length() - 1);
-                        System.out.println("\ttext ; : " + text);
-                    }
-                    // System.out.println("\ttext: " + text);
-                    // -----------------------------------------
-                    int originalLength = cbElements.get(a).size();
-                    // System.out.println("\toriginal length: " + originalLength);
-                    for (int b = 0; b < originalLength; b++) {
-                        String element = cbElements.get(a).get(b);
-                        if (cbSearchOption == CB_STARTS_WITH) {
-                            if (!element.toUpperCase().startsWith(text)) {
-                                cbs[a].getItems().remove(element);
-                            }
-                        }
-                    }
-                    // System.out.println("\tcurrent length: " + cbs[a].getItems().size());
-                    // if (!cbs[a].isShowing()) {
-                    // cbs[a].hide();
-
-                    int currentElementLength = cbs[a].getItems().size();
-                    System.out.println("\tcurrentElementLength: " + currentElementLength);
-                    int res = currentElementLength > 10 ? 10 : currentElementLength;
-                    System.out.println("\t\tres: " + res);
-                    // cbs[a].setVisibleRowCount(res);
-                    System.out.println("\tgetVisibleRowCount: " + cbs[a].getVisibleRowCount());
-
-                    cbs[a].hide();
-                    cbs[a].setVisibleRowCount(res);
-                    cbs[a].show();
-                }
-                break;
-            }
-        }
-        System.out.println("\tgetVisibleRowCount: " + cbs[4].getVisibleRowCount());
-        */
+         * for (int a = 0; a < cbs.length; a++) { TextField tf = (TextField)
+         * e.getSource(); if (tf == cbs[a].getEditor()) { // System.out.println("\nCB "
+         * + (a + 1));
+         * 
+         * cbs[a].getItems().clear(); cbs[a].getItems().addAll(cbElements.get(a)); if
+         * (!cbs[a].getItems().get(0).equals(SelectDistinct.NO_DISTINCT_ELEMENTS)) {
+         * String text = tf.getText().toUpperCase(); // SEARCH BY TAGS if
+         * (text.contains("; ")) { text = text.substring(text.lastIndexOf("; ") + 2,
+         * text.length() - 1); System.out.println("\ttext ; : " + text); } //
+         * System.out.println("\ttext: " + text); //
+         * ----------------------------------------- int originalLength =
+         * cbElements.get(a).size(); // System.out.println("\toriginal length: " +
+         * originalLength); for (int b = 0; b < originalLength; b++) { String element =
+         * cbElements.get(a).get(b); if (cbSearchOption == CB_STARTS_WITH) { if
+         * (!element.toUpperCase().startsWith(text)) {
+         * cbs[a].getItems().remove(element); } } } //
+         * System.out.println("\tcurrent length: " + cbs[a].getItems().size()); // if
+         * (!cbs[a].isShowing()) { // cbs[a].hide();
+         * 
+         * int currentElementLength = cbs[a].getItems().size();
+         * System.out.println("\tcurrentElementLength: " + currentElementLength); int
+         * res = currentElementLength > 10 ? 10 : currentElementLength;
+         * System.out.println("\t\tres: " + res); // cbs[a].setVisibleRowCount(res);
+         * System.out.println("\tgetVisibleRowCount: " + cbs[a].getVisibleRowCount());
+         * 
+         * cbs[a].hide(); cbs[a].setVisibleRowCount(res); cbs[a].show(); } break; } }
+         * System.out.println("\tgetVisibleRowCount: " + cbs[4].getVisibleRowCount());
+         */
     }
 
     private void cbsKeyPressed(KeyEvent e) {
         /*
-        System.out.println("\ncbsKeyPressed");
-        for (int a = 0; a < cbs.length; a++) {
-            TextField tf = (TextField) e.getSource();
-            if (tf == cbs[a].getEditor()) {
-                if (cbs[a].isShowing()) {
-                    int caretPosition = tf.getCaretPosition();
-                    if (e.getCode() == KeyCode.LEFT && caretPosition != 0) {
-                        tf.positionCaret(--caretPosition);
-                    } else if (e.getCode() == KeyCode.RIGHT) {
-                        tf.positionCaret(++caretPosition);
-                    } else if (e.getCode() == KeyCode.END) {
-                        tf.positionCaret(tf.getText().length());
-                    } else if (e.getCode() == KeyCode.BEGIN) {
-                        tf.positionCaret(0);
-                    }
-                }
-                break;
-            }
-        }
-        */
+         * System.out.println("\ncbsKeyPressed"); for (int a = 0; a < cbs.length; a++) {
+         * TextField tf = (TextField) e.getSource(); if (tf == cbs[a].getEditor()) { if
+         * (cbs[a].isShowing()) { int caretPosition = tf.getCaretPosition(); if
+         * (e.getCode() == KeyCode.LEFT && caretPosition != 0) {
+         * tf.positionCaret(--caretPosition); } else if (e.getCode() == KeyCode.RIGHT) {
+         * tf.positionCaret(++caretPosition); } else if (e.getCode() == KeyCode.END) {
+         * tf.positionCaret(tf.getText().length()); } else if (e.getCode() ==
+         * KeyCode.BEGIN) { tf.positionCaret(0); } } break; } }
+         */
     }
 
     private void cbsKeyReleased(KeyEvent e) {
         if (e.getCode().isLetterKey()) {
             System.out.println("\nSEARCH FUNCTION STARTS");
-            //searchFunction(e);
+            // searchFunction(e);
         }
     }
 
@@ -244,20 +207,39 @@ public class VFController implements Initializable {
 
     }
 
-    public void tableCellChanged(Change<? extends ObservableList<Object>> c){
+    public void tableCellChanged(Change<? extends ObservableList<Object>> c) {
         System.out.println("\nTABLE CHANGED");
         while (c.next()) {
-            if(c.wasUpdated()){
+            if (c.wasUpdated()) {
                 System.out.println("\tRow original state: " + Arrays.toString(selectedRow));
                 tableData.subList(c.getFrom(), c.getTo()).forEach(System.out::println);
             }
         }
-        
+
     }
-    public void tableCellEdit(CellEditEvent<ObservableList<Object>, Object> t){
+
+    public void tableCellEdit(CellEditEvent<ObservableList<Object>, Object> t) {
         System.out.println("OLD Value: " + t.getOldValue().toString());
         System.out.println("NEW Value: " + t.getNewValue().toString());
+
+        Object oldValue = t.getOldValue();
+        Object newValue = t.getNewValue();
+        if (!newValue.toString().equals(oldValue.toString())) {
+            String tableName = MSQL.getCurrentTable().getName().replace(" ", "_");
+            int colIndex = t.getTablePosition().getColumn();
+            String columnName = columns.getColumn(colIndex);
+
+            boolean returnValue = ms.updateRow(tableName, selectedRow, columnName, newValue);
+            if (returnValue) {
+                ms.selectData(tableName, new SelectData(this, SelectData.MESSAGE_UPDATED_ROW + tableName));
+                dist.distAction();
+                System.out.println(SUCCESS);
+            } else {
+                System.out.println(FAILED);
+            }
+        }
     }
+
     @FXML
     private void btnDeleteAction() {
         System.out.println(CC.CYAN + "\nDELETE ROW" + CC.RESET);
@@ -286,8 +268,8 @@ public class VFController implements Initializable {
         boolean returnValue = ms.updateRow(tableName, selectedRow, gn.getValues());
         if (returnValue) {
             ms.selectData(tableName, new SelectData(this, SelectData.MESSAGE_UPDATED_ROW + tableName));
-            System.out.println(SUCCESS);
             dist.distAction();
+            System.out.println(SUCCESS);
         } else {
             System.out.println(FAILED);
         }
@@ -330,11 +312,11 @@ public class VFController implements Initializable {
             lbs[a] = new Label("Column " + (a + 1));
             tfs[a] = new TextField();
             tfas[a] = new TextFieldAutoC(a);
-            //cbs[a] = new ComboBox<String>();
+            // cbs[a] = new ComboBox<String>();
             btns[a] = new Button();
 
-            //cbs[a].setEditable(true);
-            //cbs[a].setMaxWidth(Short.MAX_VALUE);
+            // cbs[a].setEditable(true);
+            // cbs[a].setMaxWidth(Short.MAX_VALUE);
             /*
              * lbs[a].setMinWidth(60); lbs[a].setPrefWidth(60); lbs[a].setMaxWidth(60);
              * 
@@ -367,7 +349,6 @@ public class VFController implements Initializable {
         table.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         table.getSelectionModel().selectedItemProperty().addListener(this::tableRowSelected);
 
-        
     }
     // GET AND SET -------------------------------------------
 
@@ -503,10 +484,10 @@ public class VFController implements Initializable {
         return tableData;
     }
 
-    //+ LISTENER-----------------
+    // + LISTENER-----------------
     public void setTableData(ObservableList<ObservableList<Object>> tableData) {
         this.tableData = tableData;
-        //tableData.addListener(this::tableCellChanged);
+        // tableData.addListener(this::tableCellChanged);
     }
-    
+
 }

@@ -1,12 +1,15 @@
 package com.cofii.ts.cu;
 
 import java.net.URL;
+import java.util.Arrays;
 import java.util.ResourceBundle;
 
+import com.cofii.ts.other.CSS;
 import com.cofii.ts.sql.MSQL;
 import com.cofii.ts.store.SQLTypes;
 import com.cofii2.components.javafx.TextFieldAutoC;
 
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
@@ -32,7 +35,10 @@ public class VCController implements Initializable {
     private Label lbStatus;
     @FXML
     private Button btnCreate;
+    @FXML
+    private Button btnCancel;
 
+    private HBox[] hbsN = new HBox[MSQL.MAX_COLUMNS];//-----------
     private Label[] lbsN = new Label[MSQL.MAX_COLUMNS];
     private HBox[] hbsName = new HBox[MSQL.MAX_COLUMNS];//-----------
     private TextField[] tfsColumn = new TextField[MSQL.MAX_COLUMNS];
@@ -65,42 +71,75 @@ public class VCController implements Initializable {
     //---------------------------------------------
     private SQLTypes types = SQLTypes.getInstance();
     //---------------------------------------------
-    @Override
-    public void initialize(URL location, ResourceBundle resources) {
+    private void btnsAddAction(ActionEvent e){
+        Button btn = (Button) e.getSource();
+        int index = Integer.parseInt(btn.getId()) + 1;
+        int row = index + 1;
+        gridPaneLeft.add(hbsN[index], 0, row );
+        gridPaneLeft.add(hbsName[index], 1, row);
+        gridPaneLeft.add(hbsType[index], 2, row);
+        gridPaneLeft.add(hbsNull[index], 3, row);
+        gridPaneLeft.add(hbsPK[index], 4, row);
+        gridPaneLeft.add(hbsFK[index], 5, row);
+        gridPaneLeft.add(hbsDefault[index], 6, row);
+        gridPaneLeft.add(hbsExtra[index], 7, row);
+    }
+    private void cksFKAction(ActionEvent e){
+        CheckBox ck = (CheckBox) e.getSource();
+        int index = Integer.parseInt(ck.getId());
+        tfasFK[index].setVisible(true);
+    }
+    //---------------------------------------------
+    private void nonFXMLNodesInit(){
         for(int a = 0;a < MSQL.MAX_COLUMNS; a++){
+
             lbsN[a] = new Label("Column " + (a + 1));
+            hbsN[a] = new HBox(lbsN[a]);
+            hbsN[a].setStyle(CSS.BORDER_GRID_BOTLEFT);
 
             tfsColumn[a] = new TextField();
+            tfsColumn[a].setPrefWidth(-1);
             btnsRemoveColumn[a] = new Button("X");
-            btnsRemoveColumn[a].setVisible(false);
+            btnsRemoveColumn[a].setMinWidth(40);
             btnsAddColumn[a] = new Button("+");
-            btnsAddColumn[a].setVisible(false);
+            btnsAddColumn[a].setMinWidth(40);
+            btnsAddColumn[a].setId(Integer.toString(a));
             btnsRenameColumn[a] = new Button("C");
             btnsRenameColumn[a].setVisible(false);
             hbsName[a] = new HBox(tfsColumn[a], btnsRemoveColumn[a], btnsAddColumn[a], btnsRenameColumn[a]);
+            hbsName[a].setStyle(CSS.BORDER_GRID_BOTLEFT);
 
             tfasType[a] = new TextFieldAutoC(a, types.getTypeNames());
+            tfasType[a].setPrefWidth(-1);
+            tfasType[a].setMaxHeight(30);
             tfsTypeLength[a] = new TextField("0");
             btnsChangeType[a] = new Button("C");
             btnsChangeType[a].setVisible(false);
             hbsType[a] = new HBox(tfasType[a], tfsTypeLength[a], btnsChangeType[a]);
+            hbsType[a].setStyle(CSS.BORDER_GRID_BOTLEFT);
 
             cksNull[a] = new CheckBox();
             btnsChangeNull[a] = new Button("C");
             btnsChangeNull[a].setVisible(false);
             hbsNull[a] = new HBox(cksNull[a], btnsChangeNull[a]);
+            hbsNull[a].setStyle(CSS.BORDER_GRID_BOTLEFT);
 
             cksPK[a] = new CheckBox();
             btnsChangePK[a] = new Button("C");
             btnsChangePK[a].setVisible(false);
             hbsPK[a] = new HBox(cksPK[a], btnsChangePK[a]);
+            hbsPK[a].setStyle(CSS.BORDER_GRID_BOTLEFT);
 
             cksFK[a] = new CheckBox();
+            cksFK[a].setId(Integer.toString(a));
             tfasFK[a] = new TextFieldAutoC(a);
+            tfasFK[a].setPrefWidth(-1);
+            tfasFK[a].setMaxHeight(30);
             tfasFK[a].setVisible(false);
             btnsChangeFK[a] = new Button("C");
             btnsChangeFK[a].setVisible(false);
             hbsFK[a] = new HBox(cksFK[a], tfasFK[a], btnsChangeFK[a]);
+            hbsFK[a].setStyle(CSS.BORDER_GRID_BOTLEFT);
 
             cksDefault[a] = new CheckBox();
             tfsDefault[a] = new TextField();
@@ -108,15 +147,23 @@ public class VCController implements Initializable {
             btnsChangeDefault[a] = new Button("C");
             btnsChangeDefault[a].setVisible(false);
             hbsDefault[a] = new HBox(cksDefault[a], tfsDefault[a], btnsChangeDefault[a]);
+            hbsDefault[a].setStyle(CSS.BORDER_GRID_BOTLEFT);
 
             rbsExtra[a] = new RadioButton();
             btnsChangeExtra[a] = new Button("C");
             btnsChangeExtra[a].setVisible(false);
             hbsExtra[a] = new HBox(rbsExtra[a], btnsChangeExtra[a]);
+            hbsExtra[a].setStyle(CSS.BORDER_GRID_BOTLEFTRIGHT);
             //--------------------------------------
             btnsDist[a] = new ToggleButton("" + (a + 1));
         }
-        
+    }
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
+        nonFXMLNodesInit();
+        //gridPaneLeft.setGridLinesVisible(true);
+        Arrays.asList(btnsAddColumn).forEach(e -> e.setOnAction(this::btnsAddAction));
+        Arrays.asList(cksFK).forEach(e -> e.setOnAction(this::cksFKAction));
     }
     //-------------------------------------------------------------
     public GridPane getGridPaneLeft() {

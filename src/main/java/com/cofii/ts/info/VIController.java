@@ -86,6 +86,7 @@ public class VIController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         nonFXMLNodeInit();
         nonFXMLNodeSet();
+        gridPaneLeft.setGridLinesVisible(true);
     }
 
 }
