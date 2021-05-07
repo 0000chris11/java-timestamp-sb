@@ -52,7 +52,7 @@
                     </rowConstraints>
                      <children>
                         <Label text="Column Number" />
-                        <Label text="Name" GridPane.columnIndex="1" />
+                        <Label fx:id = "lbhColumnNames" text="Name" GridPane.columnIndex="1" />
                         <Label text="Type" GridPane.columnIndex="2" />
                         <Label text="Null" GridPane.columnIndex="3" />
                         <Label text="PK" GridPane.columnIndex="4" />

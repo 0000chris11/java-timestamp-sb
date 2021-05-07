@@ -22,7 +22,7 @@ public class VC {
 
             VCController vc = (VCController)loader.getController();
             if(create){
-                for(int a = 0;a < 3; a++){
+                for(int a = 0;a < vc.getPresetColumnsLenght(); a++){
                     int row = a + 1;
 
                     vc.getGridPaneLeft().add(vc.getLbsN()[a], 0, row);
@@ -41,7 +41,7 @@ public class VC {
                     e.setVgrow(Priority.ALWAYS);
                     e.setPrefHeight(30);
                     e.setMaxHeight(-1);
-                    //e.setFillHeight(false);
+                    //e.setFillHeight(true);
                 });
             }
         } catch (IOException e) {
