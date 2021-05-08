@@ -3,6 +3,9 @@ package com.cofii.ts.cu;
 import java.io.IOException;
 
 import com.cofii.ts.first.VFController;
+import com.cofii.ts.sql.MSQL;
+import com.cofii.ts.sql.querys.SelectKeys;
+import com.cofii2.mysql.MSQLP;
 
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.VPos;
@@ -13,6 +16,8 @@ import javafx.scene.layout.Priority;
 
 public class VC {
 
+    private MSQLP ms;
+
     public VC(VFController vf, boolean create) {
         try {
             FXMLLoader loader = new FXMLLoader(VC.class.getResource("/com/cofii/ts/cu/VC.fxml"));
@@ -21,7 +26,10 @@ public class VC {
             vf.getStage().setScene(scene);
 
             VCController vc = (VCController)loader.getController();
-            if(create){
+
+            ms = vf.getMs();
+            ms.selectKeysInDatabase(MSQL.getDatabase(), new SelectKeys());
+            if(create){//THE REASON FOR NOT ADDING THE NODES IN THE CONTROLLER
                 for(int a = 0;a < vc.getPresetColumnsLenght(); a++){
                     int row = a + 1;
 
@@ -35,11 +43,12 @@ public class VC {
                     vc.getGridPaneLeft().add(vc.getHbsExtra()[a], 7, row);
 
                     GridPane.setValignment(vc.getLbsN()[a], VPos.TOP);
+
                 }
                 vc.getGridPaneLeft().getRowConstraints().forEach(e -> {
                     e.setValignment(VPos.TOP);
-                    e.setVgrow(Priority.ALWAYS);
-                    e.setPrefHeight(30);
+                    //e.setVgrow(Priority.ALWAYS);
+                    e.setPrefHeight(-1);
                     e.setMaxHeight(-1);
                     //e.setFillHeight(true);
                 });

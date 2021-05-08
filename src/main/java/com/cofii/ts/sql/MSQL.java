@@ -41,8 +41,6 @@ public class MSQL {
 
     public static final String INSERT_TABLE_DEFAULT_USER = "INSERT INTO " + TABLE_DEFAULT_USER
             + " VALUES (\"NONE\", \"NONE\", \"NONE\")";
-    // public static final String INSERT_TABLE_DEFAULT = "INSERT INTO " +
-    // TABLE_DEFAULT + " VALUES (\"NONE\", \"NONE\", \"NONE\")";
 
     public static final String SELECT_TABLE_ROW_DEFAULT_USER = "SELECT * FROM " + TABLE_DEFAULT_USER + " LIMIT 1";
     public static final String SELECT_TABLE_ROW_DEFAULT = "SELECT * FROM " + TABLE_DEFAULT + " LIMIT 1";
@@ -50,6 +48,7 @@ public class MSQL {
 
     public static final String UPDATE_TABLE_DEFAULT_USER = "UPDATE " + TABLE_DEFAULT_USER + " SET Name = \"" + user
             + "\", Passw = \"" + password + "\", Datab = \"" + database + "\" LIMIT = 1";
+
     // BOOLEANS
     private static boolean dbRootconfigExist = false;
     private static boolean tableDefaultUserExist = false;

@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.ResourceBundle;
 
+import com.cofii.ts.first.VFController;
 import com.cofii.ts.other.CSS;
 import com.cofii.ts.sql.MSQL;
 import com.cofii.ts.store.SQLTypes;
@@ -21,12 +22,14 @@ import javafx.collections.ListChangeListener.Change;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
+import javafx.scene.control.ToggleGroup;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -35,6 +38,7 @@ public class VCController implements Initializable {
 
     public static final String LBH_COLUMN_NAMES = "Name";
     public static final String LBH_COLUMN_NAMES_ERROR = "Columns have the same name";
+    public static final Insets INSETS = new Insets(2, 2, 2, 2);
     // -------------------------------------------------
     private int presetColumnsLenght = 2;
 
@@ -84,10 +88,12 @@ public class VCController implements Initializable {
     private Button[] btnsChangeDefault = new Button[MSQL.MAX_COLUMNS];
     private HBox[] hbsExtra = new HBox[MSQL.MAX_COLUMNS];// -----------
     private RadioButton[] rbsExtra = new RadioButton[MSQL.MAX_COLUMNS];
+    private ToggleGroup rbsExtraGroup = new ToggleGroup();
     private Button[] btnsChangeExtra = new Button[MSQL.MAX_COLUMNS];
 
     private ToggleButton[] btnsDist = new ToggleButton[MSQL.MAX_COLUMNS];
     // ---------------------------------------------
+    private VFController vf;
     private SQLTypes types = SQLTypes.getInstance();
 
     // LISTENERS---------------------------------------------
@@ -180,76 +186,119 @@ public class VCController implements Initializable {
         }
     }
 
+    private void cksDefaultAction(ActionEvent e){
+        CheckBox ck = (CheckBox) e.getSource();
+        int index = Integer.parseInt(ck.getId());
+        if(ck.isSelected()){
+            tfsDefault[index].setVisible(true);
+        }else{
+            tfsDefault[index].setVisible(false);
+        }
+    }
+
+    private void btnCancelAction(ActionEvent e){
+        vf.getStage().setScene(vf.getScene());
+    }
     // ---------------------------------------------
     private void nonFXMLNodesInit() {
         for (int a = 0; a < MSQL.MAX_COLUMNS; a++) {
 
             lbsN[a] = new Label("Column " + (a + 1));
             hbsN[a] = new HBox(lbsN[a]);
-            hbsN[a].setStyle(CSS.BORDER_GRID_BOTTOM);
 
             tfsColumn[a] = new TextField();
-            tfsColumn[a].setId(Integer.toString(a));
-            tfsColumn[a].setPrefWidth(-1);
             btnsRemoveColumn[a] = new Button("X");
-            btnsRemoveColumn[a].setId(Integer.toString(a));
-            btnsRemoveColumn[a].setMinWidth(40);
             btnsAddColumn[a] = new Button("+");
-            btnsAddColumn[a].setMinWidth(40);
-            btnsAddColumn[a].setId(Integer.toString(a));
             btnsRenameColumn[a] = new Button("C");
-            btnsRenameColumn[a].setVisible(false);
             hbsName[a] = new HBox(tfsColumn[a], btnsRemoveColumn[a], btnsAddColumn[a], btnsRenameColumn[a]);
-            hbsName[a].setStyle(CSS.BORDER_GRID_BOTTOM);
 
             tfasType[a] = new TextFieldAutoC(a, types.getTypeNames());
-            tfasType[a].getTf().setId(Integer.toString(a));
-            tfasType[a].setPrefWidth(tfasType[a].getCloseHeight());
-            //tfasType[a].setMaxHeight(tfasType[a].getOpenHeight());
             tfsTypeLength[a] = new TextField("0");
-            tfsTypeLength[a].setVisible(false);
             btnsChangeType[a] = new Button("C");
-            btnsChangeType[a].setVisible(false);
             hbsType[a] = new HBox(tfasType[a], tfsTypeLength[a], btnsChangeType[a]);
-            hbsType[a].setStyle(CSS.BORDER_GRID_BOTTOM);
 
             cksNull[a] = new CheckBox();
             btnsChangeNull[a] = new Button("C");
-            btnsChangeNull[a].setVisible(false);
             hbsNull[a] = new HBox(cksNull[a], btnsChangeNull[a]);
-            hbsNull[a].setStyle(CSS.BORDER_GRID_BOTTOM);
 
             cksPK[a] = new CheckBox();
             btnsChangePK[a] = new Button("C");
-            btnsChangePK[a].setVisible(false);
             hbsPK[a] = new HBox(cksPK[a], btnsChangePK[a]);
-            hbsPK[a].setStyle(CSS.BORDER_GRID_BOTTOM);
 
             cksFK[a] = new CheckBox();
-            cksFK[a].setId(Integer.toString(a));
             tfasFK[a] = new TextFieldAutoC(a);
-            tfasFK[a].setPrefWidth(-1);
-            tfasFK[a].setMaxHeight(30);
-            tfasFK[a].setVisible(false);
             btnsChangeFK[a] = new Button("C");
-            btnsChangeFK[a].setVisible(false);
             hbsFK[a] = new HBox(cksFK[a], tfasFK[a], btnsChangeFK[a]);
-            hbsFK[a].setMaxWidth(-1);
-            hbsFK[a].setStyle(CSS.BORDER_GRID_BOTTOM);
 
             cksDefault[a] = new CheckBox();
             tfsDefault[a] = new TextField();
-            tfsDefault[a].setVisible(false);
             btnsChangeDefault[a] = new Button("C");
-            btnsChangeDefault[a].setVisible(false);
             hbsDefault[a] = new HBox(cksDefault[a], tfsDefault[a], btnsChangeDefault[a]);
-            hbsDefault[a].setStyle(CSS.BORDER_GRID_BOTTOM);
 
             rbsExtra[a] = new RadioButton();
+            rbsExtra[a].setToggleGroup(rbsExtraGroup);
             btnsChangeExtra[a] = new Button("C");
-            btnsChangeExtra[a].setVisible(false);
             hbsExtra[a] = new HBox(rbsExtra[a], btnsChangeExtra[a]);
+            //OTHERS ---------------------------------
+            tfsColumn[a].setId(Integer.toString(a));
+            btnsRemoveColumn[a].setId(Integer.toString(a));
+            btnsAddColumn[a].setId(Integer.toString(a));
+            tfasType[a].getTf().setId(Integer.toString(a));
+            cksFK[a].setId(Integer.toString(a));
+            cksDefault[a].setId(Integer.toString(a));
+
+            tfsColumn[a].setPrefWidth(-1);
+            btnsRemoveColumn[a].setMinWidth(40);
+            btnsRemoveColumn[a].setMaxWidth(40);
+            btnsAddColumn[a].setMinWidth(40);
+            btnsAddColumn[a].setMaxWidth(40);
+            tfasType[a].setPrefWidth(140);
+            tfsTypeLength[a].setMinWidth(40);
+            tfsTypeLength[a].setMaxWidth(40);
+            //tfasFK[a].setPrefWidth(-1);
+            //tfasFK[a].setMaxHeight(30);
+            hbsFK[a].setPrefWidth(-1);
+            tfasFK[a].setPrefWidth(-1);
+
+            btnsRenameColumn[a].managedProperty().bind(btnsRenameColumn[a].visibleProperty());
+            tfsTypeLength[a].managedProperty().bind(tfsTypeLength[a].visibleProperty());
+            btnsChangeType[a].managedProperty().bind(btnsChangeType[a].visibleProperty());
+            btnsChangeNull[a].managedProperty().bind(btnsChangeNull[a].visibleProperty());
+            btnsChangePK[a].managedProperty().bind(btnsChangePK[a].visibleProperty());
+            tfasFK[a].managedProperty().bind(tfasFK[a].visibleProperty());
+            btnsChangeFK[a].managedProperty().bind(btnsChangeFK[a].visibleProperty());
+            tfsDefault[a].managedProperty().bind(tfsDefault[a].visibleProperty());
+            btnsChangeDefault[a].managedProperty().bind(btnsChangeDefault[a].visibleProperty());
+            btnsChangeExtra[a].managedProperty().bind(btnsChangeExtra[a].visibleProperty());
+
+            btnsRenameColumn[a].setVisible(false);
+            tfsTypeLength[a].setVisible(false);
+            btnsChangeType[a].setVisible(false);
+            btnsChangeNull[a].setVisible(false);
+            btnsChangePK[a].setVisible(false);
+            tfasFK[a].setVisible(false);
+            btnsChangeFK[a].setVisible(false);
+            tfsDefault[a].setVisible(false);
+            btnsChangeDefault[a].setVisible(false);
+            btnsChangeExtra[a].setVisible(false);
+        
+            hbsN[a].setStyle(CSS.BORDER_GRID_BOTTOM);
+            hbsName[a].setStyle(CSS.BORDER_GRID_BOTTOM);
+            hbsType[a].setStyle(CSS.BORDER_GRID_BOTTOM);
+            hbsNull[a].setStyle(CSS.BORDER_GRID_BOTTOM);
+            hbsPK[a].setStyle(CSS.BORDER_GRID_BOTTOM);
+            hbsFK[a].setStyle(CSS.BORDER_GRID_BOTTOM);
+            hbsDefault[a].setStyle(CSS.BORDER_GRID_BOTTOM);
             hbsExtra[a].setStyle(CSS.BORDER_GRID_BOTTOM);
+
+            GridPane.setMargin(hbsN[a], INSETS);
+            GridPane.setMargin(hbsName[a], INSETS);
+            GridPane.setMargin(hbsType[a], INSETS);
+            GridPane.setMargin(hbsNull[a], INSETS);
+            GridPane.setMargin(hbsPK[a], INSETS);
+            GridPane.setMargin(hbsFK[a], INSETS);
+            GridPane.setMargin(hbsDefault[a], INSETS);
+            GridPane.setMargin(hbsExtra[a], INSETS);
             // --------------------------------------
             btnsDist[a] = new ToggleButton("" + (a + 1));
         }
@@ -278,8 +327,11 @@ public class VCController implements Initializable {
         listColumns.addListener(this::listColumnsChange);
         Arrays.asList(btnsAddColumn).forEach(e -> e.setOnAction(this::btnsAddAction));
         Arrays.asList(btnsRemoveColumn).forEach(e -> e.setOnAction(this::btnsRemoveAction));
-        Arrays.asList(cksFK).forEach(e -> e.setOnAction(this::cksFKAction));
         Arrays.asList(tfasType).forEach(e -> e.getTf().textProperty().addListener(this::tfasTypeTextProperty));
+        Arrays.asList(cksFK).forEach(e -> e.setOnAction(this::cksFKAction));
+        Arrays.asList(cksDefault).forEach(e -> e.setOnAction(this::cksDefaultAction));
+
+        btnCancel.setOnAction(this::btnCancelAction);
         /*
          * TextField textField = new TextField();
          * textField.textProperty().addListener((observable, oldValue, newValue) -> {
@@ -538,4 +590,12 @@ public class VCController implements Initializable {
         this.presetColumnsLenght = presetColumnsLenght;
     }
 
+    public VFController getVf() {
+        return vf;
+    }
+
+    public void setVf(VFController vf) {
+        this.vf = vf;
+    }
+    
 }

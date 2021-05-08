@@ -35,6 +35,9 @@ public class ShowColumns implements IActions {
     public void setData(ResultSet rs, int row) throws SQLException {
         String columnName = rs.getString(1);
         String typeHole = rs.getString(2).toUpperCase();
+        
+
+
         String type = typeHole;
         int typeLength = -1;
         if(typeHole.contains("(")){

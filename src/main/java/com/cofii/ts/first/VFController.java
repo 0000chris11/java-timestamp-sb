@@ -28,7 +28,9 @@ import javafx.collections.ObservableList;
 import javafx.collections.ListChangeListener.Change;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Insets;
 import javafx.geometry.VPos;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
@@ -49,6 +51,7 @@ public class VFController implements Initializable {
     private Dist dist = Dist.getInstance(this);
     // ----------------------------------------
     private Stage stage;
+    private Scene scene;
 
     @FXML
     private MenuBar menuBar;
@@ -327,13 +330,21 @@ public class VFController implements Initializable {
             tfs[a].setVisible(false);
             btns[a].setVisible(false);
 
+            GridPane.setMargin(lbs[a], new Insets(2, 2, 2, 2));
+            GridPane.setMargin(tfs[a], new Insets(2, 2, 2, 2));
+            GridPane.setMargin(tfas[a], new Insets(2, 2, 2, 2));
+            GridPane.setMargin(btns[a], new Insets(2, 2, 2, 2));
+
             gridPane.add(lbs[a], 0, a);
             gridPane.add(tfs[a], 1, a);
             gridPane.add(btns[a], 2, a);
 
             gridPane.getRowConstraints().get(a).setValignment(VPos.TOP);
-            gridPane.getRowConstraints().get(a).setVgrow(Priority.NEVER);
+            //gridPane.getRowConstraints().get(a).setVgrow(Priority.ALWAYS);
+            gridPane.getRowConstraints().get(a).setPrefHeight(-1);
+            gridPane.getRowConstraints().get(a).setMaxHeight(-1);
         }
+        
     }
 
     @Override
@@ -490,4 +501,12 @@ public class VFController implements Initializable {
         // tableData.addListener(this::tableCellChanged);
     }
 
+    public Scene getScene() {
+        return scene;
+    }
+
+    public void setScene(Scene scene) {
+        this.scene = scene;
+    }
+    
 }

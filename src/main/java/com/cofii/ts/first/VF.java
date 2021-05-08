@@ -12,6 +12,7 @@ import com.cofii.ts.sql.MSQL;
 import com.cofii.ts.sql.WrongPassword;
 import com.cofii.ts.sql.querys.SelectData;
 import com.cofii.ts.sql.querys.SelectDistinct;
+import com.cofii.ts.sql.querys.SelectKeys;
 import com.cofii.ts.sql.querys.SelectTableDefault;
 import com.cofii.ts.sql.querys.SelectTableNames;
 import com.cofii.ts.sql.querys.ShowColumns;
@@ -54,6 +55,7 @@ public class VF {
             ms.executeUpdate(MSQL.CREATE_TABLE_CONFIG);// NOT TESTED
         }
         // TABLE LIST
+        ms.selectKeysInDatabase(MSQL.getDatabase(), new SelectKeys());
         addMenuItems();
 
         ms.executeQuery(MSQL.SELECT_TABLE_ROW_DEFAULT, new SelectTableDefault());
@@ -95,6 +97,7 @@ public class VF {
             // -------------------------------------------------
             vf = (VFController) loader.getController();
             vf.setStage(stage);
+            vf.setScene(scene);
             vf.setVl(vl);
 
             ms = new MSQLP(new CurrenConnection(MSQL.getDatabase(), MSQL.getUser(), MSQL.getPassword()),

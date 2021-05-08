@@ -51,8 +51,8 @@ public class Dist {
                 GridPane.setMargin(vf.getTfas()[c], new Insets(4, 0, 0, 0));
                 GridPane.setMargin(vf.getBtns()[c], new Insets(4, 0, 0, 0));
                 */
-                gp.getRowConstraints().get(c).setPrefHeight(30);
-                gp.getRowConstraints().get(c).setVgrow(Priority.ALWAYS);
+                //gp.getRowConstraints().get(c).setPrefHeight(30);
+                //gp.getRowConstraints().get(c).setVgrow(Priority.ALWAYS);
             }
 
             columnsd.addColumnD(c, new ColumnD("Yes"));
