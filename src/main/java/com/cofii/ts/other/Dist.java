@@ -6,6 +6,7 @@ import com.cofii.ts.sql.querys.SelectDistinct;
 import com.cofii.ts.store.ColumnD;
 import com.cofii.ts.store.ColumnDS;
 import com.cofii.ts.store.ColumnS;
+import com.cofii.ts.store.Keys;
 import com.cofii2.mysql.MSQLP;
 
 import javafx.geometry.Insets;
@@ -21,6 +22,7 @@ public class Dist {
     private static VFController vf;
     private ColumnS columns = ColumnS.getInstance();
     private ColumnDS columnsd = ColumnDS.getInstance();
+    // private Keys keys = Keys.getInstance();
     private MSQLP ms;
 
     // -----------------------------------------------------
@@ -36,16 +38,14 @@ public class Dist {
         // X2: 3_4 :: 7
         // TEST
         GridPane gp = vf.getGridPane();
-        RowConstraints row4 = gp.getRowConstraints().get(3);
-        RowConstraints row5 = gp.getRowConstraints().get(4);
-
-        Button btn5 = vf.getBtns()[4];
         while (p <= length) {
             int c = Character.getNumericValue(dist.charAt(p - 1)) - 1;
             if (vf.getTfas()[c].isNeedsLayout()) {
                 gp.getChildren().remove(vf.getTfs()[c]);
                 gp.add(vf.getTfas()[c], 1, c);
-
+                if(columns.getExtra(c).equals("auto_increment")){
+                    vf.getTfas()[c].getTf().setPromptText("AUTO_INCREMENT");
+                }
                 /*
                 GridPane.setMargin(vf.getLbs()[c], new Insets(4, 0, 0, 0));
                 GridPane.setMargin(vf.getTfas()[c], new Insets(4, 0, 0, 0));

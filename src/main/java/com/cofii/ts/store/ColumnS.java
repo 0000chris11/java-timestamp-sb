@@ -39,12 +39,6 @@ public class ColumnS {
     public boolean getNull(int index){
         return list.get(index).isNulll();
     }
-    public String getKey(int index){
-        return list.get(index).getKey();
-    }
-    public void setKey(int index, String key){
-        list.get(index).setKey(key);
-    }
     public String getDefault(int index){
         return list.get(index).getDefaultt();
     }

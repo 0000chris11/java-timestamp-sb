@@ -6,16 +6,14 @@ public class Column {
     private String type;
     private int typeLength;
     private boolean nulll;
-    private String key;
     private String defaultt;
     private String extra;
 
-    public Column(String name, String type, int typeLength, boolean nulll, String key, String defaultt, String extra) {
+    public Column(String name, String type, int typeLength, boolean nulll, String defaultt, String extra) {
         this.name = name;
         this.type = type;
         this.typeLength = typeLength;
         this.nulll = nulll;
-        this.key = key;
         this.defaultt = defaultt;
         this.extra = extra;
     }
@@ -50,14 +48,6 @@ public class Column {
 
     public void setNulll(boolean nulll) {
         this.nulll = nulll;
-    }
-
-    public String getKey() {
-        return key;
-    }
-
-    public void setKey(String key) {
-        this.key = key;
     }
 
     public String getDefaultt() {

@@ -28,7 +28,6 @@ public class VC {
             VCController vc = (VCController)loader.getController();
 
             ms = vf.getMs();
-            ms.selectKeysInDatabase(MSQL.getDatabase(), new SelectKeys());
             if(create){//THE REASON FOR NOT ADDING THE NODES IN THE CONTROLLER
                 for(int a = 0;a < vc.getPresetColumnsLenght(); a++){
                     int row = a + 1;

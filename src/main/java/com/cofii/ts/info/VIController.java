@@ -4,9 +4,12 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.ResourceBundle;
 
+import com.cofii.ts.other.NonCSS;
 import com.cofii.ts.sql.MSQL;
 import com.cofii.ts.store.ColumnDS;
 import com.cofii.ts.store.ColumnS;
+import com.cofii.ts.store.Key;
+import com.cofii.ts.store.Keys;
 
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -21,17 +24,20 @@ public class VIController implements Initializable {
 
     private ColumnS columns = ColumnS.getInstance();
     private ColumnDS columnsd = ColumnDS.getInstance();
+    private Keys keys = Keys.getInstance();
 
     // NON-FXML
     private Label[] lbColumns = new Label[MSQL.MAX_COLUMNS];
     private Label[] lbTypes = new Label[MSQL.MAX_COLUMNS];
     private Label[] lbTypeslength = new Label[MSQL.MAX_COLUMNS];
     private Label[] lbNulls = new Label[MSQL.MAX_COLUMNS];
-    private Label[] lbKeys = new Label[MSQL.MAX_COLUMNS];
+    private Label[] lbPK = new Label[MSQL.MAX_COLUMNS];
+    private Label[] lbFK = new Label[MSQL.MAX_COLUMNS];
     private Label[] lbDefaults = new Label[MSQL.MAX_COLUMNS];
     private Label[] lbExtras = new Label[MSQL.MAX_COLUMNS];
 
     private Label[] lbDist = new Label[MSQL.MAX_COLUMNS];
+
     // -----------------------------------------------------------
     private void nonFXMLNodeInit() {
         for (int a = 0; a < MSQL.MAX_COLUMNS; a++) {
@@ -39,7 +45,8 @@ public class VIController implements Initializable {
             lbTypes[a] = new Label();
             lbTypeslength[a] = new Label();
             lbNulls[a] = new Label();
-            lbKeys[a] = new Label();
+            lbPK[a] = new Label();
+            lbFK[a] = new Label();
             lbDefaults[a] = new Label();
             lbExtras[a] = new Label();
 
@@ -50,21 +57,22 @@ public class VIController implements Initializable {
             gridPaneLeft.add(lbTypes[a], 1, row);
             gridPaneLeft.add(lbTypeslength[a], 2, row);
             gridPaneLeft.add(lbNulls[a], 3, row);
-            gridPaneLeft.add(lbKeys[a], 4, row);
-            gridPaneLeft.add(lbDefaults[a], 5, row);
-            gridPaneLeft.add(lbExtras[a], 6, row);
+            gridPaneLeft.add(lbPK[a], 4, row);
+            gridPaneLeft.add(lbFK[a], 5, row);
+            gridPaneLeft.add(lbDefaults[a], 6, row);
+            gridPaneLeft.add(lbExtras[a], 7, row);
 
             gridPaneRight.add(lbDist[a], 0, row);
         }
     }
-    private void nonFXMLNodeSet(){
+
+    private void nonFXMLNodeSet() {
         int length = columns.size();
         for (int a = 0; a < length; a++) {
             String column = columns.getColumn(a);
             String type = columns.getType(a);
             int typeLength = columns.getTypeLength(a);
             boolean nulll = columns.getNull(a);
-            String key = columns.getKey(a);
             String defaultt = columns.getDefault(a);
             String extra = columns.getExtra(a);
 
@@ -74,12 +82,30 @@ public class VIController implements Initializable {
             lbTypes[a].setText(type);
             lbTypeslength[a].setText(Integer.toString(typeLength));
             lbNulls[a].setText(Boolean.toString(nulll));
-            lbKeys[a].setText(key);
+            lbPK[a].setText("No");
+            lbFK[a].setText("No");
             lbDefaults[a].setText(defaultt);
             lbExtras[a].setText(extra);
 
             lbDist[a].setText(dist);
         }
+        //KEYS ------------------------------------------
+        Key[] currentKeys = keys.getCurrentTableKeys();
+        for(int a = 0;a < currentKeys.length; a++){
+            int ordinalPosition = currentKeys[a].getOrdinalPosition() - 1;
+            String contraintType = currentKeys[a].getConstraintType();
+            if(contraintType.equals("PRIMARY KEY")){
+                lbPK[ordinalPosition].setText("Yes");
+                lbPK[ordinalPosition].setTextFill(NonCSS.TEXT_FILL_PK);
+                lbPK[ordinalPosition].setStyle("-fx-font-weight: bold;");
+            }else if(contraintType.equals("FOREIGN KEY")){
+                lbFK[ordinalPosition].setText("Yes");
+                lbPK[ordinalPosition].setTextFill(NonCSS.TEXT_FILL_FK);
+                lbPK[ordinalPosition].setStyle("-fx-font-weight: bold;");
+            }
+            
+        }
+        
     }
 
     @Override

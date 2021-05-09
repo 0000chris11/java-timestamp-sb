@@ -55,7 +55,6 @@ public class VF {
             ms.executeUpdate(MSQL.CREATE_TABLE_CONFIG);// NOT TESTED
         }
         // TABLE LIST
-        ms.selectKeysInDatabase(MSQL.getDatabase(), new SelectKeys());
         addMenuItems();
 
         ms.executeQuery(MSQL.SELECT_TABLE_ROW_DEFAULT, new SelectTableDefault());
@@ -65,6 +64,7 @@ public class VF {
             vf.getLbTable().setText(table);
 
             ms.selectColumns(table.replace(" ", "_"), new ShowColumns(vf));
+            ms.selectKeysInDatabase(MSQL.getDatabase(), new SelectKeys(vf));
             dist.distInitOldWay(distName);
 
             ms.selectData(table.replace(" ", "_"), new SelectData(vf, null));

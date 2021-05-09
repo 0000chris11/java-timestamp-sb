@@ -9,6 +9,8 @@ import java.util.ResourceBundle;
 import com.cofii.ts.first.VFController;
 import com.cofii.ts.other.CSS;
 import com.cofii.ts.sql.MSQL;
+import com.cofii.ts.store.Key;
+import com.cofii.ts.store.Keys;
 import com.cofii.ts.store.SQLTypes;
 import com.cofii2.components.javafx.TextFieldAutoC;
 import com.cofii2.methods.MList;
@@ -95,7 +97,7 @@ public class VCController implements Initializable {
     // ---------------------------------------------
     private VFController vf;
     private SQLTypes types = SQLTypes.getInstance();
-
+    private Keys keys = Keys.getInstance();
     // LISTENERS---------------------------------------------
     private void tfsColumnsKeyListener(KeyEvent e) {
         TextField tf = (TextField) e.getSource();
@@ -200,6 +202,14 @@ public class VCController implements Initializable {
         vf.getStage().setScene(vf.getScene());
     }
     // ---------------------------------------------
+    private void fkReferencesInit(){
+        Key[] row = keys.getRowPrimaryKeys();
+        for(int a = 0; a < row.length; a++){
+            String table = row[a].getTableName();
+            //String column = row
+        }
+    }
+
     private void nonFXMLNodesInit() {
         for (int a = 0; a < MSQL.MAX_COLUMNS; a++) {
 

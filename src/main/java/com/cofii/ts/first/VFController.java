@@ -43,6 +43,8 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
 
 public class VFController implements Initializable {
@@ -67,7 +69,7 @@ public class VFController implements Initializable {
 
     @FXML
     private GridPane gridPane;
-    private Label[] lbs = new Label[MSQL.MAX_COLUMNS];
+    private TextFlow[] lbs = new TextFlow[MSQL.MAX_COLUMNS];
     private TextField[] tfs = new TextField[MSQL.MAX_COLUMNS];
     // private ComboBox[] cbs = new ComboBox[MSQL.MAX_COLUMNS];
     private TextFieldAutoC[] tfas = new TextFieldAutoC[MSQL.MAX_COLUMNS];
@@ -312,19 +314,13 @@ public class VFController implements Initializable {
     // INIT METHODS -------------------------------------------
     private void nonFXMLNodesInit() {
         for (int a = 0; a < MSQL.MAX_COLUMNS; a++) {
-            lbs[a] = new Label("Column " + (a + 1));
+            Text text = new Text("Column " + (a + 1));
+            text.setFill(NonCSS.TEXT_FILL);
+            lbs[a] = new TextFlow(text);
             tfs[a] = new TextField();
             tfas[a] = new TextFieldAutoC(a);
-            // cbs[a] = new ComboBox<String>();
             btns[a] = new Button();
 
-            // cbs[a].setEditable(true);
-            // cbs[a].setMaxWidth(Short.MAX_VALUE);
-            /*
-             * lbs[a].setMinWidth(60); lbs[a].setPrefWidth(60); lbs[a].setMaxWidth(60);
-             * 
-             * btns[a].setMinWidth(20); btns[a].setMaxWidth(20);
-             */
 
             lbs[a].setVisible(false);
             tfs[a].setVisible(false);
@@ -419,11 +415,11 @@ public class VFController implements Initializable {
         this.gridPane = gridPane;
     }
 
-    public Label[] getLbs() {
+    public TextFlow[] getLbs() {
         return lbs;
     }
 
-    public void setLbs(Label[] lbs) {
+    public void setLbs(TextFlow[] lbs) {
         this.lbs = lbs;
     }
 

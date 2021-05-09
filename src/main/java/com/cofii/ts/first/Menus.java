@@ -109,13 +109,12 @@ public class Menus {
         vf.getMenuOpen().getItems().addAll(openChangeUserDB, openTableMain);
         vf.getMenuTable().getItems().addAll(tableInfo, tableOp, new SeparatorMenuItem(), tableChangeDTable,
                 new SeparatorMenuItem(), tableCreate, tableUpdate, tableDelete, tableDeleteThis);
-        // LISTENERS
+        // LISTENERS----------------------------------------------
         openChangeUserDB.setOnAction(this::openChangeUserDBAction);
         ObservableList<MenuItem> menuItems = vf.getMenuSelection().getItems();
         for (MenuItem menuItem : menuItems) {
             menuItem.setOnAction(this::selectionForEachTable);
         }
-
         tableInfo.setOnAction(this::tableInfoAction);
         tableCreate.setOnAction(this::tableCreateAction);
     }
