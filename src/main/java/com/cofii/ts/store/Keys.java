@@ -33,8 +33,11 @@ public class Keys {
         List<Key> list = new ArrayList<>();
         for (Key key : keys) {
             String currentTable = MSQL.getCurrentTable().getName().replace(" ", "_").toLowerCase();
+            String currentDatabase = MSQL.getDatabase().toLowerCase();
+
+            String database = key.getDatabase();
             String table = key.getTableName();
-            if (currentTable.equals(table)) {
+            if (currentDatabase.equals(database) && currentTable.equals(table)) {
                 list.add(key);
             }
         }

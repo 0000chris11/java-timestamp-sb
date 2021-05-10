@@ -20,6 +20,7 @@ public class MSQL {
     // MAIN VARIABLES
     private static String user;
     private static String password;
+    private static String[] databases;
     private static String database;
     private static Table currentTable = null;
     private static String[] columns;
@@ -163,9 +164,17 @@ public class MSQL {
     public static void setColumns(String[] columns) {
         MSQL.columns = columns;
     }
-
+    
     // -------------------------------------------------
     private MSQL() {
 
+    }
+
+    public static String[] getDatabases() {
+        return databases;
+    }
+
+    public static void setDatabases(String[] databases) {
+        MSQL.databases = databases;
     }
 }

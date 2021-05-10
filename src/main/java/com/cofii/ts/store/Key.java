@@ -1,21 +1,31 @@
 package com.cofii.ts.store;
 
 public class Key {
+    private String database;
     private String tableName;
     private String constraintType;
     private int ordinalPosition;
     private String columnName;
     private String referencedTableName;
     private String referencedColumnName;
-    
-    public Key(String tableName, String constraintType, int ordinalPosition, String columnName,
+    //----------------------------------------------
+    public Key(String database, String tableName, String constraintType, int ordinalPosition, String columnName,
             String referencedTableName, String referencedColumnName) {
+        this.database = database;
         this.tableName = tableName;
         this.constraintType = constraintType;
         this.ordinalPosition = ordinalPosition;
         this.columnName = columnName;
         this.referencedTableName = referencedTableName;
         this.referencedColumnName = referencedColumnName;
+    }
+    //----------------------------------------------
+    public String getDatabase() {
+        return database;
+    }
+
+    public void setDatabase(String database) {
+        this.database = database;
     }
 
     public String getTableName() {
@@ -65,5 +75,5 @@ public class Key {
     public void setReferencedColumnName(String referencedColumnName) {
         this.referencedColumnName = referencedColumnName;
     }
-    
+
 }

@@ -25,7 +25,7 @@ public class ShowUsers implements IActions{
     @Override
     public void setData(ResultSet rs, int row) throws SQLException {
         String user = rs.getString(1);
-        if(!MList.isOnThisArray(MSQL.BAND_USERS, user)){
+        if(!MList.isOnThisList(MSQL.BAND_USERS, user, false)){
             c.getCbUser().getItems().add(user);
         }
         

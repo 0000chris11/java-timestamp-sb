@@ -5,13 +5,17 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import com.cofii.ts.first.VFController;
 import com.cofii.ts.other.CSS;
+import com.cofii.ts.other.NonCSS;
 import com.cofii.ts.sql.MSQL;
 import com.cofii.ts.store.Key;
 import com.cofii.ts.store.Keys;
 import com.cofii.ts.store.SQLTypes;
+import com.cofii.ts.store.TableS;
 import com.cofii2.components.javafx.TextFieldAutoC;
 import com.cofii2.methods.MList;
 import com.mysql.cj.MysqlType;
@@ -48,6 +52,11 @@ public class VCController implements Initializable {
     // -------------------------------------------------
     @FXML
     private Label lbhColumnNames;
+    @FXML
+    private Label lbhTypes;
+    @FXML
+    private Label lbhFK;
+
     @FXML
     private Label lbTable;
     @FXML
@@ -96,9 +105,50 @@ public class VCController implements Initializable {
     private ToggleButton[] btnsDist = new ToggleButton[MSQL.MAX_COLUMNS];
     // ---------------------------------------------
     private VFController vf;
+    private TableS tables = TableS.getInstance();
     private SQLTypes types = SQLTypes.getInstance();
     private Keys keys = Keys.getInstance();
+
+    private Pattern pattern = Pattern.compile("/([0-9,a-z,A-Z$_])/g");
+    private Matcher matcher;
+
     // LISTENERS---------------------------------------------
+    private void btnCreateControl() {
+        boolean tableOK = lbTable.getTextFill().equals(NonCSS.TEXT_FILL);
+        boolean columNamesOK = lbhColumnNames.getTextFill().equals(NonCSS.TEXT_FILL);
+        boolean typeOK = lbhTypes.getTextFill().equals(NonCSS.TEXT_FILL);
+        boolean fkOK = lbhFK.getTextFill().equals(NonCSS.TEXT_FILL);
+
+        if (tableOK && columNamesOK && typeOK && fkOK) {
+
+        }
+    }
+
+    // ---------------------------------------------
+    private void tfTableKeyReleased(KeyEvent e) {
+        System.out.println("\ntfTableKeyReleased");
+        String[] tableList = tables.getTables();
+        String text = tfTable.getText().toLowerCase().trim().replace(" ", "_");
+
+        matcher = pattern.matcher(text);
+
+        if (matcher.matches()) {
+            if (MList.isOnThisList(tableList, text, true)) {
+                System.out.println("\tTABLE EXIST");
+                lbTable.setText("This table already exist");
+                lbTable.setTextFill(NonCSS.TEXT_FILL_ERROR);
+            } else {
+                System.out.println("\tOK");
+                lbTable.setText("Table Name");
+                lbTable.setTextFill(NonCSS.TEXT_FILL);
+            }
+        } else {
+            lbTable.setText("Illegal Characters");
+            lbTable.setTextFill(NonCSS.TEXT_FILL_ERROR);
+        }
+
+    }
+
     private void tfsColumnsKeyListener(KeyEvent e) {
         TextField tf = (TextField) e.getSource();
         int index = Integer.parseInt(tf.getId());
@@ -111,7 +161,7 @@ public class VCController implements Initializable {
         while (c.next()) {
             if (c.wasReplaced()) {
                 System.out.println("\tupdate");
-                
+
                 if (MList.areTheyDuplicatedElementsOnList(listColumns)) {
                     lbhColumnNames.setText(LBH_COLUMN_NAMES_ERROR);
                     lbhColumnNames.setStyle(CSS.TEXT_FILL_ERROR);
@@ -188,26 +238,52 @@ public class VCController implements Initializable {
         }
     }
 
-    private void cksDefaultAction(ActionEvent e){
+    private void tfasFKTextProperty(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+        StringProperty textProperty = (StringProperty) observable;
+        TextField tf = (TextField) textProperty.getBean();
+        int index = Integer.parseInt(tf.getId());
+
+        if (MList.isOnThisList(tfasFK[index].getLv().getItems(), newValue, false)) {
+            lbhFK.setText("FK - Nothing selected");
+            lbhFK.setTextFill(NonCSS.TEXT_FILL_ERROR);
+        } else {
+            lbhFK.setText("FK");
+            lbhFK.setTextFill(NonCSS.TEXT_FILL);
+        }
+    }
+
+    private void cksDefaultAction(ActionEvent e) {
         CheckBox ck = (CheckBox) e.getSource();
         int index = Integer.parseInt(ck.getId());
-        if(ck.isSelected()){
+        if (ck.isSelected()) {
             tfsDefault[index].setVisible(true);
-        }else{
+        } else {
             tfsDefault[index].setVisible(false);
         }
     }
 
-    private void btnCancelAction(ActionEvent e){
+    private void btnCancelAction(ActionEvent e) {
         vf.getStage().setScene(vf.getScene());
     }
+
     // ---------------------------------------------
-    private void fkReferencesInit(){
+    private void fkReferencesInit() {
         Key[] row = keys.getRowPrimaryKeys();
-        for(int a = 0; a < row.length; a++){
+        List<String> list = new ArrayList<>();
+
+        for (int a = 0; a < row.length; a++) {
+            String database = row[a].getDatabase();
             String table = row[a].getTableName();
-            //String column = row
+
+            list.add(database + "." + table);
         }
+
+        Arrays.asList(tfasFK).forEach(e -> {
+            String[] elements = list.toArray(new String[list.size()]);
+            e.setLvOriginalElements(elements);
+            e.getLv().getItems().addAll(elements);
+            e.getLv().getSelectionModel().select(0);
+        });
     }
 
     private void nonFXMLNodesInit() {
@@ -249,12 +325,13 @@ public class VCController implements Initializable {
             rbsExtra[a].setToggleGroup(rbsExtraGroup);
             btnsChangeExtra[a] = new Button("C");
             hbsExtra[a] = new HBox(rbsExtra[a], btnsChangeExtra[a]);
-            //OTHERS ---------------------------------
+            // OTHERS ---------------------------------
             tfsColumn[a].setId(Integer.toString(a));
             btnsRemoveColumn[a].setId(Integer.toString(a));
             btnsAddColumn[a].setId(Integer.toString(a));
             tfasType[a].getTf().setId(Integer.toString(a));
             cksFK[a].setId(Integer.toString(a));
+            tfasFK[a].getTf().setId(Integer.toString(a));
             cksDefault[a].setId(Integer.toString(a));
 
             tfsColumn[a].setPrefWidth(-1);
@@ -265,8 +342,8 @@ public class VCController implements Initializable {
             tfasType[a].setPrefWidth(140);
             tfsTypeLength[a].setMinWidth(40);
             tfsTypeLength[a].setMaxWidth(40);
-            //tfasFK[a].setPrefWidth(-1);
-            //tfasFK[a].setMaxHeight(30);
+            // tfasFK[a].setPrefWidth(-1);
+            // tfasFK[a].setMaxHeight(30);
             hbsFK[a].setPrefWidth(-1);
             tfasFK[a].setPrefWidth(-1);
 
@@ -291,7 +368,7 @@ public class VCController implements Initializable {
             tfsDefault[a].setVisible(false);
             btnsChangeDefault[a].setVisible(false);
             btnsChangeExtra[a].setVisible(false);
-        
+
             hbsN[a].setStyle(CSS.BORDER_GRID_BOTTOM);
             hbsName[a].setStyle(CSS.BORDER_GRID_BOTTOM);
             hbsType[a].setStyle(CSS.BORDER_GRID_BOTTOM);
@@ -328,17 +405,20 @@ public class VCController implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         nonFXMLNodesInit();
+        fkReferencesInit();
         btnAddRemoveColumnConfig();
         for (int a = 0; a < presetColumnsLenght; a++) {
             listColumns.add(tfsColumn[a].getText().trim());
         }
         // gridPaneLeft.setGridLinesVisible(true);
+        tfTable.setOnKeyReleased(this::tfTableKeyReleased);
         Arrays.asList(tfsColumn).forEach(e -> e.setOnKeyReleased(this::tfsColumnsKeyListener));
         listColumns.addListener(this::listColumnsChange);
         Arrays.asList(btnsAddColumn).forEach(e -> e.setOnAction(this::btnsAddAction));
         Arrays.asList(btnsRemoveColumn).forEach(e -> e.setOnAction(this::btnsRemoveAction));
         Arrays.asList(tfasType).forEach(e -> e.getTf().textProperty().addListener(this::tfasTypeTextProperty));
         Arrays.asList(cksFK).forEach(e -> e.setOnAction(this::cksFKAction));
+        Arrays.asList(tfasFK).forEach(e -> e.getTf().textProperty().addListener(this::tfasFKTextProperty));
         Arrays.asList(cksDefault).forEach(e -> e.setOnAction(this::cksDefaultAction));
 
         btnCancel.setOnAction(this::btnCancelAction);
@@ -607,5 +687,5 @@ public class VCController implements Initializable {
     public void setVf(VFController vf) {
         this.vf = vf;
     }
-    
+
 }

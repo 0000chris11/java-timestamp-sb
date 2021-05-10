@@ -3,10 +3,13 @@ package com.cofii.ts.first;
 import com.cofii.ts.cu.VC;
 import com.cofii.ts.info.VI;
 import com.cofii.ts.other.Dist;
+import com.cofii.ts.other.NonCSS;
 import com.cofii.ts.sql.MSQL;
 import com.cofii.ts.sql.querys.SelectData;
 import com.cofii.ts.sql.querys.SelectTableNames;
 import com.cofii.ts.sql.querys.ShowColumns;
+import com.cofii.ts.store.Key;
+import com.cofii.ts.store.Keys;
 import com.cofii2.stores.CC;
 
 import javafx.collections.ObservableList;
@@ -19,6 +22,7 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
+import javafx.scene.text.Text;
 
 public class Menus {
     // Open
@@ -36,6 +40,7 @@ public class Menus {
     private MenuItem tableDeleteThis = new MenuItem("Delete this table");
     // ---------------------------------------------------
     private Dist dist = Dist.getInstance(vf);
+    private Keys keys = Keys.getInstance();
 
     // LISTENERS ---------------------------------------------------
     private void openChangeUserDBAction(ActionEvent e) {
@@ -46,6 +51,32 @@ public class Menus {
         new VC(vf, true);
     }
 
+    private void resetKeys() {
+        Key[] keyRows = keys.getCurrentTableKeys();
+
+        for (int a = 0; a < keyRows.length; a++) {
+            String columnName = keyRows[a].getColumnName();
+            String constraintType = keyRows[a].getConstraintType();
+            int ordinalPosition = keyRows[a].getOrdinalPosition();
+
+            vf.getLbs()[ordinalPosition - 1].getChildren().clear();
+            Text textColumnName = new Text(columnName);
+            textColumnName.setFill(NonCSS.TEXT_FILL);
+
+            if (constraintType.equals("PRIMARY KEY")) {
+                Text textPk = new Text("(P) ");
+                textPk.setFill(NonCSS.TEXT_FILL_PK);
+
+                vf.getLbs()[ordinalPosition - 1].getChildren().addAll(textPk, textColumnName);
+            } else if (constraintType.equals("FOREIGN KEY")) {
+                Text textFk = new Text("(F) ");
+                textFk.setFill(NonCSS.TEXT_FILL_PK);
+
+                vf.getLbs()[ordinalPosition - 1].getChildren().addAll(textFk, textColumnName);
+            }
+        }
+    }
+
     private void selectionForEachTable(ActionEvent e) {
         System.out.println(CC.CYAN + "\nCHANGE TABLE" + CC.RESET);
         MenuItem mi = (MenuItem) e.getSource();
@@ -53,7 +84,7 @@ public class Menus {
         System.out.println("\ttable: " + table);
 
         vf.getLbTable().setText(table);
-        // RESET -------------------------
+        // RESET NODES ---------------------------------
         for (int a = 0; a < MSQL.MAX_COLUMNS; a++) {
             if (vf.getLbs()[a].isVisible()) {
                 vf.getLbs()[a].setVisible(false);
@@ -82,6 +113,7 @@ public class Menus {
         String tableA = table.replace(" ", "_");
         vf.getMs().selectDataWhere(MSQL.TABLE_NAMES, "name", table, new SelectTableNames(true));
         vf.getMs().selectColumns(tableA, new ShowColumns(vf));
+        resetKeys();
         System.out.println("\tMSQL's table: " + MSQL.getCurrentTable().getId() + " - "
                 + MSQL.getCurrentTable().getName() + " - " + MSQL.getCurrentTable().getDist());
 

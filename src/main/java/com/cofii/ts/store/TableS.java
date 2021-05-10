@@ -13,22 +13,30 @@ public class TableS {
         return instance;
     }
     
-    private List<Table> list = new ArrayList<>();
+    private List<Table> tables = new ArrayList<>();
     //------------------------------------------
     public void addTable(Table table){
-        list.add(table);
+        tables.add(table);
     }
 
     public void clearTables(){
-        list.clear();
+        tables.clear();
     }
 
     public int size(){
-        return list.size();
+        return tables.size();
+    }
+    //------------------------------------------
+    public String getTable(int index){
+        return tables.get(index).getName();
     }
     
-    public String getTable(int index){
-        return list.get(index).getName();
+    public String[] getTables(){
+        List<String> list = new ArrayList<>();
+        for(Table table : tables){
+            list.add(table.getName());
+        }
+        return list.toArray(new String[list.size()]);
     }
     //------------------------------------------
     private TableS(){

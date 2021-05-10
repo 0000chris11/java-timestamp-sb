@@ -6,8 +6,8 @@
 [INFO] ------------------------------------------------------------------------
 [INFO] BUILD FAILURE
 [INFO] ------------------------------------------------------------------------
-[INFO] Total time:  0.718 s
-[INFO] Finished at: 2021-05-04T21:59:50-04:00
+[INFO] Total time:  0.242 s
+[INFO] Finished at: 2021-05-10T18:57:18-04:00
 [INFO] ------------------------------------------------------------------------
 [ERROR] Unknown lifecycle phase "exec". You must specify a valid lifecycle phase or a goal in the format <plugin-prefix>:<goal> or <plugin-group-id>:<plugin-artifact-id>[:<plugin-version>]:<goal>. Available lifecycle phases are: validate, initialize, generate-sources, process-sources, generate-resources, process-resources, compile, process-classes, generate-test-sources, process-test-sources, generate-test-resources, process-test-resources, test-compile, process-test-classes, test, prepare-package, package, pre-integration-test, integration-test, post-integration-test, verify, install, deploy, pre-clean, clean, post-clean, pre-site, site, post-site, site-deploy. -> [Help 1]
 [ERROR] 

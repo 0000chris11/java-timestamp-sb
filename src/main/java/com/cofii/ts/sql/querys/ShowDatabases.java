@@ -29,7 +29,8 @@ public class ShowDatabases implements IActions {
             MSQL.setDbRootconfigExist(true);
         }
         //ADD TO CBDB
-        if(!MList.isOnThisArray(MSQL.BAND_DB, db)){
+        if(!MList.isOnThisList(MSQL.BAND_DB, db, false)){
+
             c.getCbDB().getItems().add(db);
         }
     }
@@ -38,6 +39,7 @@ public class ShowDatabases implements IActions {
     public void afterQuery(String query, boolean rsValue) {
         if(rsValue){
             c.getCbDB().getSelectionModel().select(0);
+            MSQL.setDatabases(c.getCbDB().getItems().toArray(new String[c.getCbDB().getItems().size()]));
         }
     }
 

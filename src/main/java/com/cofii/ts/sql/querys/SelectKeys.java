@@ -28,15 +28,17 @@ public class SelectKeys implements IActions {
 
     @Override
     public void setData(ResultSet rs, int row) throws SQLException {
-        String tableName = rs.getString(1);
-        String constraintType = rs.getString(2);
-        int ordinalPosition = rs.getInt(3);
-        String columnName = rs.getString(4);
-        String referencedTableName = rs.getString(5);
-        String referencedColumnName = rs.getString(6);
+        String databaseName = rs.getString(1);
+        String tableName = rs.getString(2);
+        String constraintType = rs.getString(3);
+        int ordinalPosition = rs.getInt(4);
+        String columnName = rs.getString(5);
+        String referencedTableName = rs.getString(6);
+        String referencedColumnName = rs.getString(7);
         // KEY IMPLEMENT --------------------------------------------
+        String currentDatabase = MSQL.getDatabase().toLowerCase();
         String currentTable = MSQL.getCurrentTable().getName().replace(" ", "_").toLowerCase();
-        if (tableName.equals(currentTable)) {
+        if (databaseName.equals(currentDatabase) && tableName.equals(currentTable)) {
             vf.getLbs()[ordinalPosition - 1].getChildren().clear();
             Text textColumnName = new Text(columnName);
             textColumnName.setFill(NonCSS.TEXT_FILL);
@@ -54,7 +56,7 @@ public class SelectKeys implements IActions {
             }
         }
         // --------------------------------------------
-        keys.addKey(new Key(tableName, constraintType, ordinalPosition, columnName, referencedTableName,
+        keys.addKey(new Key(databaseName, tableName, constraintType, ordinalPosition, columnName, referencedTableName,
                 referencedColumnName));
     }
 
