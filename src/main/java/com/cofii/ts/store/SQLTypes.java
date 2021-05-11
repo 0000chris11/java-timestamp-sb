@@ -35,6 +35,15 @@ public class SQLTypes {
     public int getTypeMaxLength(int index){
         return types.get(index).getTypeMaxLength();
     }
+    public int getTypeMaxLength(String element){
+        int returnValue = -1;
+        for(SQLType type : types){
+            if(element.equals(type.getTypeName())){
+                returnValue = type.getTypeMaxLength();
+            }
+        }
+        return returnValue;
+    }
     //---------------------------------------------------
     private static SQLTypes instance;
     public static SQLTypes getInstance(){

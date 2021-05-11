@@ -109,8 +109,12 @@ public class VCController implements Initializable {
     private SQLTypes types = SQLTypes.getInstance();
     private Keys keys = Keys.getInstance();
 
-    private Pattern pattern = Pattern.compile("/([0-9,a-z,A-Z$_])/g");
+    private Pattern patternBW = Pattern.compile("[A-Za-z]\\w*");
+    private Pattern patternTypeLength = Pattern.compile("\\d{1," + types.getTypeMaxLength("VARCHAR") + "}");
     private Matcher matcher;
+
+    private boolean tfasTypeOK = false;
+    private boolean tfsTypeLengthOK = false;
 
     // LISTENERS---------------------------------------------
     private void btnCreateControl() {
@@ -124,14 +128,23 @@ public class VCController implements Initializable {
         }
     }
 
+    private void tfsTypeControl() {
+        if (tfasTypeOK && tfsTypeLengthOK) {
+            lbhTypes.setText("Type");
+            lbhTypes.setTextFill(NonCSS.TEXT_FILL);
+        }else{
+            lbhTypes.setText("Type - Wrong type or lenght");
+            lbhTypes.setTextFill(NonCSS.TEXT_FILL_ERROR);
+        }
+    }
+
     // ---------------------------------------------
     private void tfTableKeyReleased(KeyEvent e) {
         System.out.println("\ntfTableKeyReleased");
         String[] tableList = tables.getTables();
         String text = tfTable.getText().toLowerCase().trim().replace(" ", "_");
 
-        matcher = pattern.matcher(text);
-
+        matcher = patternBW.matcher(text);
         if (matcher.matches()) {
             if (MList.isOnThisList(tableList, text, true)) {
                 System.out.println("\tTABLE EXIST");
@@ -143,7 +156,7 @@ public class VCController implements Initializable {
                 lbTable.setTextFill(NonCSS.TEXT_FILL);
             }
         } else {
-            lbTable.setText("Illegal Characters");
+            lbTable.setText("Not Accepted Characters");
             lbTable.setTextFill(NonCSS.TEXT_FILL_ERROR);
         }
 
@@ -153,7 +166,14 @@ public class VCController implements Initializable {
         TextField tf = (TextField) e.getSource();
         int index = Integer.parseInt(tf.getId());
         System.out.println("TF " + (index + 1));
-        listColumns.set(index, tf.getText());
+
+        String text = tf.getText().toLowerCase().trim().replace(" ", "_");
+        matcher = patternBW.matcher(text);
+        if (matcher.matches()) {
+            listColumns.set(index, text);
+        } else {
+            listColumns.remove(index);
+        }
     }
 
     private void listColumnsChange(Change<? extends String> c) {
@@ -213,19 +233,49 @@ public class VCController implements Initializable {
         TextField tf = (TextField) textProperty.getBean();
         int index = Integer.parseInt(tf.getId());
 
-        if (MList.isOnThisList(tfasType[index].getLv().getItems(), newValue, false)) {
-            int typeLength = types.getTypeLength(newValue);
-            if (typeLength > 0) {
-                tfsTypeLength[index].setVisible(true);
-                tfsTypeLength[index].setText(Integer.toString(typeLength));
+        newValue = newValue.trim();
+        matcher = patternBW.matcher(newValue);
+        if (matcher.matches()) {
+            if (MList.isOnThisList(tfasType[index].getLv().getItems(), newValue, false)) {
+                int typeLength = types.getTypeLength(newValue);
+                if (typeLength > 0) {
+                    tfsTypeLength[index].setVisible(true);
+                    tfsTypeLength[index].setText(Integer.toString(typeLength));
+                } else {
+                    tfsTypeLength[index].setVisible(false);
+                    tfsTypeLength[index].setText("1");
+                    tfsTypeLengthOK = true;
+                }
+
+                tfasTypeOK = true;
             } else {
                 tfsTypeLength[index].setVisible(false);
-                tfsTypeLength[index].setText("0");
+                tfsTypeLength[index].setText("1");
+
+                tfasTypeOK = false;
             }
         } else {
-            tfsTypeLength[index].setVisible(false);
-            tfsTypeLength[index].setText("0");
+            tfasTypeOK = false;
         }
+        
+        tfsTypeControl();
+    }
+
+    private void tfsTypeLengthKeyReleased(ObservableValue<? extends String> observable, String oldValue,
+            String newValue) {
+        StringProperty textProperty = (StringProperty) observable;
+        TextField tf = (TextField) textProperty.getBean();
+        int index = Integer.parseInt(tf.getId());
+
+        String text = tfsTypeLength[index].getText().toLowerCase().trim();
+        matcher = patternTypeLength.matcher(text);
+        if (matcher.matches()) {
+            tfsTypeLengthOK = true;
+        } else {
+            tfsTypeLengthOK = false;
+        }
+
+        tfsTypeControl();
     }
 
     private void cksFKAction(ActionEvent e) {
@@ -299,7 +349,7 @@ public class VCController implements Initializable {
             hbsName[a] = new HBox(tfsColumn[a], btnsRemoveColumn[a], btnsAddColumn[a], btnsRenameColumn[a]);
 
             tfasType[a] = new TextFieldAutoC(a, types.getTypeNames());
-            tfsTypeLength[a] = new TextField("0");
+            tfsTypeLength[a] = new TextField("1");
             btnsChangeType[a] = new Button("C");
             hbsType[a] = new HBox(tfasType[a], tfsTypeLength[a], btnsChangeType[a]);
 
@@ -330,6 +380,7 @@ public class VCController implements Initializable {
             btnsRemoveColumn[a].setId(Integer.toString(a));
             btnsAddColumn[a].setId(Integer.toString(a));
             tfasType[a].getTf().setId(Integer.toString(a));
+            tfsTypeLength[a].setId(Integer.toString(a));
             cksFK[a].setId(Integer.toString(a));
             tfasFK[a].getTf().setId(Integer.toString(a));
             cksDefault[a].setId(Integer.toString(a));
@@ -417,6 +468,7 @@ public class VCController implements Initializable {
         Arrays.asList(btnsAddColumn).forEach(e -> e.setOnAction(this::btnsAddAction));
         Arrays.asList(btnsRemoveColumn).forEach(e -> e.setOnAction(this::btnsRemoveAction));
         Arrays.asList(tfasType).forEach(e -> e.getTf().textProperty().addListener(this::tfasTypeTextProperty));
+        Arrays.asList(tfsTypeLength).forEach(e -> e.textProperty().addListener(this::tfsTypeLengthKeyReleased));
         Arrays.asList(cksFK).forEach(e -> e.setOnAction(this::cksFKAction));
         Arrays.asList(tfasFK).forEach(e -> e.getTf().textProperty().addListener(this::tfasFKTextProperty));
         Arrays.asList(cksDefault).forEach(e -> e.setOnAction(this::cksDefaultAction));
