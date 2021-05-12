@@ -14,6 +14,7 @@ import com.cofii.ts.other.NonCSS;
 import com.cofii.ts.sql.MSQL;
 import com.cofii.ts.store.Key;
 import com.cofii.ts.store.Keys;
+import com.cofii.ts.store.SQLType;
 import com.cofii.ts.store.SQLTypes;
 import com.cofii.ts.store.TableS;
 import com.cofii2.components.javafx.TextFieldAutoC;
@@ -28,17 +29,23 @@ import javafx.collections.ListChangeListener.Change;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
+import javafx.scene.control.Tooltip;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.util.Duration;
 
 public class VCController implements Initializable {
 
@@ -46,7 +53,9 @@ public class VCController implements Initializable {
     public static final String LBH_COLUMN_NAMES_ERROR = "Columns have the same name";
     public static final Insets INSETS = new Insets(2, 2, 2, 2);
     // -------------------------------------------------
-    private int presetColumnsLenght = 2;
+    private int presetRowsLenght = 2;
+    private int currentRowLength = presetRowsLenght;
+    private List<SQLType> presetTypeSelected = new ArrayList<>(MSQL.MAX_COLUMNS);
 
     private ObservableList<String> listColumns = FXCollections.observableArrayList();
     // -------------------------------------------------
@@ -82,6 +91,7 @@ public class VCController implements Initializable {
     private HBox[] hbsType = new HBox[MSQL.MAX_COLUMNS];// -----------
     private TextFieldAutoC[] tfasType = new TextFieldAutoC[MSQL.MAX_COLUMNS];
     private TextField[] tfsTypeLength = new TextField[MSQL.MAX_COLUMNS];
+    private Tooltip[] tfsTypeLengthTT = new Tooltip[MSQL.MAX_COLUMNS];
     private Button[] btnsChangeType = new Button[MSQL.MAX_COLUMNS];
     private HBox[] hbsNull = new HBox[MSQL.MAX_COLUMNS];// -----------
     private CheckBox[] cksNull = new CheckBox[MSQL.MAX_COLUMNS];
@@ -110,7 +120,7 @@ public class VCController implements Initializable {
     private Keys keys = Keys.getInstance();
 
     private Pattern patternBW = Pattern.compile("[A-Za-z]\\w*");
-    private Pattern patternTypeLength = Pattern.compile("\\d{1," + types.getTypeMaxLength("VARCHAR") + "}");
+    private Pattern patternTypeLength = Pattern.compile("\\d{1,5}");
     private Matcher matcher;
 
     private boolean tfasTypeOK = false;
@@ -120,10 +130,18 @@ public class VCController implements Initializable {
     private void btnCreateControl() {
         boolean tableOK = lbTable.getTextFill().equals(NonCSS.TEXT_FILL);
         boolean columNamesOK = lbhColumnNames.getTextFill().equals(NonCSS.TEXT_FILL);
+        boolean columnNameOK2 = true;
         boolean typeOK = lbhTypes.getTextFill().equals(NonCSS.TEXT_FILL);
         boolean fkOK = lbhFK.getTextFill().equals(NonCSS.TEXT_FILL);
 
-        if (tableOK && columNamesOK && typeOK && fkOK) {
+        for (int a = 0; a < currentRowLength; a++) {
+            if (!lbsN[a].getTextFill().equals(NonCSS.TEXT_FILL)) {
+                columnNameOK2 = false;
+                break;
+            }
+        }
+
+        if (tableOK && columNamesOK && columnNameOK2 && typeOK && fkOK) {
 
         }
     }
@@ -132,9 +150,49 @@ public class VCController implements Initializable {
         if (tfasTypeOK && tfsTypeLengthOK) {
             lbhTypes.setText("Type");
             lbhTypes.setTextFill(NonCSS.TEXT_FILL);
-        }else{
+        } else {
             lbhTypes.setText("Type - Wrong type or lenght");
             lbhTypes.setTextFill(NonCSS.TEXT_FILL_ERROR);
+        }
+    }
+
+    private void tfasTypeAllControl(int index) {
+        for (int a = 0; a < currentRowLength; a++) {
+            if (index != a) {
+                String text = tfasType[a].getTf().getText();
+                matcher = patternBW.matcher(text);
+                if (matcher.matches()) {
+                    if (!MList.isOnThisList(tfasType[a].getLv().getItems(), text, false)) {
+                        tfasTypeOK = false;
+                        break;
+                    }
+                } else {
+                    tfasTypeOK = false;
+                    break;
+                }
+            }
+
+        }
+    }
+
+    private void tfsTypeLengthAllControl(int index) {
+        for (int a = 0; a < currentRowLength; a++) {
+            if (index != a) {
+                String text = tfsTypeLength[a].getText();
+                int typeMaxLength = types.getTypeMaxLength(tfasType[a].getTf().getText());
+
+                matcher = patternBW.matcher(text);
+                if (matcher.matches()) {
+                    int length = Integer.parseInt(text);
+                    if (length > typeMaxLength) {
+                        tfsTypeLengthOK = false;
+                        break;
+                    }
+                } else {
+                    tfsTypeLengthOK = false;
+                    break;
+                }
+            }
         }
     }
 
@@ -168,18 +226,23 @@ public class VCController implements Initializable {
         System.out.println("TF " + (index + 1));
 
         String text = tf.getText().toLowerCase().trim().replace(" ", "_");
+        listColumns.set(index, text);
         matcher = patternBW.matcher(text);
         if (matcher.matches()) {
-            listColumns.set(index, text);
+            lbsN[index].setText("Column " + (index + 1));
+            lbsN[index].setTextFill(NonCSS.TEXT_FILL);
         } else {
-            listColumns.remove(index);
+            lbsN[index].setText("Column " + (index + 1) + "Illegal Chars");
+            lbsN[index].setTextFill(NonCSS.TEXT_FILL_ERROR);
         }
+
+        btnCreateControl();
     }
 
     private void listColumnsChange(Change<? extends String> c) {
         System.out.println("LIST CHANGE");
         while (c.next()) {
-            if (c.wasReplaced()) {
+            if (c.wasReplaced() || c.wasAdded() || c.wasRemoved()) {
                 System.out.println("\tupdate");
 
                 if (MList.areTheyDuplicatedElementsOnList(listColumns)) {
@@ -213,6 +276,7 @@ public class VCController implements Initializable {
         gridPaneLeft.add(hbsExtra[index], 7, row);
 
         listColumns.add("");
+        currentRowLength++;
     }
 
     private void btnsRemoveAction(ActionEvent e) {
@@ -226,6 +290,7 @@ public class VCController implements Initializable {
                 hbsFK[index], hbsDefault[index], hbsExtra[index]);
 
         listColumns.remove(index);
+        currentRowLength--;
     }
 
     private void tfasTypeTextProperty(ObservableValue<? extends String> observable, String oldValue, String newValue) {
@@ -238,7 +303,7 @@ public class VCController implements Initializable {
         if (matcher.matches()) {
             if (MList.isOnThisList(tfasType[index].getLv().getItems(), newValue, false)) {
                 int typeLength = types.getTypeLength(newValue);
-                if (typeLength > 0) {
+                if (typeLength > 0) {// TF-TYPE-LENGTH-POPUP
                     tfsTypeLength[index].setVisible(true);
                     tfsTypeLength[index].setText(Integer.toString(typeLength));
                 } else {
@@ -248,6 +313,7 @@ public class VCController implements Initializable {
                 }
 
                 tfasTypeOK = true;
+                tfasTypeAllControl(index);
             } else {
                 tfsTypeLength[index].setVisible(false);
                 tfsTypeLength[index].setText("1");
@@ -257,25 +323,54 @@ public class VCController implements Initializable {
         } else {
             tfasTypeOK = false;
         }
-        
+
         tfsTypeControl();
     }
 
-    private void tfsTypeLengthKeyReleased(ObservableValue<? extends String> observable, String oldValue,
+    private void tfsTypeLengthTextProperty(ObservableValue<? extends String> observable, String oldValue,
             String newValue) {
         StringProperty textProperty = (StringProperty) observable;
         TextField tf = (TextField) textProperty.getBean();
-        int index = Integer.parseInt(tf.getId());
+        if (tf.isVisible()) {
+            boolean wrong = false;
+            int index = Integer.parseInt(tf.getId());
 
-        String text = tfsTypeLength[index].getText().toLowerCase().trim();
-        matcher = patternTypeLength.matcher(text);
-        if (matcher.matches()) {
-            tfsTypeLengthOK = true;
-        } else {
-            tfsTypeLengthOK = false;
+            String text = tfsTypeLength[index].getText().toLowerCase().trim();
+            int typeMaxLength = types.getTypeMaxLength(tfasType[index].getTf().getText());
+
+            matcher = patternTypeLength.matcher(text);
+            if (matcher.matches()) {
+                int length = Integer.parseInt(text);
+                if (length <= typeMaxLength) {
+                    tfsTypeLengthOK = true;
+                    tfsTypeLengthAllControl(index);
+
+                    tf.setStyle(CSS.TEXT_FILL);
+                    tfsTypeLengthTT[index].hide();
+
+                } else {
+                    wrong = true;
+                }
+            } else {
+                wrong = true;
+            }
+
+            if (wrong) {
+                tfsTypeLengthOK = false;
+
+                if (typeMaxLength > 0) {
+                    tfsTypeLengthTT[index].setText("Wrong length (1 to " + typeMaxLength + ")");
+                }
+
+                tf.setStyle(CSS.TEXT_FILL_ERROR);
+
+                Bounds bounds = tf.getBoundsInLocal();
+                Bounds screenBounds = tf.localToScreen(bounds);
+                tfsTypeLengthTT[index].show(tf, screenBounds.getMaxX(), screenBounds.getMinY());
+            }
+
+            tfsTypeControl();
         }
-
-        tfsTypeControl();
     }
 
     private void cksFKAction(ActionEvent e) {
@@ -332,7 +427,7 @@ public class VCController implements Initializable {
             String[] elements = list.toArray(new String[list.size()]);
             e.setLvOriginalElements(elements);
             e.getLv().getItems().addAll(elements);
-            e.getLv().getSelectionModel().select(0);
+            e.getLv().getSelectionModel().select(0);// UNTESTED
         });
     }
 
@@ -385,6 +480,11 @@ public class VCController implements Initializable {
             tfasFK[a].getTf().setId(Integer.toString(a));
             cksDefault[a].setId(Integer.toString(a));
 
+            // TYPE DEFAULT SELECTION----------------------------
+            tfasType[a].getLv().getSelectionModel().select(presetTypeSelected.get(a).getTypeName());
+            tfsTypeLength[a].setText(Integer.toString(presetTypeSelected.get(a).getTypeLength()));
+            //----------------------------------------------
+
             tfsColumn[a].setPrefWidth(-1);
             btnsRemoveColumn[a].setMinWidth(40);
             btnsRemoveColumn[a].setMaxWidth(40);
@@ -410,7 +510,7 @@ public class VCController implements Initializable {
             btnsChangeExtra[a].managedProperty().bind(btnsChangeExtra[a].visibleProperty());
 
             btnsRenameColumn[a].setVisible(false);
-            tfsTypeLength[a].setVisible(false);
+            //tfsTypeLength[a].setVisible(false);
             btnsChangeType[a].setVisible(false);
             btnsChangeNull[a].setVisible(false);
             btnsChangePK[a].setVisible(false);
@@ -442,9 +542,22 @@ public class VCController implements Initializable {
         }
     }
 
+    private void tooltipNodesInit() {
+        for (int a = 0; a < MSQL.MAX_COLUMNS; a++) {
+            TextField tfTypeLength = tfsTypeLength[a];
+            Tooltip t = new Tooltip("Wrong Length");
+            Tooltip.install(tfTypeLength, t);
+            tfsTypeLengthTT[a] = t;
+            tfsTypeLengthTT[a].setShowDuration(Duration.seconds(2));
+            // tfsTypeLengthTT[a].xProperty()/CAN'T GET BOUND PROPERTY
+
+            // tfTypeLength.getTooltip().setAutoFix(true);
+        }
+    }
+
     private void btnAddRemoveColumnConfig() {
         for (int a = 0; a < MSQL.MAX_COLUMNS; a++) {
-            if (a < presetColumnsLenght - 1) {
+            if (a < presetRowsLenght - 1) {
                 btnsAddColumn[a].setVisible(false);
                 btnsRemoveColumn[a].setVisible(false);
             }
@@ -453,12 +566,24 @@ public class VCController implements Initializable {
         btnsAddColumn[MSQL.MAX_COLUMNS - 1].setDisable(true);
     }
 
+    private void presetSomeInit() {
+        for (int a = 0; a < MSQL.MAX_COLUMNS; a++) {
+            if (a == 0) {
+                presetTypeSelected.add(types.getType("INT"));
+            } else {
+                presetTypeSelected.add(types.getType("CHAR"));
+            }
+        }
+    }
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        presetSomeInit();
         nonFXMLNodesInit();
+        tooltipNodesInit();
         fkReferencesInit();
         btnAddRemoveColumnConfig();
-        for (int a = 0; a < presetColumnsLenght; a++) {
+        for (int a = 0; a < presetRowsLenght; a++) {
             listColumns.add(tfsColumn[a].getText().trim());
         }
         // gridPaneLeft.setGridLinesVisible(true);
@@ -468,7 +593,7 @@ public class VCController implements Initializable {
         Arrays.asList(btnsAddColumn).forEach(e -> e.setOnAction(this::btnsAddAction));
         Arrays.asList(btnsRemoveColumn).forEach(e -> e.setOnAction(this::btnsRemoveAction));
         Arrays.asList(tfasType).forEach(e -> e.getTf().textProperty().addListener(this::tfasTypeTextProperty));
-        Arrays.asList(tfsTypeLength).forEach(e -> e.textProperty().addListener(this::tfsTypeLengthKeyReleased));
+        Arrays.asList(tfsTypeLength).forEach(e -> e.textProperty().addListener(this::tfsTypeLengthTextProperty));
         Arrays.asList(cksFK).forEach(e -> e.setOnAction(this::cksFKAction));
         Arrays.asList(tfasFK).forEach(e -> e.getTf().textProperty().addListener(this::tfasFKTextProperty));
         Arrays.asList(cksDefault).forEach(e -> e.setOnAction(this::cksDefaultAction));
@@ -724,12 +849,12 @@ public class VCController implements Initializable {
         this.btnsDist = btnsDist;
     }
 
-    public int getPresetColumnsLenght() {
-        return presetColumnsLenght;
+    public int getPresetRowsLenght() {
+        return presetRowsLenght;
     }
 
-    public void setPresetColumnsLenght(int presetColumnsLenght) {
-        this.presetColumnsLenght = presetColumnsLenght;
+    public void setPresetRowsLenght(int presetColumnsLenght) {
+        this.presetRowsLenght = presetColumnsLenght;
     }
 
     public VFController getVf() {

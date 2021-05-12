@@ -44,6 +44,16 @@ public class SQLTypes {
         }
         return returnValue;
     }
+    public SQLType getType(String typeName){
+        SQLType returnValue = null;
+        for(SQLType type : types){
+            if(typeName.equals(type.getTypeName())){
+                returnValue = type;
+                break;
+            }
+        }
+        return returnValue;
+    }
     //---------------------------------------------------
     private static SQLTypes instance;
     public static SQLTypes getInstance(){

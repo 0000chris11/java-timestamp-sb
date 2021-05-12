@@ -27,9 +27,10 @@ public class VC {
 
             VCController vc = (VCController)loader.getController();
 
+            vc.setVf(vf);
             ms = vf.getMs();
             if(create){//THE REASON FOR NOT ADDING THE NODES IN THE CONTROLLER
-                for(int a = 0;a < vc.getPresetColumnsLenght(); a++){
+                for(int a = 0;a < vc.getPresetRowsLenght(); a++){
                     int row = a + 1;
 
                     vc.getGridPaneLeft().add(vc.getLbsN()[a], 0, row);
