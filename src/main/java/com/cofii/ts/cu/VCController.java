@@ -8,6 +8,8 @@ import java.util.ResourceBundle;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.swing.plaf.basic.BasicComboBoxUI.PropertyChangeHandler;
+
 import com.cofii.ts.first.VFController;
 import com.cofii.ts.other.CSS;
 import com.cofii.ts.other.NonCSS;
@@ -27,6 +29,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.ListChangeListener.Change;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Bounds;
@@ -45,6 +48,7 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.stage.WindowEvent;
 import javafx.util.Duration;
 
 public class VCController implements Initializable {
@@ -52,6 +56,10 @@ public class VCController implements Initializable {
     public static final String LBH_COLUMN_NAMES = "Name";
     public static final String LBH_COLUMN_NAMES_ERROR = "Columns have the same name";
     public static final Insets INSETS = new Insets(2, 2, 2, 2);
+
+    private static final String ILLEGAL_CHARS = "Illegal Chars";
+    private static final String SELECTION_UNMATCH = "Selection Unmatch";
+
     // -------------------------------------------------
     private int presetRowsLenght = 2;
     private int currentRowLength = presetRowsLenght;
@@ -85,6 +93,7 @@ public class VCController implements Initializable {
     private Label[] lbsN = new Label[MSQL.MAX_COLUMNS];
     private HBox[] hbsName = new HBox[MSQL.MAX_COLUMNS];// -----------
     private TextField[] tfsColumn = new TextField[MSQL.MAX_COLUMNS];
+    private Tooltip[] tfsColumnTT = new Tooltip[MSQL.MAX_COLUMNS];
     private Button[] btnsRemoveColumn = new Button[MSQL.MAX_COLUMNS];
     private Button[] btnsAddColumn = new Button[MSQL.MAX_COLUMNS];
     private Button[] btnsRenameColumn = new Button[MSQL.MAX_COLUMNS];
@@ -102,6 +111,7 @@ public class VCController implements Initializable {
     private HBox[] hbsFK = new HBox[MSQL.MAX_COLUMNS];// -----------
     private CheckBox[] cksFK = new CheckBox[MSQL.MAX_COLUMNS];
     private TextFieldAutoC[] tfasFK = new TextFieldAutoC[MSQL.MAX_COLUMNS];
+    private Tooltip[] tfasFKTT = new Tooltip[MSQL.MAX_COLUMNS];
     private Button[] btnsChangeFK = new Button[MSQL.MAX_COLUMNS];
     private HBox[] hbsDefault = new HBox[MSQL.MAX_COLUMNS];// -----------
     private CheckBox[] cksDefault = new CheckBox[MSQL.MAX_COLUMNS];
@@ -123,31 +133,43 @@ public class VCController implements Initializable {
     private Pattern patternTypeLength = Pattern.compile("\\d{1,5}");
     private Matcher matcher;
 
-    private boolean tfasTypeOK = false;
-    private boolean tfsTypeLengthOK = false;
+    private boolean tfsColumnBWOK = false;
+    private boolean typeSelectionMatch = false;
+    private boolean typeLengthOK = false;
+    private boolean fkSelectionMatch = false;
+    private boolean defaultBW = false;
 
-    // LISTENERS---------------------------------------------
+    // CONTROL---------------------------------------------
     private void btnCreateControl() {
-        boolean tableOK = lbTable.getTextFill().equals(NonCSS.TEXT_FILL);
-        boolean columNamesOK = lbhColumnNames.getTextFill().equals(NonCSS.TEXT_FILL);
-        boolean columnNameOK2 = true;
-        boolean typeOK = lbhTypes.getTextFill().equals(NonCSS.TEXT_FILL);
-        boolean fkOK = lbhFK.getTextFill().equals(NonCSS.TEXT_FILL);
+        // TABLE: EXIST AND MATCHES---------------------------
+        boolean tableDiferrentMatch = lbTable.getTextFill().equals(NonCSS.TEXT_FILL);
+        // COLUMN NAMES: SAME AND MATCHES---------------------
+        boolean columSameNames = lbhColumnNames.getTextFill().equals(NonCSS.TEXT_FILL);
+        // TYPE: SELECTION MATCH ~ TYPE LENGTH: CORRECT LENGTH
+        // FK: SELECTION MATCH
+        // DEFAULT: MATCHES
 
-        for (int a = 0; a < currentRowLength; a++) {
-            if (!lbsN[a].getTextFill().equals(NonCSS.TEXT_FILL)) {
-                columnNameOK2 = false;
-                break;
-            }
+        if (tableDiferrentMatch && columSameNames && tfsColumnBWOK && typeSelectionMatch && typeLengthOK
+                && fkSelectionMatch && defaultBW) {
+            btnCreate.setDisable(false);
+        } else {
+            btnCreate.setDisable(true);
         }
+    }
 
-        if (tableOK && columNamesOK && columnNameOK2 && typeOK && fkOK) {
-
+    private void tfsColumnControl(int index) {
+        for (int a = 0; a < currentRowLength; a++) {
+            if (a != index) {
+                if (!matcher.matches()) {
+                    tfsColumnBWOK = false;
+                    break;
+                }
+            }
         }
     }
 
     private void tfsTypeControl() {
-        if (tfasTypeOK && tfsTypeLengthOK) {
+        if (typeSelectionMatch && typeLengthOK) {
             lbhTypes.setText("Type");
             lbhTypes.setTextFill(NonCSS.TEXT_FILL);
         } else {
@@ -163,11 +185,11 @@ public class VCController implements Initializable {
                 matcher = patternBW.matcher(text);
                 if (matcher.matches()) {
                     if (!MList.isOnThisList(tfasType[a].getLv().getItems(), text, false)) {
-                        tfasTypeOK = false;
+                        typeSelectionMatch = false;
                         break;
                     }
                 } else {
-                    tfasTypeOK = false;
+                    typeSelectionMatch = false;
                     break;
                 }
             }
@@ -184,19 +206,39 @@ public class VCController implements Initializable {
                 matcher = patternBW.matcher(text);
                 if (matcher.matches()) {
                     int length = Integer.parseInt(text);
-                    if (length > typeMaxLength) {
-                        tfsTypeLengthOK = false;
+                    if (length > typeMaxLength) {// IF NOT
+                        typeLengthOK = false;
                         break;
                     }
                 } else {
-                    tfsTypeLengthOK = false;
+                    typeLengthOK = false;
                     break;
                 }
             }
         }
     }
 
-    // ---------------------------------------------
+    private void tfasFKControl(int index) {
+        for (int a = 0; a < currentRowLength; a++) {
+            if (a != index) {
+                String text = tfasFK[a].getTf().getText();
+                if (!MList.isOnThisList(tfasFK[index].getLv().getItems(), text, false)) {
+                    fkSelectionMatch = false;
+                    break;
+                }
+            }
+        }
+    }
+
+    private void tfsDefaultControl(int index) {
+        for (int a = 0; a < currentRowLength; a++) {
+            if (a != index) {
+
+            }
+        }
+    }
+
+    // LISTENERS---------------------------------------------
     private void tfTableKeyReleased(KeyEvent e) {
         System.out.println("\ntfTableKeyReleased");
         String[] tableList = tables.getTables();
@@ -218,22 +260,33 @@ public class VCController implements Initializable {
             lbTable.setTextFill(NonCSS.TEXT_FILL_ERROR);
         }
 
+        btnCreateControl();
     }
 
-    private void tfsColumnsKeyListener(KeyEvent e) {
+    private void tfsColumnsKeyReleased(KeyEvent e) {
         TextField tf = (TextField) e.getSource();
         int index = Integer.parseInt(tf.getId());
         System.out.println("TF " + (index + 1));
 
         String text = tf.getText().toLowerCase().trim().replace(" ", "_");
         listColumns.set(index, text);
+
+        //ASK IF TOOLTIP IS NULL
+
         matcher = patternBW.matcher(text);
         if (matcher.matches()) {
-            lbsN[index].setText("Column " + (index + 1));
-            lbsN[index].setTextFill(NonCSS.TEXT_FILL);
+            tf.setStyle(CSS.TEXT_FILL);
+
+            //tf.setTooltip(null);
+
+            tfsColumnBWOK = true;// REST CONTROL
+            tfsColumnControl(index);
         } else {
-            lbsN[index].setText("Column " + (index + 1) + "Illegal Chars");
-            lbsN[index].setTextFill(NonCSS.TEXT_FILL_ERROR);
+            tf.setStyle(CSS.TEXT_FILL_ERROR);
+
+            tooltipDefaultAction(tf);
+
+            tfsColumnBWOK = false;
         }
 
         btnCreateControl();
@@ -256,6 +309,7 @@ public class VCController implements Initializable {
         }
     }
 
+    // ----
     private void btnsAddAction(ActionEvent e) {
         Button btn = (Button) e.getSource();
         int index = Integer.parseInt(btn.getId()) + 1;
@@ -293,6 +347,7 @@ public class VCController implements Initializable {
         currentRowLength--;
     }
 
+    // ----
     private void tfasTypeTextProperty(ObservableValue<? extends String> observable, String oldValue, String newValue) {
         StringProperty textProperty = (StringProperty) observable;
         TextField tf = (TextField) textProperty.getBean();
@@ -309,22 +364,26 @@ public class VCController implements Initializable {
                 } else {
                     tfsTypeLength[index].setVisible(false);
                     tfsTypeLength[index].setText("1");
-                    tfsTypeLengthOK = true;
+                    typeLengthOK = true;
                 }
 
-                tfasTypeOK = true;
+                //tf.setTooltip(null);
+
+                typeSelectionMatch = true;
                 tfasTypeAllControl(index);
             } else {
                 tfsTypeLength[index].setVisible(false);
                 tfsTypeLength[index].setText("1");
+                
+                tooltipDefaultAction(tf);
 
-                tfasTypeOK = false;
+                typeSelectionMatch = false;
             }
         } else {
-            tfasTypeOK = false;
+            typeSelectionMatch = false;
         }
 
-        tfsTypeControl();
+        btnCreateControl();
     }
 
     private void tfsTypeLengthTextProperty(ObservableValue<? extends String> observable, String oldValue,
@@ -342,11 +401,12 @@ public class VCController implements Initializable {
             if (matcher.matches()) {
                 int length = Integer.parseInt(text);
                 if (length <= typeMaxLength) {
-                    tfsTypeLengthOK = true;
+                    typeLengthOK = true;
                     tfsTypeLengthAllControl(index);
 
                     tf.setStyle(CSS.TEXT_FILL);
-                    tfsTypeLengthTT[index].hide();
+                    // tfsTypeLengthTT[index].hide();
+                    //tf.setTooltip(null);
 
                 } else {
                     wrong = true;
@@ -356,7 +416,7 @@ public class VCController implements Initializable {
             }
 
             if (wrong) {
-                tfsTypeLengthOK = false;
+                typeLengthOK = false;
 
                 if (typeMaxLength > 0) {
                     tfsTypeLengthTT[index].setText("Wrong length (1 to " + typeMaxLength + ")");
@@ -364,13 +424,13 @@ public class VCController implements Initializable {
 
                 tf.setStyle(CSS.TEXT_FILL_ERROR);
 
-                Bounds bounds = tf.getBoundsInLocal();
-                Bounds screenBounds = tf.localToScreen(bounds);
-                tfsTypeLengthTT[index].show(tf, screenBounds.getMaxX(), screenBounds.getMinY());
+                tooltipDefaultAction(tf);
             }
 
-            tfsTypeControl();
+            // tfsTypeControl();
         }
+
+        btnCreateControl();
     }
 
     private void cksFKAction(ActionEvent e) {
@@ -381,20 +441,32 @@ public class VCController implements Initializable {
         } else {
             tfasFK[index].setVisible(false);
         }
+
+        btnCreateControl();
     }
 
     private void tfasFKTextProperty(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+        System.out.println("tfasFKTextProperty observable class: " + observable.getClass().getName());
         StringProperty textProperty = (StringProperty) observable;
         TextField tf = (TextField) textProperty.getBean();
         int index = Integer.parseInt(tf.getId());
 
         if (MList.isOnThisList(tfasFK[index].getLv().getItems(), newValue, false)) {
-            lbhFK.setText("FK - Nothing selected");
-            lbhFK.setTextFill(NonCSS.TEXT_FILL_ERROR);
+            tf.setStyle(CSS.TEXT_FILL);
+            // tfasFKTT[index].hide();
+            //tf.setTooltip(null);
+
+            fkSelectionMatch = true;
+            tfasFKControl(index);
         } else {
-            lbhFK.setText("FK");
-            lbhFK.setTextFill(NonCSS.TEXT_FILL);
+            tf.setStyle(CSS.TEXT_FILL_ERROR);
+
+            tooltipDefaultAction(tf);
+
+            fkSelectionMatch = false;
         }
+
+        btnCreateControl();
     }
 
     private void cksDefaultAction(ActionEvent e) {
@@ -405,13 +477,59 @@ public class VCController implements Initializable {
         } else {
             tfsDefault[index].setVisible(false);
         }
+
+        btnCreateControl();
+    }
+
+    private void tfsDefaultKeyReleased(KeyEvent e) {
+        TextField tf = (TextField) e.getSource();
+        int index = Integer.parseInt(tf.getId());
+
+        String text = tf.getText();
+        matcher = patternBW.matcher(text);
+        if (matcher.matches()) {
+            tf.setStyle(CSS.TEXT_FILL);
+            
+            //tf.setTooltip(null);
+
+            defaultBW = true;
+            tfsDefaultControl(index);
+        } else {
+            tf.setStyle(CSS.TEXT_FILL_ERROR);
+
+            tooltipDefaultAction(tf);
+
+            defaultBW = false;
+        }
+
+        btnCreateControl();
     }
 
     private void btnCancelAction(ActionEvent e) {
         vf.getStage().setScene(vf.getScene());
     }
 
-    // ---------------------------------------------
+    // ----
+    private void tooltipMove(WindowEvent value) {
+        Tooltip tt = (Tooltip) value.getSource();
+        TextField tf = (TextField) tt.getOwnerNode();
+
+        Bounds bounds = tf.localToScreen(tf.getBoundsInLocal());
+        tf.getTooltip().setX(bounds.getMaxX());
+        tf.getTooltip().setY(bounds.getMinY());
+    }
+
+    private void tooltipDefaultAction(TextField tf) {
+        if (tf.getTooltip() == null) {
+            tf.setTooltip(new Tooltip());
+            tf.getTooltip().setShowDuration(Duration.seconds(1));
+        }
+        tf.getTooltip().setText(ILLEGAL_CHARS);
+        Bounds sb = tf.localToScreen(tf.getBoundsInLocal());
+        tf.getTooltip().show(tf, sb.getMaxX(), sb.getMinY());
+    }
+
+    // INIT ---------------------------------------------
     private void fkReferencesInit() {
         Key[] row = keys.getRowPrimaryKeys();
         List<String> list = new ArrayList<>();
@@ -479,11 +597,12 @@ public class VCController implements Initializable {
             cksFK[a].setId(Integer.toString(a));
             tfasFK[a].getTf().setId(Integer.toString(a));
             cksDefault[a].setId(Integer.toString(a));
+            tfsDefault[a].setId(Integer.toString(a));
 
             // TYPE DEFAULT SELECTION----------------------------
             tfasType[a].getLv().getSelectionModel().select(presetTypeSelected.get(a).getTypeName());
             tfsTypeLength[a].setText(Integer.toString(presetTypeSelected.get(a).getTypeLength()));
-            //----------------------------------------------
+            // ----------------------------------------------
 
             tfsColumn[a].setPrefWidth(-1);
             btnsRemoveColumn[a].setMinWidth(40);
@@ -510,7 +629,7 @@ public class VCController implements Initializable {
             btnsChangeExtra[a].managedProperty().bind(btnsChangeExtra[a].visibleProperty());
 
             btnsRenameColumn[a].setVisible(false);
-            //tfsTypeLength[a].setVisible(false);
+            // tfsTypeLength[a].setVisible(false);
             btnsChangeType[a].setVisible(false);
             btnsChangeNull[a].setVisible(false);
             btnsChangePK[a].setVisible(false);
@@ -544,15 +663,36 @@ public class VCController implements Initializable {
 
     private void tooltipNodesInit() {
         for (int a = 0; a < MSQL.MAX_COLUMNS; a++) {
-            TextField tfTypeLength = tfsTypeLength[a];
-            Tooltip t = new Tooltip("Wrong Length");
-            Tooltip.install(tfTypeLength, t);
-            tfsTypeLengthTT[a] = t;
-            tfsTypeLengthTT[a].setShowDuration(Duration.seconds(2));
-            // tfsTypeLengthTT[a].xProperty()/CAN'T GET BOUND PROPERTY
+            TextField tf = tfsTypeLength[a];
 
-            // tfTypeLength.getTooltip().setAutoFix(true);
+            Tooltip t = new Tooltip();
+            Tooltip.install(tf, t);
+            tfsTypeLengthTT[a] = t;
+            // tfsTypeLengthTT[a].setText("Wrong type length");
+            tfsTypeLengthTT[a].setShowDuration(Duration.seconds(2));
         }
+        for (int a = 0; a < MSQL.MAX_COLUMNS; a++) {
+            TextField tf = tfsColumn[a];
+
+            Tooltip t = new Tooltip();
+            Tooltip.install(tf, t);
+            tfsColumnTT[a] = t;
+            // tfsColumnTT[a].setText("Illegal Chars");
+            tfsColumnTT[a].setShowDuration(Duration.seconds(2));
+            // tfsColumnTT[a].onShownProperty().addListener(this::tooltipOnShowListener);
+
+            // DOES NOT WORK
+            // tfsColumnTT[a].onShowingProperty().addListener((this::tooltipOnShowListener));
+        }
+        for (int a = 0; a < MSQL.MAX_COLUMNS; a++) {
+            TextField tf = tfasFK[a].getTf();
+
+            Tooltip t = new Tooltip();
+            Tooltip.install(tf, t);
+            tfasFKTT[a] = t;
+            tfasFKTT[a].setShowDuration(Duration.seconds(2));
+        }
+
     }
 
     private void btnAddRemoveColumnConfig() {
@@ -580,7 +720,7 @@ public class VCController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         presetSomeInit();
         nonFXMLNodesInit();
-        tooltipNodesInit();
+        // tooltipNodesInit();
         fkReferencesInit();
         btnAddRemoveColumnConfig();
         for (int a = 0; a < presetRowsLenght; a++) {
@@ -588,7 +728,9 @@ public class VCController implements Initializable {
         }
         // gridPaneLeft.setGridLinesVisible(true);
         tfTable.setOnKeyReleased(this::tfTableKeyReleased);
-        Arrays.asList(tfsColumn).forEach(e -> e.setOnKeyReleased(this::tfsColumnsKeyListener));
+        Arrays.asList(tfsColumn).forEach(e -> {
+            e.setOnKeyReleased(this::tfsColumnsKeyReleased);
+        });
         listColumns.addListener(this::listColumnsChange);
         Arrays.asList(btnsAddColumn).forEach(e -> e.setOnAction(this::btnsAddAction));
         Arrays.asList(btnsRemoveColumn).forEach(e -> e.setOnAction(this::btnsRemoveAction));
@@ -597,6 +739,7 @@ public class VCController implements Initializable {
         Arrays.asList(cksFK).forEach(e -> e.setOnAction(this::cksFKAction));
         Arrays.asList(tfasFK).forEach(e -> e.getTf().textProperty().addListener(this::tfasFKTextProperty));
         Arrays.asList(cksDefault).forEach(e -> e.setOnAction(this::cksDefaultAction));
+        Arrays.asList(tfsDefault).forEach(e -> e.setOnKeyReleased(this::tfsDefaultKeyReleased));
 
         btnCancel.setOnAction(this::btnCancelAction);
         /*
