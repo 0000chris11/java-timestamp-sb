@@ -52,6 +52,8 @@ public class VC {
                     e.setMaxHeight(-1);
                     //e.setFillHeight(true);
                 });
+
+                System.out.println("TEST TfasType()[0].getTf() STYLE: " + vc.getTfasType()[0].getTf().getStyle());
             }
         } catch (IOException e) {
             e.printStackTrace();
