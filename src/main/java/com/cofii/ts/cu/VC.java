@@ -43,17 +43,22 @@ public class VC {
                     vc.getGridPaneLeft().add(vc.getHbsExtra()[a], 7, row);
 
                     GridPane.setValignment(vc.getLbsN()[a], VPos.TOP);
+                    //-----------------------------------------
+                    vc.getGridPaneRight().add(vc.getBtnsDist()[a], 0, row);
 
+                    GridPane.setValignment(vc.getBtnsDist()[a], VPos.TOP);
                 }
+                //-------------------------------------------------------
                 vc.getGridPaneLeft().getRowConstraints().forEach(e -> {
                     e.setValignment(VPos.TOP);
-                    //e.setVgrow(Priority.ALWAYS);
                     e.setPrefHeight(-1);
                     e.setMaxHeight(-1);
-                    //e.setFillHeight(true);
                 });
-
-                System.out.println("TEST TfasType()[0].getTf() STYLE: " + vc.getTfasType()[0].getTf().getStyle());
+                vc.getGridPaneRight().getRowConstraints().forEach(e -> {
+                    e.setValignment(VPos.TOP);
+                    e.setPrefHeight(-1);
+                    e.setMaxHeight(-1);
+                });
             }
         } catch (IOException e) {
             e.printStackTrace();

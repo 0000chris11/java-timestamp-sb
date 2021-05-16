@@ -19,6 +19,7 @@ import com.cofii.ts.store.SQLType;
 import com.cofii.ts.store.SQLTypes;
 import com.cofii.ts.store.TableS;
 import com.cofii2.components.javafx.TextFieldAutoC;
+import com.cofii2.components.javafx.TooltipCustom;
 import com.cofii2.methods.MList;
 
 import javafx.beans.property.StringProperty;
@@ -135,6 +136,8 @@ public class VCController implements Initializable {
     private boolean typeLengthOK = true;
     private boolean fkSelectionMatch = true;
     private boolean defaultBW = true;
+    private boolean defaultOK = true;
+    private boolean defaultExtraOK = true;
 
     // CONTROL---------------------------------------------
     private void btnCreateControl() {
@@ -152,10 +155,12 @@ public class VCController implements Initializable {
         System.out.println("typeLengthOK: " + typeLengthOK);
         System.out.println("fkSelectionMatch: " + fkSelectionMatch);
         System.out.println("defaultBW: " + defaultBW);
+        System.out.println("defaultOK: " + defaultOK);
+        System.out.println("defaultExtraOK: " + defaultExtraOK);
         System.out.println("------------------------------");
 
-        if (tableOK && columnSNOK && columnBWOK && typeSelectionMatch && typeLengthOK && fkSelectionMatch
-                && defaultBW) {
+        if (tableOK && columnSNOK && columnBWOK && typeSelectionMatch && typeLengthOK && fkSelectionMatch && defaultBW
+                && defaultOK && defaultExtraOK) {
             btnCreate.setDisable(false);
         } else {
             btnCreate.setDisable(true);
@@ -248,7 +253,14 @@ public class VCController implements Initializable {
     private void tfsDefaultControl(int index) {
         for (int a = 0; a < currentRowLength; a++) {
             if (a != index) {
-
+                if (tfsDefault[a].isVisible()) {
+                    String text = tfsDefault[a].getText();
+                    matcher = patternBW.matcher(text);
+                    if (!matcher.matches()) {
+                        defaultBW = false;
+                        break;
+                    }
+                }
             }
         }
     }
@@ -469,6 +481,7 @@ public class VCController implements Initializable {
             tfasFK[index].setVisible(false);
         }
 
+        tfasFKControl(-1);
         btnCreateControl();
     }
 
@@ -492,6 +505,9 @@ public class VCController implements Initializable {
 
                 fkSelectionMatch = false;
             }
+        } else {
+            fkSelectionMatch = true;
+            tfasFKControl(index);
         }
         btnCreateControl();
     }
@@ -501,10 +517,18 @@ public class VCController implements Initializable {
         int index = Integer.parseInt(ck.getId());
         if (ck.isSelected()) {
             tfsDefault[index].setVisible(true);
+            /*
+             * if(!tfsDefault[index].getText().trim().isEmpty() &&
+             * tfsDefault[index].getStyle().equals(CSS.TEXT_FILL)){ defaultOK = true;
+             * 
+             * }else{ defaultOK = false; }
+             */
         } else {
             tfsDefault[index].setVisible(false);
+            defaultOK = true;
         }
 
+        tfsDefaultControl(-1);
         btnCreateControl();
     }
 
@@ -514,22 +538,34 @@ public class VCController implements Initializable {
 
         String text = tf.getText();
         matcher = patternBW.matcher(text);
-        if (matcher.matches()) {
-            tf.setStyle(CSS.TEXT_FILL);
 
-            // tf.setTooltip(null);
+        if (tf.isVisible()) {
+            if (matcher.matches()) {
+                tf.setStyle(CSS.TEXT_FILL);
 
+                tf.setTooltip(null);
+
+                defaultBW = true;
+                tfsDefaultControl(index);
+            } else {
+                tf.setStyle(CSS.TEXT_FILL_ERROR);
+                tooltipDefaultAction(tf, ILLEGAL_CHARS);
+
+                defaultBW = false;
+            }
+        } else {
             defaultBW = true;
             tfsDefaultControl(index);
-        } else {
-            tf.setStyle(CSS.TEXT_FILL_ERROR);
-
-            tooltipDefaultAction(tf, ILLEGAL_CHARS);
-
-            defaultBW = false;
         }
 
         btnCreateControl();
+    }
+
+    private void rbsExtraAction(ActionEvent e) {
+        RadioButton btn = (RadioButton) e.getSource();
+        int index = Integer.parseInt(btn.getId());
+
+        
     }
 
     private void btnCancelAction(ActionEvent e) {
@@ -548,7 +584,7 @@ public class VCController implements Initializable {
 
     private void tooltipDefaultAction(TextField tf, String message) {
         if (tf.getTooltip() == null) {
-            tf.setTooltip(new Tooltip());
+            tf.setTooltip(new TooltipCustom());
             tf.getTooltip().setShowDuration(Duration.seconds(1));
         }
         tf.getTooltip().setText(message);
@@ -557,6 +593,7 @@ public class VCController implements Initializable {
         tf.getTooltip().setOpacity(0.5);
         // tf.getTooltip()
         Bounds sb = tf.localToScreen(tf.getBoundsInLocal());
+        System.out.println("calling show...");
         tf.getTooltip().show(tf, sb.getMaxX(), sb.getMinY());
         timers.playTooltipManualShow(tf, this);
     }
@@ -581,9 +618,8 @@ public class VCController implements Initializable {
         });
     }
 
-    private void nonFXMLNodesInit() {
+    private void nonFXMLLeftNodesInit() {
         for (int a = 0; a < MSQL.MAX_COLUMNS; a++) {
-
             lbsN[a] = new Label("Column " + (a + 1));
             hbsN[a] = new HBox(lbsN[a]);
 
@@ -630,12 +666,19 @@ public class VCController implements Initializable {
             tfasFK[a].getTf().setId(Integer.toString(a));
             cksDefault[a].setId(Integer.toString(a));
             tfsDefault[a].setId(Integer.toString(a));
+            rbsExtra[a].setId(Integer.toString(a){
+                
+            } catch (Exception e) {
+                //TODO: handle exception
+            });
             // ----------------------------------------------
             tfsColumn[a].setPromptText("Column name required");
+            tfsDefault[a].setPromptText("Value Required");
             // ----------------------------------------------
+            tfasType[a].getTf().setStyle(CSS.TFAS_DEFAULT_LOOK);
             // TYPE DEFAULT SELECTION----------------------------
-            //tfasType[a].getLv().getSelectionModel().select(presetTypeSelected.get(a).getTypeName());
-            //tfsTypeLength[a].setText(Integer.toString(presetTypeSelected.get(a).getTypeLength()));
+            tfasType[a].getLv().getSelectionModel().select(presetTypeSelected.get(a).getTypeName());
+            tfsTypeLength[a].setText(Integer.toString(presetTypeSelected.get(a).getTypeLength()));
             // ----------------------------------------------
 
             tfsColumn[a].setPrefWidth(-1);
@@ -690,8 +733,21 @@ public class VCController implements Initializable {
             GridPane.setMargin(hbsFK[a], INSETS);
             GridPane.setMargin(hbsDefault[a], INSETS);
             GridPane.setMargin(hbsExtra[a], INSETS);
-            // --------------------------------------
+        }
+    }
+
+    private void nonFXMLRightNodesInit() {
+        for (int a = 0; a < MSQL.MAX_COLUMNS; a++) {
             btnsDist[a] = new ToggleButton("" + (a + 1));
+
+            btnsDist[a].setMinWidth(40);
+            btnsDist[a].setMaxWidth(40);
+
+            btnsDist[a].managedProperty().bind(btnsDist[a].visibleProperty());
+
+            btnsDist[a].setStyle(CSS.BORDER_GRID_BOTTOM);
+
+            GridPane.setMargin(btnsDist[a], INSETS);
         }
     }
 
@@ -753,7 +809,8 @@ public class VCController implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         presetSomeInit();
-        nonFXMLNodesInit();
+        nonFXMLLeftNodesInit();
+        nonFXMLRightNodesInit();
         tfTable.setPromptText("Table name required");
         // tooltipNodesInit();
         fkReferencesInit();
@@ -775,9 +832,9 @@ public class VCController implements Initializable {
         Arrays.asList(tfasFK).forEach(e -> e.getTf().textProperty().addListener(this::tfasFKTextProperty));
         Arrays.asList(cksDefault).forEach(e -> e.setOnAction(this::cksDefaultAction));
         Arrays.asList(tfsDefault).forEach(e -> e.setOnKeyReleased(this::tfsDefaultKeyReleased));
+        Arrays.asList(rbsExtra).forEach(e -> e.setOnAction(this::rbsExtraAction));
 
         btnCancel.setOnAction(this::btnCancelAction);
-
     }
 
     // -------------------------------------------------------------

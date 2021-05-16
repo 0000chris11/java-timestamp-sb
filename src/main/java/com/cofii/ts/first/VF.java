@@ -96,6 +96,9 @@ public class VF {
             stage.setScene(scene);
             // -------------------------------------------------
             vf = (VFController) loader.getController();
+            // -------------------------------------------------
+            //Arrays.asList(vf.getTfas()).forEach(e -> e.get);
+            // -------------------------------------------------
             vf.setStage(stage);
             vf.setScene(scene);
             vf.setVl(vl);

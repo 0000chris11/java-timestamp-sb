@@ -8,6 +8,7 @@ import java.util.ResourceBundle;
 
 import com.cofii.ts.login.VLController;
 import com.cofii.ts.other.ActionForEachNode;
+import com.cofii.ts.other.CSS;
 import com.cofii.ts.other.Dist;
 import com.cofii.ts.other.GetNodesValuesImpl;
 import com.cofii.ts.other.GetRowSelectedImpl;
@@ -321,6 +322,7 @@ public class VFController implements Initializable {
             tfas[a] = new TextFieldAutoC(a);
             btns[a] = new Button();
 
+            tfas[a].getTf().setStyle(CSS.TFAS_DEFAULT_LOOK);
 
             lbs[a].setVisible(false);
             tfs[a].setVisible(false);
