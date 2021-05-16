@@ -79,7 +79,7 @@
                            <GridPane.margin>
                               <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
                            </GridPane.margin></Label>
-                        <Label text="Extra" GridPane.columnIndex="7">
+                        <Label fx:id="lbhExtra" text="Extra" GridPane.columnIndex="7">
                            <GridPane.margin>
                               <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
                            </GridPane.margin></Label>

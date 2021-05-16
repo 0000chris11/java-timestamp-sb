@@ -18,7 +18,9 @@ import com.cofii.ts.store.Keys;
 import com.cofii.ts.store.SQLType;
 import com.cofii.ts.store.SQLTypes;
 import com.cofii.ts.store.TableS;
+import com.cofii2.components.javafx.MessageWindow;
 import com.cofii2.components.javafx.TextFieldAutoC;
+import com.cofii2.components.javafx.ToggleGroupD;
 import com.cofii2.components.javafx.TooltipCustom;
 import com.cofii2.methods.MList;
 
@@ -38,7 +40,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
-import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.Tooltip;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
@@ -55,6 +56,7 @@ public class VCController implements Initializable {
     private static final String ILLEGAL_CHARS = "Illegal Chars";
     private static final String SELECTION_UNMATCH = "Selection Unmatch";
     private static final String EMPTY_TEXT = "Column name field can't be empty";
+    private static final String EXTRA_GENERAL_ERROR = "PK, FK or Default are not allowed to selected/unselected";
     // -------------------------------------------------
     private int presetRowsLenght = 2;
     private int currentRowLength = presetRowsLenght;
@@ -68,6 +70,8 @@ public class VCController implements Initializable {
     private Label lbhTypes;
     @FXML
     private Label lbhFK;
+    @FXML
+    private Label lbhExtra;
 
     @FXML
     private Label lbTable;
@@ -114,7 +118,6 @@ public class VCController implements Initializable {
     private Button[] btnsChangeDefault = new Button[MSQL.MAX_COLUMNS];
     private HBox[] hbsExtra = new HBox[MSQL.MAX_COLUMNS];// -----------
     private RadioButton[] rbsExtra = new RadioButton[MSQL.MAX_COLUMNS];
-    private ToggleGroup rbsExtraGroup = new ToggleGroup();
     private Button[] btnsChangeExtra = new Button[MSQL.MAX_COLUMNS];
 
     private ToggleButton[] btnsDist = new ToggleButton[MSQL.MAX_COLUMNS];
@@ -124,6 +127,7 @@ public class VCController implements Initializable {
     private SQLTypes types = SQLTypes.getInstance();
     private Keys keys = Keys.getInstance();
     private Timers timers = Timers.getInstance(vf);
+    private MessageWindow mw = new MessageWindow();
 
     private Pattern patternBW = Pattern.compile("[A-Za-z]\\w*");
     private Pattern patternTypeLength = Pattern.compile("\\d{1,5}");
@@ -137,7 +141,10 @@ public class VCController implements Initializable {
     private boolean fkSelectionMatch = true;
     private boolean defaultBW = true;
     private boolean defaultOK = true;
-    private boolean defaultExtraOK = true;
+
+    private boolean extraPKOK = true;
+    private boolean extraFKOK = true;
+    private boolean extraDefaultOK = true;
 
     // CONTROL---------------------------------------------
     private void btnCreateControl() {
@@ -156,11 +163,13 @@ public class VCController implements Initializable {
         System.out.println("fkSelectionMatch: " + fkSelectionMatch);
         System.out.println("defaultBW: " + defaultBW);
         System.out.println("defaultOK: " + defaultOK);
-        System.out.println("defaultExtraOK: " + defaultExtraOK);
+        System.out.println("extraPKOK: " + extraPKOK);
+        System.out.println("extraFKOK: " + extraFKOK);
+        System.out.println("defaultExtraOK: " + extraDefaultOK);
         System.out.println("------------------------------");
 
         if (tableOK && columnSNOK && columnBWOK && typeSelectionMatch && typeLengthOK && fkSelectionMatch && defaultBW
-                && defaultOK && defaultExtraOK) {
+                && defaultOK && extraPKOK && extraFKOK && extraDefaultOK) {
             btnCreate.setDisable(false);
         } else {
             btnCreate.setDisable(true);
@@ -309,8 +318,11 @@ public class VCController implements Initializable {
             } else {
                 tf.setStyle(CSS.TEXT_FILL_ERROR);
 
-                tooltipDefaultAction(tf, ILLEGAL_CHARS);
-
+                mw.setParentNode(tf);
+                mw.getLbMessage().setText(ILLEGAL_CHARS);
+                mw.show(Duration.seconds(3));
+                //tooltipDefaultAction(tf, ILLEGAL_CHARS);
+                
                 columnBWOK = false;
             }
         } else {
@@ -564,8 +576,64 @@ public class VCController implements Initializable {
     private void rbsExtraAction(ActionEvent e) {
         RadioButton btn = (RadioButton) e.getSource();
         int index = Integer.parseInt(btn.getId());
+        int errorCount = 0;
+        // ---------------------------------------------
+        if (btn.isSelected()) {
+            mw.setParentNode(btn);
 
-        
+            if (cksPK[index].isSelected()) {
+                mw.hide();
+                extraPKOK = true;
+            } else {
+                lbhExtra.setTextFill(NonCSS.TEXT_FILL_ERROR);
+
+                mw.getLbMessage().setText("An AUTO_INCREMENT column has to be a PRIMARY KEY");
+                mw.show(Duration.seconds(2));
+                errorCount++;
+
+                extraPKOK = false;
+            }
+            // ---------------------------------------------
+            if (cksFK[index].isSelected()) {
+                lbhExtra.setTextFill(NonCSS.TEXT_FILL_ERROR);
+                if (errorCount == 0) {
+                    mw.getLbMessage().setText("There's no need to have a FOREIGN KEY column with AUTO_INCREMENT");
+                } else {
+                    mw.getLbMessage().setText(EXTRA_GENERAL_ERROR);
+                }
+                mw.show(Duration.seconds(2));
+                errorCount++;
+
+                extraFKOK = false;
+            } else {
+                /*
+                if (errorCount == 0) {
+                    mw.hide();
+                }
+                */
+                extraFKOK = true;
+            }
+            if (cksDefault[index].isSelected()) {
+                lbhExtra.setTextFill(NonCSS.TEXT_FILL_ERROR);
+                if (errorCount == 0) {
+                    mw.getLbMessage()
+                            .setText("There's no need to have a DEFAULT value in a column with AUTO_INCREMENT");
+                } else {
+                    mw.getLbMessage().setText(EXTRA_GENERAL_ERROR);
+                }
+                mw.show(Duration.seconds(2));
+
+                extraDefaultOK = false;
+            }
+            // ---------------------------------------------
+        } else {
+            lbhExtra.setTextFill(NonCSS.TEXT_FILL);
+            extraPKOK = true;
+            extraFKOK = true;
+            extraDefaultOK = true;
+        }
+
+        btnCreateControl();
     }
 
     private void btnCancelAction(ActionEvent e) {
@@ -653,7 +721,7 @@ public class VCController implements Initializable {
             hbsDefault[a] = new HBox(cksDefault[a], tfsDefault[a], btnsChangeDefault[a]);
 
             rbsExtra[a] = new RadioButton();
-            rbsExtra[a].setToggleGroup(rbsExtraGroup);
+            // rbsExtra[a].setToggleGroup(rbsExtraGroup);
             btnsChangeExtra[a] = new Button("C");
             hbsExtra[a] = new HBox(rbsExtra[a], btnsChangeExtra[a]);
             // OTHERS ---------------------------------
@@ -666,11 +734,7 @@ public class VCController implements Initializable {
             tfasFK[a].getTf().setId(Integer.toString(a));
             cksDefault[a].setId(Integer.toString(a));
             tfsDefault[a].setId(Integer.toString(a));
-            rbsExtra[a].setId(Integer.toString(a){
-                
-            } catch (Exception e) {
-                //TODO: handle exception
-            });
+            rbsExtra[a].setId(Integer.toString(a));
             // ----------------------------------------------
             tfsColumn[a].setPromptText("Column name required");
             tfsDefault[a].setPromptText("Value Required");
@@ -734,6 +798,8 @@ public class VCController implements Initializable {
             GridPane.setMargin(hbsDefault[a], INSETS);
             GridPane.setMargin(hbsExtra[a], INSETS);
         }
+
+        new ToggleGroupD<>(rbsExtra);
     }
 
     private void nonFXMLRightNodesInit() {
@@ -832,7 +898,7 @@ public class VCController implements Initializable {
         Arrays.asList(tfasFK).forEach(e -> e.getTf().textProperty().addListener(this::tfasFKTextProperty));
         Arrays.asList(cksDefault).forEach(e -> e.setOnAction(this::cksDefaultAction));
         Arrays.asList(tfsDefault).forEach(e -> e.setOnKeyReleased(this::tfsDefaultKeyReleased));
-        Arrays.asList(rbsExtra).forEach(e -> e.setOnAction(this::rbsExtraAction));
+        Arrays.asList(rbsExtra).forEach(e -> e.addEventHandler(ActionEvent.ACTION, this::rbsExtraAction));
 
         btnCancel.setOnAction(this::btnCancelAction);
     }
