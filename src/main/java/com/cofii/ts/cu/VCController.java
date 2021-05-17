@@ -34,6 +34,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
@@ -72,6 +73,8 @@ public class VCController implements Initializable {
     private Label lbhFK;
     @FXML
     private Label lbhExtra;
+    @FXML
+    private Label lbhDist;
 
     @FXML
     private Label lbTable;
@@ -146,6 +149,8 @@ public class VCController implements Initializable {
     private boolean extraFKOK = true;
     private boolean extraDefaultOK = true;
 
+    private boolean distExtraOK = true;
+
     // CONTROL---------------------------------------------
     private void btnCreateControl() {
         // TABLE: EXIST AND MATCHES---------------------------
@@ -166,10 +171,11 @@ public class VCController implements Initializable {
         System.out.println("extraPKOK: " + extraPKOK);
         System.out.println("extraFKOK: " + extraFKOK);
         System.out.println("defaultExtraOK: " + extraDefaultOK);
+        System.out.println("distExtraOK: " + distExtraOK);
         System.out.println("------------------------------");
 
         if (tableOK && columnSNOK && columnBWOK && typeSelectionMatch && typeLengthOK && fkSelectionMatch && defaultBW
-                && defaultOK && extraPKOK && extraFKOK && extraDefaultOK) {
+                && defaultOK && extraPKOK && extraFKOK && extraDefaultOK && distExtraOK) {
             btnCreate.setDisable(false);
         } else {
             btnCreate.setDisable(true);
@@ -274,29 +280,47 @@ public class VCController implements Initializable {
         }
     }
 
+    private void btnsDistControl(int index) {
+        for (int a = 0; a < currentRowLength; a++) {
+            if (a != index) {
+                ToggleButton btn = btnsDist[a];
+                if (btn.isSelected()) {
+                    if (rbsExtra[a].isSelected()) {
+                        distExtraOK = false;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
     // LISTENERS---------------------------------------------
     private void tfTableKeyReleased(KeyEvent e) {
-        String[] tableList = tables.getTables();
-        String text = tfTable.getText().toLowerCase().trim().replace(" ", "_");
+        if (!e.getCode().isArrowKey() && !e.getCode().isFunctionKey() && !e.getCode().isMediaKey()
+                && !e.getCode().isModifierKey() && !e.getCode().isNavigationKey()) {
+            String[] tableList = tables.getTables();
+            String text = tfTable.getText().toLowerCase().trim().replace(" ", "_");
 
-        matcher = patternBW.matcher(text);
-        if (matcher.matches()) {
-            if (MList.isOnThisList(tableList, text, true)) {
-                lbTable.setText("This table already exist");
+            matcher = patternBW.matcher(text);
+            if (matcher.matches()) {
+                if (MList.isOnThisList(tableList, text, true)) {
+                    lbTable.setText("This table already exist");
+                    lbTable.setTextFill(NonCSS.TEXT_FILL_ERROR);
+                    tableOK = false;
+                } else {
+                    lbTable.setText("Table Name");
+                    lbTable.setTextFill(NonCSS.TEXT_FILL);
+                    tableOK = true;
+                }
+            } else {
+                lbTable.setText("Not Accepted Characters");
                 lbTable.setTextFill(NonCSS.TEXT_FILL_ERROR);
                 tableOK = false;
-            } else {
-                lbTable.setText("Table Name");
-                lbTable.setTextFill(NonCSS.TEXT_FILL);
-                tableOK = true;
             }
-        } else {
-            lbTable.setText("Not Accepted Characters");
-            lbTable.setTextFill(NonCSS.TEXT_FILL_ERROR);
-            tableOK = false;
+
+            btnCreateControl();
         }
 
-        btnCreateControl();
     }
 
     private void tfsColumnsKeyReleased(KeyEvent e) {
@@ -310,23 +334,18 @@ public class VCController implements Initializable {
             matcher = patternBW.matcher(text);
             if (matcher.matches()) {
                 tf.setStyle(CSS.TEXT_FILL);
-
-                tf.setTooltip(null);
+                mw.hide();
 
                 columnBWOK = true;// REST CONTROL
                 tfsColumnControl(index);
             } else {
                 tf.setStyle(CSS.TEXT_FILL_ERROR);
+                messageWindowAction(tf, ILLEGAL_CHARS);
 
-                mw.setParentNode(tf);
-                mw.getLbMessage().setText(ILLEGAL_CHARS);
-                mw.show(Duration.seconds(3));
-                //tooltipDefaultAction(tf, ILLEGAL_CHARS);
-                
                 columnBWOK = false;
             }
         } else {
-            tooltipDefaultAction(tf, EMPTY_TEXT);
+            messageWindowAction(tf, EMPTY_TEXT);
             columnBWOK = false;
         }
         btnCreateControl();
@@ -421,8 +440,7 @@ public class VCController implements Initializable {
                 }
 
                 tf.setStyle(CSS.TEXT_FILL);
-
-                tf.setTooltip(null);
+                mw.hide();
 
                 typeSelectionMatch = true;
                 tfasTypeControl(index);
@@ -431,15 +449,13 @@ public class VCController implements Initializable {
                 tfsTypeLength[index].setText("1");
 
                 tf.setStyle(CSS.TEXT_FILL_ERROR);
-
-                tooltipDefaultAction(tf, SELECTION_UNMATCH);
+                messageWindowAction(tf, SELECTION_UNMATCH);
 
                 typeSelectionMatch = false;
             }
         } else {
             tf.setStyle(CSS.TEXT_FILL_ERROR);
-
-            tooltipDefaultAction(tf, ILLEGAL_CHARS);
+            messageWindowAction(tf, ILLEGAL_CHARS);
 
             typeSelectionMatch = false;
         }
@@ -462,20 +478,18 @@ public class VCController implements Initializable {
                 int length = Integer.parseInt(text);
                 if (length <= typeMaxLength) {
                     tf.setStyle(CSS.TEXT_FILL);
-                    tf.setTooltip(null);
+                    mw.hide();
 
                     typeLengthOK = true;
                     tfsTypeLengthControl(index);
                 } else {
                     tf.setStyle(CSS.TEXT_FILL_ERROR);
-                    tooltipDefaultAction(tf, "Wrong length (1 to " + typeMaxLength + ")");
-                    System.out.println("\ttypeLengthOK false at tfsTypeLengthControl 2");
+                    messageWindowAction(tf, "Wrong length (1 to " + typeMaxLength + ")");
                     typeLengthOK = false;
                 }
             } else {
                 tf.setStyle(CSS.TEXT_FILL_ERROR);
-                tooltipDefaultAction(tf, "Digits Only (max 9999)");
-                System.out.println("\ttypeLengthOK false at tfsTypeLengthControl 2");
+                messageWindowAction(tf, "Wrong length (1 to " + typeMaxLength + ")");
                 typeLengthOK = false;
 
             }
@@ -505,16 +519,12 @@ public class VCController implements Initializable {
         if (tf.isVisible()) {
             if (MList.isOnThisList(tfasFK[index].getLv().getItems(), newValue, false)) {
                 tf.setStyle(CSS.TEXT_FILL);
-                // tfasFKTT[index].hide();
-                // tf.setTooltip(null);
-
+                mw.hide();
                 fkSelectionMatch = true;
                 tfasFKControl(index);
             } else {
                 tf.setStyle(CSS.TEXT_FILL_ERROR);
-
-                tooltipDefaultAction(tf, SELECTION_UNMATCH);
-
+                messageWindowAction(tf, SELECTION_UNMATCH);
                 fkSelectionMatch = false;
             }
         } else {
@@ -554,15 +564,12 @@ public class VCController implements Initializable {
         if (tf.isVisible()) {
             if (matcher.matches()) {
                 tf.setStyle(CSS.TEXT_FILL);
-
-                tf.setTooltip(null);
-
+                mw.hide();
                 defaultBW = true;
                 tfsDefaultControl(index);
             } else {
                 tf.setStyle(CSS.TEXT_FILL_ERROR);
-                tooltipDefaultAction(tf, ILLEGAL_CHARS);
-
+                messageWindowAction(tf, ILLEGAL_CHARS);
                 defaultBW = false;
             }
         } else {
@@ -607,12 +614,11 @@ public class VCController implements Initializable {
                 extraFKOK = false;
             } else {
                 /*
-                if (errorCount == 0) {
-                    mw.hide();
-                }
-                */
+                 * if (errorCount == 0) { mw.hide(); }
+                 */
                 extraFKOK = true;
             }
+            // ---------------------------------------------
             if (cksDefault[index].isSelected()) {
                 lbhExtra.setTextFill(NonCSS.TEXT_FILL_ERROR);
                 if (errorCount == 0) {
@@ -640,6 +646,31 @@ public class VCController implements Initializable {
         vf.getStage().setScene(vf.getScene());
     }
 
+    private void btnsDistAction(ActionEvent e) {
+        ToggleButton btn = (ToggleButton) e.getSource();
+        int index = Integer.parseInt(btn.getId());
+        // int errorCount = 0;
+        if (btn.isSelected()) {
+            if (!rbsExtra[index].isSelected()) {
+                lbhDist.setTextFill(NonCSS.TEXT_FILL);
+                mw.hide();
+                distExtraOK = true;
+            } else {
+                lbhDist.setTextFill(NonCSS.TEXT_FILL_ERROR);
+                messageWindowAction(btn, "Unnecesary selection when this column is already AUTO_INCREMENT");
+
+                distExtraOK = true;
+                btnsDistControl(index);
+                // errorCount++;
+            }
+        } else {
+            lbhDist.setTextFill(NonCSS.TEXT_FILL_ERROR);
+            distExtraOK = true;
+            btnsDistControl(index);
+        }
+        btnCreateControl();
+    }
+
     // ----
     private void tooltipMove(WindowEvent value) {
         Tooltip tt = (Tooltip) value.getSource();
@@ -664,6 +695,12 @@ public class VCController implements Initializable {
         System.out.println("calling show...");
         tf.getTooltip().show(tf, sb.getMaxX(), sb.getMinY());
         timers.playTooltipManualShow(tf, this);
+    }
+
+    private void messageWindowAction(Node node, String message) {
+        mw.setParentNode(node);
+        mw.getLbMessage().setText(message);
+        mw.show(Duration.seconds(3));
     }
 
     // INIT ---------------------------------------------
@@ -806,6 +843,8 @@ public class VCController implements Initializable {
         for (int a = 0; a < MSQL.MAX_COLUMNS; a++) {
             btnsDist[a] = new ToggleButton("" + (a + 1));
 
+            btnsDist[a].setId(Integer.toString(a));
+
             btnsDist[a].setMinWidth(40);
             btnsDist[a].setMaxWidth(40);
 
@@ -899,6 +938,8 @@ public class VCController implements Initializable {
         Arrays.asList(cksDefault).forEach(e -> e.setOnAction(this::cksDefaultAction));
         Arrays.asList(tfsDefault).forEach(e -> e.setOnKeyReleased(this::tfsDefaultKeyReleased));
         Arrays.asList(rbsExtra).forEach(e -> e.addEventHandler(ActionEvent.ACTION, this::rbsExtraAction));
+
+        Arrays.asList(btnsDist).forEach(e -> e.setOnAction(this::btnsDistAction));
 
         btnCancel.setOnAction(this::btnCancelAction);
     }

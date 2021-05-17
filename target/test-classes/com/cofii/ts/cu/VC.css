@@ -13,6 +13,7 @@
     -fx-combo-box-background-color: #0c0750;
 
     -fx-button-background-color: #2115c3;
+    -fx-button-background-color-selected: #23a3ee;
     -fx-button-text-fill-color: white;
 }
 
@@ -50,3 +51,31 @@
 
     -fx-text-fill: -fx-textfield-text-fill-color;
 }
+.button{
+    -fx-background-color: -fx-button-background-color;
+    background-color: -fx-button-background-color;
+
+    -fx-text-fill: -fx-button-text-fill-color;
+}
+.toggle-button{
+      -fx-base: -fx-button-background-color;   
+}
+.toggle-button:selected {
+    -fx-base: -fx-button-background-color-selected;   
+}/*
+.toggle-button {
+    -fx-background-color: -fx-shadow-highlight-color, -fx-outer-border, 
+        -fx-inner-border, -fx-body-color;
+    -fx-text-fill: -fx-text-base-color;
+}
+.toggle-button:selected {
+    -fx-background-color: -fx-shadow-highlight-color,
+        linear-gradient(to bottom, derive(-fx-outer-border, -20%), ...),
+        linear-gradient(to bottom, derive(-fx-color, -22%) 0%, ...);
+}
+.toggle-button:selected:focused {
+    -fx-background-color: -fx-focus-color, 
+        linear-gradient(to bottom, derive(-fx-color, -22%) 0%, ...),
+        -fx-faint-focus-color, linear-gradient(to bottom, derive(-fx-color, -22%) 0%, ...);
+}
+*/
