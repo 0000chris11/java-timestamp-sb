@@ -23,6 +23,8 @@ import com.cofii2.components.javafx.TextFieldAutoC;
 import com.cofii2.components.javafx.ToggleGroupD;
 import com.cofii2.components.javafx.TooltipCustom;
 import com.cofii2.methods.MList;
+import com.cofii2.stores.IntString;
+import com.cofii2.stores.TString;
 
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableValue;
@@ -75,6 +77,8 @@ public class VCController implements Initializable {
     private Label lbhExtra;
     @FXML
     private Label lbhDist;
+    @FXML
+    private Label lbhImageC;
 
     @FXML
     private Label lbTable;
@@ -124,6 +128,7 @@ public class VCController implements Initializable {
     private Button[] btnsChangeExtra = new Button[MSQL.MAX_COLUMNS];
 
     private ToggleButton[] btnsDist = new ToggleButton[MSQL.MAX_COLUMNS];
+    private ToggleButton[] btnsImageC = new ToggleButton[MSQL.MAX_COLUMNS];
     // ---------------------------------------------
     private VFController vf;
     private TableS tables = TableS.getInstance();
@@ -646,6 +651,63 @@ public class VCController implements Initializable {
         vf.getStage().setScene(vf.getScene());
     }
 
+    // BOTTOM ----------------------------------------
+    private void btnCreateAction(ActionEvent e) {
+        String tableName = tfTable.getText().toLowerCase().trim().replace(" ", "_");
+        // LEFT-------------------
+        String[] columnsName = new String[currentRowLength];
+        String[] type = new String[currentRowLength];
+        List<String> pks = new ArrayList<>(MSQL.MAX_COLUMNS);
+        List<TString> fks = new ArrayList<>(MSQL.MAX_COLUMNS);
+        List<IntString> defaults = new ArrayList<>(MSQL.MAX_COLUMNS);
+        int extra = 0;
+        // RIGHT-------------------
+        StringBuilder dist = new StringBuilder("NONE");
+        boolean distPresent = false;
+        int distCount = 0;
+        StringBuilder imageC = new StringBuilder("NONE");
+        // -------------------------------------------------
+        for (int a = 0; a < currentRowLength; a++) {
+            // LEFT-------------------
+            columnsName[a] = tfsColumn[a].getText().toLowerCase().trim().replace(" ", "_");
+            type[a] = tfasType[a].getTf().getText();
+            if (types.getTypeLength(type[a]) > 0) {
+                type[a] += tfsTypeLength[a].getText();
+            }
+            if (cksPK[a].isSelected()) {
+                pks.add(columnsName[a]);
+            }
+            if (cksFK[a].isSelected()) {
+                String fkText = tfasFK[a].getTf().getText();
+                String[] split = fkText.split(".");
+
+                fks.add(new TString(columnsName[a], split[1], split[2]));
+                // listFK.add(new TString(colNames[a], tableR, colR));
+            }
+            if (cksDefault[a].isSelected()) {
+                defaults.add(new IntString(a + 1, tfsDefault[a].getText()));
+            }
+
+            if (rbsExtra[a].isSelected()) {
+                extra = a + 1;
+            }
+            // RIGHT-------------------
+            if (btnsDist[a].isSelected()) {//OLD WAY
+                if (!distPresent) {
+                    dist.delete(0, dist.length() - 1);
+                    dist.append("X0: ");
+                    distPresent = true;
+                }
+                dist.setCharAt(1, (char) ++distCount);
+                dist.append(Integer.toString(a + 1) + "_");
+            }
+        }
+        if(distCount > 0){
+            dist.deleteCharAt(dist.length() - 1);
+        }
+    }
+
+    // RIGHT-----------------------------------------
     private void btnsDistAction(ActionEvent e) {
         ToggleButton btn = (ToggleButton) e.getSource();
         int index = Integer.parseInt(btn.getId());
@@ -664,14 +726,14 @@ public class VCController implements Initializable {
                 // errorCount++;
             }
         } else {
-            lbhDist.setTextFill(NonCSS.TEXT_FILL_ERROR);
+            lbhDist.setTextFill(NonCSS.TEXT_FILL);
             distExtraOK = true;
             btnsDistControl(index);
         }
         btnCreateControl();
     }
 
-    // ----
+    // ----------------------------------------------
     private void tooltipMove(WindowEvent value) {
         Tooltip tt = (Tooltip) value.getSource();
         TextField tf = (TextField) tt.getOwnerNode();
@@ -711,8 +773,8 @@ public class VCController implements Initializable {
         for (int a = 0; a < row.length; a++) {
             String database = row[a].getDatabase();
             String table = row[a].getTableName();
-
-            list.add(database + "." + table);
+            String column = row[a].getColumnName();
+            list.add(database + "." + table + "." + column);
         }
 
         Arrays.asList(tfasFK).forEach(e -> {
@@ -842,18 +904,27 @@ public class VCController implements Initializable {
     private void nonFXMLRightNodesInit() {
         for (int a = 0; a < MSQL.MAX_COLUMNS; a++) {
             btnsDist[a] = new ToggleButton("" + (a + 1));
+            btnsImageC[a] = new ToggleButton("" + (a + 1));
 
             btnsDist[a].setId(Integer.toString(a));
+            btnsImageC[a].setId(Integer.toString(a));
 
             btnsDist[a].setMinWidth(40);
             btnsDist[a].setMaxWidth(40);
+            btnsImageC[a].setMinWidth(40);
+            btnsImageC[a].setMaxWidth(40);
 
             btnsDist[a].managedProperty().bind(btnsDist[a].visibleProperty());
+            btnsImageC[a].managedProperty().bind(btnsImageC[a].visibleProperty());
 
             btnsDist[a].setStyle(CSS.BORDER_GRID_BOTTOM);
+            btnsImageC[a].setStyle(CSS.BORDER_GRID_BOTTOM);
 
             GridPane.setMargin(btnsDist[a], INSETS);
+            GridPane.setMargin(btnsImageC[a], INSETS);
         }
+
+        new ToggleGroupD<>(btnsImageC);
     }
 
     private void tooltipNodesInit() {
@@ -925,6 +996,7 @@ public class VCController implements Initializable {
         }
         // gridPaneLeft.setGridLinesVisible(true);
         tfTable.setOnKeyReleased(this::tfTableKeyReleased);
+        // LEFT --------------------------------------
         Arrays.asList(tfsColumn).forEach(e -> {
             e.setOnKeyReleased(this::tfsColumnsKeyReleased);
         });
@@ -938,10 +1010,13 @@ public class VCController implements Initializable {
         Arrays.asList(cksDefault).forEach(e -> e.setOnAction(this::cksDefaultAction));
         Arrays.asList(tfsDefault).forEach(e -> e.setOnKeyReleased(this::tfsDefaultKeyReleased));
         Arrays.asList(rbsExtra).forEach(e -> e.addEventHandler(ActionEvent.ACTION, this::rbsExtraAction));
-
+        // RIGHT --------------------------------------
         Arrays.asList(btnsDist).forEach(e -> e.setOnAction(this::btnsDistAction));
-
+        // Arrays.asList(btnsImageC).forEach(e -> e.addEventHandler(ActionEvent.ACTION,
+        // this::btnsImageCAction));
+        // BOTTOM -------------------------------------
         btnCancel.setOnAction(this::btnCancelAction);
+        btnCreate.setOnAction(this::btnCreateAction);
     }
 
     // -------------------------------------------------------------
@@ -1199,6 +1274,14 @@ public class VCController implements Initializable {
 
     public void setVf(VFController vf) {
         this.vf = vf;
+    }
+
+    public ToggleButton[] getBtnsImageC() {
+        return btnsImageC;
+    }
+
+    public void setBtnsImageC(ToggleButton[] btnsImageC) {
+        this.btnsImageC = btnsImageC;
     }
 
 }

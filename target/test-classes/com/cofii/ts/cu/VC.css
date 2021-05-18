@@ -58,10 +58,16 @@
     -fx-text-fill: -fx-button-text-fill-color;
 }
 .toggle-button{
-      -fx-base: -fx-button-background-color;   
+    -fx-background-color: -fx-button-background-color;
+    background-color: -fx-button-background-color; 
+
+    -fx-text-fill: -fx-button-text-fill-color;
 }
 .toggle-button:selected {
-    -fx-base: -fx-button-background-color-selected;   
+    -fx-background-color: -fx-button-background-color-selected;   
+    background-color: -fx-button-background-color; 
+
+    -fx-text-fill: -fx-button-text-fill-color;
 }/*
 .toggle-button {
     -fx-background-color: -fx-shadow-highlight-color, -fx-outer-border, 

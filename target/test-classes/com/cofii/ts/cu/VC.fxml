@@ -94,8 +94,8 @@
                <content>
                   <GridPane fx:id="gridPaneRight">
                     <columnConstraints>
-                      <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                      <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                      <ColumnConstraints hgrow="NEVER" minWidth="10.0" prefWidth="40.0" />
+                      <ColumnConstraints hgrow="NEVER" minWidth="10.0" prefWidth="400.0" />
                     </columnConstraints>
                     <rowConstraints>
                       <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
@@ -107,7 +107,7 @@
                            <GridPane.margin>
                               <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
                            </GridPane.margin></Label>
-                        <Label text="Not Implemented yet" GridPane.columnIndex="1">
+                        <Label fx:id="lbhImageC" text="ImageC" GridPane.columnIndex="1">
                            <GridPane.margin>
                               <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
                            </GridPane.margin></Label>

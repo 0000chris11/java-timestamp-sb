@@ -25,12 +25,12 @@ public class VC {
             scene.getStylesheets().add(VC.class.getResource("/com/cofii/ts/cu/VC.css").toExternalForm());
             vf.getStage().setScene(scene);
 
-            VCController vc = (VCController)loader.getController();
+            VCController vc = (VCController) loader.getController();
 
             vc.setVf(vf);
             ms = vf.getMs();
-            if(create){//THE REASON FOR NOT ADDING THE NODES IN THE CONTROLLER
-                for(int a = 0;a < vc.getPresetRowsLenght(); a++){
+            if (create) {// THE REASON FOR NOT ADDING THE NODES IN THE CONTROLLER
+                for (int a = 0; a < vc.getPresetRowsLenght(); a++) {
                     int row = a + 1;
 
                     vc.getGridPaneLeft().add(vc.getLbsN()[a], 0, row);
@@ -43,12 +43,14 @@ public class VC {
                     vc.getGridPaneLeft().add(vc.getHbsExtra()[a], 7, row);
 
                     GridPane.setValignment(vc.getLbsN()[a], VPos.TOP);
-                    //-----------------------------------------
+                    // -----------------------------------------
                     vc.getGridPaneRight().add(vc.getBtnsDist()[a], 0, row);
+                    vc.getGridPaneRight().add(vc.getBtnsImageC()[a], 1, row);
 
                     GridPane.setValignment(vc.getBtnsDist()[a], VPos.TOP);
+                    GridPane.setValignment(vc.getBtnsImageC()[a], VPos.TOP);
                 }
-                //-------------------------------------------------------
+                // -------------------------------------------------------
                 vc.getGridPaneLeft().getRowConstraints().forEach(e -> {
                     e.setValignment(VPos.TOP);
                     e.setPrefHeight(-1);
