@@ -17,7 +17,7 @@ public class SelectTableDefault implements IActions{
 
     @Override
     public void setData(ResultSet rs, int row) throws SQLException {
-        MSQL.setCurrentTable(new Table(rs.getInt(1), rs.getString(2), rs.getString(3)));
+        MSQL.setCurrentTable(new Table(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5)));
     }
 
     @Override

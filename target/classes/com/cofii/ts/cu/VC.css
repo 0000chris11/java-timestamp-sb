@@ -10,6 +10,9 @@
     -fx-textfield-background-color: #090631;
     -fx-textfield-text-fill-color: white;
 
+    -fx-scrollpane-track-background-color:-fx-textfield-background-color;
+    -fx-scrollpane-track-thump-background-color: #130b77;
+
     -fx-combo-box-background-color: #0c0750;
 
     -fx-button-background-color: #2115c3;
@@ -37,6 +40,31 @@
     -fx-background-color: transparent;
     background-color: transparent;
  }
+ .scroll-pane .increment-button, .decrement-button {
+    -fx-background-color: -fx-scrollpane-track-background-color;
+    background-color: -fx-scrollpane-track-background-color;
+    /*-fx-border-color: -fx-scrollpane-track-background-color;*/
+}
+.scroll-bar:horizontal .track,
+.scroll-bar:vertical .track{
+    -fx-background-color: -fx-scrollpane-track-background-color;
+    background-color: -fx-scrollpane-track-background-color;
+    /*-fx-border-color: transparent;*/
+    /*-fx-background-radius: 0em;*/
+}
+.scroll-bar:horizontal .thumb,
+.scroll-bar:vertical .thumb {
+    -fx-background-color: -fx-scrollpane-track-thump-background-color;
+    background-color: -fx-scrollpane-track-thump-background-color;
+    /*-fx-background-radius: 5em;*/
+}
+ /*
+.scroll-bar:horizontal .thumb,
+.scroll-bar:vertical .thumb {
+    -fx-background-color: white;
+    -fx-background-radius: 5em;
+}
+*/
  .split-pane:horizontal{
     -fx-background-color: -fx-root-background-color;
     background-color: -fx-root-background-color;
@@ -68,20 +96,4 @@
     background-color: -fx-button-background-color; 
 
     -fx-text-fill: -fx-button-text-fill-color;
-}/*
-.toggle-button {
-    -fx-background-color: -fx-shadow-highlight-color, -fx-outer-border, 
-        -fx-inner-border, -fx-body-color;
-    -fx-text-fill: -fx-text-base-color;
 }
-.toggle-button:selected {
-    -fx-background-color: -fx-shadow-highlight-color,
-        linear-gradient(to bottom, derive(-fx-outer-border, -20%), ...),
-        linear-gradient(to bottom, derive(-fx-color, -22%) 0%, ...);
-}
-.toggle-button:selected:focused {
-    -fx-background-color: -fx-focus-color, 
-        linear-gradient(to bottom, derive(-fx-color, -22%) 0%, ...),
-        -fx-faint-focus-color, linear-gradient(to bottom, derive(-fx-color, -22%) 0%, ...);
-}
-*/

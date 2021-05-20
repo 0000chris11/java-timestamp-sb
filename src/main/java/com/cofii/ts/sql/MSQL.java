@@ -12,7 +12,7 @@ public class MSQL {
 
     // BAND DBS AND TABLES
     public static final String[] BAND_USERS = { "mysql.infoschema", "mysql.session", "mysql.sys" };
-    public static final String[] BAND_DB = { "information_schema", "mysql", "performance_schema", "sys" };
+    public static final String[] BAND_DB = { "information_schema", "mysql", "performance_schema", "sys", "time_stam"};
     // TYPES
     public static final String[] TYPES = { "INT", "TINYINT", "SMALLINT", "MEDIUMINT", "BIGINT", "FLOAT", "DOUBLE",
             "CHAR", "VARCHAR", "BOOLEAN/TINYINT(1)", "TIME", "DATE", "DATETIME", "TIMESTAMP", "BINARY", "VARBINARY" };

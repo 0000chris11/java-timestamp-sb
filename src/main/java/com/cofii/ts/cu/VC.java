@@ -11,6 +11,8 @@ import javafx.fxml.FXMLLoader;
 import javafx.geometry.VPos;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.ScrollPane.ScrollBarPolicy;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 
@@ -43,24 +45,32 @@ public class VC {
                     vc.getGridPaneLeft().add(vc.getHbsExtra()[a], 7, row);
 
                     GridPane.setValignment(vc.getLbsN()[a], VPos.TOP);
-                    // -----------------------------------------
+                    // RIGHT-----------------------------------------
                     vc.getGridPaneRight().add(vc.getBtnsDist()[a], 0, row);
                     vc.getGridPaneRight().add(vc.getBtnsImageC()[a], 1, row);
 
                     GridPane.setValignment(vc.getBtnsDist()[a], VPos.TOP);
                     GridPane.setValignment(vc.getBtnsImageC()[a], VPos.TOP);
                 }
-                // -------------------------------------------------------
+                //RIGHT-SUB------------------
+                vc.getGridPaneRightSub().add(vc.getBtnChangeDist(), 0, 0);
+                vc.getGridPaneRightSub().add(vc.getHbImageC(), 1, 0);
+                // LEFT -------------------------------------------------------
                 vc.getGridPaneLeft().getRowConstraints().forEach(e -> {
                     e.setValignment(VPos.TOP);
                     e.setPrefHeight(-1);
                     e.setMaxHeight(-1);
                 });
+                //((ScrollPane) vc.getGridPaneLeft().getParent()).setHbarPolicy(ScrollBarPolicy.ALWAYS);
+                //((ScrollPane) vc.getGridPaneLeftSub().getParent()).setHbarPolicy(ScrollBarPolicy.ALWAYS);
+                // RIGHT -------------------------------------------------------
                 vc.getGridPaneRight().getRowConstraints().forEach(e -> {
                     e.setValignment(VPos.TOP);
                     e.setPrefHeight(-1);
                     e.setMaxHeight(-1);
                 });
+                //((ScrollPane) vc.getGridPaneRight().getParent()).setHbarPolicy(ScrollBarPolicy.ALWAYS);
+                //((ScrollPane) vc.getGridPaneRightSub().getParent()).setHbarPolicy(ScrollBarPolicy.ALWAYS);
             }
         } catch (IOException e) {
             e.printStackTrace();

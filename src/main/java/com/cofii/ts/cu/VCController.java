@@ -41,9 +41,11 @@ import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.Tooltip;
+import javafx.scene.control.ScrollPane.ScrollBarPolicy;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -84,10 +86,24 @@ public class VCController implements Initializable {
     private Label lbTable;
     @FXML
     private TextField tfTable;
+
+    @FXML
+    private ScrollPane spGridPaneLeft;// ---------------
     @FXML
     private GridPane gridPaneLeft;
     @FXML
+    private ScrollPane spGridPaneLeftSub;
+    @FXML
+    private GridPane gridPaneLeftSub;
+    @FXML
+    private ScrollPane spGridPaneRight;// ---------------
+    @FXML
     private GridPane gridPaneRight;
+    @FXML
+    private ScrollPane spGridPaneRightSub;
+    @FXML
+    private GridPane gridPaneRightSub;
+
     @FXML
     private Label lbStatus;
     @FXML
@@ -126,9 +142,15 @@ public class VCController implements Initializable {
     private HBox[] hbsExtra = new HBox[MSQL.MAX_COLUMNS];// -----------
     private RadioButton[] rbsExtra = new RadioButton[MSQL.MAX_COLUMNS];
     private Button[] btnsChangeExtra = new Button[MSQL.MAX_COLUMNS];
-
+    // RIGHT
     private ToggleButton[] btnsDist = new ToggleButton[MSQL.MAX_COLUMNS];
     private ToggleButton[] btnsImageC = new ToggleButton[MSQL.MAX_COLUMNS];
+    // RIGHT-SUB
+    private Button btnChangeDist = new Button("C");
+    private Button btnChangeImageC = new Button("C");
+    private TextField tfImageCPath = new TextField();
+    private Button btnChangeImageCPath = new Button();
+    private HBox hbImageC = new HBox(tfImageCPath, btnChangeImageCPath, btnChangeImageC);
     // ---------------------------------------------
     private VFController vf;
     private TableS tables = TableS.getInstance();
@@ -692,7 +714,7 @@ public class VCController implements Initializable {
                 extra = a + 1;
             }
             // RIGHT-------------------
-            if (btnsDist[a].isSelected()) {//OLD WAY
+            if (btnsDist[a].isSelected()) {// OLD WAY
                 if (!distPresent) {
                     dist.delete(0, dist.length() - 1);
                     dist.append("X0: ");
@@ -702,7 +724,7 @@ public class VCController implements Initializable {
                 dist.append(Integer.toString(a + 1) + "_");
             }
         }
-        if(distCount > 0){
+        if (distCount > 0) {
             dist.deleteCharAt(dist.length() - 1);
         }
     }
@@ -786,6 +808,7 @@ public class VCController implements Initializable {
     }
 
     private void nonFXMLLeftNodesInit() {
+        spGridPaneLeft.setHbarPolicy(ScrollBarPolicy.ALWAYS);
         for (int a = 0; a < MSQL.MAX_COLUMNS; a++) {
             lbsN[a] = new Label("Column " + (a + 1));
             hbsN[a] = new HBox(lbsN[a]);
@@ -897,11 +920,27 @@ public class VCController implements Initializable {
             GridPane.setMargin(hbsDefault[a], INSETS);
             GridPane.setMargin(hbsExtra[a], INSETS);
         }
-
         new ToggleGroupD<>(rbsExtra);
+        // --------------------------------------
+        for (int a = 0; a < gridPaneLeft.getColumnCount(); a++) {
+            gridPaneLeftSub.getColumnConstraints().get(a).prefWidthProperty()
+                    .bind(gridPaneLeft.getColumnConstraints().get(a).prefWidthProperty());
+
+            gridPaneLeftSub.getColumnConstraints().get(a).maxWidthProperty()
+                    .bind(gridPaneLeft.getColumnConstraints().get(a).maxWidthProperty());
+
+            gridPaneLeftSub.getColumnConstraints().get(a).minWidthProperty()
+                    .bind(gridPaneLeft.getColumnConstraints().get(a).minWidthProperty());
+        }
+        // SUB-----------------------------------
+        spGridPaneLeftSub.setHbarPolicy(ScrollBarPolicy.ALWAYS);
+        spGridPaneLeftSub.setPrefHeight(50);
+
+        gridPaneLeftSub.setGridLinesVisible(true);
     }
 
     private void nonFXMLRightNodesInit() {
+        spGridPaneRight.setHbarPolicy(ScrollBarPolicy.ALWAYS);
         for (int a = 0; a < MSQL.MAX_COLUMNS; a++) {
             btnsDist[a] = new ToggleButton("" + (a + 1));
             btnsImageC[a] = new ToggleButton("" + (a + 1));
@@ -923,8 +962,30 @@ public class VCController implements Initializable {
             GridPane.setMargin(btnsDist[a], INSETS);
             GridPane.setMargin(btnsImageC[a], INSETS);
         }
-
         new ToggleGroupD<>(btnsImageC);
+        // -------------------------------------
+        for (int a = 0; a < gridPaneRight.getColumnCount(); a++) {
+            gridPaneRightSub.getColumnConstraints().get(a).prefWidthProperty()
+                    .bind(gridPaneRight.getColumnConstraints().get(a).prefWidthProperty());
+
+            gridPaneRightSub.getColumnConstraints().get(a).maxWidthProperty()
+                    .bind(gridPaneRight.getColumnConstraints().get(a).maxWidthProperty());
+
+            gridPaneRightSub.getColumnConstraints().get(a).minWidthProperty()
+                    .bind(gridPaneRight.getColumnConstraints().get(a).minWidthProperty());
+        }
+        // SUB-------------------------------------
+        spGridPaneRightSub.setHbarPolicy(ScrollBarPolicy.ALWAYS);
+        spGridPaneRightSub.setPrefHeight(50);
+
+        btnChangeDist.setVisible(false);
+        tfImageCPath.setPrefWidth(-1);
+        btnChangeImageCPath.setMinWidth(30);
+        btnChangeImageCPath.setMaxWidth(30);
+        btnChangeImageC.setMinWidth(30);
+        btnChangeImageC.setMaxWidth(30);
+
+        gridPaneRightSub.setGridLinesVisible(true);
     }
 
     private void tooltipNodesInit() {
@@ -987,6 +1048,7 @@ public class VCController implements Initializable {
         presetSomeInit();
         nonFXMLLeftNodesInit();
         nonFXMLRightNodesInit();
+
         tfTable.setPromptText("Table name required");
         // tooltipNodesInit();
         fkReferencesInit();
@@ -1282,6 +1344,54 @@ public class VCController implements Initializable {
 
     public void setBtnsImageC(ToggleButton[] btnsImageC) {
         this.btnsImageC = btnsImageC;
+    }
+
+    public GridPane getGridPaneLeftSub() {
+        return gridPaneLeftSub;
+    }
+
+    public void setGridPaneLeftSub(GridPane gridPaneLeftSub) {
+        this.gridPaneLeftSub = gridPaneLeftSub;
+    }
+
+    public GridPane getGridPaneRightSub() {
+        return gridPaneRightSub;
+    }
+
+    public void setGridPaneRightSub(GridPane gridPaneRightSub) {
+        this.gridPaneRightSub = gridPaneRightSub;
+    }
+
+    public Button getBtnChangeDist() {
+        return btnChangeDist;
+    }
+
+    public void setBtnChangeDist(Button btnChangeDist) {
+        this.btnChangeDist = btnChangeDist;
+    }
+
+    public Button getBtnChangeImageC() {
+        return btnChangeImageC;
+    }
+
+    public void setBtnChangeImageC(Button btnChangeImageC) {
+        this.btnChangeImageC = btnChangeImageC;
+    }
+
+    public Button getBtnChangeImageCPath() {
+        return btnChangeImageCPath;
+    }
+
+    public void setBtnChangeImageCPath(Button btnChangeImageCPath) {
+        this.btnChangeImageCPath = btnChangeImageCPath;
+    }
+
+    public HBox getHbImageC() {
+        return hbImageC;
+    }
+
+    public void setHbImageC(HBox hbImageC) {
+        this.hbImageC = hbImageC;
     }
 
 }

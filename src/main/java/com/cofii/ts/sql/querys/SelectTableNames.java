@@ -24,7 +24,7 @@ public class SelectTableNames implements IActions {
 
     @Override
     public void setData(ResultSet rs, int row) throws SQLException {
-        Table table = new Table(rs.getInt(1), rs.getString(2), rs.getString(3));
+        Table table = new Table(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5));
         tables.addTable(table);
         
         if (selectTable) {
