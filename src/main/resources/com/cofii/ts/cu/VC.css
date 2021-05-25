@@ -13,11 +13,17 @@
     -fx-scrollpane-track-background-color:-fx-textfield-background-color;
     -fx-scrollpane-track-thump-background-color: #130b77;
 
+    -fx-region-left-background-color: -fx-textfield-background-color;
+
     -fx-combo-box-background-color: #0c0750;
 
     -fx-button-background-color: #2115c3;
     -fx-button-background-color-selected: #23a3ee;
     -fx-button-text-fill-color: white;
+
+    -fx-table-row-cell-background-color: #100a5c;
+    -fx-table-row-cell-odd-background-color: #0b0741;
+    -fx-table-row-cell-selected-background-color: #160e88;
 }
 
 .root{
@@ -69,6 +75,10 @@
     -fx-background-color: -fx-root-background-color;
     background-color: -fx-root-background-color;
 }
+#regionLeft{
+    -fx-background-color: -fx-region-left-background-color;
+    background-color: -fx-region-left-background-color;
+}
 /* OTHER NODES */
 .label{
     -fx-text-fill: white;
@@ -96,4 +106,24 @@
     background-color: -fx-button-background-color; 
 
     -fx-text-fill: -fx-button-text-fill-color;
+}
+.list-cell:filled:selected:focused, .list-cell:filled:selected {
+    -fx-background-color: -fx-table-row-cell-selected-background-color;
+    background-color: -fx-table-row-cell-selected-background-color;
+    -fx-text-fill: white;
+}
+.list-cell:even {
+    -fx-background-color: -fx-table-row-cell-background-color;
+    background-color: -fx-table-row-cell-background-color;
+    -fx-text-fill: white;
+}
+.list-cell:odd {
+    -fx-background-color: -fx-table-row-cell-odd-background-color;
+    background-color: -fx-table-row-cell-odd-background-color;
+    -fx-text-fill: white;
+}
+.list-cell:filled:hover {
+    -fx-background-color: -fx-table-row-cell-selected-background-color;
+    background-color: -fx-table-row-cell-selected-background-color;
+    -fx-text-fill: white;
 }

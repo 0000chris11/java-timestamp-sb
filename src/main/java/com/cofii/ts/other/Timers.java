@@ -8,6 +8,7 @@ import javafx.animation.Timeline;
 import javafx.scene.Node;
 import javafx.scene.control.Control;
 import javafx.scene.control.Tooltip;
+import javafx.stage.Popup;
 import javafx.util.Duration;
 
 public class Timers {
@@ -15,6 +16,7 @@ public class Timers {
     private static VFController vf;
     private VCController vc;
     private Node tooltipNode;
+    private Popup popup;
 
     private Timeline lbStatusReset = new Timeline(new KeyFrame(Duration.seconds(2), e -> {
         vf.getLbStatus().setText("Waiting for action...");
@@ -26,6 +28,9 @@ public class Timers {
             tt.hide();
         }
     }));
+    private Timeline popupHide = new Timeline(new KeyFrame(Duration.seconds(2), e -> {
+        popup.hide();
+    }));
     //--------------------------------------------------
     public void playLbStatusReset(){
         lbStatusReset.play();
@@ -34,6 +39,10 @@ public class Timers {
         this.vc = vc;
         this.tooltipNode = tooltipNode;
         tooltipManualShow.play();
+    }
+    public void playPopupHide(Popup popup){
+        this.popup = popup;
+        popupHide.play();
     }
     //--------------------------------------------------
     private static Timers instance;

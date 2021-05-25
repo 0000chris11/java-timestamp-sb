@@ -21,6 +21,7 @@ public class VL extends Application{
         scene.getStylesheets().add(VL.class.getResource("/com/cofii/ts/login/VL.css").toExternalForm());
         stage.setScene(scene);
 
+        
         //AFTER INIT
         VLController controller = (VLController)loader.getController();
         //controller.sceneKR(null);

@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.shape.*?>
+<?import javafx.scene.*?>
 <?import javafx.geometry.*?>
 <?import javafx.scene.text.*?>
 <?import javafx.scene.control.*?>
@@ -100,25 +102,19 @@
                         </GridPane>
                      </content>
                   </ScrollPane>
-                  <ScrollPane fx:id="spGridPaneLeftSub" prefViewportHeight="40.0" prefViewportWidth="643.0" vbarPolicy="NEVER">
-                     <content>
-                        <GridPane fx:id="gridPaneLeftSub">
-                          <columnConstraints>
-                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                          </columnConstraints>
-                          <rowConstraints>
-                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                          </rowConstraints>
-                        </GridPane>
-                     </content>
-                  </ScrollPane>
+                  <HBox fx:id="hbLeftUpdate" spacing="10.0">
+                     <children>
+                        <Label fx:id="lbUpdateLeft" text="Update Table Column" HBox.hgrow="NEVER" />
+                        <Region HBox.hgrow="ALWAYS" />
+                        <Button fx:id="btnUpdatePK" disable="true" mnemonicParsing="false" text="Primary Key" HBox.hgrow="NEVER" />
+                        <Button fx:id="btnUpdateFK" disable="true" mnemonicParsing="false" text="Foreign Key" HBox.hgrow="NEVER" />
+                        <Button fx:id="btnUpdateExtra" disable="true" mnemonicParsing="false" text="Extra" HBox.hgrow="NEVER" />
+                     </children>
+                     <padding>
+                        <Insets bottom="6.0" left="6.0" right="6.0" top="6.0" />
+                     </padding>
+                  </HBox>
+                  <Region fx:id="regionLeft" prefHeight="80.0" prefWidth="200.0" VBox.vgrow="NEVER" />
                </children>
             </VBox>
             <VBox prefHeight="200.0" prefWidth="100.0">
@@ -153,17 +149,19 @@
                         </GridPane>
                      </content>
                   </ScrollPane>
-                  <ScrollPane fx:id="spGridPaneRightSub" prefViewportHeight="44.0" prefViewportWidth="283.0" vbarPolicy="NEVER">
+                  <ScrollPane prefHeight="110.0" prefViewportHeight="49.0" prefViewportWidth="284.0" vbarPolicy="NEVER">
                      <content>
-                        <GridPane fx:id="gridPaneRightSub">
-                          <columnConstraints>
-                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                          </columnConstraints>
-                          <rowConstraints>
-                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                          </rowConstraints>
-                        </GridPane>
+                        <HBox fx:id="hbRightUpdate" prefHeight="100.0" spacing="10.0">
+                           <children>
+                              <Button fx:id="btnUpdateDist" disable="true" mnemonicParsing="false" text="Dist" />
+                              <TextField fx:id="tfImageCPath" disable="true" prefWidth="200.0" promptText="ImageCPath" />
+                              <Button fx:id="btnSelectImageC" disable="true" mnemonicParsing="false" />
+                              <Button fx:id="btnUpdateImageC" disable="true" mnemonicParsing="false" text="ImageC" />
+                           </children>
+                           <padding>
+                              <Insets top="6.0" />
+                           </padding>
+                        </HBox>
                      </content>
                   </ScrollPane>
                </children>

@@ -15,6 +15,7 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.ScrollPane.ScrollBarPolicy;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 
 public class VC {
 
@@ -52,25 +53,30 @@ public class VC {
                     GridPane.setValignment(vc.getBtnsDist()[a], VPos.TOP);
                     GridPane.setValignment(vc.getBtnsImageC()[a], VPos.TOP);
                 }
-                //RIGHT-SUB------------------
-                vc.getGridPaneRightSub().add(vc.getBtnChangeDist(), 0, 0);
-                vc.getGridPaneRightSub().add(vc.getHbImageC(), 1, 0);
-                // LEFT -------------------------------------------------------
+                // RIGHT-SUB------------------
+                //vc.getGridPaneRightSub().add(vc.getBtnChangeDist(), 0, 0);
+                //vc.getGridPaneRightSub().add(vc.getHbImageC(), 1, 0);
+                // LEFT ROW-------------------------------------------------------
                 vc.getGridPaneLeft().getRowConstraints().forEach(e -> {
                     e.setValignment(VPos.TOP);
-                    e.setPrefHeight(-1);
-                    e.setMaxHeight(-1);
+                    //e.setPrefHeight(-1);
+                    //e.setMaxHeight(-1);
+
+                    e.setVgrow(Priority.NEVER);
                 });
-                //((ScrollPane) vc.getGridPaneLeft().getParent()).setHbarPolicy(ScrollBarPolicy.ALWAYS);
-                //((ScrollPane) vc.getGridPaneLeftSub().getParent()).setHbarPolicy(ScrollBarPolicy.ALWAYS);
-                // RIGHT -------------------------------------------------------
+                //vc.getGridPaneLeft().getRowConstraints().get(vc.getGridPaneLeft().getRowCount() - 2).setVgrow(Priority.ALWAYS);
+                //vc.getGridPaneLeftSub().getColumnConstraints().get(0).setPrefWidth(vc.getLbsN()[0].getWidth());
+                //vc.getGridPaneLeftSub().getColumnConstraints().get(1).setPrefWidth(vc.getHbsName()[0].getWidth());
+
+                // RIGHT ROW-------------------------------------------------------
                 vc.getGridPaneRight().getRowConstraints().forEach(e -> {
                     e.setValignment(VPos.TOP);
-                    e.setPrefHeight(-1);
-                    e.setMaxHeight(-1);
+                    //e.setPrefHeight(-1);
+                    //e.setMaxHeight(-1);
+                    e.setVgrow(Priority.NEVER);
                 });
-                //((ScrollPane) vc.getGridPaneRight().getParent()).setHbarPolicy(ScrollBarPolicy.ALWAYS);
-                //((ScrollPane) vc.getGridPaneRightSub().getParent()).setHbarPolicy(ScrollBarPolicy.ALWAYS);
+                //vc.getGridPaneRight().getRowConstraints().get(vc.getPresetRowsLenght()).setVgrow(Priority.ALWAYS);
+                //vc.getGridPaneRight().getRowConstraints().get(vc.getPresetRowsLenght()).setPrefHeight(200);
             }
         } catch (IOException e) {
             e.printStackTrace();
