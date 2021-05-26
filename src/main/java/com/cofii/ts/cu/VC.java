@@ -32,6 +32,7 @@ public class VC {
 
             vc.setVf(vf);
             ms = vf.getMs();
+            vc.setMs(ms);
             if (create) {// THE REASON FOR NOT ADDING THE NODES IN THE CONTROLLER
                 for (int a = 0; a < vc.getPresetRowsLenght(); a++) {
                     int row = a + 1;

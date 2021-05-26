@@ -16,6 +16,7 @@ public class Timers {
     private static VFController vf;
     private VCController vc;
     private Node tooltipNode;
+
     private Popup popup;
 
     private Timeline lbStatusReset = new Timeline(new KeyFrame(Duration.seconds(2), e -> {
@@ -38,10 +39,18 @@ public class Timers {
     public void playTooltipManualShow(Node tooltipNode, VCController vc){
         this.vc = vc;
         this.tooltipNode = tooltipNode;
+
         tooltipManualShow.play();
     }
     public void playPopupHide(Popup popup){
         this.popup = popup;
+
+        popupHide.play();
+    }
+    public void playPopupHide(Popup popup, Duration duration){
+        this.popup = popup;
+        
+        popupHide.setDelay(duration);
         popupHide.play();
     }
     //--------------------------------------------------

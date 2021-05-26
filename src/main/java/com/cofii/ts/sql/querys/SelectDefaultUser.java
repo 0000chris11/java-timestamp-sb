@@ -20,6 +20,9 @@ public class SelectDefaultUser implements IActions{
         MSQL.setPassword(rs.getString(2));
         MSQL.setDatabase(rs.getString(3));
         
+        System.out.println("TEST user: " + MSQL.getUser());
+        System.out.println("TEST password: " + MSQL.getPassword());
+        System.out.println("TEST database: " + MSQL.getDatabase());
     }
 
     @Override

@@ -103,7 +103,7 @@ public class VF {
             vf.setScene(scene);
             vf.setVl(vl);
 
-            ms = new MSQLP(new CurrenConnection(MSQL.getDatabase(), MSQL.getUser(), MSQL.getPassword()),
+            ms = new MSQLP(new CurrenConnection(),
                     new WrongPassword(vl, vf));
 
             vf.setMs(ms);
