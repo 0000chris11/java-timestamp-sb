@@ -60,7 +60,9 @@ import javafx.scene.control.ScrollPane.ScrollBarPolicy;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
+import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import javafx.scene.transform.Transform;
@@ -256,6 +258,8 @@ public class VCController implements Initializable {
          * System.out.println("distExtraOK: " + distExtraOK);
          * System.out.println("------------------------------");
          */
+
+        createHelpPopupReset();
         if (tableOK && columnSNOK && columnBWOK && typeSelectionMatch && typeLengthOK && fkSelectionMatch && defaultBW
                 && defaultOK && extraPKOK && extraFKOK && extraDefaultOK && distExtraOK && imageCPathOk) {
             btnCreate.setDisable(false);
@@ -816,7 +820,7 @@ public class VCController implements Initializable {
     private void btnCreateHelpAction(ActionEvent e) {
         Bounds sb = btnCreateHelp.localToScreen(btnCreateHelp.getBoundsInLocal());
         createHelpPopup.show(btnCreateHelp, sb.getMinX(), sb.getMinY());
-        timers.playPopupHide(createHelpPopup, Duration.seconds(4));
+        //timers.playPopupHide(createHelpPopup, null);
     }
 
     // RIGHT-----------------------------------------
@@ -849,6 +853,10 @@ public class VCController implements Initializable {
         ToggleButton btn = (ToggleButton) e.getSource();
         int index = Integer.parseInt(btn.getId());
         if (btn.isSelected()) {
+            Boolean[] bools = new Boolean[currentRowLength];
+            Arrays.fill(bools, false);
+            listImageC.setAll(bools);
+
             listImageC.set(index, true);
         } else {
             listImageC.set(index, false);
@@ -857,16 +865,22 @@ public class VCController implements Initializable {
 
     private void listImageCChange(Change<? extends Boolean> c) {
         while (c.next()) {
-            if (c.wasAdded() || c.wasRemoved() || c.wasUpdated()) {
+            if (c.wasAdded() || c.wasRemoved() || c.wasUpdated() || c.wasReplaced()) {
                 if (listImageC.stream().allMatch(bool -> !bool)) {
                     tfImageCPath.setDisable(true);
                     btnSelectImageC.setDisable(true);
+
+                    imageCPathOk = true;
                 } else {
                     tfImageCPath.setDisable(false);
                     btnSelectImageC.setDisable(false);
+
+                    imageCPathOk = false;
                 }
             }
         }
+
+        btnCreateControl();
     }
 
     private void btnSelectImageCAction(ActionEvent e) {
@@ -892,6 +906,8 @@ public class VCController implements Initializable {
 
             imageCPathOk = true;
         }
+
+        btnCreateControl();
     }
 
     // ----------------------------------------------
@@ -1225,7 +1241,7 @@ public class VCController implements Initializable {
         }
     }
 
-    private void createHelpPopupInit() {
+    private void createHelpPopupReset() {
         TextFlow tf = new TextFlow();
         String[] controls = { "Table Name: ", "\nColumns Names: ", "\nTypes Values: ", "\nForeign Key: ",
                 "\nDefault Values: ", "\nExtra value: ", "\nDist Value: ", "\nImageC Path: " };
@@ -1243,7 +1259,27 @@ public class VCController implements Initializable {
             tf.getChildren().addAll(tx, txValue);
         }
 
-        createHelpPopup.getContent().addAll(tf);
+        if (createHelpPopup.getContent().isEmpty()) {
+            Region region = new Region();
+            region.setPrefWidth(-1);
+            Button btnX = new Button("x");
+            btnX.setOnAction(e -> createHelpPopup.hide());
+            btnX.setPrefWidth(10);
+            btnX.setPrefHeight(10);
+            HBox hbox = new HBox(region, btnX);
+            HBox.setHgrow(region, Priority.ALWAYS);
+            HBox.setHgrow(hbox, Priority.NEVER);
+
+            VBox vbox = new VBox(hbox, tf);
+            createHelpPopup.getContent().add(vbox);
+        } else {
+
+        }
+
+        ((VBox) createHelpPopup.getContent().get(0)).getChildren()
+                .removeIf(TextFlow.class::isInstance);
+        ((VBox) createHelpPopup.getContent().get(0)).getChildren().add(tf);
+
     }
 
     @Override
@@ -1256,9 +1292,10 @@ public class VCController implements Initializable {
         // tooltipNodesInit();
         fkReferencesInit();
         btnAddRemoveColumnInit();
-        createHelpPopupInit();
+        createHelpPopupReset();
         for (int a = 0; a < presetRowsLenght; a++) {
             listColumns.add(tfsColumn[a].getText().trim());
+            listImageC.add(false);
         }
         // gridPaneLeft.setGridLinesVisible(true);
         tfTable.setOnKeyReleased(this::tfTableKeyReleased);

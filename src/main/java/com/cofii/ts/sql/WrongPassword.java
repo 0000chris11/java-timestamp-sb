@@ -32,7 +32,7 @@ public class WrongPassword implements IConnectionException {
 
             TextArea ta = new TextArea();
             for(StackTraceElement x :ex.getStackTrace()){
-                ta.appendText(x.toString());
+                ta.appendText(x.toString() + "\n");
             }
             
             VBox status = new VBox(new Label(ex.getMessage()), ta);
