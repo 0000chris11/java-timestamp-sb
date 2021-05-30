@@ -39,6 +39,7 @@ public class VF {
     private static MSQLP ms;
 
     private TableS tables = TableS.getInstance();
+    private Menus menus;
     private static ColumnS columns = ColumnS.getInstance();
     private static ColumnDS columnsd = ColumnDS.getInstance();
     private Dist dist;
@@ -55,7 +56,8 @@ public class VF {
             ms.executeUpdate(MSQL.CREATE_TABLE_CONFIG);// NOT TESTED
         }
         // TABLE LIST
-        addMenuItems();
+        // addMenuItems();
+        menus.addMenuItemsReset();
 
         ms.executeQuery(MSQL.SELECT_TABLE_ROW_DEFAULT, new SelectTableDefault());
         if (MSQL.getCurrentTable() != null) {
@@ -69,25 +71,29 @@ public class VF {
 
             ms.selectData(table.replace(" ", "_"), new SelectData(vf, null));
         } else {
-            // NOT TESTED
+            vf.clearCurrentTableView();
         }
     }
 
-    private void addMenuItems() {
-        ms.executeQuery(MSQL.SELECT_TABLE_NAMES, new SelectTableNames(false));
-        if (tables.size() == 0) {
-            vf.getMenuSelection().getItems().clear();
-            vf.getMenuSelection().getItems().add(new MenuItem("No tables added"));
-        } else {
-            vf.getMenuSelection().getItems().clear();
-            for (int a = 0; a < tables.size(); a++) {
-                vf.getMenuSelection().getItems().add(new MenuItem(tables.getTable(a)));
-            }
-        }
-        // ADDING REMAINING MENUS
-        Menus menus = Menus.getInstance(vf);
-    }
-
+    // Move to MENUS
+    /*
+     * private void addMenuItems() { Menus menus = Menus.getInstance(vf);
+     * ms.executeQuery(MSQL.SELECT_TABLE_NAMES, new SelectTableNames(false)); if
+     * (tables.size() == 0) { vf.getMenuSelection().getItems().clear();
+     * menus.getTableDelete().getItems().clear();
+     * vf.getMenuSelection().getItems().add(new MenuItem("No tables added"));
+     * menus.getTableDelete().getItems().add(new MenuItem("No tables added")); }
+     * else { vf.getMenuSelection().getItems().clear();
+     * menus.getTableDelete().getItems().clear(); for (int a = 0; a < tables.size();
+     * a++) { vf.getMenuSelection().getItems().add(new
+     * MenuItem(tables.getTable(a))); menus.getTableDelete().getItems().add(new
+     * MenuItem(tables.getTable(a))); } }
+     * 
+     * vf.getMenuSelection().getItems().forEach(e ->
+     * e.setOnAction(menus::selectionForEachTable));
+     * menus.getTableDelete().getItems().forEach(e ->
+     * e.setOnAction(menus::deleteTables)); }
+     */
     public VF(VLController vl) {
         try {
             FXMLLoader loader = new FXMLLoader(VF.class.getResource("/com/cofii/ts/first/VF.fxml"));
@@ -96,15 +102,15 @@ public class VF {
             stage.setScene(scene);
             // -------------------------------------------------
             vf = (VFController) loader.getController();
+            menus = Menus.getInstance(vf);
             // -------------------------------------------------
-            //Arrays.asList(vf.getTfas()).forEach(e -> e.get);
+            // Arrays.asList(vf.getTfas()).forEach(e -> e.get);
             // -------------------------------------------------
             vf.setStage(stage);
             vf.setScene(scene);
             vf.setVl(vl);
 
-            ms = new MSQLP(new CurrenConnection(),
-                    new WrongPassword(vl, vf));
+            ms = new MSQLP(new CurrenConnection(), new WrongPassword(vl, vf));
 
             vf.setMs(ms);
             dist = Dist.getInstance(vf);

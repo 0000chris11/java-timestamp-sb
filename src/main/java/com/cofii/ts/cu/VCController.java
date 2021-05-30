@@ -25,6 +25,7 @@ import com.cofii.ts.store.SQLTypes;
 import com.cofii.ts.store.TableS;
 import com.cofii2.components.javafx.MessageWindow;
 import com.cofii2.components.javafx.PopupAutoC;
+import com.cofii2.components.javafx.PopupKV;
 import com.cofii2.components.javafx.TextFieldAutoC;
 import com.cofii2.components.javafx.ToggleGroupD;
 import com.cofii2.components.javafx.TooltipCustom;
@@ -32,6 +33,9 @@ import com.cofii2.methods.MList;
 import com.cofii2.mysql.MSQLC;
 import com.cofii2.mysql.MSQLCreate;
 import com.cofii2.mysql.MSQLP;
+import com.cofii2.stores.CC;
+import com.cofii2.stores.DInt;
+import com.cofii2.stores.IntBoolean;
 import com.cofii2.stores.IntString;
 import com.cofii2.stores.TString;
 
@@ -41,6 +45,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener.Change;
 import javafx.collections.ObservableList;
+import javafx.collections.ObservableMap;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -201,7 +206,9 @@ public class VCController implements Initializable {
     // RIGHT-SUB
     private DirectoryChooser directoryChooser = new DirectoryChooser();
     // BOTTOM
-    private Popup createHelpPopup = new Popup();
+    // private Popup createHelpPopup = new Popup();
+    private ObservableMap<String, Boolean> createHelpMap = FXCollections.observableHashMap();
+    private PopupKV createHelpPopup = new PopupKV(createHelpMap);
     // ---------------------------------------------
     private VFController vf;
     private MSQLP ms;
@@ -213,7 +220,8 @@ public class VCController implements Initializable {
     private MessageWindow mw = new MessageWindow();
     private Popup popup = new Popup();
 
-    private Pattern patternBW = Pattern.compile("[A-Za-z]\\w*");
+    private Pattern patternBWTC = Pattern.compile("[A-Za-z]\\w*");
+    private Pattern patternBWDefault = Pattern.compile("[A-Za-z][\\w* ]\\S");//ADD SELECTION CONTROL
     private Pattern patternTypeLength = Pattern.compile("\\d{1,5}");
     private Matcher matcher;
 
@@ -260,11 +268,14 @@ public class VCController implements Initializable {
          */
 
         createHelpPopupReset();
+
         if (tableOK && columnSNOK && columnBWOK && typeSelectionMatch && typeLengthOK && fkSelectionMatch && defaultBW
                 && defaultOK && extraPKOK && extraFKOK && extraDefaultOK && distExtraOK && imageCPathOk) {
             btnCreate.setDisable(false);
+            btnCreateHelp.setDisable(true);
         } else {
             btnCreate.setDisable(true);
+            btnCreateHelp.setDisable(false);
         }
     }
 
@@ -272,7 +283,7 @@ public class VCController implements Initializable {
         for (int a = 0; a < currentRowLength; a++) {
             if (a != index) {
                 String text = tfsColumn[a].getText();
-                matcher = patternBW.matcher(text);
+                matcher = patternBWTC.matcher(text);
                 if (text.trim().isEmpty()) {
                     columnBWOK = false;
                     break;
@@ -302,7 +313,7 @@ public class VCController implements Initializable {
             if (index != a) {
                 // String text = tfasType[a].getTf().getText();
                 String text = tfasType[a].getText();
-                matcher = patternBW.matcher(text);
+                matcher = patternBWTC.matcher(text);
                 if (matcher.matches()) {
                     if (!MList.isOnThisList(/* tfasType[a].getLv().getItems() */ tfsTypePs[a].getLv().getItems(), text,
                             false)) {
@@ -358,7 +369,7 @@ public class VCController implements Initializable {
             if (a != index) {
                 if (tfsDefault[a].isVisible()) {
                     String text = tfsDefault[a].getText();
-                    matcher = patternBW.matcher(text);
+                    matcher = patternBWTC.matcher(text);
                     if (!matcher.matches()) {
                         defaultBW = false;
                         break;
@@ -389,7 +400,7 @@ public class VCController implements Initializable {
             String[] tableList = tables.getTables();
             String text = tfTable.getText().toLowerCase().trim().replace(" ", "_");
 
-            matcher = patternBW.matcher(text);
+            matcher = patternBWTC.matcher(text);
             if (matcher.matches()) {
                 if (MList.isOnThisList(tableList, text, true)) {
                     lbTable.setText("This table already exist");
@@ -419,7 +430,7 @@ public class VCController implements Initializable {
         listColumns.set(index, text);
 
         if (!text.trim().isEmpty()) {
-            matcher = patternBW.matcher(text);
+            matcher = patternBWTC.matcher(text);
             if (matcher.matches()) {
                 tf.setStyle(CSS.TEXT_FILL);
                 mw.hide();
@@ -516,7 +527,7 @@ public class VCController implements Initializable {
         int index = Character.getNumericValue(tf.getId().charAt(tf.getId().length() - 1));
 
         newValue = newValue.trim();
-        matcher = patternBW.matcher(newValue);
+        matcher = patternBWTC.matcher(newValue);
         if (matcher.matches()) {
             if (MList.isOnThisList(tfsTypePs[index].getLv().getItems(), newValue, false)) {
                 int typeLength = types.getTypeLength(newValue);
@@ -649,7 +660,7 @@ public class VCController implements Initializable {
         int index = Integer.parseInt(tf.getId());
 
         String text = tf.getText();
-        matcher = patternBW.matcher(text);
+        matcher = patternBWTC.matcher(text);
 
         if (tf.isVisible()) {
             if (matcher.matches()) {
@@ -738,27 +749,37 @@ public class VCController implements Initializable {
     }
 
     private void btnCreateAction(ActionEvent e) {
+        System.out.println(CC.CYAN + "CREATE TABLE" + CC.RESET);
         String tableName = tfTable.getText().toLowerCase().trim().replace(" ", "_");
         // LEFT-------------------
         String[] columnsNames = new String[currentRowLength];
         String[] typesNames = new String[currentRowLength];
+        int[] typesLengths = new int[currentRowLength];
+        boolean[] nulls = new boolean[currentRowLength];
+        String[] defaults = new String[currentRowLength];
+
         List<String> pks = new ArrayList<>(MSQL.MAX_COLUMNS);
         List<TString> fks = new ArrayList<>(MSQL.MAX_COLUMNS);
-        List<IntString> defaults = new ArrayList<>(MSQL.MAX_COLUMNS);
+        // List<IntString> defaults = new ArrayList<>(MSQL.MAX_COLUMNS);
         int extra = 0;
         // RIGHT-------------------
         StringBuilder dist = new StringBuilder("NONE");
         boolean distPresent = false;
         int distCount = 0;
         StringBuilder imageC = new StringBuilder("NONE");
+        StringBuilder imageCPath = new StringBuilder("NONE");
         // -------------------------------------------------
         for (int a = 0; a < currentRowLength; a++) {
             // LEFT-------------------
             columnsNames[a] = tfsColumn[a].getText().toLowerCase().trim().replace(" ", "_");
             typesNames[a] = tfasType[a].getText();
-            if (types.getTypeLength(typesNames[a]) > 0) {
-                typesNames[a] += tfsTypeLength[a].getText();
+
+            if (tfsTypeLength[a].isVisible() && types.getTypeLength(typesNames[a]) > 0) {
+                // typesNames[a] += tfsTypeLength[a].getText();
+                typesLengths[a] = Integer.parseInt(tfsTypeLength[a].getText());
             }
+            nulls[a] = cksNull[a].isSelected();
+
             if (cksPK[a].isSelected()) {
                 pks.add(columnsNames[a]);
             }
@@ -770,7 +791,10 @@ public class VCController implements Initializable {
                 // listFK.add(new TString(colNames[a], tableR, colR));
             }
             if (cksDefault[a].isSelected()) {
-                defaults.add(new IntString(a + 1, tfsDefault[a].getText()));
+                // defaults.add(new IntString(a + 1, tfsDefault[a].getText()));
+                defaults[a] = tfsDefault[a].getText();
+            } else {
+                defaults[a] = null;
             }
 
             if (rbsExtra[a].isSelected()) {
@@ -789,6 +813,9 @@ public class VCController implements Initializable {
             if (btnsImageC[a].isSelected()) {
                 imageC.delete(0, imageC.length() - 1);
                 imageC.append("C" + (a + 1));
+
+                imageCPath.delete(0, imageCPath.length() - 1);
+                imageCPath.append(tfImageCPath.getText());
             }
         }
         if (distCount > 0) {// DELETE LAST '_'
@@ -796,10 +823,18 @@ public class VCController implements Initializable {
         }
         // CREATE UPDATE ---------------------------------------
         MSQLCreate msc = new MSQLCreate(new CurrenConnection());
+        for (int a = 0; a < currentRowLength; a++) {
+            msc.addTypesWidth(new DInt(a + 1, typesLengths[a]));
+            msc.addAllowsNull(new IntBoolean(a + 1, nulls[a]));
+            msc.addDefault(defaults[a] != null ? new IntString(a + 1, defaults[a]) : null);
+        }
+        msc.addAllPrimaryKeys(pks);
+        msc.addAllForeignKeys(fks);
+        msc.setAutoIncrement(extra);
         boolean createTable = msc.createTable(tableName, columnsNames, typesNames);
-
-        Object[] values = new Object[] { null, tableName.replace("_", " "), dist.toString(), imageC.toString() };
+        // INSERT -----------------------------------------------
         if (createTable) {
+            Object[] values = new Object[] { null, tableName.replace("_", " "), dist.toString(), imageC.toString(), imageCPath.toString() };
             boolean insert = ms.insert(MSQL.TABLE_NAMES, values);
             if (insert) {
                 lbStatus.setText("Table '" + tableName.replace("_", " ") + "' has been created!");
@@ -814,13 +849,12 @@ public class VCController implements Initializable {
             lbStatus.setTextFill(NonCSS.TEXT_FILL_ERROR);
         }
 
-        timers.playLbStatusReset();
+        timers.playLbStatusReset(lbStatus);
     }
 
     private void btnCreateHelpAction(ActionEvent e) {
         Bounds sb = btnCreateHelp.localToScreen(btnCreateHelp.getBoundsInLocal());
         createHelpPopup.show(btnCreateHelp, sb.getMinX(), sb.getMinY());
-        //timers.playPopupHide(createHelpPopup, null);
     }
 
     // RIGHT-----------------------------------------
@@ -1186,40 +1220,6 @@ public class VCController implements Initializable {
         // gridPaneRightSub.setGridLinesVisible(true);
     }
 
-    private void tooltipNodesInit() {
-        for (int a = 0; a < MSQL.MAX_COLUMNS; a++) {
-            TextField tf = tfsTypeLength[a];
-
-            Tooltip t = new Tooltip();
-            Tooltip.install(tf, t);
-            tfsTypeLengthTT[a] = t;
-            // tfsTypeLengthTT[a].setText("Wrong type length");
-            tfsTypeLengthTT[a].setShowDuration(Duration.seconds(2));
-        }
-        for (int a = 0; a < MSQL.MAX_COLUMNS; a++) {
-            TextField tf = tfsColumn[a];
-
-            Tooltip t = new Tooltip();
-            Tooltip.install(tf, t);
-            tfsColumnTT[a] = t;
-            // tfsColumnTT[a].setText("Illegal Chars");
-            tfsColumnTT[a].setShowDuration(Duration.seconds(2));
-            // tfsColumnTT[a].onShownProperty().addListener(this::tooltipOnShowListener);
-
-            // DOES NOT WORK
-            // tfsColumnTT[a].onShowingProperty().addListener((this::tooltipOnShowListener));
-        }
-        for (int a = 0; a < MSQL.MAX_COLUMNS; a++) {
-            TextField tf = tfasFK[a];
-
-            Tooltip t = new Tooltip();
-            Tooltip.install(tf, t);
-            tfasFKTT[a] = t;
-            tfasFKTT[a].setShowDuration(Duration.seconds(2));
-        }
-
-    }
-
     private void btnAddRemoveColumnInit() {
         for (int a = 0; a < MSQL.MAX_COLUMNS; a++) {
             if (a < presetRowsLenght - 1) {
@@ -1242,44 +1242,14 @@ public class VCController implements Initializable {
     }
 
     private void createHelpPopupReset() {
-        TextFlow tf = new TextFlow();
-        String[] controls = { "Table Name: ", "\nColumns Names: ", "\nTypes Values: ", "\nForeign Key: ",
-                "\nDefault Values: ", "\nExtra value: ", "\nDist Value: ", "\nImageC Path: " };
-        boolean[] controlsValues = { tableOK, columnSNOK && columnBWOK, typeSelectionMatch && typeLengthOK,
-                fkSelectionMatch, defaultBW && defaultOK, extraPKOK && extraFKOK && extraDefaultOK, distExtraOK,
-                imageCPathOk };
-
-        for (int a = 0; a < controls.length; a++) {
-            Text tx = new Text(controls[a]);
-            tx.setFill(NonCSS.TEXT_FILL);
-
-            Text txValue = new Text(controlsValues[a] ? "correct" : "errors");
-            txValue.setFill(controlsValues[a] ? NonCSS.TEXT_FILL_OK : NonCSS.TEXT_FILL_ERROR);
-
-            tf.getChildren().addAll(tx, txValue);
-        }
-
-        if (createHelpPopup.getContent().isEmpty()) {
-            Region region = new Region();
-            region.setPrefWidth(-1);
-            Button btnX = new Button("x");
-            btnX.setOnAction(e -> createHelpPopup.hide());
-            btnX.setPrefWidth(10);
-            btnX.setPrefHeight(10);
-            HBox hbox = new HBox(region, btnX);
-            HBox.setHgrow(region, Priority.ALWAYS);
-            HBox.setHgrow(hbox, Priority.NEVER);
-
-            VBox vbox = new VBox(hbox, tf);
-            createHelpPopup.getContent().add(vbox);
-        } else {
-
-        }
-
-        ((VBox) createHelpPopup.getContent().get(0)).getChildren()
-                .removeIf(TextFlow.class::isInstance);
-        ((VBox) createHelpPopup.getContent().get(0)).getChildren().add(tf);
-
+        createHelpMap.put("Table Name", tableOK);
+        createHelpMap.put("Columns Names", columnSNOK && columnBWOK);
+        createHelpMap.put("Types", typeSelectionMatch && typeLengthOK);
+        createHelpMap.put("Foreign Keys", fkSelectionMatch);
+        createHelpMap.put("Default Values", defaultBW && defaultOK);
+        createHelpMap.put("Extra Value", extraPKOK && extraFKOK && extraDefaultOK);
+        createHelpMap.put("Dist", distExtraOK);
+        createHelpMap.put("ImageC Path", imageCPathOk);
     }
 
     @Override
@@ -1289,10 +1259,10 @@ public class VCController implements Initializable {
         nonFXMLRightNodesInit();
 
         tfTable.setPromptText("Table name required");
-        // tooltipNodesInit();
         fkReferencesInit();
         btnAddRemoveColumnInit();
         createHelpPopupReset();
+
         for (int a = 0; a < presetRowsLenght; a++) {
             listColumns.add(tfsColumn[a].getText().trim());
             listImageC.add(false);

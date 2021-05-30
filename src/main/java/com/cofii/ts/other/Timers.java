@@ -7,6 +7,7 @@ import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.scene.Node;
 import javafx.scene.control.Control;
+import javafx.scene.control.Label;
 import javafx.scene.control.Tooltip;
 import javafx.stage.Popup;
 import javafx.util.Duration;
@@ -15,13 +16,14 @@ public class Timers {
 
     private static VFController vf;
     private VCController vc;
-    private Node tooltipNode;
 
+    private Label lbStatus;
+    private Node tooltipNode;
     private Popup popup;
 
     private Timeline lbStatusReset = new Timeline(new KeyFrame(Duration.seconds(2), e -> {
-        vf.getLbStatus().setText("Waiting for action...");
-        vf.getLbStatus().setTextFill(NonCSS.TEXT_FILL);
+        lbStatus.setText("Waiting for action...");
+        lbStatus.setTextFill(NonCSS.TEXT_FILL);
     }));
     private Timeline tooltipManualShow = new Timeline(new KeyFrame(Duration.seconds(2), e -> {
         Tooltip tt = ((Control) tooltipNode).getTooltip();
@@ -34,7 +36,8 @@ public class Timers {
     }));
 
     // --------------------------------------------------
-    public void playLbStatusReset() {
+    public void playLbStatusReset(Label lbStatus) {
+        this.lbStatus = lbStatus;
         lbStatusReset.play();
     }
 

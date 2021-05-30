@@ -89,7 +89,7 @@ public class SelectData implements IActions {
                 mediaPlayer = new MediaPlayer(media);
                 mediaPlayer.play();
 
-                Timers.getInstance(vf).playLbStatusReset();
+                Timers.getInstance(vf).playLbStatusReset(vf.getLbStatus());
             }else{
                 /*
                 if(vf.getTableData() != null){

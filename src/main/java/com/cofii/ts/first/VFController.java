@@ -127,67 +127,6 @@ public class VFController implements Initializable {
     }
 
     // LISTENER -----------------------------------------
-    // NON-FXML
-    private void cbsMouseClicked(MouseEvent e) {
-        /*
-         * for (int a = 0; a < cbs.length; a++) { TextField tf = (TextField)
-         * e.getSource(); if (tf == cbs[a].getEditor()) { cbs[a].show(); } }
-         */
-    }
-
-    // LISTENER CBS-----------------------------------
-    private void searchFunction(KeyEvent e) {
-        /*
-         * for (int a = 0; a < cbs.length; a++) { TextField tf = (TextField)
-         * e.getSource(); if (tf == cbs[a].getEditor()) { // System.out.println("\nCB "
-         * + (a + 1));
-         * 
-         * cbs[a].getItems().clear(); cbs[a].getItems().addAll(cbElements.get(a)); if
-         * (!cbs[a].getItems().get(0).equals(SelectDistinct.NO_DISTINCT_ELEMENTS)) {
-         * String text = tf.getText().toUpperCase(); // SEARCH BY TAGS if
-         * (text.contains("; ")) { text = text.substring(text.lastIndexOf("; ") + 2,
-         * text.length() - 1); System.out.println("\ttext ; : " + text); } //
-         * System.out.println("\ttext: " + text); //
-         * ----------------------------------------- int originalLength =
-         * cbElements.get(a).size(); // System.out.println("\toriginal length: " +
-         * originalLength); for (int b = 0; b < originalLength; b++) { String element =
-         * cbElements.get(a).get(b); if (cbSearchOption == CB_STARTS_WITH) { if
-         * (!element.toUpperCase().startsWith(text)) {
-         * cbs[a].getItems().remove(element); } } } //
-         * System.out.println("\tcurrent length: " + cbs[a].getItems().size()); // if
-         * (!cbs[a].isShowing()) { // cbs[a].hide();
-         * 
-         * int currentElementLength = cbs[a].getItems().size();
-         * System.out.println("\tcurrentElementLength: " + currentElementLength); int
-         * res = currentElementLength > 10 ? 10 : currentElementLength;
-         * System.out.println("\t\tres: " + res); // cbs[a].setVisibleRowCount(res);
-         * System.out.println("\tgetVisibleRowCount: " + cbs[a].getVisibleRowCount());
-         * 
-         * cbs[a].hide(); cbs[a].setVisibleRowCount(res); cbs[a].show(); } break; } }
-         * System.out.println("\tgetVisibleRowCount: " + cbs[4].getVisibleRowCount());
-         */
-    }
-
-    private void cbsKeyPressed(KeyEvent e) {
-        /*
-         * System.out.println("\ncbsKeyPressed"); for (int a = 0; a < cbs.length; a++) {
-         * TextField tf = (TextField) e.getSource(); if (tf == cbs[a].getEditor()) { if
-         * (cbs[a].isShowing()) { int caretPosition = tf.getCaretPosition(); if
-         * (e.getCode() == KeyCode.LEFT && caretPosition != 0) {
-         * tf.positionCaret(--caretPosition); } else if (e.getCode() == KeyCode.RIGHT) {
-         * tf.positionCaret(++caretPosition); } else if (e.getCode() == KeyCode.END) {
-         * tf.positionCaret(tf.getText().length()); } else if (e.getCode() ==
-         * KeyCode.BEGIN) { tf.positionCaret(0); } } break; } }
-         */
-    }
-
-    private void cbsKeyReleased(KeyEvent e) {
-        if (e.getCode().isLetterKey()) {
-            System.out.println("\nSEARCH FUNCTION STARTS");
-            // searchFunction(e);
-        }
-    }
-
     private <T> void tableRowSelected(ObservableValue<? extends T> observable, T oldValue, T newValue) {
         ObservableList<ObservableList<Object>> list = table.getSelectionModel().getSelectedItems();
         System.out.println("\ntable length selection: " + list.size());
@@ -300,7 +239,7 @@ public class VFController implements Initializable {
             System.out.println("\tData too long");
             lbStatus.setText(e.getMessage());
             lbStatus.setTextFill(NonCSS.TEXT_FILL_ERROR);
-            Timers.getInstance(this).playLbStatusReset();
+            Timers.getInstance(this).playLbStatusReset(lbStatus);
         });
         boolean update = ms.insert(tableName, gn.getValues());
         if (update) {
@@ -311,7 +250,17 @@ public class VFController implements Initializable {
             System.out.println(FAILED);
         }
     }
+    // RESET ----------------------------------------------
+    public void clearCurrentTableView(){
+        lbTable.setText("No Table Selected");
+        
+        Arrays.asList(lbs).forEach(e -> e.setVisible(false));
+        Arrays.asList(tfs).forEach(e -> e.setVisible(false));
+        Arrays.asList(tfas).forEach(e -> e.setVisible(false));
+        Arrays.asList(btns).forEach(e -> e.setVisible(false));
 
+        table.getColumns().clear();
+    }
     // INIT METHODS -------------------------------------------
     private void nonFXMLNodesInit() {
         for (int a = 0; a < MSQL.MAX_COLUMNS; a++) {
@@ -338,11 +287,11 @@ public class VFController implements Initializable {
             gridPane.add(btns[a], 2, a);
 
             gridPane.getRowConstraints().get(a).setValignment(VPos.TOP);
-            //gridPane.getRowConstraints().get(a).setVgrow(Priority.ALWAYS);
+            // gridPane.getRowConstraints().get(a).setVgrow(Priority.ALWAYS);
             gridPane.getRowConstraints().get(a).setPrefHeight(-1);
             gridPane.getRowConstraints().get(a).setMaxHeight(-1);
         }
-        
+
     }
 
     @Override
@@ -506,5 +455,5 @@ public class VFController implements Initializable {
     public void setScene(Scene scene) {
         this.scene = scene;
     }
-    
+
 }
