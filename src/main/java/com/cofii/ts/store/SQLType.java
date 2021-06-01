@@ -5,11 +5,13 @@ public class SQLType {
     private String typeName;
     private int typeLength;
     private int typeMaxLength;
+    private String typeChar;
     //--------------------------------------------
-    public SQLType(String typeName, int typeLength, int typeMaxLength) {
+    public SQLType(String typeName, int typeLength, int typeMaxLength, String typeChar) {
         this.typeName = typeName;
         this.typeLength = typeLength;
         this.typeMaxLength = typeMaxLength;
+        this.typeChar = typeChar;
     }
     //--------------------------------------------
     public String getTypeName() {
@@ -32,6 +34,12 @@ public class SQLType {
     }
     public void setTypeMaxLength(int typeMaxLength) {
         this.typeMaxLength = typeMaxLength;
+    }
+    public String getTypeChar() {
+        return typeChar;
+    }
+    public void setTypeChar(String typeChar) {
+        this.typeChar = typeChar;
     }
     
 }

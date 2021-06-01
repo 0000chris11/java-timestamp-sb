@@ -1,5 +1,12 @@
 package com.cofii.ts.other;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
+
 import com.cofii.ts.first.VFController;
 import com.cofii.ts.sql.MSQL;
 import com.cofii.ts.sql.querys.SelectDistinct;
@@ -7,6 +14,7 @@ import com.cofii.ts.store.ColumnD;
 import com.cofii.ts.store.ColumnDS;
 import com.cofii.ts.store.ColumnS;
 import com.cofii.ts.store.Keys;
+import com.cofii2.methods.MString;
 import com.cofii2.mysql.MSQLP;
 
 import javafx.geometry.Insets;
@@ -23,10 +31,14 @@ public class Dist {
     private ColumnS columns = ColumnS.getInstance();
     private ColumnDS columnsd = ColumnDS.getInstance();
     // private Keys keys = Keys.getInstance();
+
+    private List<String> imageCFiles = new ArrayList<>();
+
     private MSQLP ms;
 
     // -----------------------------------------------------
-    public void distInitOldWay(String dist) {
+    private void dist() {
+        String dist = MSQL.getCurrentTable().getDist();
         ms = vf.getMs();
 
         int length = dist.length();
@@ -43,16 +55,9 @@ public class Dist {
             if (vf.getTfas()[c].isNeedsLayout()) {
                 gp.getChildren().remove(vf.getTfs()[c]);
                 gp.add(vf.getTfas()[c], 1, c);
-                if(columns.getExtra(c).equals("auto_increment")){
+                if (columns.getExtra(c).equals("auto_increment")) {
                     vf.getTfas()[c].getTf().setPromptText("AUTO_INCREMENT");
                 }
-                /*
-                GridPane.setMargin(vf.getLbs()[c], new Insets(4, 0, 0, 0));
-                GridPane.setMargin(vf.getTfas()[c], new Insets(4, 0, 0, 0));
-                GridPane.setMargin(vf.getBtns()[c], new Insets(4, 0, 0, 0));
-                */
-                //gp.getRowConstraints().get(c).setPrefHeight(30);
-                //gp.getRowConstraints().get(c).setVgrow(Priority.ALWAYS);
             }
 
             columnsd.addColumnD(c, new ColumnD("Yes"));
@@ -65,6 +70,22 @@ public class Dist {
             p += 2;
         }
         gp.getRowConstraints().get(4).setMaxHeight(Short.MAX_VALUE);
+    }
+
+    private void imageC() {
+        String imageCPath = MSQL.getCurrentTable().getImageCPath();
+        File imageCDirectory = new File(imageCPath);
+        //imageCFiles = Arrays.asList(imageCDirectory.listFiles()).stream().filter(e -> e.getName()).collect(Collectors.toList());
+        for(File file: imageCDirectory.listFiles()){
+            imageCFiles.add(MString.getRemoveCustomFormattedString(file.getName()));
+        }
+
+        
+    }
+
+    public void distStart() {
+        dist();
+        imageC();
     }
 
     public void distAction() {
@@ -93,4 +114,14 @@ public class Dist {
     private Dist() {
 
     }
+    //-------------------------------------------------------
+
+    public List<String> getImageCFiles() {
+        return imageCFiles;
+    }
+
+    public void setImageCFiles(List<String> imageCFiles) {
+        this.imageCFiles = imageCFiles;
+    }
+    
 }

@@ -1,6 +1,8 @@
 package com.cofii.ts.first;
 
+import java.io.File;
 import java.net.URL;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -20,6 +22,7 @@ import com.cofii.ts.sql.querys.SelectData;
 import com.cofii.ts.store.ColumnDS;
 import com.cofii.ts.store.ColumnS;
 import com.cofii2.components.javafx.TextFieldAutoC;
+import com.cofii2.methods.MString;
 import com.cofii2.mysql.MSQLP;
 import com.cofii2.stores.CC;
 
@@ -40,6 +43,7 @@ import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TableColumn.CellEditEvent;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
@@ -87,6 +91,9 @@ public class VFController implements Initializable {
     @FXML
     private TableView<ObservableList<Object>> table;
     private ObservableList<ObservableList<Object>> tableData;
+
+    @FXML
+    private ImageView ivImageC;
 
     private ColumnS columns = ColumnS.getInstance();
     private ColumnDS columnds = ColumnDS.getInstance();
@@ -137,7 +144,16 @@ public class VFController implements Initializable {
             selectedRow = list.get(0).toArray();
             GetRowSelectedImpl nr = new GetRowSelectedImpl(selectedRow);
             forEachAction(rowData.length, nr);
-
+            //ImageC----------------------------------------
+            if(!MSQL.getCurrentTable().getImageC().equals("NONE")){
+                String imageCPath = MSQL.getCurrentTable().getImageCPath();
+                int imageCPathIndex = Character.getNumericValue(MSQL.getCurrentTable().getImageC().charAt(1)) - 1;
+                String selectedImage = list.get(0).get(imageCPathIndex).toString();
+                
+                dist.getImageCFiles().stream().filter(e -> selectedImage.equals(e)).findFirst().orElse(null);
+                //GET ACTUAL PATH (FILE)
+            }
+            //----------------------------------------------
             btnDelete.setDisable(false);
             btnUpdate.setDisable(false);
         } else if (list.size() > 1) {
@@ -456,4 +472,12 @@ public class VFController implements Initializable {
         this.scene = scene;
     }
 
+    public ImageView getIvImageC() {
+        return ivImageC;
+    }
+
+    public void setIvImageC(ImageView ivImageC) {
+        this.ivImageC = ivImageC;
+    }
+    
 }

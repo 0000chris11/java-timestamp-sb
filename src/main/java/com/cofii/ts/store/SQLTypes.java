@@ -44,6 +44,10 @@ public class SQLTypes {
         }
         return returnValue;
     }
+    public String getTypeChar(String typeName){
+        SQLType type = types.stream().filter(e -> typeName.equals(e.getTypeName())).findFirst().orElse(null);
+        return type.getTypeChar();
+    }
     public SQLType getType(String typeName){
         SQLType returnValue = null;
         for(SQLType type : types){
@@ -63,21 +67,21 @@ public class SQLTypes {
         return instance;
     }
     private SQLTypes(){
-        types.add(new SQLType("INT", 11, 11));
-        types.add(new SQLType("TINYINT", 4, 4));
-        types.add(new SQLType("SMALLINT", 6, 6));
-        types.add(new SQLType("MEDIUMINT", 9, 9));
-        types.add(new SQLType("BIGINT", 20, 20));
-        types.add(new SQLType("FLOAT", 0, 0));
-        types.add(new SQLType("DOUBLE", 0, 0));
-        types.add(new SQLType("CHAR", 1, 255));
-        types.add(new SQLType("VARCHAR", 80, 16383));
-        types.add(new SQLType("BOOLEAN/TINYINT(1)", 0, 0));
-        types.add(new SQLType("TIME", 0, 0));
-        types.add(new SQLType("DATE", 0, 0));
-        types.add(new SQLType("DATETIME", 0, 0));
-        types.add(new SQLType("TIMESTAMP", 0, 0));
-        types.add(new SQLType("BINARY", 0, 0));
-        types.add(new SQLType("VARBINARY", 0, 0));
+        types.add(new SQLType("INT", 11, 11, "NUMBER"));
+        types.add(new SQLType("TINYINT", 4, 4, "NUMBER"));
+        types.add(new SQLType("SMALLINT", 6, 6, "NUMBER"));
+        types.add(new SQLType("MEDIUMINT", 9, 9, "NUMBER"));
+        types.add(new SQLType("BIGINT", 20, 20, "NUMBER"));
+        types.add(new SQLType("FLOAT", 0, 0, "DECIMAL"));
+        types.add(new SQLType("DOUBLE", 0, 0, "DECIMAL"));
+        types.add(new SQLType("CHAR", 1, 255, "STRING"));
+        types.add(new SQLType("VARCHAR", 80, 16383, "STRING"));
+        types.add(new SQLType("BOOLEAN/TINYINT(1)", 0, 0, "BOOLEAN"));
+        types.add(new SQLType("TIME", 0, 0, "STRING"));
+        types.add(new SQLType("DATE", 0, 0, "STRING"));
+        types.add(new SQLType("DATETIME", 0, 0, "STRING"));
+        types.add(new SQLType("TIMESTAMP", 0, 0, "STRING"));
+        types.add(new SQLType("BINARY", 0, 0, "BINARY"));
+        types.add(new SQLType("VARBINARY", 0, 0, "BINARY"));
     }
 }

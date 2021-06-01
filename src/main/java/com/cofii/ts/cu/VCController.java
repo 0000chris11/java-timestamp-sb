@@ -5,6 +5,8 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -22,10 +24,12 @@ import com.cofii.ts.store.Key;
 import com.cofii.ts.store.Keys;
 import com.cofii.ts.store.SQLType;
 import com.cofii.ts.store.SQLTypes;
+import com.cofii.ts.store.Table;
 import com.cofii.ts.store.TableS;
 import com.cofii2.components.javafx.MessageWindow;
 import com.cofii2.components.javafx.PopupAutoC;
 import com.cofii2.components.javafx.PopupKV;
+import com.cofii2.components.javafx.PopupMessage;
 import com.cofii2.components.javafx.TextFieldAutoC;
 import com.cofii2.components.javafx.ToggleGroupD;
 import com.cofii2.components.javafx.TooltipCustom;
@@ -169,7 +173,7 @@ public class VCController implements Initializable {
     private Label[] lbsN = new Label[MSQL.MAX_COLUMNS];
     private HBox[] hbsName = new HBox[MSQL.MAX_COLUMNS];// -----------
     private TextField[] tfsColumn = new TextField[MSQL.MAX_COLUMNS];
-    private Tooltip[] tfsColumnTT = new Tooltip[MSQL.MAX_COLUMNS];
+    private PopupMessage[] tfsColumnPopups = new PopupMessage[MSQL.MAX_COLUMNS];
     private Button[] btnsRemoveColumn = new Button[MSQL.MAX_COLUMNS];
     private Button[] btnsAddColumn = new Button[MSQL.MAX_COLUMNS];
     private Button[] btnsRenameColumn = new Button[MSQL.MAX_COLUMNS];
@@ -177,8 +181,9 @@ public class VCController implements Initializable {
     // private TextFieldAutoC[] tfasType = new TextFieldAutoC[MSQL.MAX_COLUMNS];
     private TextField[] tfasType = new TextField[MSQL.MAX_COLUMNS];
     private PopupAutoC[] tfsTypePs = new PopupAutoC[MSQL.MAX_COLUMNS];
+    private PopupMessage[] tfsTypePopups = new PopupMessage[MSQL.MAX_COLUMNS];
     private TextField[] tfsTypeLength = new TextField[MSQL.MAX_COLUMNS];
-    private Tooltip[] tfsTypeLengthTT = new Tooltip[MSQL.MAX_COLUMNS];
+    private PopupMessage[] tfsTypeLengthPopups = new PopupMessage[MSQL.MAX_COLUMNS];
     private Button[] btnsChangeType = new Button[MSQL.MAX_COLUMNS];
     private HBox[] hbsNull = new HBox[MSQL.MAX_COLUMNS];// -----------
     private CheckBox[] cksNull = new CheckBox[MSQL.MAX_COLUMNS];
@@ -191,20 +196,24 @@ public class VCController implements Initializable {
     // private TextFieldAutoC[] tfasFK = new TextFieldAutoC[MSQL.MAX_COLUMNS];
     private TextField[] tfasFK = new TextField[MSQL.MAX_COLUMNS];
     private PopupAutoC[] tfsFKPs = new PopupAutoC[MSQL.MAX_COLUMNS];
-    private Tooltip[] tfasFKTT = new Tooltip[MSQL.MAX_COLUMNS];
+    private PopupMessage[] tfsFKPopups = new PopupMessage[MSQL.MAX_COLUMNS];
     private Button[] btnsChangeFK = new Button[MSQL.MAX_COLUMNS];
     private HBox[] hbsDefault = new HBox[MSQL.MAX_COLUMNS];// -----------
     private CheckBox[] cksDefault = new CheckBox[MSQL.MAX_COLUMNS];
     private TextField[] tfsDefault = new TextField[MSQL.MAX_COLUMNS];
+    private PopupMessage[] tfsDefaultPopups = new PopupMessage[MSQL.MAX_COLUMNS];
     private Button[] btnsChangeDefault = new Button[MSQL.MAX_COLUMNS];
     private HBox[] hbsExtra = new HBox[MSQL.MAX_COLUMNS];// -----------
     private RadioButton[] rbsExtra = new RadioButton[MSQL.MAX_COLUMNS];
+    private PopupMessage[] rbsExtraPopups = new PopupMessage[MSQL.MAX_COLUMNS];
     private Button[] btnsChangeExtra = new Button[MSQL.MAX_COLUMNS];
     // RIGHT
     private ToggleButton[] btnsDist = new ToggleButton[MSQL.MAX_COLUMNS];
+    private PopupMessage[] btnsDistPopups = new PopupMessage[MSQL.MAX_COLUMNS];
     private ToggleButton[] btnsImageC = new ToggleButton[MSQL.MAX_COLUMNS];
     // RIGHT-SUB
     private DirectoryChooser directoryChooser = new DirectoryChooser();
+    private PopupMessage tfImageCPathPopup;
     // BOTTOM
     // private Popup createHelpPopup = new Popup();
     private ObservableMap<String, Boolean> createHelpMap = FXCollections.observableHashMap();
@@ -217,11 +226,7 @@ public class VCController implements Initializable {
     private Keys keys = Keys.getInstance();
     private Timers timers = Timers.getInstance(vf);
 
-    private MessageWindow mw = new MessageWindow();
-    private Popup popup = new Popup();
-
     private Pattern patternBWTC = Pattern.compile("[A-Za-z]\\w*");
-    private Pattern patternBWDefault = Pattern.compile("[A-Za-z][\\w* ]\\S");//ADD SELECTION CONTROL
     private Pattern patternTypeLength = Pattern.compile("\\d{1,5}");
     private Matcher matcher;
 
@@ -272,10 +277,8 @@ public class VCController implements Initializable {
         if (tableOK && columnSNOK && columnBWOK && typeSelectionMatch && typeLengthOK && fkSelectionMatch && defaultBW
                 && defaultOK && extraPKOK && extraFKOK && extraDefaultOK && distExtraOK && imageCPathOk) {
             btnCreate.setDisable(false);
-            btnCreateHelp.setDisable(true);
         } else {
             btnCreate.setDisable(true);
-            btnCreateHelp.setDisable(false);
         }
     }
 
@@ -433,23 +436,25 @@ public class VCController implements Initializable {
             matcher = patternBWTC.matcher(text);
             if (matcher.matches()) {
                 tf.setStyle(CSS.TEXT_FILL);
-                mw.hide();
+                // popupHide(tf);
+                tfsColumnPopups[index].hide();
 
                 columnBWOK = true;// REST CONTROL
                 tfsColumnControl(index);
             } else {
                 tf.setStyle(CSS.TEXT_FILL_ERROR);
-                messageWindowAction(tf, ILLEGAL_CHARS);
-
+                // popupShow(tf, ILLEGAL_CHARS);
+                tfsColumnPopups[index].show(ILLEGAL_CHARS);
                 columnBWOK = false;
             }
         } else {
-            messageWindowAction(tf, EMPTY_TEXT);
+            tfsColumnPopups[index].show(EMPTY_TEXT);
             columnBWOK = false;
         }
         btnCreateControl();
     }
 
+    // CONTROL
     private void listColumnsChange(Change<? extends String> c) {
         while (c.next()) {
             if (c.wasReplaced() || c.wasAdded() || c.wasRemoved()) {
@@ -541,7 +546,7 @@ public class VCController implements Initializable {
                 }
 
                 tf.setStyle(CSS.TEXT_FILL);
-                mw.hide();
+                tfsTypePopups[index].hide();
 
                 typeSelectionMatch = true;
                 tfasTypeControl(index);
@@ -550,17 +555,17 @@ public class VCController implements Initializable {
                 tfsTypeLength[index].setText("1");
 
                 tf.setStyle(CSS.TEXT_FILL_ERROR);
-                messageWindowAction(tf, SELECTION_UNMATCH);
+                tfsTypePopups[index].show(SELECTION_UNMATCH);
 
                 typeSelectionMatch = false;
             }
         } else {
             tf.setStyle(CSS.TEXT_FILL_ERROR);
-            messageWindowAction(tf, ILLEGAL_CHARS);
+            tfsTypePopups[index].show(ILLEGAL_CHARS);
 
             typeSelectionMatch = false;
         }
-
+        tfsDefaultTypeControl(index);
         btnCreateControl();
     }
 
@@ -579,21 +584,24 @@ public class VCController implements Initializable {
                 int length = Integer.parseInt(text);
                 if (length <= typeMaxLength) {
                     tf.setStyle(CSS.TEXT_FILL);
-                    mw.hide();
+                    tfsTypeLengthPopups[index].hide();
 
                     typeLengthOK = true;
                     tfsTypeLengthControl(index);
                 } else {
                     tf.setStyle(CSS.TEXT_FILL_ERROR);
-                    messageWindowAction(tf, "Wrong length (1 to " + typeMaxLength + ")");
+                    tfsTypeLengthPopups[index].show("Wrong length (1 to " + typeMaxLength + ")");
+
                     typeLengthOK = false;
                 }
             } else {
                 tf.setStyle(CSS.TEXT_FILL_ERROR);
-                messageWindowAction(tf, "Wrong length (1 to " + typeMaxLength + ")");
+                tfsTypeLengthPopups[index].show("Wrong length (1 to " + typeMaxLength + ")");
+
                 typeLengthOK = false;
 
             }
+            tfsDefaultTypeControl(index);
         }
 
         btnCreateControl();
@@ -620,15 +628,19 @@ public class VCController implements Initializable {
         if (tf.isVisible()) {
             if (MList.isOnThisList(tfsFKPs[index].getLv().getItems(), newValue, false)) {
                 tf.setStyle(CSS.TEXT_FILL);
-                mw.hide();
+                tfsFKPopups[index].hide();
+
                 fkSelectionMatch = true;
                 tfasFKControl(index);
             } else {
                 tf.setStyle(CSS.TEXT_FILL_ERROR);
-                messageWindowAction(tf, SELECTION_UNMATCH);
+                tfsFKPopups[index].show(SELECTION_UNMATCH);
+
                 fkSelectionMatch = false;
             }
         } else {
+            tfsFKPopups[index].hide();
+
             fkSelectionMatch = true;
             tfasFKControl(index);
         }
@@ -640,12 +652,6 @@ public class VCController implements Initializable {
         int index = Integer.parseInt(ck.getId());
         if (ck.isSelected()) {
             tfsDefault[index].setVisible(true);
-            /*
-             * if(!tfsDefault[index].getText().trim().isEmpty() &&
-             * tfsDefault[index].getStyle().equals(CSS.TEXT_FILL)){ defaultOK = true;
-             * 
-             * }else{ defaultOK = false; }
-             */
         } else {
             tfsDefault[index].setVisible(false);
             defaultOK = true;
@@ -655,29 +661,58 @@ public class VCController implements Initializable {
         btnCreateControl();
     }
 
+    private void tfsDefaultTypeControl(int index) {
+        TextField tf = tfsDefault[index];
+        String text = tf.getText();
+        if (tf.isVisible()) {
+            if (tfasType[index].getStyle().contains(CSS.TEXT_FILL)
+                    && (tfsTypeLength[index].getStyle().contains(CSS.TEXT_FILL) || !tfsTypeLength[index].isVisible())) {
+                String type = tfasType[index].getText();
+                int typeLength = Integer.parseInt(tfsTypeLength[index].getText());
+                String typeChar = types.getTypeChar(type);
+
+                Pattern pattern = null;
+                if (tfsTypeLength[index].isVisible()) {
+                    if (typeChar.equals("NUMBER")) {
+                        pattern = Pattern.compile("\\d{1," + typeLength + "}");
+                    } else if (typeChar.equals("STRING")) {
+                        if (typeLength == 1) {
+                            pattern = Pattern.compile(".{1}");
+                        } else {
+                            pattern = Pattern.compile(".{1," + typeLength + "}");
+                        }
+                    }
+                }
+
+                if (pattern != null ? pattern.matcher(text).matches() : true) {
+                    tf.setStyle(CSS.TEXT_FILL);
+                    tfsDefaultPopups[index].hide();
+
+                    defaultBW = true;
+                    tfsDefaultControl(index);
+                } else {
+                    tf.setStyle(CSS.TEXT_FILL_ERROR);
+                    tfsDefaultPopups[index].show(ILLEGAL_CHARS + "- Match (" + typeChar.toLowerCase()
+                            + (tfsTypeLength[index].isVisible() ? ": must' be " + typeLength + " max)" : ")"));
+
+                    defaultBW = false;
+                }
+
+            } else {
+                tfsDefaultPopups[index].show("Select a correct Type and lenght (if needed)");
+            }
+        } else {
+            tfsDefaultPopups[index].hide();
+            defaultBW = true;
+            tfsDefaultControl(index);
+        }
+    }
+
     private void tfsDefaultKeyReleased(KeyEvent e) {
         TextField tf = (TextField) e.getSource();
         int index = Integer.parseInt(tf.getId());
 
-        String text = tf.getText();
-        matcher = patternBWTC.matcher(text);
-
-        if (tf.isVisible()) {
-            if (matcher.matches()) {
-                tf.setStyle(CSS.TEXT_FILL);
-                mw.hide();
-                defaultBW = true;
-                tfsDefaultControl(index);
-            } else {
-                tf.setStyle(CSS.TEXT_FILL_ERROR);
-                messageWindowAction(tf, ILLEGAL_CHARS);
-                defaultBW = false;
-            }
-        } else {
-            defaultBW = true;
-            tfsDefaultControl(index);
-        }
-
+        tfsDefaultTypeControl(index);// ++++++++++++++++
         btnCreateControl();
     }
 
@@ -687,16 +722,13 @@ public class VCController implements Initializable {
         int errorCount = 0;
         // ---------------------------------------------
         if (btn.isSelected()) {
-            mw.setParentNode(btn);
-
             if (cksPK[index].isSelected()) {
-                mw.hide();
+                rbsExtraPopups[index].hide();
                 extraPKOK = true;
             } else {
                 lbhExtra.setTextFill(NonCSS.TEXT_FILL_ERROR);
+                rbsExtraPopups[index].show("An AUTO_INCREMENT column has to be a PRIMARY KEY");
 
-                mw.getLbMessage().setText("An AUTO_INCREMENT column has to be a PRIMARY KEY");
-                mw.show(Duration.seconds(2));
                 errorCount++;
 
                 extraPKOK = false;
@@ -705,36 +737,35 @@ public class VCController implements Initializable {
             if (cksFK[index].isSelected()) {
                 lbhExtra.setTextFill(NonCSS.TEXT_FILL_ERROR);
                 if (errorCount == 0) {
-                    mw.getLbMessage().setText("There's no need to have a FOREIGN KEY column with AUTO_INCREMENT");
+                    rbsExtraPopups[index].show("There's no need to have a FOREIGN KEY column with AUTO_INCREMENT");
                 } else {
-                    mw.getLbMessage().setText(EXTRA_GENERAL_ERROR);
+                    rbsExtraPopups[index].show(EXTRA_GENERAL_ERROR);
                 }
-                mw.show(Duration.seconds(2));
                 errorCount++;
 
                 extraFKOK = false;
             } else {
-                /*
-                 * if (errorCount == 0) { mw.hide(); }
-                 */
+
                 extraFKOK = true;
             }
             // ---------------------------------------------
             if (cksDefault[index].isSelected()) {
                 lbhExtra.setTextFill(NonCSS.TEXT_FILL_ERROR);
                 if (errorCount == 0) {
-                    mw.getLbMessage()
-                            .setText("There's no need to have a DEFAULT value in a column with AUTO_INCREMENT");
-                } else {
-                    mw.getLbMessage().setText(EXTRA_GENERAL_ERROR);
-                }
-                mw.show(Duration.seconds(2));
+                    rbsExtraPopups[index]
+                            .show("There's no need to have a DEFAULT value in a column with AUTO_INCREMENT");
 
+                } else {
+                    rbsExtraPopups[index].show(EXTRA_GENERAL_ERROR);
+
+                }
                 extraDefaultOK = false;
             }
             // ---------------------------------------------
         } else {
             lbhExtra.setTextFill(NonCSS.TEXT_FILL);
+            rbsExtraPopups[index].hide();
+
             extraPKOK = true;
             extraFKOK = true;
             extraDefaultOK = true;
@@ -803,15 +834,15 @@ public class VCController implements Initializable {
             // RIGHT-------------------
             if (btnsDist[a].isSelected()) {// OLD WAY
                 if (!distPresent) {
-                    dist.delete(0, dist.length() - 1);
+                    dist.delete(0, dist.length());
                     dist.append("X0: ");
                     distPresent = true;
                 }
-                dist.setCharAt(1, (char) ++distCount);
+                dist.replace(1, 1, Integer.toString(++distCount));
                 dist.append(Integer.toString(a + 1) + "_");
             }
             if (btnsImageC[a].isSelected()) {
-                imageC.delete(0, imageC.length() - 1);
+                imageC.delete(0, imageC.length());
                 imageC.append("C" + (a + 1));
 
                 imageCPath.delete(0, imageCPath.length() - 1);
@@ -834,11 +865,19 @@ public class VCController implements Initializable {
         boolean createTable = msc.createTable(tableName, columnsNames, typesNames);
         // INSERT -----------------------------------------------
         if (createTable) {
-            Object[] values = new Object[] { null, tableName.replace("_", " "), dist.toString(), imageC.toString(), imageCPath.toString() };
+            Object[] values = new Object[] { null, tableName.replace("_", " "), dist.toString(), imageC.toString(),
+                    imageCPath.toString() };
             boolean insert = ms.insert(MSQL.TABLE_NAMES, values);
             if (insert) {
                 lbStatus.setText("Table '" + tableName.replace("_", " ") + "' has been created!");
                 lbStatus.setTextFill(NonCSS.TEXT_FILL_OK);
+
+                try {
+                    ResultSet rs = ms.selectRow(MSQL.TABLE_NAMES, "Name", tableName.replace("_", " "));
+                    tables.addTable(new Table(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5)));
+                } catch (SQLException e1) {
+                    e1.printStackTrace();
+                }
             } else {
                 // DELETE CREATED TABLE
                 lbStatus.setText("Mayor Error (Table has been create but not inserted on " + MSQL.TABLE_NAMES);
@@ -865,11 +904,12 @@ public class VCController implements Initializable {
         if (btn.isSelected()) {
             if (!rbsExtra[index].isSelected()) {
                 lbhDist.setTextFill(NonCSS.TEXT_FILL);
-                mw.hide();
+                btnsDistPopups[index].hide();
+
                 distExtraOK = true;
             } else {
                 lbhDist.setTextFill(NonCSS.TEXT_FILL_ERROR);
-                messageWindowAction(btn, "Unnecesary selection when this column is already AUTO_INCREMENT");
+                btnsDistPopups[index].show("Unnecesary selection when this column is already AUTO_INCREMENT");
 
                 distExtraOK = true;
                 btnsDistControl(index);
@@ -877,6 +917,8 @@ public class VCController implements Initializable {
             }
         } else {
             lbhDist.setTextFill(NonCSS.TEXT_FILL);
+            btnsDistPopups[index].hide();
+
             distExtraOK = true;
             btnsDistControl(index);
         }
@@ -929,14 +971,18 @@ public class VCController implements Initializable {
         if (!tfImageCPath.isDisable()) {
             if (Files.exists(path)) {
                 tfImageCPath.setStyle(CSS.TEXT_FILL);
+                tfImageCPathPopup.hide();
+
                 imageCPathOk = true;
             } else {
                 tfImageCPath.setStyle(CSS.TEXT_FILL_ERROR);
-                messageWindowAction(tfImageCPath, "This path doesn't exist");
+                tfImageCPathPopup.show("This path doesn't exist");
+
                 imageCPathOk = false;
             }
         } else {
             tfImageCPath.setStyle(CSS.TEXT_FILL);
+            tfImageCPathPopup.hide();
 
             imageCPathOk = true;
         }
@@ -945,65 +991,19 @@ public class VCController implements Initializable {
     }
 
     // ----------------------------------------------
-    private void tooltipMove(WindowEvent value) {
-        Tooltip tt = (Tooltip) value.getSource();
-        TextField tf = (TextField) tt.getOwnerNode();
-
-        Bounds bounds = tf.localToScreen(tf.getBoundsInLocal());
-        tf.getTooltip().setX(bounds.getMaxX());
-        tf.getTooltip().setY(bounds.getMinY());
-    }
-
-    private void tooltipDefaultAction(TextField tf, String message) {
-        if (tf.getTooltip() == null) {
-            tf.setTooltip(new TooltipCustom());
-            tf.getTooltip().setShowDuration(Duration.seconds(1));
-        }
-        tf.getTooltip().setText(message);
-        tf.getTooltip().setAutoFix(true);
-        tf.getTooltip().setAutoHide(true);
-        tf.getTooltip().setOpacity(0.5);
-        // tf.getTooltip()
-        Bounds sb = tf.localToScreen(tf.getBoundsInLocal());
-        System.out.println("calling show...");
-        tf.getTooltip().show(tf, sb.getMaxX(), sb.getMinY());
-        timers.playTooltipManualShow(tf, this);
-    }
-
-    private void messageWindowAction(Node node, String message) {
-        Bounds sl = node.localToScreen(node.getBoundsInLocal());
-        popup.getContent().clear();
-        popup.getContent().addAll(new Label(message));
-        popup.hide();
-        popup.show(node, sl.getMaxX(), sl.getMinY());
-
-        timers.playPopupHide(popup);
-    }
-
-    private int c = 0;
-
-    private void popupMoveAction(TextField tf) {
-        // int index = Integer.parseInt(tf.getId());
-        /*
-         * if (popup.getOwnerNode() != null) { System.out.println("Owner: " +
-         * popup.getOwnerNode().getClass().toString()); System.out.println("tf: " +
-         * tf.getClass().toString()); System.out.println("Popup showing: " +
-         * popup.isShowing());
-         * 
-         * String id = ((Node)popup.getOwnerNode()).getId();
-         * 
-         * if (tf.getId().equals(id) && popup.isShowing()) { Bounds sb =
-         * tf.localToScreen(tf.getBoundsInLocal()); popup.setX(sb.getMaxX());
-         * popup.setY(sb.getMinY()); } }
-         */
-        System.out.println("Node Moving " + c++);
-        if (popup.getOwnerNode() != null && popup.isShowing()) {
-            System.out.println("\tPopup Moving");
-            Bounds sb = tf.localToScreen(tf.getBoundsInLocal());
-            popup.setX(sb.getMaxX());
-            popup.setY(sb.getMinY());
-        }
-    }
+    /*
+     * private void popupShow(Node node, String message) { for (int a = 0; a <
+     * popups.length; a++) { if (popusOwner[a] == null) { popusOwner[a] = node;
+     * 
+     * Bounds sl = popusOwner[a].localToScreen(popusOwner[a].getBoundsInLocal());
+     * ((Label) popups[a].getContent().get(0)).setText(message);
+     * popups[a].show(popusOwner[a], sl.getMaxX(), sl.getMinY());
+     * 
+     * break; } } }
+     * 
+     * private void popupHide(Node node) { for (int a = 0; a < popups.length; a++) {
+     * if(popusOwner[a] == node){ popups[a].hide(); } } }
+     */
 
     // INIT ---------------------------------------------
     private void fkReferencesInit() {
@@ -1049,6 +1049,7 @@ public class VCController implements Initializable {
             hbsN[a] = new HBox(lbsN[a]);
 
             tfsColumn[a] = new TextField();
+            tfsColumnPopups[a] = new PopupMessage(tfsColumn[a]);
             btnsRemoveColumn[a] = new Button("X");
             btnsAddColumn[a] = new Button("+");
             btnsRenameColumn[a] = new Button("C");
@@ -1057,7 +1058,9 @@ public class VCController implements Initializable {
             // tfasType[a] = new TextFieldAutoC(a, types.getTypeNames());
             tfasType[a] = new TextField();
             tfsTypePs[a] = new PopupAutoC(tfasType[a], types.getTypeNames());
+            tfsTypePopups[a] = new PopupMessage(tfasType[a]);
             tfsTypeLength[a] = new TextField("1");
+            tfsTypeLengthPopups[a] = new PopupMessage(tfsTypeLength[a]);
             btnsChangeType[a] = new Button("C");
             hbsType[a] = new HBox(tfasType[a], tfsTypeLength[a], btnsChangeType[a]);
 
@@ -1072,15 +1075,18 @@ public class VCController implements Initializable {
             cksFK[a] = new CheckBox();
             tfasFK[a] = new TextField();
             tfsFKPs[a] = new PopupAutoC(tfasFK[a]);
+            tfsFKPopups[a] = new PopupMessage(tfasFK[a]);
             btnsChangeFK[a] = new Button("C");
             hbsFK[a] = new HBox(cksFK[a], tfasFK[a], btnsChangeFK[a]);
 
             cksDefault[a] = new CheckBox();
             tfsDefault[a] = new TextField();
+            tfsDefaultPopups[a] = new PopupMessage(tfsDefault[a]);
             btnsChangeDefault[a] = new Button("C");
             hbsDefault[a] = new HBox(cksDefault[a], tfsDefault[a], btnsChangeDefault[a]);
 
             rbsExtra[a] = new RadioButton();
+            rbsExtraPopups[a] = new PopupMessage(rbsExtra[a]);
             // rbsExtra[a].setToggleGroup(rbsExtraGroup);
             btnsChangeExtra[a] = new Button("C");
             hbsExtra[a] = new HBox(rbsExtra[a], btnsChangeExtra[a]);
@@ -1148,6 +1154,7 @@ public class VCController implements Initializable {
             hbsN[a].setStyle(CSS.BORDER_GRID_BOTTOM);
             hbsName[a].setStyle(CSS.BORDER_GRID_BOTTOM);
             hbsType[a].setStyle(CSS.BORDER_GRID_BOTTOM);
+            tfsTypeLength[a].setStyle(CSS.TEXT_FILL);
             hbsNull[a].setStyle(CSS.BORDER_GRID_BOTTOM);
             hbsPK[a].setStyle(CSS.BORDER_GRID_BOTTOM);
             hbsFK[a].setStyle(CSS.BORDER_GRID_BOTTOM);
@@ -1178,6 +1185,7 @@ public class VCController implements Initializable {
         spGridPaneRight.setHbarPolicy(ScrollBarPolicy.ALWAYS);
         for (int a = 0; a < MSQL.MAX_COLUMNS; a++) {
             btnsDist[a] = new ToggleButton("" + (a + 1));
+            btnsDistPopups[a] = new PopupMessage(btnsDist[a]);
             btnsImageC[a] = new ToggleButton("" + (a + 1));
 
             btnsDist[a].setId(Integer.toString(a));
@@ -1198,6 +1206,7 @@ public class VCController implements Initializable {
             GridPane.setMargin(btnsImageC[a], INSETS);
         }
         new ToggleGroupD<>(btnsImageC);
+        tfImageCPathPopup = new PopupMessage(tfImageCPath);
         // -------------------------------------
         for (int a = 0; a < gridPaneRight.getColumnCount(); a++) {
             /*

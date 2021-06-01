@@ -62,12 +62,11 @@ public class VF {
         ms.executeQuery(MSQL.SELECT_TABLE_ROW_DEFAULT, new SelectTableDefault());
         if (MSQL.getCurrentTable() != null) {
             String table = MSQL.getCurrentTable().getName();
-            String distName = MSQL.getCurrentTable().getDist();
             vf.getLbTable().setText(table);
 
             ms.selectColumns(table.replace(" ", "_"), new ShowColumns(vf));
             ms.selectKeys(MSQL.getDatabases(), new SelectKeys(vf));
-            dist.distInitOldWay(distName);
+            dist.distStart();
 
             ms.selectData(table.replace(" ", "_"), new SelectData(vf, null));
         } else {

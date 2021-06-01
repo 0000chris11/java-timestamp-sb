@@ -98,7 +98,7 @@ public class Menus {
         System.out.println("\tMSQL's table: " + MSQL.getCurrentTable().getId() + " - "
                 + MSQL.getCurrentTable().getName() + " - " + MSQL.getCurrentTable().getDist());
 
-        dist.distInitOldWay(MSQL.getCurrentTable().getDist());
+        dist.distStart();
         vf.getMs().selectData(tableA, new SelectData(vf, SelectData.MESSGE_TABLE_CHANGE + table));
     }
 
