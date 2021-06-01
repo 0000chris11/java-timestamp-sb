@@ -38,6 +38,7 @@
     -fx-background-color: -fx-root-background-color;
     background-color: -fx-root-background-color;
 }
+/*SCROLL PANE*/
 .scroll-pane > .viewport {
     -fx-background-color: transparent;
     background-color: transparent;

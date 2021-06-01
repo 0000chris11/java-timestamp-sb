@@ -33,6 +33,7 @@ import javafx.collections.ListChangeListener.Change;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.geometry.VPos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -40,13 +41,16 @@ import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.SelectionMode;
+import javafx.scene.control.SplitPane;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TableColumn.CellEditEvent;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
@@ -69,6 +73,10 @@ public class VFController implements Initializable {
     @FXML
     private Menu menuTable;
 
+    @FXML
+    private SplitPane splitLeft;
+    @FXML
+    private HBox hbImages;
     @FXML
     private Label lbTable;
 
@@ -111,7 +119,6 @@ public class VFController implements Initializable {
     private void forEachAction(int length, ActionForEachNode en) {
         for (int a = 0; a < length; a++) {
             // MISING FOR PRIMARY KEY
-            System.out.println("a: " + (a + 1));
             if (columnds.getDist(a).equals("No")) {
                 en.forTFS(tfs[a], a);
             } else {
@@ -136,10 +143,7 @@ public class VFController implements Initializable {
     // LISTENER -----------------------------------------
     private <T> void tableRowSelected(ObservableValue<? extends T> observable, T oldValue, T newValue) {
         ObservableList<ObservableList<Object>> list = table.getSelectionModel().getSelectedItems();
-        System.out.println("\ntable length selection: " + list.size());
         if (list.size() == 1) {
-            System.out.println("table sub-list length selection: " + list.get(0).size());
-
             rowData = new Object[list.get(0).size()];
             selectedRow = list.get(0).toArray();
             GetRowSelectedImpl nr = new GetRowSelectedImpl(selectedRow);
@@ -149,8 +153,26 @@ public class VFController implements Initializable {
                 String imageCPath = MSQL.getCurrentTable().getImageCPath();
                 int imageCPathIndex = Character.getNumericValue(MSQL.getCurrentTable().getImageC().charAt(1)) - 1;
                 String selectedImage = list.get(0).get(imageCPathIndex).toString();
-                
-                dist.getImageCFiles().stream().filter(e -> selectedImage.equals(e)).findFirst().orElse(null);
+                System.out.println("Image Index: " + imageCPathIndex);
+                System.out.println("Selected text: " + selectedImage);
+                String formattedSelectedText = MString.getCustomFormattedString(selectedImage);
+                //String fileName = dist.getImageCFiles().stream().filter(e -> selectedImage.equals(e)).findFirst().orElse(null);
+                System.out.println("Selected formatted text: " + formattedSelectedText + " --------------------------------");
+                String filePath = dist.getImageCFilesPath().stream().filter(e -> {
+                    String subFile = e.replaceAll("(.jpg|.png|.gif)$", "");
+                    //System.out.println("\tsubFile: " + subFile);
+                    return subFile.endsWith(formattedSelectedText);
+                }).findAny().orElse(null);
+                System.out.println("-------------------------------------");
+
+                if(filePath != null){
+                    System.out.println("Image URL: " + filePath);
+                    ivImageC.setImage(new Image(new File(filePath).toURI().toString()));
+                }else{
+                    ivImageC.setImage(new Image(VFController.class.getResource("/com/cofii/ts/images/Black.png").toExternalForm()));
+                    //media = new Media(SelectData.class.getResource("/com/cofii/ts/sounds/pbobble-010.wav").toExternalForm());      
+                    
+                }
                 //GET ACTUAL PATH (FILE)
             }
             //----------------------------------------------
@@ -303,7 +325,7 @@ public class VFController implements Initializable {
             gridPane.add(btns[a], 2, a);
 
             gridPane.getRowConstraints().get(a).setValignment(VPos.TOP);
-            // gridPane.getRowConstraints().get(a).setVgrow(Priority.ALWAYS);
+            gridPane.getRowConstraints().get(a).setVgrow(Priority.NEVER);
             gridPane.getRowConstraints().get(a).setPrefHeight(-1);
             gridPane.getRowConstraints().get(a).setMaxHeight(-1);
         }
@@ -313,8 +335,9 @@ public class VFController implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         nonFXMLNodesInit();
-
         comboBoxConfig();
+        hbImages.setPrefWidth(300);
+        hbImages.setAlignment(Pos.CENTER);
         // CB ELEMENTS
         for (int a = 0; a < MSQL.MAX_COLUMNS; a++) {
             cbElements.add(new ArrayList<>());
@@ -478,6 +501,14 @@ public class VFController implements Initializable {
 
     public void setIvImageC(ImageView ivImageC) {
         this.ivImageC = ivImageC;
+    }
+
+    public SplitPane getSplitLeft() {
+        return splitLeft;
+    }
+
+    public void setSplitLeft(SplitPane splitLeft) {
+        this.splitLeft = splitLeft;
     }
     
 }

@@ -44,7 +44,7 @@
                         <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                      </padding>
                   </HBox>
-                  <SplitPane dividerPositions="0.7" orientation="VERTICAL" prefHeight="200.0" prefWidth="160.0" VBox.vgrow="ALWAYS">
+                  <SplitPane fx:id="splitLeft" dividerPositions="1.0" orientation="VERTICAL" prefHeight="200.0" prefWidth="160.0" VBox.vgrow="ALWAYS">
                     <items>
                         <ScrollPane fitToWidth="true" prefViewportHeight="391.0" prefViewportWidth="235.0">
                            <content>
@@ -72,7 +72,15 @@
                               </GridPane>
                            </content>
                         </ScrollPane>
-                        <ImageView fx:id="ivImageC" fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true" />
+                        <ScrollPane minHeight="0.0" minWidth="0.0" prefViewportHeight="150.0" prefViewportWidth="394.0">
+                           <content>
+                              <HBox fx:id="hbImages">
+                                 <children>
+                                    <ImageView fx:id="ivImageC" fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true" />
+                                 </children>
+                              </HBox>
+                           </content>
+                        </ScrollPane>
                     </items>
                   </SplitPane>
                </children>

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.image.*?>
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import java.lang.*?>
@@ -31,11 +32,11 @@
       </HBox>
    </bottom>
    <center>
-      <SplitPane fx:id="splitPane" dividerPositions="0.36466165413533835" prefHeight="160.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+      <SplitPane fx:id="splitPane" dividerPositions="0.5" prefHeight="160.0" prefWidth="200.0" BorderPane.alignment="CENTER">
         <items>
             <VBox fx:id="leftSplit">
                <children>
-                  <HBox fx:id="leftSplitHBox" spacing="6.0">
+                  <HBox fx:id="leftSplitHBox" spacing="6.0" VBox.vgrow="NEVER">
                      <children>
                         <Label fx:id="lbTable" text="No Table Selected" />
                      </children>
@@ -43,32 +44,45 @@
                         <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                      </padding>
                   </HBox>
-                  <ScrollPane fitToWidth="true" prefViewportHeight="391.0" prefViewportWidth="235.0" VBox.vgrow="ALWAYS">
-                     <content>
-                        <GridPane fx:id="gridPane" hgap="4.0" VBox.vgrow="ALWAYS">
-                          <columnConstraints>
-                            <ColumnConstraints hgrow="NEVER" maxWidth="50.0" minWidth="60.0" prefWidth="60.0" />
-                            <ColumnConstraints hgrow="ALWAYS" maxWidth="1.7976931348623157E308" minWidth="10.0" />
-                              <ColumnConstraints hgrow="NEVER" maxWidth="20.0" minWidth="20.0" prefWidth="20.0" />
-                          </columnConstraints>
-                          <rowConstraints>
-                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
-                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
-                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
-                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
-                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
-                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
-                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
-                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
-                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
-                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
-                          </rowConstraints>
-                           <padding>
-                              <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                           </padding>
-                        </GridPane>
-                     </content>
-                  </ScrollPane>
+                  <SplitPane fx:id="splitLeft" dividerPositions="1.0" orientation="VERTICAL" prefHeight="200.0" prefWidth="160.0" VBox.vgrow="ALWAYS">
+                    <items>
+                        <ScrollPane fitToWidth="true" prefViewportHeight="391.0" prefViewportWidth="235.0">
+                           <content>
+                              <GridPane fx:id="gridPane" hgap="4.0" VBox.vgrow="ALWAYS">
+                                <columnConstraints>
+                                  <ColumnConstraints hgrow="NEVER" maxWidth="50.0" minWidth="60.0" prefWidth="60.0" />
+                                  <ColumnConstraints hgrow="ALWAYS" maxWidth="1.7976931348623157E308" minWidth="10.0" />
+                                    <ColumnConstraints hgrow="NEVER" maxWidth="20.0" minWidth="20.0" prefWidth="20.0" />
+                                </columnConstraints>
+                                <rowConstraints>
+                                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
+                                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
+                                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
+                                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
+                                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
+                                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
+                                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
+                                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
+                                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
+                                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
+                                </rowConstraints>
+                                 <padding>
+                                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                                 </padding>
+                              </GridPane>
+                           </content>
+                        </ScrollPane>
+                        <ScrollPane minHeight="0.0" minWidth="0.0" prefViewportHeight="150.0" prefViewportWidth="394.0">
+                           <content>
+                              <HBox fx:id="hbImages">
+                                 <children>
+                                    <ImageView fx:id="ivImageC" fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true" />
+                                 </children>
+                              </HBox>
+                           </content>
+                        </ScrollPane>
+                    </items>
+                  </SplitPane>
                </children>
             </VBox>
             <VBox fx:id="rightSplit" prefHeight="200.0" prefWidth="100.0">

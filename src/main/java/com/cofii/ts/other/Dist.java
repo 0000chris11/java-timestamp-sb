@@ -33,7 +33,7 @@ public class Dist {
     // private Keys keys = Keys.getInstance();
 
     private List<String> imageCFiles = new ArrayList<>();
-
+    private List<String> imageCFilesPath = new ArrayList<>();
     private MSQLP ms;
 
     // -----------------------------------------------------
@@ -74,13 +74,22 @@ public class Dist {
 
     private void imageC() {
         String imageCPath = MSQL.getCurrentTable().getImageCPath();
-        File imageCDirectory = new File(imageCPath);
-        //imageCFiles = Arrays.asList(imageCDirectory.listFiles()).stream().filter(e -> e.getName()).collect(Collectors.toList());
-        for(File file: imageCDirectory.listFiles()){
-            imageCFiles.add(MString.getRemoveCustomFormattedString(file.getName()));
+        if (!imageCPath.equals("NONE")) {
+            vf.getSplitLeft().setDividerPositions(0.6);
+            File imageCDirectory = new File(imageCPath);
+            // imageCFiles = Arrays.asList(imageCDirectory.listFiles()).stream().filter(e ->
+            // e.getName()).collect(Collectors.toList());
+            imageCFilesPath.clear();
+            imageCFiles.clear();
+            if (imageCDirectory.isDirectory()) {
+                for (File file : imageCDirectory.listFiles()) {
+                    imageCFilesPath.add(file.getPath());
+                    imageCFiles.add(MString.getRemoveCustomFormattedString(file.getName()));
+                }
+            }
+        }else{
+            vf.getSplitLeft().setDividerPositions(1.0);
         }
-
-        
     }
 
     public void distStart() {
@@ -114,7 +123,7 @@ public class Dist {
     private Dist() {
 
     }
-    //-------------------------------------------------------
+    // -------------------------------------------------------
 
     public List<String> getImageCFiles() {
         return imageCFiles;
@@ -123,5 +132,13 @@ public class Dist {
     public void setImageCFiles(List<String> imageCFiles) {
         this.imageCFiles = imageCFiles;
     }
-    
+
+    public List<String> getImageCFilesPath() {
+        return imageCFilesPath;
+    }
+
+    public void setImageCFilesPath(List<String> imageCFilesPath) {
+        this.imageCFilesPath = imageCFilesPath;
+    }
+
 }

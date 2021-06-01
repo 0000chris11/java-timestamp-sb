@@ -7,6 +7,8 @@
 
     -fx-label-text-fill-color: white;
 
+    -fx-boreders-color: white;
+
     -fx-textfield-dist-background-color: #0e0866;
     -fx-textfield-background-color: #090631;
     -fx-textfield-text-fill-color: white;
@@ -18,6 +20,9 @@
 
     -fx-menu-text-fill-color: white;
     -fx-menu-text-fill-color-highlighted: white;
+
+    -fx-scrollpane-track-background-color:-fx-textfield-background-color;
+    -fx-scrollpane-track-thump-background-color: #130b77;
 
     -fx-table-column-header-background: #0a0553;
     -fx-table-column-headet-text-fill-color: white;
@@ -51,6 +56,10 @@
     -fx-grid-lines-visible: true
  }
 .split-pane:horizontal{
+    -fx-background-color: -fx-root-background-color;
+    background-color: -fx-root-background-color;
+}
+.split-pane:vertical{
     -fx-background-color: -fx-root-background-color;
     background-color: -fx-root-background-color;
 }
@@ -208,5 +217,41 @@
     -fx-padding: 0.666667em 0.083333em 0.666667em 0.083333em;  8 1 8 1 
     -fx-padding: 0.333333em 0.083333em 0.666667em 0.083333em;  4 1 8 1 
     */
+}
+/*SCROLL PANE*/
+.scroll-pane > .viewport {
+    -fx-background-color: transparent;
+    background-color: transparent;
+ }
+ .scroll-pane {
+    -fx-background-color: transparent;
+    background-color: transparent;
+ }
+ .scroll-pane .increment-button, .decrement-button {
+    -fx-background-color: -fx-scrollpane-track-background-color;
+    background-color: -fx-scrollpane-track-background-color;
+    /*-fx-border-color: -fx-scrollpane-track-background-color;*/
+}
+.scroll-bar:horizontal .track,
+.scroll-bar:vertical .track{
+    -fx-background-color: -fx-scrollpane-track-background-color;
+    background-color: -fx-scrollpane-track-background-color;
+    /*-fx-border-color: transparent;*/
+    /*-fx-background-radius: 0em;*/
+}
+.scroll-bar:horizontal .thumb,
+.scroll-bar:vertical .thumb {
+    -fx-background-color: -fx-scrollpane-track-thump-background-color;
+    background-color: -fx-scrollpane-track-thump-background-color;
+    /*-fx-background-radius: 5em;*/
+}
+/*ID*/
+#statusPanel{
+    -fx-border-style: solid none none none;
+    border-style: solid none none none;
+    -fx-border-width: 2;
+    border-width: 2;
+    -fx-border-color: -fx-boreders-color;
+    border-color: -fx-boreders-color;
 }
 
