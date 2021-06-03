@@ -1,29 +1,29 @@
 /*DEFAULT VARIABLES*/
 *{
+    /*ROOT---------------------------*/
     -fx-root-background-color: #100c49;
-
+    /*MENU---------------------------*/
     -fx-menu-background-color: #05013a;
     -fx-menu-background-highlighted: #0b0375;
-
+    -fx-menu-text-fill-color: white;
+    -fx-menu-text-fill-color-highlighted: white;
+    /*LABELS---------------------------*/
     -fx-label-text-fill-color: white;
-
+    /*BORDERS---------------------------*/
     -fx-boreders-color: white;
-
+    /*TEXTFIELD---------------------------*/
     -fx-textfield-dist-background-color: #0e0866;
     -fx-textfield-background-color: #090631;
     -fx-textfield-text-fill-color: white;
-
+    /*COMBOBOXES---------------------------*/
     -fx-combo-box-background-color: #0c0750;
-
+    /*BUTTONS---------------------------*/
     -fx-button-background-color: #2115c3;
     -fx-button-text-fill-color: white;
-
-    -fx-menu-text-fill-color: white;
-    -fx-menu-text-fill-color-highlighted: white;
-
+    /*SCROLLPANE---------------------------*/
     -fx-scrollpane-track-background-color:-fx-textfield-background-color;
     -fx-scrollpane-track-thump-background-color: #130b77;
-
+    /*TABLE-LIST---------------------------*/
     -fx-table-column-header-background: #0a0553;
     -fx-table-column-headet-text-fill-color: white;
     -fx-table-row-cell-text-fill-color: white;

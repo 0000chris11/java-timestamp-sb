@@ -21,6 +21,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.geometry.VPos;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.RowConstraints;
@@ -77,19 +78,27 @@ public class Dist {
         if (!imageCPath.equals("NONE")) {
             vf.getSplitLeft().setDividerPositions(0.6);
             File imageCDirectory = new File(imageCPath);
-            // imageCFiles = Arrays.asList(imageCDirectory.listFiles()).stream().filter(e ->
-            // e.getName()).collect(Collectors.toList());
-            imageCFilesPath.clear();
-            imageCFiles.clear();
-            if (imageCDirectory.isDirectory()) {
-                for (File file : imageCDirectory.listFiles()) {
-                    imageCFilesPath.add(file.getPath());
-                    imageCFiles.add(MString.getRemoveCustomFormattedString(file.getName()));
+
+            vf.getHbImages().getChildren().clear();
+            if (imageCDirectory.exists()) {
+                vf.getHbImages().getChildren().add(vf.getIvImageC()[0]);
+                imageCFilesPath.clear();
+                imageCFiles.clear();
+
+                if (imageCDirectory.isDirectory()) {
+                    for (File file : imageCDirectory.listFiles()) {
+                        imageCFilesPath.add(file.getPath());
+                        imageCFiles.add(MString.getRemoveCustomFormattedString(file.getName()));
+                    }
                 }
+            }else{
+                //GET HBOX of imageView TO REPLACED WITH 'path to ImageC not found'
+                vf.getHbImages().getChildren().add(new Label("Path '" + imageCPath + "' not found"));
             }
-        }else{
+        } else {
             vf.getSplitLeft().setDividerPositions(1.0);
         }
+        vf.resizeHBImages();
     }
 
     public void distStart() {

@@ -27,6 +27,7 @@ public class MSQL {
 
     private static int columnsLength;
     public static final int MAX_COLUMNS = 10;
+    public static final int MAX_IMAGES = 4;
 
     // QUERYS
     public static final String CREATE_DB_ROOTCONFIG = "CREATE DATABASE ROOTCONFIG";

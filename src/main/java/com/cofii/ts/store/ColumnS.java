@@ -30,6 +30,14 @@ public class ColumnS {
     public String getColumn(int index){
         return list.get(index).getName();
     }
+    public String[] getColumns(){
+        String[] columns = new String[list.size()];
+        int c = 0;
+        for(Column column : list){
+            columns[c++] = column.getName();
+        }
+        return columns;
+    }
     public String getType(int index){
         return list.get(index).getType();
     }

@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.stream.Collectors;
 
 import com.cofii.ts.login.VLController;
 import com.cofii.ts.other.ActionForEachNode;
@@ -35,11 +36,13 @@ import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.geometry.VPos;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.TableView;
@@ -76,6 +79,8 @@ public class VFController implements Initializable {
     @FXML
     private SplitPane splitLeft;
     @FXML
+    private ScrollPane spHBImages;
+    @FXML
     private HBox hbImages;
     @FXML
     private Label lbTable;
@@ -100,8 +105,9 @@ public class VFController implements Initializable {
     private TableView<ObservableList<Object>> table;
     private ObservableList<ObservableList<Object>> tableData;
 
-    @FXML
-    private ImageView ivImageC;
+    private ImageView[] ivImageC = new ImageView[MSQL.MAX_IMAGES];
+    public static final String NO_IMAGE = "ImageC is set to NONE";
+    private Label lbImageC = new Label(NO_IMAGE);
 
     private ColumnS columns = ColumnS.getInstance();
     private ColumnDS columnds = ColumnDS.getInstance();
@@ -114,6 +120,8 @@ public class VFController implements Initializable {
 
     private static final int CB_STARTS_WITH = 0;
     private int cbSearchOption = CB_STARTS_WITH;
+
+    private int imageCounter = 0;
 
     // OTHER -------------------------------------------
     private void forEachAction(int length, ActionForEachNode en) {
@@ -148,34 +156,57 @@ public class VFController implements Initializable {
             selectedRow = list.get(0).toArray();
             GetRowSelectedImpl nr = new GetRowSelectedImpl(selectedRow);
             forEachAction(rowData.length, nr);
-            //ImageC----------------------------------------
-            if(!MSQL.getCurrentTable().getImageC().equals("NONE")){
+            // ImageC----------------------------------------
+            if (!MSQL.getCurrentTable().getImageC().equals("NONE")) {
                 String imageCPath = MSQL.getCurrentTable().getImageCPath();
-                int imageCPathIndex = Character.getNumericValue(MSQL.getCurrentTable().getImageC().charAt(1)) - 1;
-                String selectedImage = list.get(0).get(imageCPathIndex).toString();
-                System.out.println("Image Index: " + imageCPathIndex);
-                System.out.println("Selected text: " + selectedImage);
-                String formattedSelectedText = MString.getCustomFormattedString(selectedImage);
-                //String fileName = dist.getImageCFiles().stream().filter(e -> selectedImage.equals(e)).findFirst().orElse(null);
-                System.out.println("Selected formatted text: " + formattedSelectedText + " --------------------------------");
-                String filePath = dist.getImageCFilesPath().stream().filter(e -> {
-                    String subFile = e.replaceAll("(.jpg|.png|.gif)$", "");
-                    //System.out.println("\tsubFile: " + subFile);
-                    return subFile.endsWith(formattedSelectedText);
-                }).findAny().orElse(null);
-                System.out.println("-------------------------------------");
+                if (new File(imageCPath).exists()) {
+                    int imageCPathIndex = Character.getNumericValue(MSQL.getCurrentTable().getImageC().charAt(1)) - 1;
+                    String selectedImage = list.get(0).get(imageCPathIndex).toString();
+                    System.out.println("Image Index: " + imageCPathIndex);
+                    System.out.println("Selected text: " + selectedImage);
+                    String formattedSelectedText = MString.getCustomFormattedString(selectedImage);
+                    // String fileName = dist.getImageCFiles().stream().filter(e ->
+                    // selectedImage.equals(e)).findFirst().orElse(null);
+                    System.out.println(
+                            "Selected formatted text: " + formattedSelectedText + " --------------------------------");
+                    String filePath = dist.getImageCFilesPath().stream().filter(e -> {
+                        String subFile = e.replaceAll("(.jpg|.png|.gif)$", "");
+                        // System.out.println("\tsubFile: " + subFile);
+                        return subFile.endsWith(formattedSelectedText);
+                    }).findAny().orElse(null);
 
-                if(filePath != null){
-                    System.out.println("Image URL: " + filePath);
-                    ivImageC.setImage(new Image(new File(filePath).toURI().toString()));
-                }else{
-                    ivImageC.setImage(new Image(VFController.class.getResource("/com/cofii/ts/images/Black.png").toExternalForm()));
-                    //media = new Media(SelectData.class.getResource("/com/cofii/ts/sounds/pbobble-010.wav").toExternalForm());      
-                    
+                    List<String> filePath2 = dist.getImageCFilesPath().stream().filter(e -> {
+                        String subFile = e.replaceAll("(.jpg|.png|.gif)$", "");
+                        // System.out.println("\tsubFile: " + subFile);
+                        return subFile.endsWith(formattedSelectedText);
+                    }).collect(Collectors.toList());
+                    System.out.println("-------------------------------------------------");
+
+                    hbImages.getChildren().clear();
+                    Arrays.asList(ivImageC).forEach(e -> e.setImage(null));
+                    if (!filePath2.isEmpty()) {
+                        System.out.println("Image URL: " + filePath);
+                        // ivImageC.setImage(new Image(new File(filePath).toURI().toString()));
+                        imageCounter = 0;
+                        filePath2.forEach(e -> ivImageC[imageCounter]
+                                .setImage(new Image(new File(filePath2.get(imageCounter++)).toURI().toString())));
+                        // Children: duplicate children
+                        /*
+                         * hbImages.getChildren().addAll(Arrays.asList(ivImageC).stream().filter(e ->
+                         * e.getImage() != null) .collect(Collectors.toList()));
+                         */
+                        for(int a = 0; a < imageCounter + 1; a++){
+                            hbImages.getChildren().add(ivImageC[a]);
+                        }
+                    } else {
+                        ivImageC[0].setImage(new Image(
+                                VFController.class.getResource("/com/cofii/ts/images/Black.png").toExternalForm()));
+                        hbImages.getChildren().add(ivImageC[0]);
+                    }
+                    resizeHBImages();
                 }
-                //GET ACTUAL PATH (FILE)
             }
-            //----------------------------------------------
+            // ----------------------------------------------
             btnDelete.setDisable(false);
             btnUpdate.setDisable(false);
         } else if (list.size() > 1) {
@@ -260,7 +291,7 @@ public class VFController implements Initializable {
 
     @FXML
     private void btnFindAction() {
-        // CHANGE
+        new VFD(this);
     }
 
     @FXML
@@ -288,10 +319,11 @@ public class VFController implements Initializable {
             System.out.println(FAILED);
         }
     }
+
     // RESET ----------------------------------------------
-    public void clearCurrentTableView(){
+    public void clearCurrentTableView() {
         lbTable.setText("No Table Selected");
-        
+
         Arrays.asList(lbs).forEach(e -> e.setVisible(false));
         Arrays.asList(tfs).forEach(e -> e.setVisible(false));
         Arrays.asList(tfas).forEach(e -> e.setVisible(false));
@@ -299,6 +331,19 @@ public class VFController implements Initializable {
 
         table.getColumns().clear();
     }
+
+    public void resizeHBImages() {
+        int width = 0;
+        for (Node node : hbImages.getChildren()) {
+            if (node instanceof Label) {
+                width += ((Label) node).getWidth();
+            } else {
+                width += ((ImageView) node).getFitWidth();
+            }
+        }
+        hbImages.setPrefWidth(width);
+    }
+
     // INIT METHODS -------------------------------------------
     private void nonFXMLNodesInit() {
         for (int a = 0; a < MSQL.MAX_COLUMNS; a++) {
@@ -329,16 +374,23 @@ public class VFController implements Initializable {
             gridPane.getRowConstraints().get(a).setPrefHeight(-1);
             gridPane.getRowConstraints().get(a).setMaxHeight(-1);
         }
-
+        //Arrays.fill(ivImageC, new ImageView());//DUPLICATED CHILDREN
+        for(int a = 0; a < MSQL.MAX_IMAGES;a ++){
+            ivImageC[a] = new ImageView();
+        }
     }
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         nonFXMLNodesInit();
         comboBoxConfig();
-        hbImages.setPrefWidth(300);
-        hbImages.setAlignment(Pos.CENTER);
-        // CB ELEMENTS
+        // IMAGE-VIEW-------------------------------------
+        // hbImages.minWidthProperty().bind(spHBImages.prefWidthProperty());
+        // hbImages.minHeightProperty().bind(spHBImages.prefHeightProperty());
+        // hbImages.setAlignment(Pos.CENTER);
+        hbImages.getChildren().add(lbImageC);
+        resizeHBImages();
+        // CB ELEMENTS-----------------------------------------
         for (int a = 0; a < MSQL.MAX_COLUMNS; a++) {
             cbElements.add(new ArrayList<>());
         }
@@ -495,11 +547,11 @@ public class VFController implements Initializable {
         this.scene = scene;
     }
 
-    public ImageView getIvImageC() {
+    public ImageView[] getIvImageC() {
         return ivImageC;
     }
 
-    public void setIvImageC(ImageView ivImageC) {
+    public void setIvImageC(ImageView[] ivImageC) {
         this.ivImageC = ivImageC;
     }
 
@@ -510,5 +562,13 @@ public class VFController implements Initializable {
     public void setSplitLeft(SplitPane splitLeft) {
         this.splitLeft = splitLeft;
     }
-    
+
+    public HBox getHbImages() {
+        return hbImages;
+    }
+
+    public void setHbImages(HBox hbImages) {
+        this.hbImages = hbImages;
+    }
+
 }

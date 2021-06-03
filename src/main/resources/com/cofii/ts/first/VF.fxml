@@ -23,7 +23,7 @@
             <Region HBox.hgrow="ALWAYS" />
             <Button fx:id="btnDelete" disable="true" mnemonicParsing="false" onAction="#btnDeleteAction" text="Delete" />
             <Button fx:id="btnUpdate" disable="true" layoutX="238.0" layoutY="10.0" mnemonicParsing="false" onAction="#btnUpdateAction" text="Update" />
-            <Button fx:id="btnFind" disable="true" layoutX="290.0" layoutY="10.0" mnemonicParsing="false" onAction="#btnFindAction" text="Find" />
+            <Button fx:id="btnFind" disable="false" layoutX="290.0" layoutY="10.0" mnemonicParsing="false" onAction="#btnFindAction" text="Find" />
             <Button fx:id="btnAdd" layoutX="342.0" layoutY="10.0" mnemonicParsing="false" onAction="#btnAddAction" text="Add" />
          </children>
          <padding>
@@ -72,13 +72,13 @@
                               </GridPane>
                            </content>
                         </ScrollPane>
-                        <ScrollPane minHeight="0.0" minWidth="0.0" prefViewportHeight="150.0" prefViewportWidth="394.0">
+                        <ScrollPane fx:id="spHBImages" minHeight="0.0" minWidth="0.0" prefViewportHeight="150.0" prefViewportWidth="394.0">
                            <content>
-                              <HBox fx:id="hbImages">
+                              <StackPane>
                                  <children>
-                                    <ImageView fx:id="ivImageC" fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true" />
+                                    <HBox fx:id="hbImages" alignment="CENTER" StackPane.alignment="CENTER" />
                                  </children>
-                              </HBox>
+                              </StackPane>
                            </content>
                         </ScrollPane>
                     </items>
