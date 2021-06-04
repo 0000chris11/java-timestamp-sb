@@ -30,8 +30,7 @@ public class SelectDistinct implements IActions {
 
     @Override
     public void beforeQuery() {
-        //vf.getCbs()[index].getItems().clear();
-        vf.getTfas()[index].getLv().getItems().clear();
+        vf.getTfsPs()[index].getLv().getItems().clear();
 
     }
 
@@ -54,8 +53,8 @@ public class SelectDistinct implements IActions {
         if (rsValue) {
             List<String> list2 = new ArrayList<>(new LinkedHashSet<>(list));
             //vf.getCbs()[index].getItems().addAll(list2.toArray());
-            vf.getTfas()[index].getLv().getItems().addAll(list2);
-            vf.getTfas()[index].setLvOriginalElements(list2.toArray(new String[list2.size()]));
+            vf.getTfsPs()[index].getLv().getItems().addAll(list2);
+            vf.getTfsPs()[index].setLvOriginalItems(list2.toArray(new String[list2.size()]));
             //vf.getCbElements().get(index).clear();
             //vf.getCbElements().get(index).addAll(list2);
 
@@ -69,7 +68,7 @@ public class SelectDistinct implements IActions {
             
         } else {
             //vf.getCbs()[index].getItems().add(NO_DISTINCT_ELEMENTS);
-            vf.getTfas()[index].getLv().getItems().add(NO_DISTINCT_ELEMENTS);
+            vf.getTfsPs()[index].getLv().getItems().add(NO_DISTINCT_ELEMENTS);
         }
     }
 

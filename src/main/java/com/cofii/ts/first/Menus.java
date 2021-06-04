@@ -9,6 +9,8 @@ import com.cofii.ts.sql.MSQL;
 import com.cofii.ts.sql.querys.SelectData;
 import com.cofii.ts.sql.querys.SelectTableNames;
 import com.cofii.ts.sql.querys.ShowColumns;
+import com.cofii.ts.store.ColumnDS;
+import com.cofii.ts.store.ColumnS;
 import com.cofii.ts.store.Key;
 import com.cofii.ts.store.Keys;
 import com.cofii.ts.store.TableS;
@@ -45,6 +47,7 @@ public class Menus {
     private static Menus instance;
     private static VFController vf;
     private TableS tables = TableS.getInstance();
+    private ColumnDS columnds = ColumnDS.getInstance();
     private Dist dist = Dist.getInstance(vf);
     private Keys keys = Keys.getInstance();
     private Timers timers = Timers.getInstance(vf);
@@ -70,24 +73,17 @@ public class Menus {
             if (vf.getLbs()[a].isVisible()) {
                 vf.getLbs()[a].setVisible(false);
 
-                if (!vf.getTfas()[a].isNeedsLayout()) {
-                    vf.getGridPane().getChildren().remove(vf.getTfas()[a]);
-                    vf.getGridPane().add(vf.getTfs()[a], 1, a);
-
+                if (!columnds.getDist(a).equals("No")) {
+                    //vf.getGridPane().getChildren().remove(vf.getTfas()[a]);
+                    //vf.getGridPane().add(vf.getTfs()[a], 1, a);
+                    vf.getTfsPs()[a].setTfParent(null);
                     vf.getGridPane().getRowConstraints().get(a).setVgrow(Priority.NEVER);
-                    /*
-                     * GridPane.setMargin(vf.getLbs()[a], new Insets(0, 0, 0, 0));
-                     * GridPane.setMargin(vf.getTfs()[a], new Insets(0, 0, 0, 0));
-                     * GridPane.setMargin(vf.getBtns()[a], new Insets(0, 0, 0, 0));
-                     */
-                    // vf.getGridPane().getRowConstraints().get(a).setPrefHeight(30);
-
+ 
                 }
                 vf.getTfs()[a].setVisible(false);
                 vf.getBtns()[a].setVisible(false);
 
                 vf.getTfs()[a].setText("");
-                vf.getTfas()[a].getTf().setText("");
             }
         }
         // SELECT -------------------------------------

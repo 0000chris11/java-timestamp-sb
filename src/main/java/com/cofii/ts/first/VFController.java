@@ -93,7 +93,7 @@ public class VFController implements Initializable {
     private TextField[] tfs = new TextField[MSQL.MAX_COLUMNS];
     // private ComboBox[] cbs = new ComboBox[MSQL.MAX_COLUMNS];
     //private TextFieldAutoC[] tfas = new TextFieldAutoC[MSQL.MAX_COLUMNS];
-    private TextField[] tfas = new TextField[MSQL.MAX_COLUMNS];
+    //private TextField[] tfas = new TextField[MSQL.MAX_COLUMNS];
     private PopupAutoC[] tfsPs = new PopupAutoC[MSQL.MAX_COLUMNS];
     private List<List<String>> cbElements = new ArrayList<>(MSQL.MAX_COLUMNS);
     private Button[] btns = new Button[MSQL.MAX_COLUMNS];
@@ -128,20 +128,15 @@ public class VFController implements Initializable {
     private int imageCounter = 0;
 
     // OTHER -------------------------------------------
+    
     private void forEachAction(int length, ActionForEachNode en) {
         for (int a = 0; a < length; a++) {
             // MISING FOR PRIMARY KEY
-            if (columnds.getDist(a).equals("No")) {
-                en.forTFS(tfs[a], a);
-            } else {
-                //en.forTFAS(tfas[a], a);REMOVE ALL OF THIS
-
-            }
-
+            en.forTFS(tfs[a], a);
             en.either(a);
         }
     }
-
+    
     private void comboBoxConfig() {
         /*
          * for (int a = 0; a < cbs.length; a++) { ComboBoxListViewSkin<String>
@@ -166,26 +161,22 @@ public class VFController implements Initializable {
                 if (new File(imageCPath).exists()) {
                     int imageCPathIndex = Character.getNumericValue(MSQL.getCurrentTable().getImageC().charAt(1)) - 1;
                     String selectedImage = list.get(0).get(imageCPathIndex).toString();
-                    System.out.println("Image Index: " + imageCPathIndex);
-                    System.out.println("Selected text: " + selectedImage);
+                    System.out.println("selectedImage: " + selectedImage);
                     String formattedSelectedText = MString.getCustomFormattedString(selectedImage);
-                    // String fileName = dist.getImageCFiles().stream().filter(e ->
-                    // selectedImage.equals(e)).findFirst().orElse(null);
-                    System.out.println(
-                            "Selected formatted text: " + formattedSelectedText + " --------------------------------");
-                    String filePath = dist.getImageCFilesPath().stream().filter(e -> {
-                        String subFile = e.replaceAll("(.jpg|.png|.gif)$", "");
-                        // System.out.println("\tsubFile: " + subFile);
-                        return subFile.endsWith(formattedSelectedText);
-                    }).findAny().orElse(null);
-
+    
+                    System.out.println("--------------------------------------------------");
                     List<String> filePath2 = dist.getImageCFilesPath().stream().filter(e -> {
                         String subFile = e.replaceAll("(.jpg|.png|.gif)$", "");
                         // System.out.println("\tsubFile: " + subFile);
+                        System.out.println("\nsubFile: " + subFile);
                         if (formattedSelectedText.contains("; ")) {
                             String[] split = formattedSelectedText.split("; ");
-                            return Arrays.asList(split).stream().anyMatch(se -> se.endsWith(subFile));
+                            List<String> spList = Arrays.asList(split);
+                            System.out.println("SPLITS");
+                            spList.forEach(System.out::println);
+                            return spList.stream().anyMatch(se -> subFile.endsWith(se));
                         } else {
+                            System.out.println("formattedSelectedText: " + formattedSelectedText);
                             return subFile.endsWith(formattedSelectedText);
                         }
                     }).collect(Collectors.toList());
@@ -194,7 +185,6 @@ public class VFController implements Initializable {
                     fpImages.getChildren().clear();
                     Arrays.asList(ivImageC).forEach(e -> e.setImage(null));
                     if (!filePath2.isEmpty()) {
-                        System.out.println("Image URL: " + filePath);
                         // ivImageC.setImage(new Image(new File(filePath).toURI().toString()));
                         imageCounter = 0;
                         filePath2.forEach(e -> {
@@ -349,7 +339,7 @@ public class VFController implements Initializable {
 
         Arrays.asList(lbs).forEach(e -> e.setVisible(false));
         Arrays.asList(tfs).forEach(e -> e.setVisible(false));
-        Arrays.asList(tfas).forEach(e -> e.setVisible(false));
+        //Arrays.asList(tfas).forEach(e -> e.setVisible(false));
         Arrays.asList(btns).forEach(e -> e.setVisible(false));
 
         table.getColumns().clear();
@@ -363,11 +353,11 @@ public class VFController implements Initializable {
             lbs[a] = new TextFlow(text);
             tfs[a] = new TextField();
             //tfas[a] = new TextFieldAutoC(a);
-            tfas[a] = new TextField();
-            tfsPs[a] = new Popup
+            //tfas[a] = new TextField();
+            tfsPs[a] = new PopupAutoC();
             btns[a] = new Button();
 
-            tfas[a].setStyle(CSS.TFAS_DEFAULT_LOOK);
+            //tfas[a].setStyle(CSS.TFAS_DEFAULT_LOOK);
 
             lbs[a].setVisible(false);
             tfs[a].setVisible(false);
@@ -375,7 +365,7 @@ public class VFController implements Initializable {
 
             GridPane.setMargin(lbs[a], new Insets(2, 2, 2, 2));
             GridPane.setMargin(tfs[a], new Insets(2, 2, 2, 2));
-            GridPane.setMargin(tfas[a], new Insets(2, 2, 2, 2));
+            //GridPane.setMargin(tfas[a], new Insets(2, 2, 2, 2));
             GridPane.setMargin(btns[a], new Insets(2, 2, 2, 2));
 
             gridPane.add(lbs[a], 0, a);
@@ -538,14 +528,6 @@ public class VFController implements Initializable {
         this.cbElements = cbElements;
     }
 
-    public TextField[] getTfas() {
-        return tfas;
-    }
-
-    public void setTfas(TextField[] tfas) {
-        this.tfas = tfas;
-    }
-
     public ObservableList<ObservableList<Object>> getTableData() {
         return tableData;
     }
@@ -588,4 +570,12 @@ public class VFController implements Initializable {
         this.fpImages = fpImages;
     }
 
+    public PopupAutoC[] getTfsPs() {
+        return tfsPs;
+    }
+
+    public void setTfsPs(PopupAutoC[] tfsPs) {
+        this.tfsPs = tfsPs;
+    }
+    
 }

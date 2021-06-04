@@ -53,12 +53,11 @@ public class Dist {
         GridPane gp = vf.getGridPane();
         while (p <= length) {
             int c = Character.getNumericValue(dist.charAt(p - 1)) - 1;
-            if (vf.getTfas()[c].isNeedsLayout()) {
-                gp.getChildren().remove(vf.getTfs()[c]);
-                gp.add(vf.getTfas()[c], 1, c);
-                if (columns.getExtra(c).equals("auto_increment")) {
-                    vf.getTfas()[c].getTf().setPromptText("AUTO_INCREMENT");
-                }
+            vf.getTfsPs()[c].setTfParent(vf.getTfs()[c]);
+            vf.getTfs()[c].setStyle(CSS.TFAS_DEFAULT_LOOK);
+            
+            if (columns.getExtra(c).equals("auto_increment")) {
+                vf.getTfs()[c].setPromptText("AUTO_INCREMENT");
             }
 
             columnsd.addColumnD(c, new ColumnD("Yes"));
@@ -91,8 +90,8 @@ public class Dist {
                         imageCFiles.add(MString.getRemoveCustomFormattedString(file.getName()));
                     }
                 }
-            }else{
-                //GET HBOX of imageView TO REPLACED WITH 'path to ImageC not found'
+            } else {
+                // GET HBOX of imageView TO REPLACED WITH 'path to ImageC not found'
                 vf.getFpImages().getChildren().add(new Label("Path '" + imageCPath + "' not found"));
             }
         } else {
