@@ -254,4 +254,11 @@
     -fx-border-color: -fx-boreders-color;
     border-color: -fx-boreders-color;
 }
-
+#fpImages{
+    -fx-border-style: solid solid solid solid;
+    border-style: solid solid solid solid;
+    -fx-border-width: 2;
+    border-width: 2;
+    -fx-border-color: -fx-boreders-color;
+    border-color: -fx-boreders-color;
+}

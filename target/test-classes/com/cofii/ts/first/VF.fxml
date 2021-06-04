@@ -74,11 +74,7 @@
                         </ScrollPane>
                         <ScrollPane fx:id="spHBImages" minHeight="0.0" minWidth="0.0" prefViewportHeight="150.0" prefViewportWidth="394.0">
                            <content>
-                              <StackPane>
-                                 <children>
-                                    <HBox fx:id="hbImages" alignment="CENTER" StackPane.alignment="CENTER" />
-                                 </children>
-                              </StackPane>
+                              <FlowPane fx:id="fpImages" alignment="CENTER" prefHeight="200.0" />
                            </content>
                         </ScrollPane>
                     </items>

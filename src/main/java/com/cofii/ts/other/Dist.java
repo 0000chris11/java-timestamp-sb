@@ -79,9 +79,9 @@ public class Dist {
             vf.getSplitLeft().setDividerPositions(0.6);
             File imageCDirectory = new File(imageCPath);
 
-            vf.getHbImages().getChildren().clear();
+            vf.getFpImages().getChildren().clear();
             if (imageCDirectory.exists()) {
-                vf.getHbImages().getChildren().add(vf.getIvImageC()[0]);
+                vf.getFpImages().getChildren().add(vf.getIvImageC()[0]);
                 imageCFilesPath.clear();
                 imageCFiles.clear();
 
@@ -93,12 +93,11 @@ public class Dist {
                 }
             }else{
                 //GET HBOX of imageView TO REPLACED WITH 'path to ImageC not found'
-                vf.getHbImages().getChildren().add(new Label("Path '" + imageCPath + "' not found"));
+                vf.getFpImages().getChildren().add(new Label("Path '" + imageCPath + "' not found"));
             }
         } else {
             vf.getSplitLeft().setDividerPositions(1.0);
         }
-        vf.resizeHBImages();
     }
 
     public void distStart() {

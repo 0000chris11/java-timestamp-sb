@@ -27,6 +27,18 @@ public class ColumnS {
         return list.size();
     }
     //---------------------------------------------------
+    public int getColumnIndex(String name){
+        int returnValue = -1;
+        int c = 0;
+        for(Column column : list){
+            if(column.getName().equals(name)){
+                returnValue = c;
+                break;
+            }
+            c++;
+        }
+        return returnValue;
+    }
     public String getColumn(int index){
         return list.get(index).getName();
     }

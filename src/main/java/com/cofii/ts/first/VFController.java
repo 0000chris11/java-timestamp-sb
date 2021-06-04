@@ -22,6 +22,7 @@ import com.cofii.ts.sql.MSQL;
 import com.cofii.ts.sql.querys.SelectData;
 import com.cofii.ts.store.ColumnDS;
 import com.cofii.ts.store.ColumnS;
+import com.cofii2.components.javafx.PopupAutoC;
 import com.cofii2.components.javafx.TextFieldAutoC;
 import com.cofii2.methods.MString;
 import com.cofii2.mysql.MSQLP;
@@ -52,6 +53,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -81,7 +83,7 @@ public class VFController implements Initializable {
     @FXML
     private ScrollPane spHBImages;
     @FXML
-    private HBox hbImages;
+    private FlowPane fpImages;
     @FXML
     private Label lbTable;
 
@@ -90,7 +92,9 @@ public class VFController implements Initializable {
     private TextFlow[] lbs = new TextFlow[MSQL.MAX_COLUMNS];
     private TextField[] tfs = new TextField[MSQL.MAX_COLUMNS];
     // private ComboBox[] cbs = new ComboBox[MSQL.MAX_COLUMNS];
-    private TextFieldAutoC[] tfas = new TextFieldAutoC[MSQL.MAX_COLUMNS];
+    //private TextFieldAutoC[] tfas = new TextFieldAutoC[MSQL.MAX_COLUMNS];
+    private TextField[] tfas = new TextField[MSQL.MAX_COLUMNS];
+    private PopupAutoC[] tfsPs = new PopupAutoC[MSQL.MAX_COLUMNS];
     private List<List<String>> cbElements = new ArrayList<>(MSQL.MAX_COLUMNS);
     private Button[] btns = new Button[MSQL.MAX_COLUMNS];
 
@@ -130,7 +134,7 @@ public class VFController implements Initializable {
             if (columnds.getDist(a).equals("No")) {
                 en.forTFS(tfs[a], a);
             } else {
-                en.forTFAS(tfas[a], a);
+                //en.forTFAS(tfas[a], a);REMOVE ALL OF THIS
 
             }
 
@@ -178,32 +182,42 @@ public class VFController implements Initializable {
                     List<String> filePath2 = dist.getImageCFilesPath().stream().filter(e -> {
                         String subFile = e.replaceAll("(.jpg|.png|.gif)$", "");
                         // System.out.println("\tsubFile: " + subFile);
-                        return subFile.endsWith(formattedSelectedText);
+                        if (formattedSelectedText.contains("; ")) {
+                            String[] split = formattedSelectedText.split("; ");
+                            return Arrays.asList(split).stream().anyMatch(se -> se.endsWith(subFile));
+                        } else {
+                            return subFile.endsWith(formattedSelectedText);
+                        }
                     }).collect(Collectors.toList());
-                    System.out.println("-------------------------------------------------");
+                    System.out.println("SIZE: " + filePath2.size() + " ---------------------------------------------");
 
-                    hbImages.getChildren().clear();
+                    fpImages.getChildren().clear();
                     Arrays.asList(ivImageC).forEach(e -> e.setImage(null));
                     if (!filePath2.isEmpty()) {
                         System.out.println("Image URL: " + filePath);
                         // ivImageC.setImage(new Image(new File(filePath).toURI().toString()));
                         imageCounter = 0;
-                        filePath2.forEach(e -> ivImageC[imageCounter]
-                                .setImage(new Image(new File(filePath2.get(imageCounter++)).toURI().toString())));
+                        filePath2.forEach(e -> {
+                            ivImageC[imageCounter].setFitHeight(spHBImages.getHeight());
+                            System.out.println("BEFORE spHBImages.getHeight(): " + spHBImages.getHeight());
+                            ivImageC[imageCounter]
+                                    .setImage(new Image(new File(filePath2.get(imageCounter++)).toURI().toString()));
+                            System.out.println("AFTER spHBImages.getHeight(): " + spHBImages.getHeight());
+                        });
                         // Children: duplicate children
                         /*
                          * hbImages.getChildren().addAll(Arrays.asList(ivImageC).stream().filter(e ->
                          * e.getImage() != null) .collect(Collectors.toList()));
                          */
-                        for(int a = 0; a < imageCounter + 1; a++){
-                            hbImages.getChildren().add(ivImageC[a]);
+                        for (int a = 0; a < imageCounter + 1; a++) {
+                            fpImages.getChildren().add(ivImageC[a]);
                         }
                     } else {
+                        ivImageC[0].setFitHeight(spHBImages.getHeight());
                         ivImageC[0].setImage(new Image(
                                 VFController.class.getResource("/com/cofii/ts/images/Black.png").toExternalForm()));
-                        hbImages.getChildren().add(ivImageC[0]);
+                        fpImages.getChildren().add(ivImageC[0]);
                     }
-                    resizeHBImages();
                 }
             }
             // ----------------------------------------------
@@ -320,6 +334,15 @@ public class VFController implements Initializable {
         }
     }
 
+    private void splitLeftPositionProperty(Number newValue) {
+        System.out.println("Number: doubleValue: " + newValue.doubleValue());
+        fpImages.getChildren().forEach(e -> {
+            if (e instanceof ImageView) {
+                ((ImageView) e).setFitHeight(spHBImages.getHeight());
+            }
+        });
+    }
+
     // RESET ----------------------------------------------
     public void clearCurrentTableView() {
         lbTable.setText("No Table Selected");
@@ -332,18 +355,6 @@ public class VFController implements Initializable {
         table.getColumns().clear();
     }
 
-    public void resizeHBImages() {
-        int width = 0;
-        for (Node node : hbImages.getChildren()) {
-            if (node instanceof Label) {
-                width += ((Label) node).getWidth();
-            } else {
-                width += ((ImageView) node).getFitWidth();
-            }
-        }
-        hbImages.setPrefWidth(width);
-    }
-
     // INIT METHODS -------------------------------------------
     private void nonFXMLNodesInit() {
         for (int a = 0; a < MSQL.MAX_COLUMNS; a++) {
@@ -351,10 +362,12 @@ public class VFController implements Initializable {
             text.setFill(NonCSS.TEXT_FILL);
             lbs[a] = new TextFlow(text);
             tfs[a] = new TextField();
-            tfas[a] = new TextFieldAutoC(a);
+            //tfas[a] = new TextFieldAutoC(a);
+            tfas[a] = new TextField();
+            tfsPs[a] = new Popup
             btns[a] = new Button();
 
-            tfas[a].getTf().setStyle(CSS.TFAS_DEFAULT_LOOK);
+            tfas[a].setStyle(CSS.TFAS_DEFAULT_LOOK);
 
             lbs[a].setVisible(false);
             tfs[a].setVisible(false);
@@ -374,9 +387,11 @@ public class VFController implements Initializable {
             gridPane.getRowConstraints().get(a).setPrefHeight(-1);
             gridPane.getRowConstraints().get(a).setMaxHeight(-1);
         }
-        //Arrays.fill(ivImageC, new ImageView());//DUPLICATED CHILDREN
-        for(int a = 0; a < MSQL.MAX_IMAGES;a ++){
+        // Arrays.fill(ivImageC, new ImageView());//DUPLICATED CHILDREN
+        for (int a = 0; a < MSQL.MAX_IMAGES; a++) {
             ivImageC[a] = new ImageView();
+            ivImageC[a].setPreserveRatio(true);
+            // ivImageC[a].fitHeightProperty().bind(fpImages.heightProperty());
         }
     }
 
@@ -388,8 +403,10 @@ public class VFController implements Initializable {
         // hbImages.minWidthProperty().bind(spHBImages.prefWidthProperty());
         // hbImages.minHeightProperty().bind(spHBImages.prefHeightProperty());
         // hbImages.setAlignment(Pos.CENTER);
-        hbImages.getChildren().add(lbImageC);
-        resizeHBImages();
+        fpImages.getChildren().add(lbImageC);
+        fpImages.minWidthProperty().bind(spHBImages.widthProperty());
+        splitLeft.getDividers().get(0).positionProperty()
+                .addListener((obs, oldValue, newValue) -> splitLeftPositionProperty(newValue));
         // CB ELEMENTS-----------------------------------------
         for (int a = 0; a < MSQL.MAX_COLUMNS; a++) {
             cbElements.add(new ArrayList<>());
@@ -521,11 +538,11 @@ public class VFController implements Initializable {
         this.cbElements = cbElements;
     }
 
-    public TextFieldAutoC[] getTfas() {
+    public TextField[] getTfas() {
         return tfas;
     }
 
-    public void setTfas(TextFieldAutoC[] tfas) {
+    public void setTfas(TextField[] tfas) {
         this.tfas = tfas;
     }
 
@@ -563,12 +580,12 @@ public class VFController implements Initializable {
         this.splitLeft = splitLeft;
     }
 
-    public HBox getHbImages() {
-        return hbImages;
+    public FlowPane getFpImages() {
+        return fpImages;
     }
 
-    public void setHbImages(HBox hbImages) {
-        this.hbImages = hbImages;
+    public void setFpImages(FlowPane fpImages) {
+        this.fpImages = fpImages;
     }
 
 }
