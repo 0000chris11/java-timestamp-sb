@@ -14,6 +14,7 @@ import java.util.ResourceBundle;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.cofii.ts.first.Menus;
 import com.cofii.ts.first.VFController;
 import com.cofii.ts.other.CSS;
 import com.cofii.ts.other.NonCSS;
@@ -59,6 +60,7 @@ import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
@@ -285,7 +287,7 @@ public class VCController implements Initializable {
     private void tfsColumnControl(int index) {
         for (int a = 0; a < currentRowLength; a++) {
             if (a != index) {
-                String text = tfsColumn[a].getText();
+                String text = tfsColumn[a].getText().trim().replace(" ", "_");
                 matcher = patternBWTC.matcher(text);
                 if (text.trim().isEmpty()) {
                     columnBWOK = false;
@@ -481,7 +483,7 @@ public class VCController implements Initializable {
         btnsRemoveColumn[index - 1].setVisible(false);
         btnsAddColumn[index].setVisible(true);
         btnsRemoveColumn[index].setVisible(true);
-
+        // --------------------------------------------------
         gridPaneLeft.add(hbsN[index], 0, row);
         gridPaneLeft.add(hbsName[index], 1, row);
         gridPaneLeft.add(hbsType[index], 2, row);
@@ -491,9 +493,12 @@ public class VCController implements Initializable {
         gridPaneLeft.add(hbsDefault[index], 6, row);
         gridPaneLeft.add(hbsExtra[index], 7, row);
 
+        gridPaneRight.add(btnsDist[index], 0, row);
+        gridPaneRight.add(btnsImageC[index], 1, row);
+        // --------------------------------------------------
         listColumns.add(tfsColumn[index].getText());
         listImageC.add(false);
-
+        // --------------------------------------------------
         currentRowLength++;
         tfsColumnControl(-1);
         tfasTypeControl(-1);
@@ -509,19 +514,22 @@ public class VCController implements Initializable {
 
         btnsAddColumn[index - 1].setVisible(true);
         btnsRemoveColumn[index - 1].setVisible(true);
-
+        // ---------------------------------------------------------
         gridPaneLeft.getChildren().removeAll(hbsN[index], hbsName[index], hbsType[index], hbsNull[index], hbsPK[index],
                 hbsFK[index], hbsDefault[index], hbsExtra[index]);
 
+        gridPaneRight.getChildren().removeAll(btnsDist[index], btnsImageC[index]);
+        // ---------------------------------------------------------
         listColumns.remove(index);
         listImageC.remove(index);
-
+        // ---------------------------------------------------------
         currentRowLength--;
         tfsColumnControl(-1);
         tfasTypeControl(-1);
         tfsTypeLengthControl(-1);
         tfasFKControl(-1);
         tfsDefaultControl(-1);
+
         btnCreateControl();
     }
 
@@ -838,14 +846,15 @@ public class VCController implements Initializable {
                     dist.append("X0: ");
                     distPresent = true;
                 }
-                dist.replace(1, 1, Integer.toString(++distCount));
+                dist.deleteCharAt(1);
+                dist.insert(1, Integer.toString(++distCount));
                 dist.append(Integer.toString(a + 1) + "_");
             }
             if (btnsImageC[a].isSelected()) {
                 imageC.delete(0, imageC.length());
                 imageC.append("C" + (a + 1));
 
-                imageCPath.delete(0, imageCPath.length() - 1);
+                imageCPath.delete(0, imageCPath.length());
                 imageCPath.append(tfImageCPath.getText());
             }
         }
@@ -869,15 +878,34 @@ public class VCController implements Initializable {
                     imageCPath.toString() };
             boolean insert = ms.insert(MSQL.TABLE_NAMES, values);
             if (insert) {
-                lbStatus.setText("Table '" + tableName.replace("_", " ") + "' has been created!");
-                lbStatus.setTextFill(NonCSS.TEXT_FILL_OK);
-
+                /*
                 try {
-                    ResultSet rs = ms.selectRow(MSQL.TABLE_NAMES, "Name", tableName.replace("_", " "));
-                    tables.addTable(new Table(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5)));
+                    
+                     * ResultSet rs = ms.selectRow(MSQL.TABLE_NAMES, "Name", tableName.replace("_",
+                     * " ")); while (rs.next()) { int id = rs.getInt(1); String name =
+                     * rs.getString(2); String distName = rs.getString(3); String imageCName =
+                     * rs.getString(4); String imageCPathName = rs.getString(5);
+                     * 
+                     * System.out.println("\tid: " + id); System.out.println("\tname: " + name);
+                     * System.out.println("\tdistName: " + distName);
+                     * System.out.println("\timageCName: " + imageCName);
+                     * System.out.println("\timageCPathName: " + imageCPathName);
+                     * 
+                     * //tables.addTable(new Table(id, name, distName, imageCName, imageCPathName));
+                     * 
+                     * 
+                     * }
+                     
+                    // vf.getMenuTable().getItems().add(new MenuItem(name));//NOT TESTED
+
                 } catch (SQLException e1) {
                     e1.printStackTrace();
                 }
+                */
+                Menus.getInstance(vf).addMenuItemsReset();// NOT TESTED
+
+                lbStatus.setText("Table '" + tableName.replace("_", " ") + "' has been created!");
+                lbStatus.setTextFill(NonCSS.TEXT_FILL_OK);
             } else {
                 // DELETE CREATED TABLE
                 lbStatus.setText("Mayor Error (Table has been create but not inserted on " + MSQL.TABLE_NAMES);
@@ -989,21 +1017,6 @@ public class VCController implements Initializable {
 
         btnCreateControl();
     }
-
-    // ----------------------------------------------
-    /*
-     * private void popupShow(Node node, String message) { for (int a = 0; a <
-     * popups.length; a++) { if (popusOwner[a] == null) { popusOwner[a] = node;
-     * 
-     * Bounds sl = popusOwner[a].localToScreen(popusOwner[a].getBoundsInLocal());
-     * ((Label) popups[a].getContent().get(0)).setText(message);
-     * popups[a].show(popusOwner[a], sl.getMaxX(), sl.getMinY());
-     * 
-     * break; } } }
-     * 
-     * private void popupHide(Node node) { for (int a = 0; a < popups.length; a++) {
-     * if(popusOwner[a] == node){ popups[a].hide(); } } }
-     */
 
     // INIT ---------------------------------------------
     private void fkReferencesInit() {

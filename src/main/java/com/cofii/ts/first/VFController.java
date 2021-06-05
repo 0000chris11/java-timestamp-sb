@@ -35,6 +35,7 @@ import javafx.collections.ListChangeListener.Change;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
+import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.geometry.VPos;
 import javafx.scene.Node;
@@ -393,6 +394,7 @@ public class VFController implements Initializable {
         // hbImages.minWidthProperty().bind(spHBImages.prefWidthProperty());
         // hbImages.minHeightProperty().bind(spHBImages.prefHeightProperty());
         // hbImages.setAlignment(Pos.CENTER);
+        fpImages.setOrientation(Orientation.HORIZONTAL);
         fpImages.getChildren().add(lbImageC);
         fpImages.minWidthProperty().bind(spHBImages.widthProperty());
         splitLeft.getDividers().get(0).positionProperty()

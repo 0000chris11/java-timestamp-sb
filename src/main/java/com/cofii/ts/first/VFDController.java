@@ -51,6 +51,7 @@ public class VFDController implements Initializable {
         String text = tfText.getText();
         String column = tfColumn.getText();
 
+        vf.getTable().getSelectionModel().clearSelection();
         // Object[] data = vf.getMs().selectValues(table.replace(" ", "_"), column,
         // text);
         ObservableList<ObservableList<Object>> rows = vf.getTable().getItems();
