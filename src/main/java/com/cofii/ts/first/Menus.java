@@ -60,6 +60,9 @@ public class Menus {
     private void tableCreateAction(ActionEvent e) {
         new VC(vf, true);
     }
+    private void tableUpdateAction(ActionEvent e){
+        new VC(vf, false);
+    }
 
     public void selectionForEachTable(ActionEvent e) {
         System.out.println(CC.CYAN + "\nCHANGE TABLE" + CC.RESET);
@@ -86,6 +89,9 @@ public class Menus {
                 vf.getTfs()[a].setText("");
             }
         }
+
+        vf.getBtnFind().setDisable(false);
+        vf.getBtnAdd().setDisable(false);
         // SELECT -------------------------------------
         String tableA = table.replace(" ", "_");
         vf.getMs().selectDataWhere(MSQL.TABLE_NAMES, "name", table, new SelectTableNames(true));
@@ -97,8 +103,8 @@ public class Menus {
         dist.distStart();
         vf.getMs().selectData(tableA, new SelectData(vf, SelectData.MESSGE_TABLE_CHANGE + table));
     }
-
-    public void deleteTables(ActionEvent e) {
+    //DELETE---------------------------------------------------
+    private void deleteTables(ActionEvent e) {
         System.out.println(CC.CYAN + "Delete Table" + CC.RESET);
         String table = ((MenuItem) e.getSource()).getText().replace(" ", "_");
 
@@ -107,6 +113,15 @@ public class Menus {
         w.getBtnTrue().setOnAction(et -> {deleteTablesYes(table); w.hide();});
         w.show();
 
+    }
+    private void deleteThisTable(ActionEvent e){
+        System.out.println(CC.CYAN + "Delete This Table" + CC.RESET);
+        String table = MSQL.getCurrentTable().getName().replace(" ", "_");
+
+        TrueFalseWindow w = new TrueFalseWindow("Delete Table '" + table + "'?");
+        w.getBtnFalse().setOnAction(ef -> w.hide());
+        w.getBtnTrue().setOnAction(et -> {deleteTablesYes(table); w.hide();});
+        w.show();
     }
 
     private void deleteTablesYes(String table) {
@@ -132,7 +147,7 @@ public class Menus {
         timers.playLbStatusReset(vf.getLbStatus());
 
     }
-
+    //------------------------------------------------------
     private void tableInfoAction(ActionEvent e) {
         new VI(vf);
     }
@@ -155,6 +170,7 @@ public class Menus {
 
         vf.getMenuSelection().getItems().forEach(e -> e.setOnAction(this::selectionForEachTable));
         tableDelete.getItems().forEach(e -> e.setOnAction(this::deleteTables));
+        tableDeleteThis.setOnAction(this::deleteThisTable);
     }
 
     private void resetKeys() {
@@ -205,6 +221,7 @@ public class Menus {
          */
         tableInfo.setOnAction(this::tableInfoAction);
         tableCreate.setOnAction(this::tableCreateAction);
+        tableUpdate.setOnAction(this::tableUpdateAction);
     }
     // GET & SETTERS----------------------------------------------------
     public Menu getTableDelete() {

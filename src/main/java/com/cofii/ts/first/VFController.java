@@ -101,10 +101,15 @@ public class VFController implements Initializable {
 
     @FXML
     private Label lbStatus;
+
     @FXML
     private Button btnDelete;
     @FXML
     private Button btnUpdate;
+    @FXML
+    private Button btnFind;
+    @FXML
+    private Button btnAdd;
 
     @FXML
     private TableView<ObservableList<Object>> table;
@@ -343,7 +348,14 @@ public class VFController implements Initializable {
         //Arrays.asList(tfas).forEach(e -> e.setVisible(false));
         Arrays.asList(btns).forEach(e -> e.setVisible(false));
 
+        splitLeft.setDividerPositions(1.0);
+
         table.getColumns().clear();
+
+        btnDelete.setDisable(true);
+        btnUpdate.setDisable(true);
+        btnFind.setDisable(true);
+        btnAdd.setDisable(true);
     }
 
     // INIT METHODS -------------------------------------------
@@ -578,6 +590,38 @@ public class VFController implements Initializable {
 
     public void setTfsPs(PopupAutoC[] tfsPs) {
         this.tfsPs = tfsPs;
+    }
+
+    public Button getBtnDelete() {
+        return btnDelete;
+    }
+
+    public void setBtnDelete(Button btnDelete) {
+        this.btnDelete = btnDelete;
+    }
+
+    public Button getBtnUpdate() {
+        return btnUpdate;
+    }
+
+    public void setBtnUpdate(Button btnUpdate) {
+        this.btnUpdate = btnUpdate;
+    }
+
+    public Button getBtnFind() {
+        return btnFind;
+    }
+
+    public void setBtnFind(Button btnFind) {
+        this.btnFind = btnFind;
+    }
+
+    public Button getBtnAdd() {
+        return btnAdd;
+    }
+
+    public void setBtnAdd(Button btnAdd) {
+        this.btnAdd = btnAdd;
     }
     
 }
