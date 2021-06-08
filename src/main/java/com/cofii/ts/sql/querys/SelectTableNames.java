@@ -8,6 +8,9 @@ import com.cofii.ts.store.Table;
 import com.cofii.ts.store.TableS;
 import com.cofii2.myInterfaces.IActions;
 
+/**
+ * Select all tables to add them to a list
+ */
 public class SelectTableNames implements IActions {
 
     private TableS tables = TableS.getInstance();

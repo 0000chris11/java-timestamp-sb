@@ -4,9 +4,17 @@ import java.io.IOException;
 import java.util.Arrays;
 
 import com.cofii.ts.first.VFController;
+import com.cofii.ts.other.Dist;
 import com.cofii.ts.sql.MSQL;
 import com.cofii.ts.sql.querys.SelectKeys;
+import com.cofii.ts.store.ColumnDS;
+import com.cofii.ts.store.ColumnS;
+import com.cofii.ts.store.Keys;
+import com.cofii.ts.store.UpdateTable;
 import com.cofii2.mysql.MSQLP;
+import com.cofii2.stores.CC;
+import com.cofii2.stores.IntDString;
+import com.cofii2.stores.TString;
 
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.VPos;
@@ -22,11 +30,13 @@ public class VC {
 
     private VCController vc;
     private MSQLP ms;
-    //-----------------------------------------------------
-    private void createOption(){
-        //TOP--------------------------------------------------------
-        vc.getBtnRenameTable().setVisible(false);
-        for (int a = 0; a < vc.getPresetRowsLenght(); a++) {
+    private ColumnS columns = ColumnS.getInstance();
+
+    private UpdateTable updateTable;
+
+    // -----------------------------------------------------
+    private void rowDisplay(int size) {
+        for (int a = 0; a < size; a++) {
             int row = a + 1;
 
             vc.getGridPaneLeft().add(vc.getLbsN()[a], 0, row);
@@ -46,12 +56,18 @@ public class VC {
             GridPane.setValignment(vc.getBtnsDist()[a], VPos.TOP);
             GridPane.setValignment(vc.getBtnsImageC()[a], VPos.TOP);
         }
+    }
+
+    private void createOption() {
+        // TOP--------------------------------------------------------
+        vc.getBtnRenameTable().setVisible(false);
+        rowDisplay(vc.getPresetRowsLenght());
         // LEFT-------------------------------------------------------
         vc.getGridPaneLeft().getRowConstraints().forEach(e -> {
             e.setValignment(VPos.TOP);
             e.setVgrow(Priority.NEVER);
         });
-        for(int a = 0; a < MSQL.MAX_COLUMNS; a++){
+        for (int a = 0; a < MSQL.MAX_COLUMNS; a++) {
             vc.getBtnsRemoveColumn()[a].setOnAction(vc::btnsRemoveCreateAction);
             vc.getBtnsAddColumn()[a].setOnAction(vc::btnsAddCreateAction);
             vc.getBtnsRenameColumn()[a].setVisible(false);
@@ -61,7 +77,7 @@ public class VC {
             vc.getBtnsChangeFK()[a].setVisible(false);
             vc.getBtnsChangeDefault()[a].setVisible(false);
         }
-        //LEFT-BOTTOM------------------------------------------------
+        // LEFT-BOTTOM------------------------------------------------
         vc.getBtnUpdatePK().setDisable(true);
         vc.getBtnUpdateFK().setDisable(true);
         vc.getBtnUpdateExtra().setDisable(true);
@@ -70,46 +86,104 @@ public class VC {
             e.setValignment(VPos.TOP);
             e.setVgrow(Priority.NEVER);
         });
-        //RIGHT-BOTTOM------------------------------------------------
+        // RIGHT-BOTTOM------------------------------------------------
         vc.getBtnUpdateDist().setDisable(true);
     }
-    private void updateOption(){
-        //TOP-------------------------------------------------------
+
+    private void setUpdateStore() {
+        Keys keys = Keys.getInstance();
+        ColumnDS columnds = ColumnDS.getInstance();
+
+        String table = MSQL.getCurrentTable().getName().replace("_", " ");
+        String[] columnsName = columns.getColumns();
+        String[] types = columns.getTypes();
+        int[] typesLength = columns.getTypesLength();
+        boolean[] nulls = columns.getNulls();
+        String[] pks = keys.getPKS();
+        IntDString[] fks = keys.getFKSWithIndex();
+        String[] defaults = columns.getDefaults();
+        int extra = columns.getExtra();
+
+        String[] dists = columnds.getDists();
+        String[] imageCS = columnds.getImageCS();
+        String[] imageCPath = columnds.getImageCPaths();
+        // ----------------------------------------------------
+        int columnCount = columns.size();
+        vc.getTfTable().setText(table);
+        for (int a = 0; a < columnCount; a++) {
+            vc.getTfsColumn()[a].setText(columnsName[a].replace("_", " "));
+            vc.getTfasType()[a].setText(types[a]);
+            vc.getTfsTypeLength()[a].setText(Integer.toString(typesLength[a]));
+            vc.getCksNull()[a].setSelected(nulls[a]);
+            vc.getCksPK()[a].setSelected(pks[a].equals("Yes"));
+            if (fks[a] != null) {
+                vc.getCksFK()[a].setSelected(true);
+                vc.getTfasFK()[a].setText(fks[a].getString1() + "." + fks[a].getString2());
+            }
+
+            if (defaults[a] != null) {
+                vc.getCksDefault()[a].setSelected(true);
+                vc.getTfsDefault()[a].setText(defaults[a]);
+            } else {
+                vc.getCksDefault()[a].setSelected(false);
+            }
+            vc.getRbsExtra()[a].setSelected(extra == a);
+            // DISTS---------------------------------------------
+            vc.getBtnsDist()[a].setSelected(dists[a].equals("Yes"));
+            vc.getBtnsImageC()[a].setSelected(imageCS[a].equals("Yes"));// ERROR IF THERE IS MORE THAN ONE
+            if (!imageCPath[a].equals("NONE")) {
+                vc.getTfImageCPath().setText(imageCPath[a]);
+            }
+        }
+
+        // ----------------------------------------------------
+        updateTable = new UpdateTable(table, columnsName, types, typesLength, nulls, pks, fks, defaults, extra);
+        vc.setUpdateTable(updateTable);
+    }
+
+    private void updateOption() {
+        setUpdateStore();
+        // TOP-------------------------------------------------------
         vc.getBtnRenameTable().setVisible(true);
-        //LEFT------------------------------------------------------
-        for(int a = 0; a < MSQL.MAX_COLUMNS; a++){
+        // LEFT------------------------------------------------------
+        rowDisplay(columns.size());
+
+        for (int a = 0; a < MSQL.MAX_COLUMNS; a++) {
             vc.getBtnsRemoveColumn()[a].setOnAction(vc::btnsRemoveUpdateAction);
             vc.getBtnsAddColumn()[a].setOnAction(vc::btnsAddUpdateAction);
             vc.getBtnsRenameColumn()[a].setVisible(true);
             vc.getBtnsChangeType()[a].setVisible(true);
             vc.getBtnsChangeNull()[a].setVisible(true);
-            vc.getBtnsChangePK()[a].setVisible(true);//DELETE
-            vc.getBtnsChangeFK()[a].setVisible(true);//DELETE
+            vc.getBtnsChangePK()[a].setVisible(true);// DELETE
+            vc.getBtnsChangeFK()[a].setVisible(true);// DELETE
             vc.getBtnsChangeDefault()[a].setVisible(true);
         }
-        //LEFT-BOTTOM------------------------------------------------
+        // LEFT-BOTTOM------------------------------------------------
         vc.getBtnUpdatePK().setDisable(false);
         vc.getBtnUpdateFK().setDisable(false);
         vc.getBtnUpdateExtra().setDisable(false);
-        //RIGHT-BOTTOM------------------------------------------------
+        // RIGHT-BOTTOM------------------------------------------------
         vc.getBtnUpdateDist().setDisable(false);
     }
-    //-----------------------------------------------------
+
+    // -----------------------------------------------------
     public VC(VFController vf, boolean create) {
         try {
             FXMLLoader loader = new FXMLLoader(VC.class.getResource("/com/cofii/ts/cu/VC.fxml"));
             Scene scene = new Scene(loader.load());
             scene.getStylesheets().add(VC.class.getResource("/com/cofii/ts/cu/VC.css").toExternalForm());
             vf.getStage().setScene(scene);
-            //------------------------------------------------------
+            // ------------------------------------------------------
             vc = (VCController) loader.getController();
             vc.setVf(vf);
             ms = vf.getMs();
             vc.setMs(ms);
-            //------------------------------------------------------
+            // ------------------------------------------------------
             if (create) {// THE REASON FOR NOT ADDING THE NODES IN THE CONTROLLER
                 createOption();
-            }else{
+                System.out.println(CC.CYAN + "\nCREATE TABLE" + CC.RESET);
+            } else {
+                System.out.println(CC.CYAN + "\nUPDATE TABLE" + CC.RESET);
                 updateOption();
             }
         } catch (IOException e) {

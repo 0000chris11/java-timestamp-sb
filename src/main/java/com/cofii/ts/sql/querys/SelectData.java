@@ -1,6 +1,5 @@
 package com.cofii.ts.sql.querys;
 
-import java.net.URISyntaxException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -11,15 +10,14 @@ import com.cofii.ts.sql.MSQL;
 import com.cofii.ts.store.ColumnS;
 import com.cofii2.myInterfaces.IActions;
 
-import javafx.animation.KeyFrame;
-import javafx.animation.Timeline;
-import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
-import javafx.util.Duration;
 
+/**
+ * Selec the data from the current Table
+ */
 public class SelectData implements IActions {
     public static final String MESSAGE_INSERT = "Inserted on ";
     public static final String MESSGE_TABLE_CHANGE = "Change table to ";

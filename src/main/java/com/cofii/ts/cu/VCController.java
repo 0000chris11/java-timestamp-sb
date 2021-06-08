@@ -27,6 +27,7 @@ import com.cofii.ts.store.SQLType;
 import com.cofii.ts.store.SQLTypes;
 import com.cofii.ts.store.Table;
 import com.cofii.ts.store.TableS;
+import com.cofii.ts.store.UpdateTable;
 import com.cofii2.components.javafx.MessageWindow;
 import com.cofii2.components.javafx.PopupAutoC;
 import com.cofii2.components.javafx.PopupKV;
@@ -223,6 +224,7 @@ public class VCController implements Initializable {
     private SQLTypes types = SQLTypes.getInstance();
     private Keys keys = Keys.getInstance();
     private Timers timers = Timers.getInstance(vf);
+    private UpdateTable updateTable;
 
     private Pattern patternBWTC = Pattern.compile("[A-Za-z]\\w*");
     private Pattern patternTypeLength = Pattern.compile("\\d{1,5}");
@@ -433,6 +435,8 @@ public class VCController implements Initializable {
 
     // CONTROL
     private void listColumnsChange(Change<? extends String> c) {
+        System.out.println("\tlistColumnsChange");
+
         while (c.next()) {
             if (c.wasReplaced() || c.wasAdded() || c.wasRemoved()) {
                 if (MList.areTheyDuplicatedElementsOnList(listColumns)) {
@@ -515,6 +519,8 @@ public class VCController implements Initializable {
     }
     // ----
     private void tfasTypeTextProperty(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+        System.out.println("\ttfasTypeTextProperty");
+
         StringProperty textProperty = (StringProperty) observable;
         TextField tf = (TextField) textProperty.getBean();
         int index = Character.getNumericValue(tf.getId().charAt(tf.getId().length() - 1));
@@ -559,6 +565,8 @@ public class VCController implements Initializable {
 
     private void tfsTypeLengthTextProperty(ObservableValue<? extends String> observable, String oldValue,
             String newValue) {
+        System.out.println("\ttfsTypeLengthTextProperty");
+
         StringProperty textProperty = (StringProperty) observable;
         TextField tf = (TextField) textProperty.getBean();
         if (tf.isVisible()) {
@@ -609,6 +617,8 @@ public class VCController implements Initializable {
     }
 
     private void tfasFKTextProperty(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+        System.out.println("\ttfasFKTextProperty");
+        
         StringProperty textProperty = (StringProperty) observable;
         TextField tf = (TextField) textProperty.getBean();
         int index = Integer.parseInt(tf.getId());
@@ -650,6 +660,8 @@ public class VCController implements Initializable {
     }
 
     private void tfsDefaultTypeControl(int index) {
+        System.out.println("\ttfsDefaultTypeControl");
+        
         TextField tf = tfsDefault[index];
         String text = tf.getText();
         if (tf.isVisible()) {
@@ -948,6 +960,8 @@ public class VCController implements Initializable {
     }
 
     private void listImageCChange(Change<? extends Boolean> c) {
+        System.out.println("\tlistImageCChange");
+        
         while (c.next()) {
             if (c.wasAdded() || c.wasRemoved() || c.wasUpdated() || c.wasReplaced()) {
                 if (listImageC.stream().allMatch(bool -> !bool)) {
@@ -974,7 +988,8 @@ public class VCController implements Initializable {
 
     private void tfImageCPathTextProperty(ObservableValue<? extends String> observable, String oldValue,
             String newValue) {
-
+                System.out.println("\ttfImageCPathTextProperty");
+        
         Path path = Paths.get(tfImageCPath.getText());
         if (!tfImageCPath.isDisable()) {
             if (Files.exists(path)) {
@@ -1019,6 +1034,7 @@ public class VCController implements Initializable {
     }
 
     private void nonFXMLLeftNodesInit() {
+        //ADD SPACING ON EACH HB, SPECIFY SOURCE OF EACH PROPERTY TRIGGER
         spGridPaneLeft.setHbarPolicy(ScrollBarPolicy.ALWAYS);
         for (int a = 0; a < MSQL.MAX_COLUMNS; a++) {
             lbsN[a] = new Label("Column " + (a + 1));
@@ -1584,6 +1600,30 @@ public class VCController implements Initializable {
 
     public void setBtnUpdateDist(Button btnUpdateDist) {
         this.btnUpdateDist = btnUpdateDist;
+    }
+
+    public UpdateTable getUpdateTable() {
+        return updateTable;
+    }
+
+    public void setUpdateTable(UpdateTable updateTable) {
+        this.updateTable = updateTable;
+    }
+
+    public TextField getTfTable() {
+        return tfTable;
+    }
+
+    public void setTfTable(TextField tfTable) {
+        this.tfTable = tfTable;
+    }
+
+    public TextField getTfImageCPath() {
+        return tfImageCPath;
+    }
+
+    public void setTfImageCPath(TextField tfImageCPath) {
+        this.tfImageCPath = tfImageCPath;
     }
     
 }

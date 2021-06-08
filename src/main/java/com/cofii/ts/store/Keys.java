@@ -5,6 +5,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.cofii.ts.sql.MSQL;
+import com.cofii2.stores.IntDString;
+import com.cofii2.stores.TString;
 
 public class Keys {
 
@@ -43,6 +45,55 @@ public class Keys {
         }
 
         return list.toArray(new Key[list.size()]);
+    }
+
+    public String[] getPKS(){
+        String[] pks = new String[ColumnS.getInstance().size()];
+        Arrays.fill(pks, "No");
+
+        Key[] currentKeys = getCurrentTableKeys();
+        for(int a = 0;a < currentKeys.length; a++){
+            int ordinalPosition = currentKeys[a].getOrdinalPosition() - 1;
+            String contraintType = currentKeys[a].getConstraintType();
+            if(contraintType.equals("PRIMARY KEY")){
+                pks[ordinalPosition] = "Yes";
+            }
+        }
+        return pks;
+    }
+    
+    public TString[] getFKS(){
+        TString[] fks = new TString[ColumnS.getInstance().size()];
+        //NULL FILL
+
+        Key[] currentKeys = getCurrentTableKeys();
+        for(int a = 0;a < currentKeys.length; a++){
+            int ordinalPosition = currentKeys[a].getOrdinalPosition() - 1;
+            String columnName = currentKeys[a].getColumnName();
+            String tableR = currentKeys[a].getReferencedTableName();
+            String columnR = currentKeys[a].getReferencedColumnName();
+            String contraintType = currentKeys[a].getConstraintType();
+            if(contraintType.equals("FOREIGN KEY")){
+                fks[ordinalPosition] = new TString(columnName, tableR, columnR);
+            }
+        }
+        return fks;
+    }
+    public IntDString[] getFKSWithIndex(){
+        IntDString[] fks = new IntDString[ColumnS.getInstance().size()];
+        //NULL FILL
+
+        Key[] currentKeys = getCurrentTableKeys();
+        for(int a = 0;a < currentKeys.length; a++){
+            int ordinalPosition = currentKeys[a].getOrdinalPosition() - 1;
+            String tableR = currentKeys[a].getReferencedTableName();
+            String columnR = currentKeys[a].getReferencedColumnName();
+            String contraintType = currentKeys[a].getConstraintType();
+            if(contraintType.equals("FOREIGN KEY")){
+                fks[ordinalPosition] = new IntDString(ordinalPosition, tableR, columnR);
+            }
+        }
+        return fks;
     }
 
     public int getOrdinalPosition(int index) {

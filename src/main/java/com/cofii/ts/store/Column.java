@@ -42,7 +42,7 @@ public class Column {
         this.typeLength = typeLength;
     }
 
-    public boolean isNulll() {
+    public boolean getNulll() {
         return nulll;
     }
 

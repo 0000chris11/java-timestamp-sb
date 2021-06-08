@@ -74,7 +74,7 @@ public class VIController implements Initializable {
             int typeLength = columns.getTypeLength(a);
             boolean nulll = columns.getNull(a);
             String defaultt = columns.getDefault(a);
-            String extra = columns.getExtra(a);
+            String extra = columns.getExtraAsString(a);
 
             String dist = columnsd.getDist(a);
 

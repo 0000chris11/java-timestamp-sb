@@ -44,23 +44,18 @@ public class Dist {
 
         int length = dist.length();
         int p = 5;
-        columnsd.clear();
-        for (int a = 0; a < columns.size(); a++) {
-            columnsd.addColumnD(new ColumnD());
-        }
-        // X2: 3_4 :: 7
-        // TEST
+
         GridPane gp = vf.getGridPane();
         while (p <= length) {
             int c = Character.getNumericValue(dist.charAt(p - 1)) - 1;
             vf.getTfsPs()[c].setTfParent(vf.getTfs()[c]);
             vf.getTfs()[c].setStyle(CSS.TFAS_DEFAULT_LOOK);
-            
-            if (columns.getExtra(c).equals("auto_increment")) {
+
+            if (columns.getExtraAsString(c).equals("auto_increment")) {
                 vf.getTfs()[c].setPromptText("AUTO_INCREMENT");
             }
 
-            columnsd.addColumnD(c, new ColumnD("Yes"));
+            columnsd.getList().get(c).setDist("Yes");
             // --------------------------------------------------
             String table = MSQL.getCurrentTable().getName().replace(" ", "_");
             String column = columns.getColumn(c);
@@ -73,8 +68,14 @@ public class Dist {
     }
 
     private void imageC() {
+        String imageC = MSQL.getCurrentTable().getImageC();
         String imageCPath = MSQL.getCurrentTable().getImageCPath();
+
         if (!imageCPath.equals("NONE")) {
+            int index = Character.getNumericValue(imageC.charAt(1)) - 1;
+            columnsd.getList().get(index).setImageC("Yes");
+            columnsd.getList().get(index).setImageCPath(imageCPath);
+
             vf.getSplitLeft().setDividerPositions(0.6);
             File imageCDirectory = new File(imageCPath);
 
@@ -100,6 +101,11 @@ public class Dist {
     }
 
     public void distStart() {
+        columnsd.clear();
+        for (int a = 0; a < columns.size(); a++) {
+            columnsd.addColumnD(new ColumnD());
+        }
+
         dist();
         imageC();
     }
