@@ -5,8 +5,6 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -25,18 +23,13 @@ import com.cofii.ts.store.Key;
 import com.cofii.ts.store.Keys;
 import com.cofii.ts.store.SQLType;
 import com.cofii.ts.store.SQLTypes;
-import com.cofii.ts.store.Table;
 import com.cofii.ts.store.TableS;
 import com.cofii.ts.store.UpdateTable;
-import com.cofii2.components.javafx.MessageWindow;
 import com.cofii2.components.javafx.PopupAutoC;
 import com.cofii2.components.javafx.PopupKV;
 import com.cofii2.components.javafx.PopupMessage;
-import com.cofii2.components.javafx.TextFieldAutoC;
 import com.cofii2.components.javafx.ToggleGroupD;
-import com.cofii2.components.javafx.TooltipCustom;
 import com.cofii2.methods.MList;
-import com.cofii2.mysql.MSQLC;
 import com.cofii2.mysql.MSQLCreate;
 import com.cofii2.mysql.MSQLP;
 import com.cofii2.stores.CC;
@@ -46,7 +39,6 @@ import com.cofii2.stores.IntString;
 import com.cofii2.stores.TString;
 
 import javafx.beans.property.StringProperty;
-import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener.Change;
@@ -57,32 +49,19 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
-import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
-import javafx.scene.control.MenuItem;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.control.TextArea;
+import javafx.scene.control.ScrollPane.ScrollBarPolicy;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
-import javafx.scene.control.Tooltip;
-import javafx.scene.control.ScrollPane.ScrollBarPolicy;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
-import javafx.scene.layout.VBox;
-import javafx.scene.text.Text;
-import javafx.scene.text.TextFlow;
-import javafx.scene.transform.Transform;
 import javafx.stage.DirectoryChooser;
-import javafx.stage.FileChooser;
-import javafx.stage.Popup;
-import javafx.stage.WindowEvent;
-import javafx.util.Duration;
 
 public class VCController implements Initializable {
 
@@ -94,6 +73,7 @@ public class VCController implements Initializable {
     private static final String SELECTION_UNMATCH = "Selection Unmatch";
     private static final String EMPTY_TEXT = "Column name field can't be empty";
     private static final String EXTRA_GENERAL_ERROR = "PK, FK or Default are not allowed to selected/unselected";
+    private static final String SAME_VALUE = "Can't update to the same value";
     // -------------------------------------------------
     private int presetRowsLenght = 2;
     private int currentRowLength = presetRowsLenght;
@@ -114,19 +94,19 @@ public class VCController implements Initializable {
     private Label lbhDist;
     @FXML
     private Label lbhImageC;
-    //TABLE NAME--------------------------------------------------
+    // TABLE NAME--------------------------------------------------
     @FXML
     private Label lbTable;
     @FXML
     private TextField tfTable;
     @FXML
     private Button btnRenameTable;
-    //LEFT---------------------------------------------
+    // LEFT---------------------------------------------
     @FXML
     private ScrollPane spGridPaneLeft;
     @FXML
     private GridPane gridPaneLeft;
-    //LEFT-BOTTOM----------------------------------------
+    // LEFT-BOTTOM----------------------------------------
     @FXML
     private HBox hbLeftUpdate;
 
@@ -140,22 +120,22 @@ public class VCController implements Initializable {
     private Button btnUpdateExtra;
     @FXML
     private Button btnUpdateDist;
-    //RIGHT---------------------------------------------
+    // RIGHT---------------------------------------------
     @FXML
     private ScrollPane spGridPaneRight;
     @FXML
     private GridPane gridPaneRight;
-    //RIGHT-BOTTOM-------------------------------------
+    // RIGHT-BOTTOM-------------------------------------
     @FXML
     private HBox hbRightUpdate;
-  
+
     @FXML
     private TextField tfImageCPath;
     @FXML
     private Button btnSelectImageC;
     @FXML
     private Button btnUpdateImageC;
-    //BOTTOM------------------------------------------
+    // BOTTOM------------------------------------------
     @FXML
     private Label lbStatus;
     @FXML
@@ -166,8 +146,8 @@ public class VCController implements Initializable {
     private Button btnCancel;
 
     @FXML
-    private Region regionLeft;//IDR
-    //ARRAYS-----------------------------------------------------------
+    private Region regionLeft;// IDR
+    // ARRAYS-----------------------------------------------------------
     private HBox[] hbsN = new HBox[MSQL.MAX_COLUMNS];// -----------
     private Label[] lbsN = new Label[MSQL.MAX_COLUMNS];
     private HBox[] hbsName = new HBox[MSQL.MAX_COLUMNS];// -----------
@@ -189,10 +169,12 @@ public class VCController implements Initializable {
     private Button[] btnsChangeNull = new Button[MSQL.MAX_COLUMNS];
     private HBox[] hbsPK = new HBox[MSQL.MAX_COLUMNS];// -----------
     private CheckBox[] cksPK = new CheckBox[MSQL.MAX_COLUMNS];
+    private PopupMessage[] cksPKPopups = new PopupMessage[MSQL.MAX_COLUMNS];
     private Button[] btnsChangePK = new Button[MSQL.MAX_COLUMNS];
     private HBox[] hbsFK = new HBox[MSQL.MAX_COLUMNS];// -----------
     private CheckBox[] cksFK = new CheckBox[MSQL.MAX_COLUMNS];
     // private TextFieldAutoC[] tfasFK = new TextFieldAutoC[MSQL.MAX_COLUMNS];
+    private PopupMessage[] cksFKPopups = new PopupMessage[MSQL.MAX_COLUMNS];
     private TextField[] tfasFK = new TextField[MSQL.MAX_COLUMNS];
     private PopupAutoC[] tfsFKPs = new PopupAutoC[MSQL.MAX_COLUMNS];
     private PopupMessage[] tfsFKPopups = new PopupMessage[MSQL.MAX_COLUMNS];
@@ -205,7 +187,7 @@ public class VCController implements Initializable {
     private HBox[] hbsExtra = new HBox[MSQL.MAX_COLUMNS];// -----------
     private RadioButton[] rbsExtra = new RadioButton[MSQL.MAX_COLUMNS];
     private PopupMessage[] rbsExtraPopups = new PopupMessage[MSQL.MAX_COLUMNS];
-    //private Button[] btnsChangeExtra = new Button[MSQL.MAX_COLUMNS];
+    // private Button[] btnsChangeExtra = new Button[MSQL.MAX_COLUMNS];
     // RIGHT
     private ToggleButton[] btnsDist = new ToggleButton[MSQL.MAX_COLUMNS];
     private PopupMessage[] btnsDistPopups = new PopupMessage[MSQL.MAX_COLUMNS];
@@ -229,7 +211,7 @@ public class VCController implements Initializable {
     private Pattern patternBWTC = Pattern.compile("[A-Za-z]\\w*");
     private Pattern patternTypeLength = Pattern.compile("\\d{1,5}");
     private Matcher matcher;
-
+    // ---------------------------------------------------
     private boolean tableOK = false;
     private boolean columnSNOK = false;
     private boolean columnBWOK = false;
@@ -249,8 +231,10 @@ public class VCController implements Initializable {
     private boolean distExtraOK = true;
     private boolean imageCPathOk = true;
 
+    private boolean updateControl = false;
+
     // CONTROL---------------------------------------------
-    protected void btnCreateControl() {
+    private void createControl() {
         createHelpPopupReset();
 
         if (tableOK && columnSNOK && columnBWOK && typeSelectionMatch && typeLengthOK && fkSelectionMatch && defaultBW
@@ -258,6 +242,14 @@ public class VCController implements Initializable {
             btnCreateUpdate.setDisable(false);
         } else {
             btnCreateUpdate.setDisable(true);
+        }
+    }
+
+    void masterControl() {
+        if (!updateControl) {
+            createControl();
+        } else {
+
         }
     }
 
@@ -277,16 +269,6 @@ public class VCController implements Initializable {
                 }
 
             }
-        }
-    }
-
-    private void tfsTypeControl() {
-        if (typeSelectionMatch && typeLengthOK) {
-            lbhTypes.setText("Type");
-            lbhTypes.setTextFill(NonCSS.TEXT_FILL);
-        } else {
-            lbhTypes.setText("Type - Wrong type or lenght");
-            lbhTypes.setTextFill(NonCSS.TEXT_FILL_ERROR);
         }
     }
 
@@ -375,6 +357,10 @@ public class VCController implements Initializable {
         }
     }
 
+    private void fkUpdateControl() {
+
+    }
+
     // LISTENERS---------------------------------------------
     private void tfTableKeyReleased(KeyEvent e) {
         if (!e.getCode().isArrowKey() && !e.getCode().isFunctionKey() && !e.getCode().isMediaKey()
@@ -399,7 +385,25 @@ public class VCController implements Initializable {
                 tableOK = false;
             }
 
-            btnCreateControl();
+            // UPDATE-----------------------------------------------
+            if (updateControl && tableOK) {
+                String tableO = updateTable.getTable().toLowerCase().trim().replace(" ", "_");
+                if (!text.equals(tableO)) {
+                    lbTable.setText("Table Name");
+                    lbTable.setTextFill(NonCSS.TEXT_FILL);
+
+                    btnRenameTable.setDisable(true);
+                    // tableOK = true;
+                } else {
+                    lbTable.setText("Same Value");
+                    lbTable.setTextFill(NonCSS.TEXT_FILL_HINT);
+
+                    btnRenameTable.setDisable(false);
+                    // tableOK = false;
+                }
+            }
+
+            masterControl();
         }
 
     }
@@ -408,6 +412,7 @@ public class VCController implements Initializable {
         TextField tf = (TextField) e.getSource();
         int index = Integer.parseInt(tf.getId());
 
+        boolean update = false;
         String text = tf.getText().toLowerCase().trim().replace(" ", "_");
         listColumns.set(index, text);
 
@@ -419,6 +424,7 @@ public class VCController implements Initializable {
                 tfsColumnPopups[index].hide();
 
                 columnBWOK = true;// REST CONTROL
+                update = true;
                 tfsColumnControl(index);
             } else {
                 tf.setStyle(CSS.TEXT_FILL_ERROR);
@@ -430,7 +436,22 @@ public class VCController implements Initializable {
             tfsColumnPopups[index].show(EMPTY_TEXT);
             columnBWOK = false;
         }
-        btnCreateControl();
+        // UPDATE---------------------------------------------------
+        if (updateControl) {
+            if (update) {
+                String column = updateTable.getColumns()[index].toLowerCase().trim().replace(" ", "_");
+                if (!text.equals(column)) {
+                    tfsColumnPopups[index].show(SAME_VALUE);
+                    btnsRenameColumn[index].setDisable(false);
+                } else {
+                    tfsColumnPopups[index].hide();
+                    btnsRenameColumn[index].setDisable(true);
+                }
+            } else {
+                btnsRenameColumn[index].setDisable(true);
+            }
+        }
+        masterControl();
     }
 
     // CONTROL
@@ -453,7 +474,7 @@ public class VCController implements Initializable {
     }
 
     // ----
-    protected void btnsAddCreateAction(ActionEvent e) {
+    void btnsAddCreateAction(ActionEvent e) {
         Button btn = (Button) e.getSource();
         int index = Integer.parseInt(btn.getId()) + 1;
         int row = index + 1;
@@ -484,13 +505,14 @@ public class VCController implements Initializable {
         tfsTypeLengthControl(-1);
         tfasFKControl(-1);
         tfsDefaultControl(-1);
-        btnCreateControl();
+        masterControl();
     }
-    protected void btnsAddUpdateAction(ActionEvent e){
+
+    void btnsAddUpdateAction(ActionEvent e) {
 
     }
 
-    protected void btnsRemoveCreateAction(ActionEvent e) {
+    void btnsRemoveCreateAction(ActionEvent e) {
         Button btn = (Button) e.getSource();
         int index = Integer.parseInt(btn.getId());
 
@@ -512,18 +534,19 @@ public class VCController implements Initializable {
         tfasFKControl(-1);
         tfsDefaultControl(-1);
 
-        btnCreateControl();
+        masterControl();
     }
-    protected void btnsRemoveUpdateAction(ActionEvent e){
+
+    void btnsRemoveUpdateAction(ActionEvent e) {
 
     }
+
     // ----
     private void tfasTypeTextProperty(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-        System.out.println("\ttfasTypeTextProperty");
-
         StringProperty textProperty = (StringProperty) observable;
         TextField tf = (TextField) textProperty.getBean();
         int index = Character.getNumericValue(tf.getId().charAt(tf.getId().length() - 1));
+        boolean update = false;
 
         newValue = newValue.trim();
         matcher = patternBWTC.matcher(newValue);
@@ -543,6 +566,7 @@ public class VCController implements Initializable {
                 tfsTypePopups[index].hide();
 
                 typeSelectionMatch = true;
+                update = true;
                 tfasTypeControl(index);
             } else {
                 tfsTypeLength[index].setVisible(false);
@@ -560,7 +584,23 @@ public class VCController implements Initializable {
             typeSelectionMatch = false;
         }
         tfsDefaultTypeControl(index);
-        btnCreateControl();
+        // UPDATE----------------------------------------------------------
+        if (updateControl) {
+            if (update) {
+                String type = updateTable.getTypes()[index];
+                if (!newValue.equals(type)) {
+                    tfsTypePopups[index].hide();
+                    btnsChangeType[index].setDisable(false);
+                } else {
+                    btnsChangeType[index].setDisable(true);
+                    tfsTypePopups[index].show(SAME_VALUE);
+                }
+            } else {
+                btnsChangeType[index].setDisable(true);
+            }
+        }
+        // ----------------------------------------------------------
+        masterControl();
     }
 
     private void tfsTypeLengthTextProperty(ObservableValue<? extends String> observable, String oldValue,
@@ -574,6 +614,7 @@ public class VCController implements Initializable {
 
             String text = tfsTypeLength[index].getText().toLowerCase().trim();
             int typeMaxLength = types.getTypeMaxLength(tfasType[index].getText());
+            boolean update = false;
 
             matcher = patternTypeLength.matcher(text);
             if (matcher.matches()) {
@@ -583,6 +624,7 @@ public class VCController implements Initializable {
                     tfsTypeLengthPopups[index].hide();
 
                     typeLengthOK = true;
+                    update = true;
                     tfsTypeLengthControl(index);
                 } else {
                     tf.setStyle(CSS.TEXT_FILL_ERROR);
@@ -598,9 +640,45 @@ public class VCController implements Initializable {
 
             }
             tfsDefaultTypeControl(index);
+            // UPDATE-----------------------------------------------------
+            if (updateControl) {
+                if (update) {
+                    String typeLength = Integer.toString(updateTable.getTypesLength()[index]).toLowerCase().trim();
+                    if (!text.equals(typeLength)) {
+                        tfsTypeLengthPopups[index].hide();
+                        btnsChangeType[index].setDisable(false);
+                    } else {
+                        tfsTypeLengthPopups[index].show(SAME_VALUE);
+                        btnsChangeType[index].setDisable(true);
+                    }
+                } else {
+                    btnsChangeType[index].setDisable(true);
+                }
+            }
         }
+        // -----------------------------------------------------
+        masterControl();
+    }
 
-        btnCreateControl();
+    void cksPKAction(ActionEvent e) {
+        // ONLY FOR UPDATE
+        int index = Integer.parseInt(((CheckBox) e.getSource()).getId());
+        boolean update = false;
+
+        for (int c = 0; c < currentRowLength; c++) {
+            boolean pkSelected = updateTable.getPks()[c].equals("Yes");
+            if (cksPK[c].isSelected() != pkSelected) {
+                update = true;
+                break;
+            }
+        }
+        if (update) {
+            btnUpdatePK.setDisable(false);
+            cksPKPopups[index].hide();
+        } else {
+            btnUpdatePK.setDisable(true);
+            cksPKPopups[index].show(SAME_VALUE);
+        }
     }
 
     private void cksFKAction(ActionEvent e) {
@@ -613,15 +691,38 @@ public class VCController implements Initializable {
         }
 
         tfasFKControl(-1);
-        btnCreateControl();
+        // UPDATE------------------------------------------------
+        if (updateControl) {
+            if (fkSelectionMatch) {
+                boolean update = false;
+                // DEPENDS ON TFS-FK TO
+                for (int c = 0; c < currentRowLength; c++) {
+                    boolean fkSelected = updateTable.getFks()[c] != null;
+                    if (cksFK[c].isSelected() != fkSelected) {
+                        update = true;
+                        break;
+                    }
+                }
+                if (update) {
+                    btnUpdateFK.setDisable(false);
+                    cksFKPopups[index].hide();
+                } else {
+                    btnUpdateFK.setDisable(true);
+                    cksFKPopups[index].show(SAME_VALUE);
+                }
+            } else {
+                btnUpdateFK.setDisable(true);
+            }
+        }
+        // ------------------------------------------------
+        masterControl();
     }
 
     private void tfasFKTextProperty(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-        System.out.println("\ttfasFKTextProperty");
-        
         StringProperty textProperty = (StringProperty) observable;
         TextField tf = (TextField) textProperty.getBean();
         int index = Integer.parseInt(tf.getId());
+        System.out.println("\ttfasFKTextProperty FK_" + (index + 1));
 
         if (tf.isVisible()) {
             if (MList.isOnThisList(tfsFKPs[index].getLv().getItems(), newValue, false)) {
@@ -642,7 +743,17 @@ public class VCController implements Initializable {
             fkSelectionMatch = true;
             tfasFKControl(index);
         }
-        btnCreateControl();
+
+        //UPDATE----------------------------------------------
+        if(updateControl){
+            if(fkSelectionMatch){
+
+            }else{
+
+            }
+        }
+        //----------------------------------------------
+        masterControl();
     }
 
     private void cksDefaultAction(ActionEvent e) {
@@ -656,12 +767,12 @@ public class VCController implements Initializable {
         }
 
         tfsDefaultControl(-1);
-        btnCreateControl();
+        masterControl();
     }
 
     private void tfsDefaultTypeControl(int index) {
         System.out.println("\ttfsDefaultTypeControl");
-        
+
         TextField tf = tfsDefault[index];
         String text = tf.getText();
         if (tf.isVisible()) {
@@ -713,7 +824,7 @@ public class VCController implements Initializable {
         int index = Integer.parseInt(tf.getId());
 
         tfsDefaultTypeControl(index);// ++++++++++++++++
-        btnCreateControl();
+        masterControl();
     }
 
     private void rbsExtraAction(ActionEvent e) {
@@ -771,7 +882,7 @@ public class VCController implements Initializable {
             extraDefaultOK = true;
         }
 
-        btnCreateControl();
+        masterControl();
     }
 
     // BOTTOM ----------------------------------------
@@ -871,29 +982,27 @@ public class VCController implements Initializable {
             boolean insert = ms.insert(MSQL.TABLE_NAMES, values);
             if (insert) {
                 /*
-                try {
-                    
-                     * ResultSet rs = ms.selectRow(MSQL.TABLE_NAMES, "Name", tableName.replace("_",
-                     * " ")); while (rs.next()) { int id = rs.getInt(1); String name =
-                     * rs.getString(2); String distName = rs.getString(3); String imageCName =
-                     * rs.getString(4); String imageCPathName = rs.getString(5);
-                     * 
-                     * System.out.println("\tid: " + id); System.out.println("\tname: " + name);
-                     * System.out.println("\tdistName: " + distName);
-                     * System.out.println("\timageCName: " + imageCName);
-                     * System.out.println("\timageCPathName: " + imageCPathName);
-                     * 
-                     * //tables.addTable(new Table(id, name, distName, imageCName, imageCPathName));
-                     * 
-                     * 
-                     * }
-                     
-                    // vf.getMenuTable().getItems().add(new MenuItem(name));//NOT TESTED
-
-                } catch (SQLException e1) {
-                    e1.printStackTrace();
-                }
-                */
+                 * try {
+                 * 
+                 * ResultSet rs = ms.selectRow(MSQL.TABLE_NAMES, "Name", tableName.replace("_",
+                 * " ")); while (rs.next()) { int id = rs.getInt(1); String name =
+                 * rs.getString(2); String distName = rs.getString(3); String imageCName =
+                 * rs.getString(4); String imageCPathName = rs.getString(5);
+                 * 
+                 * System.out.println("\tid: " + id); System.out.println("\tname: " + name);
+                 * System.out.println("\tdistName: " + distName);
+                 * System.out.println("\timageCName: " + imageCName);
+                 * System.out.println("\timageCPathName: " + imageCPathName);
+                 * 
+                 * //tables.addTable(new Table(id, name, distName, imageCName, imageCPathName));
+                 * 
+                 * 
+                 * }
+                 * 
+                 * // vf.getMenuTable().getItems().add(new MenuItem(name));//NOT TESTED
+                 * 
+                 * } catch (SQLException e1) { e1.printStackTrace(); }
+                 */
                 Menus.getInstance(vf).addMenuItemsReset();// NOT TESTED
 
                 lbStatus.setText("Table '" + tableName.replace("_", " ") + "' has been created!");
@@ -942,7 +1051,7 @@ public class VCController implements Initializable {
             distExtraOK = true;
             btnsDistControl(index);
         }
-        btnCreateControl();
+        masterControl();
     }
 
     private void btnsImageCAction(ActionEvent e) {
@@ -961,7 +1070,7 @@ public class VCController implements Initializable {
 
     private void listImageCChange(Change<? extends Boolean> c) {
         System.out.println("\tlistImageCChange");
-        
+
         while (c.next()) {
             if (c.wasAdded() || c.wasRemoved() || c.wasUpdated() || c.wasReplaced()) {
                 if (listImageC.stream().allMatch(bool -> !bool)) {
@@ -978,7 +1087,7 @@ public class VCController implements Initializable {
             }
         }
 
-        btnCreateControl();
+        masterControl();
     }
 
     private void btnSelectImageCAction(ActionEvent e) {
@@ -988,8 +1097,8 @@ public class VCController implements Initializable {
 
     private void tfImageCPathTextProperty(ObservableValue<? extends String> observable, String oldValue,
             String newValue) {
-                System.out.println("\ttfImageCPathTextProperty");
-        
+        System.out.println("\ttfImageCPathTextProperty");
+
         Path path = Paths.get(tfImageCPath.getText());
         if (!tfImageCPath.isDisable()) {
             if (Files.exists(path)) {
@@ -1010,7 +1119,7 @@ public class VCController implements Initializable {
             imageCPathOk = true;
         }
 
-        btnCreateControl();
+        masterControl();
     }
 
     // INIT ---------------------------------------------
@@ -1034,12 +1143,12 @@ public class VCController implements Initializable {
     }
 
     private void nonFXMLLeftNodesInit() {
-        //ADD SPACING ON EACH HB, SPECIFY SOURCE OF EACH PROPERTY TRIGGER
+        // ADD SPACING ON EACH HB, SPECIFY SOURCE OF EACH PROPERTY TRIGGER
         spGridPaneLeft.setHbarPolicy(ScrollBarPolicy.ALWAYS);
         for (int a = 0; a < MSQL.MAX_COLUMNS; a++) {
             lbsN[a] = new Label("Column " + (a + 1));
             hbsN[a] = new HBox(lbsN[a]);
-            //COLUMN NAMES---------------------------------------
+            // COLUMN NAMES---------------------------------------
             tfsColumn[a] = new TextField();
             tfsColumnPopups[a] = new PopupMessage(tfsColumn[a]);
 
@@ -1048,7 +1157,8 @@ public class VCController implements Initializable {
             btnsRenameColumn[a] = new Button("C");
 
             hbsName[a] = new HBox(tfsColumn[a], btnsRemoveColumn[a], btnsAddColumn[a], btnsRenameColumn[a]);
-            //TYPES----------------------------------------------
+            hbsName[a].setPadding(new Insets(0, 2, 0, 2));
+            // TYPES----------------------------------------------
             // tfasType[a] = new TextFieldAutoC(a, types.getTypeNames());
             tfasType[a] = new TextField();
             tfsTypePs[a] = new PopupAutoC(tfasType[a], types.getTypeNames());
@@ -1060,16 +1170,20 @@ public class VCController implements Initializable {
             btnsChangeType[a] = new Button("C");
 
             hbsType[a] = new HBox(tfasType[a], tfsTypeLength[a], btnsChangeType[a]);
-            //NULLS----------------------------------------------
+            hbsType[a].setPadding(new Insets(0, 2, 0, 2));
+            // NULLS----------------------------------------------
             cksNull[a] = new CheckBox();
             btnsChangeNull[a] = new Button("C");
             hbsNull[a] = new HBox(cksNull[a], btnsChangeNull[a]);
-            //PKS----------------------------------------------
+            hbsNull[a].setPadding(new Insets(0, 2, 0, 2));
+            // PKS----------------------------------------------
             cksPK[a] = new CheckBox();
+            cksPKPopups[a] = new PopupMessage(cksPK[a]);
             btnsChangePK[a] = new Button("C");
             hbsPK[a] = new HBox(cksPK[a], btnsChangePK[a]);
-            //FKS----------------------------------------------
+            // FKS----------------------------------------------
             cksFK[a] = new CheckBox();
+            cksFKPopups[a] = new PopupMessage(cksFK[a]);
 
             tfasFK[a] = new TextField();
             tfsFKPs[a] = new PopupAutoC(tfasFK[a]);
@@ -1077,7 +1191,7 @@ public class VCController implements Initializable {
 
             btnsChangeFK[a] = new Button("C");
             hbsFK[a] = new HBox(cksFK[a], tfasFK[a], btnsChangeFK[a]);
-            //DEFAULTS----------------------------------------------
+            // DEFAULTS----------------------------------------------
             cksDefault[a] = new CheckBox();
 
             tfsDefault[a] = new TextField();
@@ -1085,13 +1199,14 @@ public class VCController implements Initializable {
 
             btnsChangeDefault[a] = new Button("C");
             hbsDefault[a] = new HBox(cksDefault[a], tfsDefault[a], btnsChangeDefault[a]);
-            //EXTRA----------------------------------------------
+            hbsDefault[a].setPadding(new Insets(0, 2, 0, 2));
+            // EXTRA----------------------------------------------
             rbsExtra[a] = new RadioButton();
             rbsExtraPopups[a] = new PopupMessage(rbsExtra[a]);
             // rbsExtra[a].setToggleGroup(rbsExtraGroup);
-            //btnsChangeExtra[a] = new Button("C");
-            hbsExtra[a] = new HBox(rbsExtra[a]/*, btnsChangeExtra[a]*/);
-            //-----------------------------------------
+            // btnsChangeExtra[a] = new Button("C");
+            hbsExtra[a] = new HBox(rbsExtra[a]/* , btnsChangeExtra[a] */);
+            // -----------------------------------------
             // OTHERS ---------------------------------
             tfsColumn[a].setId(Integer.toString(a));
             btnsRemoveColumn[a].setId(Integer.toString(a));
@@ -1135,11 +1250,15 @@ public class VCController implements Initializable {
             btnsChangeFK[a].managedProperty().bind(btnsChangeFK[a].visibleProperty());
             tfsDefault[a].managedProperty().bind(tfsDefault[a].visibleProperty());
             btnsChangeDefault[a].managedProperty().bind(btnsChangeDefault[a].visibleProperty());
-            //btnsChangeExtra[a].managedProperty().bind(btnsChangeExtra[a].visibleProperty());
+            // btnsChangeExtra[a].managedProperty().bind(btnsChangeExtra[a].visibleProperty());
+            btnsRenameColumn[a].disableProperty().bind(btnsRenameColumn[a].visibleProperty().not());
+            btnsChangeType[a].disableProperty().bind(btnsChangeType[a].visibleProperty().not());
+            btnsChangeNull[a].disableProperty().bind(btnsChangeNull[a].visibleProperty().not());
+            btnsChangeDefault[a].disableProperty().bind(btnsChangeDefault[a].visibleProperty().not());
             // ----------------------------------------------------------
             tfasFK[a].setVisible(false);
             tfsDefault[a].setVisible(false);
-            //btnsChangeExtra[a].setVisible(false);
+            // btnsChangeExtra[a].setVisible(false);
 
             hbsN[a].setStyle(CSS.BORDER_GRID_BOTTOM);
             hbsName[a].setStyle(CSS.BORDER_GRID_BOTTOM);
@@ -1197,22 +1316,7 @@ public class VCController implements Initializable {
         }
         new ToggleGroupD<>(btnsImageC);
         tfImageCPathPopup = new PopupMessage(tfImageCPath);
-        // -------------------------------------
-        for (int a = 0; a < gridPaneRight.getColumnCount(); a++) {
-            /*
-             * gridPaneRightSub.getColumnConstraints().get(a).prefWidthProperty()
-             * .bind(gridPaneRight.getColumnConstraints().get(a).prefWidthProperty());
-             * 
-             * gridPaneRightSub.getColumnConstraints().get(a).maxWidthProperty()
-             * .bind(gridPaneRight.getColumnConstraints().get(a).maxWidthProperty());
-             * 
-             * gridPaneRightSub.getColumnConstraints().get(a).minWidthProperty()
-             * .bind(gridPaneRight.getColumnConstraints().get(a).minWidthProperty());
-             */
-        }
         // SUB-------------------------------------
-        // spGridPaneRightSub.setHbarPolicy(ScrollBarPolicy.ALWAYS);
-        // spGridPaneRightSub.setPrefHeight(50);
         lbUpdateLeft.setDisable(true);
         directoryChooser.setTitle("Select Image for a column");
 
@@ -1256,14 +1360,15 @@ public class VCController implements Initializable {
         presetSomeInit();
         nonFXMLLeftNodesInit();
         nonFXMLRightNodesInit();
-        //TOP-----------------------------------------------
+        // TOP-----------------------------------------------
         tfTable.setPromptText("Table name required");
         btnRenameTable.managedProperty().bind(btnRenameTable.visibleProperty());
-        //--------------------------------------------------
+        // --------------------------------------------------
         fkReferencesInit();
         btnAddRemoveColumnInit();
         createHelpPopupReset();
 
+        btnCreateUpdate.managedProperty().bind(btnCreateUpdate.visibleProperty());
         for (int a = 0; a < presetRowsLenght; a++) {
             listColumns.add(tfsColumn[a].getText().trim());
             listImageC.add(false);
@@ -1275,7 +1380,7 @@ public class VCController implements Initializable {
             e.setOnKeyReleased(this::tfsColumnsKeyReleased);
         });
         listColumns.addListener(this::listColumnsChange);
-        
+
         Arrays.asList(tfasType).forEach(e -> e.textProperty().addListener(this::tfasTypeTextProperty));
         Arrays.asList(tfsTypeLength).forEach(e -> e.textProperty().addListener(this::tfsTypeLengthTextProperty));
         Arrays.asList(cksFK).forEach(e -> e.setOnAction(this::cksFKAction));
@@ -1625,5 +1730,29 @@ public class VCController implements Initializable {
     public void setTfImageCPath(TextField tfImageCPath) {
         this.tfImageCPath = tfImageCPath;
     }
-    
+
+    public Button getBtnCreateUpdate() {
+        return btnCreateUpdate;
+    }
+
+    public void setBtnCreateUpdate(Button btnCreateUpdate) {
+        this.btnCreateUpdate = btnCreateUpdate;
+    }
+
+    public boolean isUpdateControl() {
+        return updateControl;
+    }
+
+    public void setUpdateControl(boolean updateControl) {
+        this.updateControl = updateControl;
+    }
+
+    public int getCurrentRowLength() {
+        return currentRowLength;
+    }
+
+    public void setCurrentRowLength(int currentRowLength) {
+        this.currentRowLength = currentRowLength;
+    }
+
 }

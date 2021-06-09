@@ -147,7 +147,7 @@ public class VC {
         vc.getBtnRenameTable().setVisible(true);
         // LEFT------------------------------------------------------
         rowDisplay(columns.size());
-
+        vc.setCurrentRowLength(columns.size());
         for (int a = 0; a < MSQL.MAX_COLUMNS; a++) {
             vc.getBtnsRemoveColumn()[a].setOnAction(vc::btnsRemoveUpdateAction);
             vc.getBtnsAddColumn()[a].setOnAction(vc::btnsAddUpdateAction);
@@ -162,8 +162,12 @@ public class VC {
         vc.getBtnUpdatePK().setDisable(false);
         vc.getBtnUpdateFK().setDisable(false);
         vc.getBtnUpdateExtra().setDisable(false);
+        Arrays.asList(vc.getCksPK()).forEach(e -> e.setOnAction(vc::cksPKAction));
         // RIGHT-BOTTOM------------------------------------------------
         vc.getBtnUpdateDist().setDisable(false);
+        //BOTTOM-----------------------------------------------------
+        vc.getBtnCreateUpdate().setVisible(false);
+        vc.setUpdateControl(true);
     }
 
     // -----------------------------------------------------

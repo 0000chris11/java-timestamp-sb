@@ -1,19 +1,20 @@
 package com.cofii.ts.store;
 
+import com.cofii.ts.sql.MSQL;
 import com.cofii2.stores.IntDString;
-import com.cofii2.stores.TString;
 
 public class UpdateTable {
     
-    private String table;
-    private String[] columns;
-    private String[] types;
-    private int[] typesLength;
-    private boolean[] nulls;
-    private String[] pks;
-    private IntDString[] fks;
-    private String[] defaults;
-    private int extra;
+    private int max = MSQL.MAX_COLUMNS;
+    private String table = "none";
+    private String[] columns = new String[max];
+    private String[] types = new String[max];
+    private int[] typesLength = new int[max];
+    private boolean[] nulls = new boolean[max];
+    private String[] pks = new String[max];
+    private IntDString[] fks = new IntDString[max];
+    private String[] defaults = new String[max];
+    private int extra = -1;
     //----------------------------------------------------------------------------
     public UpdateTable(String table, String[] columns, String[] types, int[] typesLength, boolean[] nulls, String[] pks,
     IntDString[] fks, String[] defaults, int extra) {
