@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.cofii.ts.sql.MSQL;
 import com.cofii2.stores.IntDString;
+import com.cofii2.stores.QString;
 import com.cofii2.stores.TString;
 
 public class Keys {
@@ -62,19 +63,22 @@ public class Keys {
         return pks;
     }
     
-    public TString[] getFKS(){
-        TString[] fks = new TString[ColumnS.getInstance().size()];
+    public QString[] getFKS(){
+        QString[] fks = new QString[ColumnS.getInstance().size()];
         //NULL FILL
 
         Key[] currentKeys = getCurrentTableKeys();
         for(int a = 0;a < currentKeys.length; a++){
             int ordinalPosition = currentKeys[a].getOrdinalPosition() - 1;
             String columnName = currentKeys[a].getColumnName();
+
+            String databaseR = currentKeys[a].getReferencedTableSchema();
             String tableR = currentKeys[a].getReferencedTableName();
             String columnR = currentKeys[a].getReferencedColumnName();
+
             String contraintType = currentKeys[a].getConstraintType();
             if(contraintType.equals("FOREIGN KEY")){
-                fks[ordinalPosition] = new TString(columnName, tableR, columnR);
+                fks[ordinalPosition] = new QString(columnName, databaseR, tableR, columnR);
             }
         }
         return fks;
@@ -86,6 +90,8 @@ public class Keys {
         Key[] currentKeys = getCurrentTableKeys();
         for(int a = 0;a < currentKeys.length; a++){
             int ordinalPosition = currentKeys[a].getOrdinalPosition() - 1;
+            String databaseR = currentKeys[a].getDatabase();
+            
             String tableR = currentKeys[a].getReferencedTableName();
             String columnR = currentKeys[a].getReferencedColumnName();
             String contraintType = currentKeys[a].getConstraintType();

@@ -6,16 +6,18 @@ public class Key {
     private String constraintType;
     private int ordinalPosition;
     private String columnName;
+    private String referencedTableSchema;
     private String referencedTableName;
     private String referencedColumnName;
     //----------------------------------------------
-    public Key(String database, String tableName, String constraintType, int ordinalPosition, String columnName,
+    public Key(String database, String tableName, String constraintType, int ordinalPosition, String columnName, String referencedTableSchema,
             String referencedTableName, String referencedColumnName) {
         this.database = database;
         this.tableName = tableName;
         this.constraintType = constraintType;
         this.ordinalPosition = ordinalPosition;
         this.columnName = columnName;
+        this.referencedTableSchema = referencedTableSchema;
         this.referencedTableName = referencedTableName;
         this.referencedColumnName = referencedColumnName;
     }
@@ -75,5 +77,11 @@ public class Key {
     public void setReferencedColumnName(String referencedColumnName) {
         this.referencedColumnName = referencedColumnName;
     }
-
+    public String getReferencedTableSchema() {
+        return referencedTableSchema;
+    }
+    public void setReferencedTableSchema(String referencedTableSchema) {
+        this.referencedTableSchema = referencedTableSchema;
+    }
+    
 }

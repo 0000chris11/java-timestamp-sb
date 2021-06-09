@@ -17,27 +17,20 @@ public class SelectKeys implements IActions {
     private VFController vf;
     private Keys keys = Keys.getInstance();
 
-    public SelectKeys(VFController vf) {
-        this.vf = vf;
-    }
+    private String databaseName;
+    private String tableName;
+    private String constraintType;
+    private int ordinalPosition;
+    private String columnName;
+    private String referencedTableSchema;
+    private String referencedTableName;
+    private String referencedColumnName;
 
-    @Override
-    public void beforeQuery() {
-        keys.clearKeys();
-    }
-
-    @Override
-    public void setData(ResultSet rs, int row) throws SQLException {
-        String databaseName = rs.getString(1);
-        String tableName = rs.getString(2);
-        String constraintType = rs.getString(3);
-        int ordinalPosition = rs.getInt(4);
-        String columnName = rs.getString(5);
-        String referencedTableName = rs.getString(6);
-        String referencedColumnName = rs.getString(7);
-        // KEY IMPLEMENT --------------------------------------------
+    // -----------------------------------------------------------
+    private void keysImplement() {
         String currentDatabase = MSQL.getDatabase().toLowerCase();
         String currentTable = MSQL.getCurrentTable().getName().replace(" ", "_").toLowerCase();
+
         if (databaseName.equals(currentDatabase) && tableName.equals(currentTable)) {
             vf.getLbs()[ordinalPosition - 1].getChildren().clear();
             Text textColumnName = new Text(columnName);
@@ -55,9 +48,33 @@ public class SelectKeys implements IActions {
                 vf.getLbs()[ordinalPosition - 1].getChildren().addAll(textFk, textColumnName);
             }
         }
+    }
+
+    // -----------------------------------------------------------
+    public SelectKeys(VFController vf) {
+        this.vf = vf;
+    }
+
+    @Override
+    public void beforeQuery() {
+        keys.clearKeys();
+    }
+
+    @Override
+    public void setData(ResultSet rs, int row) throws SQLException {
+        databaseName = rs.getString(1);
+        tableName = rs.getString(2);
+        constraintType = rs.getString(3);
+        ordinalPosition = rs.getInt(4);
+        columnName = rs.getString(5);
+        referencedTableSchema = rs.getString(6);
+        referencedTableName = rs.getString(7);
+        referencedColumnName = rs.getString(8);
+
+        keysImplement();
         // --------------------------------------------
-        keys.addKey(new Key(databaseName, tableName, constraintType, ordinalPosition, columnName, referencedTableName,
-                referencedColumnName));
+        keys.addKey(new Key(databaseName, tableName, constraintType, ordinalPosition, columnName, referencedTableSchema,
+                referencedTableName, referencedColumnName));
     }
 
     @Override
@@ -65,5 +82,5 @@ public class SelectKeys implements IActions {
         // TODO Auto-generated method stub
 
     }
-
+    // -----------------------------------------------------------
 }

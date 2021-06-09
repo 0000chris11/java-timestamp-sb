@@ -1,7 +1,7 @@
 package com.cofii.ts.store;
 
 import com.cofii.ts.sql.MSQL;
-import com.cofii2.stores.IntDString;
+import com.cofii2.stores.QString;
 
 public class UpdateTable {
     
@@ -12,22 +12,14 @@ public class UpdateTable {
     private int[] typesLength = new int[max];
     private boolean[] nulls = new boolean[max];
     private String[] pks = new String[max];
-    private IntDString[] fks = new IntDString[max];
+    private QString[] fks = new QString[max];
+    private String[] fkFormed = new String[max];
     private String[] defaults = new String[max];
     private int extra = -1;
-    //----------------------------------------------------------------------------
-    public UpdateTable(String table, String[] columns, String[] types, int[] typesLength, boolean[] nulls, String[] pks,
-    IntDString[] fks, String[] defaults, int extra) {
-        this.table = table;
-        this.columns = columns;
-        this.types = types;
-        this.typesLength = typesLength;
-        this.nulls = nulls;
-        this.pks = pks;
-        this.fks = fks;
-        this.defaults = defaults;
-        this.extra = extra;
-    }
+
+    private String[] dist = new String[max];
+    private String[] imageC = new String[max];
+    private String[] imageCPath = new String[max];
     //----------------------------------------------------------------------------
     public String getTable() {
         return table;
@@ -77,11 +69,11 @@ public class UpdateTable {
         this.pks = pks;
     }
 
-    public IntDString[] getFks() {
+    public QString[] getFks() {
         return fks;
     }
 
-    public void setFks(IntDString[] fks) {
+    public void setFks(QString[] fks) {
         this.fks = fks;
     }
 
@@ -99,6 +91,36 @@ public class UpdateTable {
 
     public void setExtra(int extra) {
         this.extra = extra;
+    }
+    public String[] getFkFormed() {
+        return fkFormed;
+    }
+    public void setFkFormed(String[] fkFormed) {
+        this.fkFormed = fkFormed;
+    }
+
+    public String[] getDist() {
+        return dist;
+    }
+
+    public void setDist(String[] dist) {
+        this.dist = dist;
+    }
+
+    public String[] getImageC() {
+        return imageC;
+    }
+
+    public void setImageC(String[] imageC) {
+        this.imageC = imageC;
+    }
+
+    public String[] getImageCPath() {
+        return imageCPath;
+    }
+
+    public void setImageCPath(String[] imageCPath) {
+        this.imageCPath = imageCPath;
     }
 
     

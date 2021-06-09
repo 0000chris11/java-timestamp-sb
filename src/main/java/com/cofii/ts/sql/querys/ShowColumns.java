@@ -49,6 +49,8 @@ public class ShowColumns implements IActions {
         if(typeHole.contains("(")){
             type = typeHole.substring(0, typeHole.indexOf("("));
             typeLength = Integer.parseInt(typeHole.substring(typeHole.indexOf("(") + 1, typeHole.length() - 1));
+        }else if(typeHole.equalsIgnoreCase("int")){
+            typeLength = 11;
         }
         //NULL------------------------------------
         boolean nullValue;

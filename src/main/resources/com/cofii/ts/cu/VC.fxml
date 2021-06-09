@@ -108,9 +108,9 @@
                      <children>
                         <Label fx:id="lbUpdateLeft" text="Update Table Column" HBox.hgrow="NEVER" />
                         <Region HBox.hgrow="ALWAYS" />
-                        <Button fx:id="btnUpdatePK" mnemonicParsing="false" text="Primary Key" HBox.hgrow="NEVER" />
-                        <Button fx:id="btnUpdateFK" mnemonicParsing="false" text="Foreign Key" HBox.hgrow="NEVER" />
-                        <Button fx:id="btnUpdateExtra" mnemonicParsing="false" text="Extra" HBox.hgrow="NEVER" />
+                        <Button fx:id="btnUpdatePK" disable="true" mnemonicParsing="false" text="Primary Key" HBox.hgrow="NEVER" />
+                        <Button fx:id="btnUpdateFK" disable="true" mnemonicParsing="false" text="Foreign Key" HBox.hgrow="NEVER" />
+                        <Button fx:id="btnUpdateExtra" disable="true" mnemonicParsing="false" text="Extra" HBox.hgrow="NEVER" />
                      </children>
                      <padding>
                         <Insets bottom="6.0" left="6.0" right="6.0" top="6.0" />
@@ -155,7 +155,7 @@
                      <content>
                         <HBox fx:id="hbRightUpdate" prefHeight="100.0" spacing="10.0">
                            <children>
-                              <Button fx:id="btnUpdateDist" mnemonicParsing="false" text="Dist" />
+                              <Button fx:id="btnUpdateDist" disable="true" mnemonicParsing="false" text="Dist" />
                               <TextField fx:id="tfImageCPath" disable="true" prefWidth="200.0" promptText="ImageCPath" />
                               <Button fx:id="btnSelectImageC" disable="true" mnemonicParsing="false" />
                               <Button fx:id="btnUpdateImageC" disable="true" mnemonicParsing="false" text="ImageC" />
