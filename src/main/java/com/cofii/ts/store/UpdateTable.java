@@ -6,6 +6,8 @@ import com.cofii2.stores.QString;
 public class UpdateTable {
     
     private int max = MSQL.MAX_COLUMNS;
+    private int rowLength = 2;
+
     private String table = "none";
     private String[] columns = new String[max];
     private String[] types = new String[max];
@@ -121,6 +123,14 @@ public class UpdateTable {
 
     public void setImageCPath(String[] imageCPath) {
         this.imageCPath = imageCPath;
+    }
+
+    public int getRowLength() {
+        return rowLength;
+    }
+
+    public void setRowLength(int rowLength) {
+        this.rowLength = rowLength;
     }
 
     

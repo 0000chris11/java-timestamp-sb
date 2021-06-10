@@ -158,6 +158,7 @@ public class VC {
         updateTable.setImageC(imageCS);
         updateTable.setImageCPath(imageCPath);
         
+        updateTable.setRowLength(columnCount);
         vc.setUpdateTable(updateTable);
     }
 

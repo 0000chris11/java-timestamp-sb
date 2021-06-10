@@ -193,6 +193,7 @@ public class VCController implements Initializable {
     private ToggleButton[] btnsDist = new ToggleButton[MSQL.MAX_COLUMNS];
     private PopupMessage[] btnsDistPopups = new PopupMessage[MSQL.MAX_COLUMNS];
     private ToggleButton[] btnsImageC = new ToggleButton[MSQL.MAX_COLUMNS];
+    private PopupMessage[] btnsImageCPopups = new PopupMessage[MSQL.MAX_COLUMNS];
     // RIGHT-SUB
     private DirectoryChooser directoryChooser = new DirectoryChooser();
     private PopupMessage tfImageCPathPopup;
@@ -401,22 +402,57 @@ public class VCController implements Initializable {
 
     private void defaultUpdateControl(int index, boolean update) {
         if (updateControl) {
-            if (update) {
-                boolean defaultSelected = updateTable.getDefaults()[index] != null;
-                String defaultValue = updateTable.getDefaults()[index];
-                if (cksDefault[index].isSelected() != defaultSelected
-                        || (cksDefault[index].isSelected() && !tfsDefault[index].getText().equals(defaultValue))) {
-                    btnsChangeDefault[index].setDisable(false);
+            if (currentRowLength <= updateTable.getRowLength()) {// INDEX OUT OF RANGE
+                if (update) {
+                    boolean defaultSelected = updateTable.getDefaults()[index] != null;
+                    String defaultValue = updateTable.getDefaults()[index];
+                    if (cksDefault[index].isSelected() != defaultSelected
+                            || (cksDefault[index].isSelected() && !tfsDefault[index].getText().equals(defaultValue))) {
+                        cksDefaultPopups[index].hide();
+                        btnsChangeDefault[index].setDisable(false);
+                    } else {
+                        cksDefaultPopups[index].show(SAME_VALUE);
+                        btnsChangeDefault[index].setDisable(true);
+                    }
                 } else {
-                    cksDefaultPopups[index].show(SAME_VALUE);
                     btnsChangeDefault[index].setDisable(true);
                 }
             } else {
-                btnsChangeDefault[index].setDisable(true);
+                // COLUMN REMOVED OR ADDED STATE
+                /*
+                 * cksDefaultPopups[index].hide(); btnsChangeDefault[index].setDisable(false);
+                 */
             }
         }
     }
 
+    private void imageCUpdateControl(int index){
+        if (updateControl) {
+            if (currentRowLength <= updateTable.getRowLength()) {
+                if (imageCPathOk) {
+                    boolean imageCSelected = updateTable.getImageC()[index].equals("Yes");
+                    int[] indexs = { -1 };
+                    Arrays.asList(updateTable.getImageCPath()).stream().anyMatch(p -> {
+                        indexs[0]++;
+                        return !p.equals("NONE");
+                    });
+                    String pathO = updateTable.getImageCPath()[indexs[0]];
+                    if (btnsImageC[index].isSelected() != imageCSelected
+                            || (!tfImageCPath.isDisabled() && !tfImageCPath.getText().equals(pathO))) {
+                        btnUpdateImageC.setDisable(false);
+                    } else {
+                        btnsImageCPopups[index].show(SAME_VALUE);
+                        btnUpdateImageC.setDisable(true);
+                    }
+                } else {
+                    btnUpdateImageC.setDisable(true);
+                }
+            } else {
+                System.out.println("ADD OR REMOVE COLUMN STATE");
+                // ADD OR REMOVE COLUMN STATE
+            }
+        }
+    }
     // LISTENERS---------------------------------------------
     private void tfTableKeyReleased(KeyEvent e) {
         if (!e.getCode().isArrowKey() && !e.getCode().isFunctionKey() && !e.getCode().isMediaKey()
@@ -919,7 +955,7 @@ public class VCController implements Initializable {
             extraFKOK = true;
             extraDefaultOK = true;
         }
-        //UPDATE------------------------------------------------
+        // UPDATE------------------------------------------------
         if (updateControl) {
             if (extraDefaultOK && extraPKOK && extraFKOK) {// NOT SURE IF NECESSARY
                 int extraO = updateTable.getExtra();
@@ -935,7 +971,7 @@ public class VCController implements Initializable {
                 btnUpdateExtra.setDisable(true);
             }
         }
-        //------------------------------------------------
+        // ------------------------------------------------
         masterControl();
     }
 
@@ -1082,7 +1118,7 @@ public class VCController implements Initializable {
 
     // RIGHT-----------------------------------------
     private void btnsDistAction(ActionEvent e) {
-        //MAY HAVE TO ADD DIST BUTTONS TO AN OBSERVABLE LIST (ADD OR REMOVE COLUMN)
+        // MAY HAVE TO ADD DIST BUTTONS TO AN OBSERVABLE LIST (ADD OR REMOVE COLUMN)
         ToggleButton btn = (ToggleButton) e.getSource();
         int index = Integer.parseInt(btn.getId());
         // int errorCount = 0;
@@ -1108,29 +1144,29 @@ public class VCController implements Initializable {
             btnsDistControl(index);
         }
 
-        //UPDATE--------------------------------------------------------------
-        if(updateControl){
-            if(distExtraOK){
+        // UPDATE--------------------------------------------------------------
+        if (updateControl) {
+            if (distExtraOK) {
                 boolean update = false;
-                for(int a = 0;a < currentRowLength; a++){
+                for (int a = 0; a < currentRowLength; a++) {
                     boolean dist = updateTable.getDist()[a].equals("Yes");
-                    if(btnsDist[index].isSelected() != dist){
+                    if (btnsDist[index].isSelected() != dist) {
                         update = true;
                         break;
                     }
                 }
-                if(update){
+                if (update) {
                     btnsDistPopups[index].hide();
                     btnUpdateDist.setDisable(false);
-                }else{
+                } else {
                     btnsDistPopups[index].show(SAME_VALUE);
                     btnUpdateDist.setDisable(true);
                 }
-            }else{
+            } else {
                 btnUpdateDist.setDisable(true);
             }
         }
-        //--------------------------------------------------------------
+        // --------------------------------------------------------------
         masterControl();
     }
 
@@ -1146,6 +1182,9 @@ public class VCController implements Initializable {
         } else {
             listImageC.set(index, false);
         }
+
+        // UPDATE---------------------------------------
+        imageCUpdateControl(index);
     }
 
     private void listImageCChange(Change<? extends Boolean> c) {
@@ -1349,8 +1388,8 @@ public class VCController implements Initializable {
             btnsChangeType[a].setDisable(true);
             btnsChangeNull[a].setDisable(true);
             btnsChangeDefault[a].setDisable(true);
-            //STYLE-------------------------------------------------------
-            tfasType[a].getStyleClass().clear();
+            // STYLE-------------------------------------------------------
+            // tfasType[a].getStyleClass().clear();
             tfasType[a].setStyle(null);
 
             hbsN[a].setStyle(CSS.BORDER_GRID_BOTTOM);
@@ -1363,7 +1402,7 @@ public class VCController implements Initializable {
             hbsFK[a].setStyle(CSS.BORDER_GRID_BOTTOM);
             hbsDefault[a].setStyle(CSS.BORDER_GRID_BOTTOM);
             hbsExtra[a].setStyle(CSS.BORDER_GRID_BOTTOM);
-            //-------------------------------------------------------
+            // -------------------------------------------------------
             GridPane.setMargin(hbsN[a], INSETS);
             GridPane.setMargin(hbsName[a], INSETS);
             GridPane.setMargin(hbsType[a], INSETS);
@@ -1382,7 +1421,9 @@ public class VCController implements Initializable {
         for (int a = 0; a < MSQL.MAX_COLUMNS; a++) {
             btnsDist[a] = new ToggleButton("" + (a + 1));
             btnsDistPopups[a] = new PopupMessage(btnsDist[a]);
+
             btnsImageC[a] = new ToggleButton("" + (a + 1));
+            btnsImageCPopups[a] = new PopupMessage(btnsImageC[a]);
 
             btnsDist[a].setId(Integer.toString(a));
             btnsImageC[a].setId(Integer.toString(a));
