@@ -60,6 +60,7 @@ public class VC {
     }
 
     private void createOption() {
+        vc.pesetListInit(vc.getCurrentRowLength());
         // TOP--------------------------------------------------------
         vc.getBtnRenameTable().setVisible(false);
         rowDisplay(vc.getPresetRowsLenght());
@@ -71,6 +72,7 @@ public class VC {
         for (int a = 0; a < MSQL.MAX_COLUMNS; a++) {
             vc.getBtnsRemoveColumn()[a].setOnAction(vc::btnsRemoveCreateAction);
             vc.getBtnsAddColumn()[a].setOnAction(vc::btnsAddCreateAction);
+
             vc.getBtnsRenameColumn()[a].setVisible(false);
             vc.getBtnsChangeType()[a].setVisible(false);
             vc.getBtnsChangeNull()[a].setVisible(false);
@@ -78,6 +80,7 @@ public class VC {
             vc.getBtnsChangeFK()[a].setVisible(false);
             vc.getBtnsChangeDefault()[a].setVisible(false);
         }
+        vc.btnAddRemoveColumnInit();
         // LEFT-BOTTOM------------------------------------------------
         vc.getBtnUpdatePK().setDisable(true);
         vc.getBtnUpdateFK().setDisable(true);
@@ -163,6 +166,7 @@ public class VC {
     }
 
     private void updateOption() {
+        vc.pesetListInit(columns.size());
         setUpdateStore();
         // TOP-------------------------------------------------------
         vc.getBtnRenameTable().setVisible(true);
@@ -172,6 +176,7 @@ public class VC {
         for (int a = 0; a < MSQL.MAX_COLUMNS; a++) {
             vc.getBtnsRemoveColumn()[a].setOnAction(vc::btnsRemoveUpdateAction);
             vc.getBtnsAddColumn()[a].setOnAction(vc::btnsAddUpdateAction);
+
             vc.getBtnsRenameColumn()[a].setVisible(true);
             vc.getBtnsChangeType()[a].setVisible(true);
             vc.getBtnsChangeNull()[a].setVisible(true);

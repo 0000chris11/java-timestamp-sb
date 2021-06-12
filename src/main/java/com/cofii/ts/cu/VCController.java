@@ -37,6 +37,7 @@ import com.cofii2.stores.DInt;
 import com.cofii2.stores.IntBoolean;
 import com.cofii2.stores.IntString;
 import com.cofii2.stores.TString;
+import com.cofii2.textControl.javafx.TextMatchControl;
 
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableValue;
@@ -49,6 +50,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
@@ -61,6 +63,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
+import javafx.scene.layout.RowConstraints;
 import javafx.stage.DirectoryChooser;
 
 public class VCController implements Initializable {
@@ -426,7 +429,7 @@ public class VCController implements Initializable {
         }
     }
 
-    private void imageCUpdateControl(int index){
+    private void imageCUpdateControl(int index) {
         if (updateControl) {
             if (currentRowLength <= updateTable.getRowLength()) {
                 if (imageCPathOk) {
@@ -453,6 +456,7 @@ public class VCController implements Initializable {
             }
         }
     }
+
     // LISTENERS---------------------------------------------
     private void tfTableKeyReleased(KeyEvent e) {
         if (!e.getCode().isArrowKey() && !e.getCode().isFunctionKey() && !e.getCode().isMediaKey()
@@ -533,10 +537,10 @@ public class VCController implements Initializable {
             if (update) {
                 String column = updateTable.getColumns()[index].toLowerCase().trim().replace(" ", "_");
                 if (!text.equals(column)) {
-                    tfsColumnPopups[index].show(SAME_VALUE);
+                    tfsColumnPopups[index].hide();
                     btnsRenameColumn[index].setDisable(false);
                 } else {
-                    tfsColumnPopups[index].hide();
+                    tfsColumnPopups[index].show(SAME_VALUE);
                     btnsRenameColumn[index].setDisable(true);
                 }
             } else {
@@ -601,7 +605,107 @@ public class VCController implements Initializable {
     }
 
     void btnsAddUpdateAction(ActionEvent e) {
+        Button btn = (Button) e.getSource();
+        int index = Integer.parseInt(btn.getId()) + 1;// PLUS HEADER
+        int indexChilds = index + 1;
+        // REMOVING ----------------------------------------
+        System.out.println("gridPaneLeft rowCount: " + gridPaneLeft.getRowCount());
+        for (int a = 0; a < currentRowLength; a++) {
+            gridPaneLeft.getChildren().removeAll(hbsN[a + 1], hbsName[a + 1], hbsType[a + 1], hbsNull[a + 1],
+                    hbsPK[a + 1], hbsFK[a + 1], hbsDefault[a + 1], hbsExtra[a + 1]);
 
+            gridPaneRight.getChildren().removeAll(btnsDist[a + 1], btnsImageC[a + 1]);
+        }
+        /*
+         * gridPaneLeft.getRowConstraints().remove(1, currentRowLength - 1);//UNTESTED
+         * gridPaneRight.getRowConstraints().remove(1, currentRowLength - 1);//UNTESTED
+         */
+
+        // SAVING THE NEW ROW ELEMENTS TO LATER INSERT THEM INTO THE EMPTY REMAINING ROW
+        HBox hbN = hbsN[currentRowLength];
+        HBox hbName = hbsName[currentRowLength];
+        HBox hbType = hbsType[currentRowLength];
+        HBox hbNull = hbsNull[currentRowLength];
+        HBox hbPK = hbsPK[currentRowLength];
+        HBox hbFK = hbsFK[currentRowLength];
+        HBox hbDefault = hbsDefault[currentRowLength];
+        HBox hbExtra = hbsExtra[currentRowLength];
+
+        ToggleButton btnDist = btnsDist[currentRowLength];
+        ToggleButton btnImageC = btnsImageC[currentRowLength];
+        // MOVING EACH ARRAY INDEX TO THE NEXT---------------------------
+        for (int a = currentRowLength - 1; a > index; a--) {
+            // hbsN[a] = hbsN[a - 1];
+            // hbsN[a].getChildren().set(0, hbsN[a - 1].getChildren().get(0));
+            hbsN[a].getChildren().setAll(hbsN[a - 1].getChildren());
+            hbsName[a].getChildren().setAll(hbsName[a - 1].getChildren());
+            hbsType[a].getChildren().setAll(hbsType[a - 1].getChildren());
+            hbsNull[a].getChildren().setAll(hbsNull[a - 1].getChildren());
+            hbsPK[a].getChildren().setAll(hbsPK[a - 1].getChildren());
+            hbsFK[a].getChildren().setAll(hbsFK[a - 1].getChildren());
+            hbsDefault[a].getChildren().setAll(hbsDefault[a - 1].getChildren());
+            hbsExtra[a].getChildren().setAll(hbsExtra[a - 1].getChildren());
+
+            btnsDist[a] = btnsDist[a - 1];
+            btnsImageC[a] = btnsImageC[a - 1];
+        }
+        // lbsN[indexChilds] = new Label("Column " + (indexChilds + 1));
+        // hbsN[indexChilds].getChildren().add(0, lbsN[indexChilds]);
+        hbsN[indexChilds] = hbN;
+        hbsName[indexChilds] = hbName;
+        hbsType[indexChilds] = hbType;
+        hbsNull[indexChilds] = hbNull;
+        hbsPK[indexChilds] = hbPK;
+        hbsFK[indexChilds] = hbFK;
+        hbsDefault[indexChilds] = hbDefault;
+        hbsExtra[indexChilds] = hbExtra;
+
+        btnsDist[indexChilds] = btnDist;
+        btnsImageC[indexChilds] = btnImageC;
+
+        hbsN[indexChilds].setStyle("-fx-background-color: white");
+        // ADDING ------------------------------------------------- 
+        //DUPLICATE CHILDREN
+        currentRowLength++;
+        for (int a = 0; a < currentRowLength; a++) {
+            gridPaneLeft.add(hbsN[a], 0, a + 1);
+            gridPaneLeft.add(hbsName[a], 1, a + 1);
+            gridPaneLeft.add(hbsType[a], 2, a + 1);
+            gridPaneLeft.add(hbsNull[a], 3, a + 1);
+            gridPaneLeft.add(hbsPK[a], 4, a + 1);
+            gridPaneLeft.add(hbsFK[a], 5, a + 1);
+            gridPaneLeft.add(hbsDefault[a], 6, a + 1);
+            gridPaneLeft.add(hbsExtra[a], 7, a + 1);
+
+            gridPaneRight.add(btnsDist[a], 0, a + 1);
+            gridPaneRight.add(btnsImageC[a], 1, a + 1);
+        }
+        // ----------------------------------------
+        /*
+         * gridPaneLeft.add(hbsN[currentRowLength], 0, currentRowLength);
+         * gridPaneLeft.add(hbsName[currentRowLength], 1, currentRowLength);
+         * gridPaneLeft.add(hbsType[currentRowLength], 2, currentRowLength);
+         * gridPaneLeft.add(hbsNull[currentRowLength], 3, currentRowLength);
+         * gridPaneLeft.add(hbsPK[currentRowLength], 4, currentRowLength);
+         * gridPaneLeft.add(hbsFK[currentRowLength], 5, currentRowLength);
+         * gridPaneLeft.add(hbsDefault[currentRowLength], 6, currentRowLength);
+         * gridPaneLeft.add(hbsExtra[currentRowLength], 7, currentRowLength);
+         * 
+         * gridPaneRight.add(btnsDist[currentRowLength], 0, currentRowLength);
+         * gridPaneRight.add(btnsImageC[currentRowLength], 1, currentRowLength);
+         * //-----------------------------------------------------
+         * 
+         * //-----------------------------------------------------
+         * 
+         * GridPane.setRowIndex(hbsN[indexChilds], nextRow);
+         * GridPane.setRowIndex(hbsName[indexChilds], nextRow);
+         * GridPane.setRowIndex(hbsType[indexChilds], nextRow);
+         * GridPane.setRowIndex(hbsNull[indexChilds], nextRow);
+         * GridPane.setRowIndex(hbsPK[indexChilds], nextRow);
+         * GridPane.setRowIndex(hbsFK[indexChilds], nextRow);
+         * GridPane.setRowIndex(hbsDefault[indexChilds], nextRow);
+         * GridPane.setRowIndex(hbsExtra[indexChilds], nextRow);
+         */
     }
 
     void btnsRemoveCreateAction(ActionEvent e) {
@@ -1451,7 +1555,7 @@ public class VCController implements Initializable {
         // gridPaneRightSub.setGridLinesVisible(true);
     }
 
-    private void btnAddRemoveColumnInit() {
+    void btnAddRemoveColumnInit() {
         for (int a = 0; a < MSQL.MAX_COLUMNS; a++) {
             if (a < presetRowsLenght - 1) {
                 btnsAddColumn[a].setVisible(false);
@@ -1460,6 +1564,13 @@ public class VCController implements Initializable {
         }
         btnsRemoveColumn[0].setDisable(true);
         btnsAddColumn[MSQL.MAX_COLUMNS - 1].setDisable(true);
+    }
+
+    void pesetListInit(int rowLength) {
+        for (int a = 0; a < rowLength; a++) {
+            listColumns.add(tfsColumn[a].getText().trim());
+            listImageC.add(false);
+        }
     }
 
     private void presetSomeInit() {
@@ -1483,6 +1594,12 @@ public class VCController implements Initializable {
         createHelpMap.put("ImageC Path", imageCPathOk);
     }
 
+    private void testForTextMatchControl(boolean match) {
+        tableOK = match;
+        System.out.println("tableOK: " + tableOK);
+        masterControl();
+    }
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         presetSomeInit();
@@ -1494,16 +1611,16 @@ public class VCController implements Initializable {
         btnRenameTable.setDisable(true);
         // --------------------------------------------------
         fkReferencesInit();
-        btnAddRemoveColumnInit();
+        // btnAddRemoveColumnInit();
         createHelpPopupReset();
 
         btnCreateUpdate.managedProperty().bind(btnCreateUpdate.visibleProperty());
-        for (int a = 0; a < presetRowsLenght; a++) {
-            listColumns.add(tfsColumn[a].getText().trim());
-            listImageC.add(false);
-        }
+
         // gridPaneLeft.setGridLinesVisible(true);
-        tfTable.setOnKeyReleased(this::tfTableKeyReleased);
+        // tfTable.setOnKeyReleased(this::tfTableKeyReleased);
+        TextMatchControl tmc = new TextMatchControl(this::testForTextMatchControl, tfTable);
+        tmc.addSingleTextFilter(s -> s.toLowerCase().trim().replace(" ", "_"));
+        tmc.addMatch(tables.getTables());
         // LEFT --------------------------------------
         Arrays.asList(tfsColumn).forEach(e -> {
             e.setOnKeyReleased(this::tfsColumnsKeyReleased);
