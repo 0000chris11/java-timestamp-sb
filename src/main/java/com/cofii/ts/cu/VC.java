@@ -40,7 +40,7 @@ public class VC {
         for (int a = 0; a < size; a++) {
             int row = a + 1;
 
-            vc.getGridPaneLeft().add(vc.getLbsN()[a], 0, row);
+            vc.getGridPaneLeft().add(vc.getHbsN()[a], 0, row);
             vc.getGridPaneLeft().add(vc.getHbsName()[a], 1, row);
             vc.getGridPaneLeft().add(vc.getHbsType()[a], 2, row);
             vc.getGridPaneLeft().add(vc.getHbsNull()[a], 3, row);

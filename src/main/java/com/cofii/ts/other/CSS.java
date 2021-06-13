@@ -11,6 +11,7 @@ public class CSS {
 
     public static final String TFAS_DEFAULT_LOOK = "-fx-background-color: #035850; -fx-text-fill: white";
 
+    public static final String NEW_ROW = "-fx-background-color: #0c28f7";
     private CSS(){
 
     }

@@ -25,6 +25,7 @@ import com.cofii.ts.store.SQLType;
 import com.cofii.ts.store.SQLTypes;
 import com.cofii.ts.store.TableS;
 import com.cofii.ts.store.UpdateTable;
+import com.cofii.ts.store.VCGridNodes;
 import com.cofii2.components.javafx.PopupAutoC;
 import com.cofii2.components.javafx.PopupKV;
 import com.cofii2.components.javafx.PopupMessage;
@@ -212,6 +213,7 @@ public class VCController implements Initializable {
     private Keys keys = Keys.getInstance();
     private Timers timers = Timers.getInstance(vf);
     private UpdateTable updateTable;
+    private VCGridNodes storeNodes = VCGridNodes.getInstance();
 
     private Pattern patternBWTC = Pattern.compile("[A-Za-z]\\w*");
     private Pattern patternTypeLength = Pattern.compile("\\d{1,5}");
@@ -604,39 +606,40 @@ public class VCController implements Initializable {
         masterControl();
     }
 
-    void btnsAddUpdateAction(ActionEvent e) {
-        Button btn = (Button) e.getSource();
-        int index = Integer.parseInt(btn.getId()) + 1;// PLUS HEADER
+    private void first(int index) {
         int indexChilds = index + 1;
-        // REMOVING ----------------------------------------
-        System.out.println("gridPaneLeft rowCount: " + gridPaneLeft.getRowCount());
-        for (int a = 0; a < currentRowLength; a++) {
-            gridPaneLeft.getChildren().removeAll(hbsN[a + 1], hbsName[a + 1], hbsType[a + 1], hbsNull[a + 1],
-                    hbsPK[a + 1], hbsFK[a + 1], hbsDefault[a + 1], hbsExtra[a + 1]);
 
-            gridPaneRight.getChildren().removeAll(btnsDist[a + 1], btnsImageC[a + 1]);
+        int extraIndex = currentRowLength + 1;
+        // REMOVING ----------------------------------------
+        System.out.println("\tgridPaneLeft rowCount (Before removing): " + gridPaneLeft.getRowCount());
+        for (int a = 0; a < currentRowLength + 1; a++) {
+            int row = 1 + index;// PLUS HEADER
+            gridPaneLeft.getChildren().removeAll(hbsN[row], hbsName[row], hbsType[row], hbsNull[row], hbsPK[row],
+                    hbsFK[row], hbsDefault[row], hbsExtra[row]);
+
+            gridPaneRight.getChildren().removeAll(btnsDist[row], btnsImageC[row]);
         }
+        System.out.println("\tgridPaneLeft rowCount (After removing): " + gridPaneLeft.getRowCount());
         /*
          * gridPaneLeft.getRowConstraints().remove(1, currentRowLength - 1);//UNTESTED
          * gridPaneRight.getRowConstraints().remove(1, currentRowLength - 1);//UNTESTED
          */
 
         // SAVING THE NEW ROW ELEMENTS TO LATER INSERT THEM INTO THE EMPTY REMAINING ROW
-        HBox hbN = hbsN[currentRowLength];
-        HBox hbName = hbsName[currentRowLength];
-        HBox hbType = hbsType[currentRowLength];
-        HBox hbNull = hbsNull[currentRowLength];
-        HBox hbPK = hbsPK[currentRowLength];
-        HBox hbFK = hbsFK[currentRowLength];
-        HBox hbDefault = hbsDefault[currentRowLength];
-        HBox hbExtra = hbsExtra[currentRowLength];
+        System.out.println("\tIndex (after last one to the empty row): " + extraIndex);
+        HBox hbN = hbsN[extraIndex];
+        HBox hbName = hbsName[extraIndex];
+        HBox hbType = hbsType[extraIndex];
+        HBox hbNull = hbsNull[extraIndex];
+        HBox hbPK = hbsPK[extraIndex];
+        HBox hbFK = hbsFK[extraIndex];
+        HBox hbDefault = hbsDefault[extraIndex];
+        HBox hbExtra = hbsExtra[extraIndex];
 
-        ToggleButton btnDist = btnsDist[currentRowLength];
-        ToggleButton btnImageC = btnsImageC[currentRowLength];
+        ToggleButton btnDist = btnsDist[extraIndex];
+        ToggleButton btnImageC = btnsImageC[extraIndex];
         // MOVING EACH ARRAY INDEX TO THE NEXT---------------------------
-        for (int a = currentRowLength - 1; a > index; a--) {
-            // hbsN[a] = hbsN[a - 1];
-            // hbsN[a].getChildren().set(0, hbsN[a - 1].getChildren().get(0));
+        for (int a = extraIndex; a > indexChilds; a--) {
             hbsN[a].getChildren().setAll(hbsN[a - 1].getChildren());
             hbsName[a].getChildren().setAll(hbsName[a - 1].getChildren());
             hbsType[a].getChildren().setAll(hbsType[a - 1].getChildren());
@@ -651,6 +654,7 @@ public class VCController implements Initializable {
         }
         // lbsN[indexChilds] = new Label("Column " + (indexChilds + 1));
         // hbsN[indexChilds].getChildren().add(0, lbsN[indexChilds]);
+        System.out.println("\tEmpy row index: " + indexChilds);
         hbsN[indexChilds] = hbN;
         hbsName[indexChilds] = hbName;
         hbsType[indexChilds] = hbType;
@@ -663,49 +667,137 @@ public class VCController implements Initializable {
         btnsDist[indexChilds] = btnDist;
         btnsImageC[indexChilds] = btnImageC;
 
-        hbsN[indexChilds].setStyle("-fx-background-color: white");
-        // ADDING ------------------------------------------------- 
-        //DUPLICATE CHILDREN
-        currentRowLength++;
-        for (int a = 0; a < currentRowLength; a++) {
-            gridPaneLeft.add(hbsN[a], 0, a + 1);
-            gridPaneLeft.add(hbsName[a], 1, a + 1);
-            gridPaneLeft.add(hbsType[a], 2, a + 1);
-            gridPaneLeft.add(hbsNull[a], 3, a + 1);
-            gridPaneLeft.add(hbsPK[a], 4, a + 1);
-            gridPaneLeft.add(hbsFK[a], 5, a + 1);
-            gridPaneLeft.add(hbsDefault[a], 6, a + 1);
-            gridPaneLeft.add(hbsExtra[a], 7, a + 1);
+        hbsN[indexChilds].setStyle("-fx-background-color: #1456db");
+        // ADDING -------------------------------------------------
+        gridPaneLeft.add(hbsN[indexChilds], 0, indexChilds);
+        gridPaneLeft.add(hbsName[indexChilds], 1, indexChilds);
+        gridPaneLeft.add(hbsType[indexChilds], 2, indexChilds);
+        gridPaneLeft.add(hbsNull[indexChilds], 3, indexChilds);
+        gridPaneLeft.add(hbsPK[indexChilds], 4, indexChilds);
+        gridPaneLeft.add(hbsFK[indexChilds], 5, indexChilds);
+        gridPaneLeft.add(hbsDefault[indexChilds], 6, indexChilds);
+        gridPaneLeft.add(hbsExtra[indexChilds], 7, indexChilds);
 
-            gridPaneRight.add(btnsDist[a], 0, a + 1);
-            gridPaneRight.add(btnsImageC[a], 1, a + 1);
+        gridPaneRight.add(btnsDist[indexChilds], 0, indexChilds);
+        gridPaneRight.add(btnsImageC[indexChilds], 1, indexChilds);
+
+        System.out.println("----------- COL 1: " + GridPane.getRowIndex(hbsN[0]));
+        System.out.println("----------- COL 1-C: " + hbsN[0].getChildren().indexOf(lbsN[0]));
+        System.out.println("----------- COL 1: " + GridPane.getRowIndex(hbsN[1]));
+        System.out.println("----------- COL 1-C: " + hbsN[1].getChildren().indexOf(lbsN[1]));
+        System.out.println("----------- COL 1: " + GridPane.getRowIndex(hbsN[2]));
+        System.out.println("----------- COL 1-C: " + hbsN[2].getChildren().indexOf(lbsN[2]));
+        System.out.println("----------- COL 1: " + GridPane.getRowIndex(hbsN[3]));
+
+        System.out.println("----------- COL 2: " + GridPane.getRowIndex(hbsName[0]));
+        System.out.println("----------- COL 2: " + GridPane.getRowIndex(hbsName[1]));
+        System.out.println("----------- COL 2: " + GridPane.getRowIndex(hbsName[2]));
+        System.out.println("----------- COL 2: " + GridPane.getRowIndex(hbsName[3]));
+
+        currentRowLength++;
+        for (int a = indexChilds + 1; a < currentRowLength; a++) {
+            gridPaneLeft.add(hbsN[a], 0, a);
+            gridPaneLeft.add(hbsName[a], 1, a);
+            gridPaneLeft.add(hbsType[a], 2, a);
+            gridPaneLeft.add(hbsNull[a], 3, a);
+            gridPaneLeft.add(hbsPK[a], 4, a);
+            gridPaneLeft.add(hbsFK[a], 5, a);
+            gridPaneLeft.add(hbsDefault[a], 6, a);
+            gridPaneLeft.add(hbsExtra[a], 7, a);
+
+            gridPaneRight.add(btnsDist[a], 0, a);
+            gridPaneRight.add(btnsImageC[a], 1, a);
         }
-        // ----------------------------------------
-        /*
-         * gridPaneLeft.add(hbsN[currentRowLength], 0, currentRowLength);
-         * gridPaneLeft.add(hbsName[currentRowLength], 1, currentRowLength);
-         * gridPaneLeft.add(hbsType[currentRowLength], 2, currentRowLength);
-         * gridPaneLeft.add(hbsNull[currentRowLength], 3, currentRowLength);
-         * gridPaneLeft.add(hbsPK[currentRowLength], 4, currentRowLength);
-         * gridPaneLeft.add(hbsFK[currentRowLength], 5, currentRowLength);
-         * gridPaneLeft.add(hbsDefault[currentRowLength], 6, currentRowLength);
-         * gridPaneLeft.add(hbsExtra[currentRowLength], 7, currentRowLength);
-         * 
-         * gridPaneRight.add(btnsDist[currentRowLength], 0, currentRowLength);
-         * gridPaneRight.add(btnsImageC[currentRowLength], 1, currentRowLength);
-         * //-----------------------------------------------------
-         * 
-         * //-----------------------------------------------------
-         * 
-         * GridPane.setRowIndex(hbsN[indexChilds], nextRow);
-         * GridPane.setRowIndex(hbsName[indexChilds], nextRow);
-         * GridPane.setRowIndex(hbsType[indexChilds], nextRow);
-         * GridPane.setRowIndex(hbsNull[indexChilds], nextRow);
-         * GridPane.setRowIndex(hbsPK[indexChilds], nextRow);
-         * GridPane.setRowIndex(hbsFK[indexChilds], nextRow);
-         * GridPane.setRowIndex(hbsDefault[indexChilds], nextRow);
-         * GridPane.setRowIndex(hbsExtra[indexChilds], nextRow);
-         */
+    }
+
+    private void second(int index) {
+        // ARRAY STORE CREATION---------------------------
+        int storeLength = currentRowLength - index + 1; // +1 = empty row
+
+        storeNodes.setColumnNames(new String[storeLength]);
+        storeNodes.setTypes(new String[storeLength]);
+        storeNodes.setTypesLength(new String[storeLength]);
+        storeNodes.setNulls(new boolean[storeLength]);
+        storeNodes.setPks(new boolean[storeLength]);
+        storeNodes.setFks(new boolean[storeLength]);
+        storeNodes.setFksText(new String[storeLength]);
+        storeNodes.setDefaults(new boolean[storeLength]);
+        storeNodes.setDefaultsText(new String[storeLength]);
+        storeNodes.setExtra(new boolean[storeLength]);
+
+        storeNodes.setDists(new boolean[storeLength]);
+        storeNodes.setImageCs(new boolean[storeLength]);
+        // STORE-----------------------------------------------------
+        for (int a = 0; a < storeLength; a++) {
+            int row = a + index;
+            int rowE = row - 1;
+            if (row == index) {
+                storeNodes.getColumnNames()[a] = "";
+                storeNodes.getTypes()[a] = "";
+                storeNodes.getTypesLength()[a] = "";
+                storeNodes.getNulls()[a] = false;
+                storeNodes.getPks()[a] = false;
+                storeNodes.getFks()[a] = false;
+                storeNodes.getFksText()[a] = "";
+                storeNodes.getDefaults()[a] = false;
+                storeNodes.getDefaultsText()[a] = "";
+                storeNodes.getExtra()[a] = false;
+
+                storeNodes.getDists()[a] = false;
+                storeNodes.getImageCs()[a] = false;
+            } else {
+                storeNodes.getColumnNames()[a] = tfsColumn[rowE].getText();
+                storeNodes.getTypes()[a] = tfasType[rowE].getText();
+                storeNodes.getTypesLength()[a] = tfsTypeLength[rowE].getText();
+                storeNodes.getNulls()[a] = cksNull[rowE].isSelected();
+                storeNodes.getPks()[a] = cksPK[rowE].isSelected();
+                storeNodes.getFks()[a] = cksFK[rowE].isSelected();
+                storeNodes.getFksText()[a] = tfasFK[rowE].getText();
+                storeNodes.getDefaults()[a] = cksDefault[rowE].isSelected();
+                storeNodes.getDefaultsText()[a] = tfsDefault[rowE].getText();
+                storeNodes.getExtra()[a] = rbsExtra[rowE].isSelected();
+
+                storeNodes.getDists()[a] = btnsDist[rowE].isSelected();
+                storeNodes.getImageCs()[a] = btnsImageC[rowE].isSelected();
+            }
+        }
+        // REMOVE ROWS----------------------------------------
+        for (int a = 0; a < storeLength - 1; a++) {// AFTER INDEX (NOT THE EXTRA ADDED)
+            int row = index + a;
+            gridPaneLeft.getChildren().removeAll(hbsN[row], hbsName[row], hbsType[row], hbsNull[row], hbsPK[row],
+                    hbsFK[row], hbsDefault[row], hbsExtra[row]);
+
+            gridPaneRight.getChildren().removeAll(btnsDist[row], btnsImageC[row]);
+        }
+
+        // REPLACE ARRAY ELEMENTS-------------------------------
+        nonFXMLLeftNodesInit(index);
+        nonFXMLRightNodesInit(index);
+        // ADD ROWS-----------------------------------------
+        for (int a = 0; a < storeLength; a++) {
+            int row = index + a;
+            int aRow = row + 1;
+            gridPaneLeft.add(hbsN[row], 0, aRow);
+            gridPaneLeft.add(hbsName[row], 1, aRow);
+            gridPaneLeft.add(hbsType[row], 2, aRow);
+            gridPaneLeft.add(hbsNull[row], 3, aRow);
+            gridPaneLeft.add(hbsPK[row], 4, aRow);
+            gridPaneLeft.add(hbsFK[row], 5, aRow);
+            gridPaneLeft.add(hbsDefault[row], 6, aRow);
+            gridPaneLeft.add(hbsExtra[row], 7, aRow);
+
+            gridPaneRight.add(btnsDist[row], 0, aRow);
+            gridPaneRight.add(btnsImageC[row], 1, aRow);
+        }
+
+    }
+
+    void btnsAddUpdateAction(ActionEvent e) {
+        System.out.println("\nbtnsAddUpdateAction");
+        Button btn = (Button) e.getSource();
+        int index = Integer.parseInt(btn.getId()) + 1;// PLUS HEADER
+        // first(index);
+        second(index);
     }
 
     void btnsRemoveCreateAction(ActionEvent e) {
@@ -1365,186 +1457,222 @@ public class VCController implements Initializable {
         });
     }
 
-    private void nonFXMLLeftNodesInit() {
-        // ADD SPACING ON EACH HB, SPECIFY SOURCE OF EACH PROPERTY TRIGGER
+    private void nonFXMLLeftNodesInit(int index) {
+        int forCount;
+        if (index == 0) {
+            forCount = MSQL.MAX_COLUMNS;
+        } else {
+            forCount = currentRowLength - index + 1;// +1 (empy row added)
+        }
+        // ---------------------------------------------------------
         spGridPaneLeft.setHbarPolicy(ScrollBarPolicy.ALWAYS);
-        for (int a = 0; a < MSQL.MAX_COLUMNS; a++) {
-            lbsN[a] = new Label("Column " + (a + 1));
-            hbsN[a] = new HBox(lbsN[a]);
+        for (int a = 0; a < forCount; a++) {
+            int row = a + index;
+
+            lbsN[row] = new Label("Column " + (row + 1));
+            hbsN[row] = new HBox(lbsN[row]);
             // COLUMN NAMES---------------------------------------
-            tfsColumn[a] = new TextField();
-            tfsColumnPopups[a] = new PopupMessage(tfsColumn[a]);
+            String columnNameStore = storeNodes.getColumnNames() != null ? storeNodes.getColumnNames()[a] : "";
+            tfsColumn[row] = new TextField(columnNameStore);
+            tfsColumnPopups[row] = new PopupMessage(tfsColumn[row]);
 
-            btnsRemoveColumn[a] = new Button("X");
-            btnsAddColumn[a] = new Button("+");
-            btnsRenameColumn[a] = new Button("C");
+            btnsRemoveColumn[row] = new Button("X");
+            btnsAddColumn[row] = new Button("+");
+            btnsRenameColumn[row] = new Button("C");
 
-            hbsName[a] = new HBox(tfsColumn[a], btnsRemoveColumn[a], btnsAddColumn[a], btnsRenameColumn[a]);
-            hbsName[a].setPadding(new Insets(0, 2, 0, 2));
+            hbsName[row] = new HBox(tfsColumn[row], btnsRemoveColumn[row], btnsAddColumn[row], btnsRenameColumn[row]);
+            hbsName[row].setPadding(new Insets(0, 2, 0, 2));
             // TYPES----------------------------------------------
-            // tfasType[a] = new TextFieldAutoC(a, types.getTypeNames());
-            tfasType[a] = new TextField();
-            tfsTypePs[a] = new PopupAutoC(tfasType[a], types.getTypeNames());
-            tfsTypePopups[a] = new PopupMessage(tfasType[a]);
+            // tfasType[row] = new TextFieldAutoC(row, types.getTypeNames());
+            String typesStore = storeNodes.getTypes() != null ? storeNodes.getTypes()[a] : "";
+            tfasType[row] = new TextField(typesStore);
+            tfsTypePs[row] = new PopupAutoC(tfasType[row], types.getTypeNames());
+            tfsTypePopups[row] = new PopupMessage(tfasType[row]);
 
-            tfsTypeLength[a] = new TextField("1");
-            tfsTypeLengthPopups[a] = new PopupMessage(tfsTypeLength[a]);
+            String typesLengthStore = storeNodes.getTypesLength() != null ? storeNodes.getTypesLength()[a] : "1";
+            tfsTypeLength[row] = new TextField(typesLengthStore);
+            tfsTypeLengthPopups[row] = new PopupMessage(tfsTypeLength[row]);
 
-            btnsChangeType[a] = new Button("C");
+            btnsChangeType[row] = new Button("C");
 
-            hbsType[a] = new HBox(tfasType[a], tfsTypeLength[a], btnsChangeType[a]);
-            hbsType[a].setPadding(new Insets(0, 2, 0, 2));
+            hbsType[row] = new HBox(tfasType[row], tfsTypeLength[row], btnsChangeType[row]);
+            hbsType[row].setPadding(new Insets(0, 2, 0, 2));
             // NULLS----------------------------------------------
-            cksNull[a] = new CheckBox();
-            btnsChangeNull[a] = new Button("C");
-            hbsNull[a] = new HBox(cksNull[a], btnsChangeNull[a]);
-            hbsNull[a].setPadding(new Insets(0, 2, 0, 2));
+            boolean nullStore = storeNodes.getNulls() != null ? storeNodes.getNulls()[a] : false;
+            cksNull[row] = new CheckBox();
+            cksNull[row].setSelected(nullStore);
+            btnsChangeNull[row] = new Button("C");
+            hbsNull[row] = new HBox(cksNull[row], btnsChangeNull[row]);
+            hbsNull[row].setPadding(new Insets(0, 2, 0, 2));
             // PKS----------------------------------------------
-            cksPK[a] = new CheckBox();
-            cksPKPopups[a] = new PopupMessage(cksPK[a]);
-            btnsChangePK[a] = new Button("C");
-            hbsPK[a] = new HBox(cksPK[a], btnsChangePK[a]);
+            boolean pkStore = storeNodes.getPks() != null ? storeNodes.getPks()[a] : false;
+            cksPK[row] = new CheckBox();
+            cksPK[row].setSelected(pkStore);
+            cksPKPopups[row] = new PopupMessage(cksPK[row]);
+            btnsChangePK[row] = new Button("C");
+            hbsPK[row] = new HBox(cksPK[row], btnsChangePK[row]);
             // FKS----------------------------------------------
-            cksFK[a] = new CheckBox();
-            cksFKPopups[a] = new PopupMessage(cksFK[a]);
+            boolean fkStore = storeNodes.getFks() != null ? storeNodes.getFks()[a] : false;
+            cksFK[row] = new CheckBox();
+            cksFK[row].setSelected(fkStore);
+            cksFKPopups[row] = new PopupMessage(cksFK[row]);
 
-            tfasFK[a] = new TextField();
-            tfsFKPs[a] = new PopupAutoC(tfasFK[a]);
-            tfsFKPopups[a] = new PopupMessage(tfasFK[a]);
+            String fkTextStore = storeNodes.getFksText() != null ? storeNodes.getFksText()[a] : "";
+            tfasFK[row] = new TextField(fkTextStore);
+            tfsFKPs[row] = new PopupAutoC(tfasFK[row]);
+            tfsFKPopups[row] = new PopupMessage(tfasFK[row]);
 
-            btnsChangeFK[a] = new Button("C");
-            hbsFK[a] = new HBox(cksFK[a], tfasFK[a], btnsChangeFK[a]);
+            btnsChangeFK[row] = new Button("C");
+            hbsFK[row] = new HBox(cksFK[row], tfasFK[row], btnsChangeFK[row]);
             // DEFAULTS----------------------------------------------
-            cksDefault[a] = new CheckBox();
-            cksDefaultPopups[a] = new PopupMessage(cksDefault[a]);
+            boolean defaultStore = storeNodes.getDefaults() != null ? storeNodes.getDefaults()[a] : false;
+            cksDefault[row] = new CheckBox();
+            cksDefault[row].setSelected(defaultStore);
+            cksDefaultPopups[row] = new PopupMessage(cksDefault[row]);
 
-            tfsDefault[a] = new TextField();
-            tfsDefaultPopups[a] = new PopupMessage(tfsDefault[a]);
+            String defaultTextStore = storeNodes.getDefaultsText() != null ? storeNodes.getDefaultsText()[a] : "";
+            tfsDefault[row] = new TextField(defaultTextStore);
+            tfsDefaultPopups[row] = new PopupMessage(tfsDefault[row]);
 
-            btnsChangeDefault[a] = new Button("C");
-            hbsDefault[a] = new HBox(cksDefault[a], tfsDefault[a], btnsChangeDefault[a]);
-            hbsDefault[a].setPadding(new Insets(0, 2, 0, 2));
+            btnsChangeDefault[row] = new Button("C");
+            hbsDefault[row] = new HBox(cksDefault[row], tfsDefault[row], btnsChangeDefault[row]);
+            hbsDefault[row].setPadding(new Insets(0, 2, 0, 2));
             // EXTRA----------------------------------------------
-            rbsExtra[a] = new RadioButton();
-            rbsExtraPopups[a] = new PopupMessage(rbsExtra[a]);
-            // rbsExtra[a].setToggleGroup(rbsExtraGroup);
-            // btnsChangeExtra[a] = new Button("C");
-            hbsExtra[a] = new HBox(rbsExtra[a]/* , btnsChangeExtra[a] */);
+            boolean extratStore = storeNodes.getExtra() != null ? storeNodes.getExtra()[a] : false;
+            rbsExtra[row] = new RadioButton();
+            rbsExtra[row].setSelected(extratStore);
+            rbsExtraPopups[row] = new PopupMessage(rbsExtra[row]);
+            hbsExtra[row] = new HBox(rbsExtra[row]/* , btnsChangeExtra[row] */);
             // -----------------------------------------
             // OTHERS ---------------------------------
-            tfsColumn[a].setId(Integer.toString(a));
-            btnsRemoveColumn[a].setId(Integer.toString(a));
-            btnsAddColumn[a].setId(Integer.toString(a));
-            tfasType[a].setId("TF-TYPE-" + a);
-            tfsTypeLength[a].setId(Integer.toString(a));
-            cksFK[a].setId(Integer.toString(a));
-            tfasFK[a].setId(Integer.toString(a));
-            cksDefault[a].setId(Integer.toString(a));
-            tfsDefault[a].setId(Integer.toString(a));
-            rbsExtra[a].setId(Integer.toString(a));
+            tfsColumn[row].setId(Integer.toString(row));
+            btnsRemoveColumn[row].setId(Integer.toString(row));
+            btnsAddColumn[row].setId(Integer.toString(row));
+            tfasType[row].setId("TF-TYPE-" + row);
+            tfsTypeLength[row].setId(Integer.toString(row));
+            cksFK[row].setId(Integer.toString(row));
+            tfasFK[row].setId(Integer.toString(row));
+            cksDefault[row].setId(Integer.toString(row));
+            tfsDefault[row].setId(Integer.toString(row));
+            rbsExtra[row].setId(Integer.toString(row));
             // ----------------------------------------------
-            tfsColumn[a].setPromptText("Column name required");
-            tfsDefault[a].setPromptText("Value Required");
+            tfsColumn[row].setPromptText("Column name required");
+            tfsDefault[row].setPromptText("Value Required");
             // ----------------------------------------------
-            tfasType[a].setStyle(CSS.TFAS_DEFAULT_LOOK);
+            tfasType[row].setStyle(CSS.TFAS_DEFAULT_LOOK);
             // TYPE DEFAULT SELECTION----------------------------
-            tfsTypePs[a].getLv().getSelectionModel().select(presetTypeSelected.get(a).getTypeName());
-            tfsTypeLength[a].setText(Integer.toString(presetTypeSelected.get(a).getTypeLength()));
+            tfsTypePs[row].getLv().getSelectionModel().select(presetTypeSelected.get(row).getTypeName());
+            tfsTypeLength[row].setText(Integer.toString(presetTypeSelected.get(row).getTypeLength()));
             // ----------------------------------------------
 
-            tfsColumn[a].setPrefWidth(-1);
-            btnsRemoveColumn[a].setMinWidth(40);
-            btnsRemoveColumn[a].setMaxWidth(40);
-            btnsAddColumn[a].setMinWidth(40);
-            btnsAddColumn[a].setMaxWidth(40);
-            tfasType[a].setPrefWidth(140);
-            tfsTypeLength[a].setMinWidth(40);
-            tfsTypeLength[a].setMaxWidth(40);
-            // tfasFK[a].setPrefWidth(-1);
-            // tfasFK[a].setMaxHeight(30);
-            hbsFK[a].setPrefWidth(-1);
-            tfasFK[a].setPrefWidth(-1);
+            tfsColumn[row].setPrefWidth(-1);
+            btnsRemoveColumn[row].setMinWidth(40);
+            btnsRemoveColumn[row].setMaxWidth(40);
+            btnsAddColumn[row].setMinWidth(40);
+            btnsAddColumn[row].setMaxWidth(40);
+            tfasType[row].setPrefWidth(140);
+            tfsTypeLength[row].setMinWidth(40);
+            tfsTypeLength[row].setMaxWidth(40);
+            // tfasFK[row].setPrefWidth(-1);
+            // tfasFK[row].setMaxHeight(30);
+            hbsFK[row].setPrefWidth(-1);
+            tfasFK[row].setPrefWidth(-1);
             // SOME PROPERTIES AND LISTENERS---------------------------
-            btnsRenameColumn[a].managedProperty().bind(btnsRenameColumn[a].visibleProperty());
-            tfsTypeLength[a].managedProperty().bind(tfsTypeLength[a].visibleProperty());
-            btnsChangeType[a].managedProperty().bind(btnsChangeType[a].visibleProperty());
-            btnsChangeNull[a].managedProperty().bind(btnsChangeNull[a].visibleProperty());
-            btnsChangePK[a].managedProperty().bind(btnsChangePK[a].visibleProperty());
-            tfasFK[a].managedProperty().bind(tfasFK[a].visibleProperty());
-            btnsChangeFK[a].managedProperty().bind(btnsChangeFK[a].visibleProperty());
-            tfsDefault[a].managedProperty().bind(tfsDefault[a].visibleProperty());
-            btnsChangeDefault[a].managedProperty().bind(btnsChangeDefault[a].visibleProperty());
-            // btnsChangeExtra[a].managedProperty().bind(btnsChangeExtra[a].visibleProperty());
-            /*
-             * btnsRenameColumn[a].disableProperty().bind(btnsRenameColumn[a].
-             * visibleProperty().not());
-             * btnsChangeType[a].disableProperty().bind(btnsChangeType[a].visibleProperty().
-             * not());
-             * btnsChangeNull[a].disableProperty().bind(btnsChangeNull[a].visibleProperty().
-             * not()); btnsChangeDefault[a].disableProperty().bind(btnsChangeDefault[a].
-             * visibleProperty().not());
-             */
+            btnsRenameColumn[row].managedProperty().bind(btnsRenameColumn[row].visibleProperty());
+            tfsTypeLength[row].managedProperty().bind(tfsTypeLength[row].visibleProperty());
+            btnsChangeType[row].managedProperty().bind(btnsChangeType[row].visibleProperty());
+            btnsChangeNull[row].managedProperty().bind(btnsChangeNull[row].visibleProperty());
+            btnsChangePK[row].managedProperty().bind(btnsChangePK[row].visibleProperty());
+            tfasFK[row].managedProperty().bind(tfasFK[row].visibleProperty());
+            btnsChangeFK[row].managedProperty().bind(btnsChangeFK[row].visibleProperty());
+            tfsDefault[row].managedProperty().bind(tfsDefault[row].visibleProperty());
+            btnsChangeDefault[row].managedProperty().bind(btnsChangeDefault[row].visibleProperty());
             // ----------------------------------------------------------
-            tfasFK[a].setVisible(false);
-            tfsDefault[a].setVisible(false);
+            tfasFK[row].setVisible(false);
+            tfsDefault[row].setVisible(false);
 
-            btnsRenameColumn[a].setDisable(true);
-            btnsChangeType[a].setDisable(true);
-            btnsChangeNull[a].setDisable(true);
-            btnsChangeDefault[a].setDisable(true);
+            btnsRenameColumn[row].setDisable(true);
+            btnsChangeType[row].setDisable(true);
+            btnsChangeNull[row].setDisable(true);
+            btnsChangeDefault[row].setDisable(true);
             // STYLE-------------------------------------------------------
-            // tfasType[a].getStyleClass().clear();
-            tfasType[a].setStyle(null);
+            // tfasType[row].getStyleClass().clear();
+            tfasType[row].setStyle(null);
 
-            hbsN[a].setStyle(CSS.BORDER_GRID_BOTTOM);
-            hbsName[a].setStyle(CSS.BORDER_GRID_BOTTOM);
-            hbsType[a].setStyle(CSS.BORDER_GRID_BOTTOM);
-            tfsTypeLength[a].setStyle(CSS.TEXT_FILL);
-            hbsNull[a].setStyle(CSS.BORDER_GRID_BOTTOM);
-
-            hbsPK[a].setStyle(CSS.BORDER_GRID_BOTTOM);
-            hbsFK[a].setStyle(CSS.BORDER_GRID_BOTTOM);
-            hbsDefault[a].setStyle(CSS.BORDER_GRID_BOTTOM);
-            hbsExtra[a].setStyle(CSS.BORDER_GRID_BOTTOM);
+            hbsN[row].setStyle(CSS.BORDER_GRID_BOTTOM);
+            hbsName[row].setStyle(CSS.BORDER_GRID_BOTTOM);
+            hbsType[row].setStyle(CSS.BORDER_GRID_BOTTOM);
+            tfsTypeLength[row].setStyle(CSS.TEXT_FILL);
+            hbsNull[row].setStyle(CSS.BORDER_GRID_BOTTOM);
+            hbsPK[row].setStyle(CSS.BORDER_GRID_BOTTOM);
+            hbsFK[row].setStyle(CSS.BORDER_GRID_BOTTOM);
+            hbsDefault[row].setStyle(CSS.BORDER_GRID_BOTTOM);
+            hbsExtra[row].setStyle(CSS.BORDER_GRID_BOTTOM);
+            // ADDING ROW------------------------------------------------
+            if (index != 0 && row == index) {//FIRST ROW ADDED
+                hbsN[row].setStyle(CSS.NEW_ROW);
+                /*
+                hbsName[row].setStyle(CSS.NEW_ROW);
+                hbsType[row].setStyle(CSS.NEW_ROW);
+                hbsNull[row].setStyle(CSS.NEW_ROW);
+                hbsPK[row].setStyle(CSS.NEW_ROW);
+                hbsFK[row].setStyle(CSS.NEW_ROW);
+                hbsDefault[row].setStyle(CSS.NEW_ROW);
+                */
+                hbsExtra[row].setStyle(CSS.NEW_ROW);
+            }
             // -------------------------------------------------------
-            GridPane.setMargin(hbsN[a], INSETS);
-            GridPane.setMargin(hbsName[a], INSETS);
-            GridPane.setMargin(hbsType[a], INSETS);
-            GridPane.setMargin(hbsNull[a], INSETS);
-            GridPane.setMargin(hbsPK[a], INSETS);
-            GridPane.setMargin(hbsFK[a], INSETS);
-            GridPane.setMargin(hbsDefault[a], INSETS);
-            GridPane.setMargin(hbsExtra[a], INSETS);
+            GridPane.setMargin(hbsN[row], INSETS);
+            GridPane.setMargin(hbsName[row], INSETS);
+            GridPane.setMargin(hbsType[row], INSETS);
+            GridPane.setMargin(hbsNull[row], INSETS);
+            GridPane.setMargin(hbsPK[row], INSETS);
+            GridPane.setMargin(hbsFK[row], INSETS);
+            GridPane.setMargin(hbsDefault[row], INSETS);
+            GridPane.setMargin(hbsExtra[row], INSETS);
         }
         new ToggleGroupD<>(rbsExtra);
         // SUB-----------------------------------
     }
 
-    private void nonFXMLRightNodesInit() {
+    private void nonFXMLRightNodesInit(int index) {
+        int forCount;
+        if (index == 0) {
+            forCount = MSQL.MAX_COLUMNS;
+        } else {
+            forCount = currentRowLength - index + 1;
+        }
+        // ---------------------------------------------------------
         spGridPaneRight.setHbarPolicy(ScrollBarPolicy.ALWAYS);
-        for (int a = 0; a < MSQL.MAX_COLUMNS; a++) {
-            btnsDist[a] = new ToggleButton("" + (a + 1));
-            btnsDistPopups[a] = new PopupMessage(btnsDist[a]);
+        for (int a = 0; a < forCount; a++) {
+            int row = a + index;
+            // DIST----------------------
+            boolean distStore = storeNodes.getDists() != null ? storeNodes.getDists()[a] : false;
+            btnsDist[row] = new ToggleButton("" + (row + 1));
+            btnsDist[row].setSelected(distStore);
+            btnsDistPopups[row] = new PopupMessage(btnsDist[row]);
+            // IMAGEC--------------------
+            boolean imageCStore = storeNodes.getImageCs() != null ? storeNodes.getImageCs()[a] : false;
+            btnsImageC[row] = new ToggleButton("" + (row + 1));
+            btnsImageC[row].setSelected(imageCStore);
+            btnsImageCPopups[row] = new PopupMessage(btnsImageC[row]);
+            // --------------------------------------------
+            btnsDist[row].setId(Integer.toString(row));
+            btnsImageC[row].setId(Integer.toString(row));
 
-            btnsImageC[a] = new ToggleButton("" + (a + 1));
-            btnsImageCPopups[a] = new PopupMessage(btnsImageC[a]);
+            btnsDist[row].setMinWidth(40);
+            btnsDist[row].setMaxWidth(40);
+            btnsImageC[row].setMinWidth(40);
+            btnsImageC[row].setMaxWidth(40);
 
-            btnsDist[a].setId(Integer.toString(a));
-            btnsImageC[a].setId(Integer.toString(a));
+            btnsDist[row].managedProperty().bind(btnsDist[row].visibleProperty());
+            btnsImageC[row].managedProperty().bind(btnsImageC[row].visibleProperty());
 
-            btnsDist[a].setMinWidth(40);
-            btnsDist[a].setMaxWidth(40);
-            btnsImageC[a].setMinWidth(40);
-            btnsImageC[a].setMaxWidth(40);
+            btnsDist[row].setStyle(CSS.BORDER_GRID_BOTTOM);
+            btnsImageC[row].setStyle(CSS.BORDER_GRID_BOTTOM);
 
-            btnsDist[a].managedProperty().bind(btnsDist[a].visibleProperty());
-            btnsImageC[a].managedProperty().bind(btnsImageC[a].visibleProperty());
-
-            btnsDist[a].setStyle(CSS.BORDER_GRID_BOTTOM);
-            btnsImageC[a].setStyle(CSS.BORDER_GRID_BOTTOM);
-
-            GridPane.setMargin(btnsDist[a], INSETS);
-            GridPane.setMargin(btnsImageC[a], INSETS);
+            GridPane.setMargin(btnsDist[row], INSETS);
+            GridPane.setMargin(btnsImageC[row], INSETS);
         }
         new ToggleGroupD<>(btnsImageC);
         tfImageCPathPopup = new PopupMessage(tfImageCPath);
@@ -1603,8 +1731,8 @@ public class VCController implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         presetSomeInit();
-        nonFXMLLeftNodesInit();
-        nonFXMLRightNodesInit();
+        nonFXMLLeftNodesInit(0);
+        nonFXMLRightNodesInit(0);
         // TOP-----------------------------------------------
         tfTable.setPromptText("Table name required");
         btnRenameTable.managedProperty().bind(btnRenameTable.visibleProperty());
@@ -2007,6 +2135,14 @@ public class VCController implements Initializable {
 
     public void setLbUpdateLeft(Label lbUpdateLeft) {
         this.lbUpdateLeft = lbUpdateLeft;
+    }
+
+    public HBox[] getHbsN() {
+        return hbsN;
+    }
+
+    public void setHbsN(HBox[] hbsN) {
+        this.hbsN = hbsN;
     }
 
 }
