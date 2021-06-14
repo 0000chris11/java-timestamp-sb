@@ -460,6 +460,7 @@ public class VCController implements Initializable {
     }
 
     // LISTENERS---------------------------------------------
+    // TABLE-------------------------------------
     private void tfTableKeyReleased(KeyEvent e) {
         if (!e.getCode().isArrowKey() && !e.getCode().isFunctionKey() && !e.getCode().isMediaKey()
                 && !e.getCode().isModifierKey() && !e.getCode().isNavigationKey()) {
@@ -504,6 +505,32 @@ public class VCController implements Initializable {
             masterControl();
         }
 
+    }
+
+    void btnRenameTableAction(ActionEvent e) {
+        // NOT TESTED------------------------------------
+        String oldTable = MSQL.getCurrentTable().getName();
+        String newTable = tfTable.getText().toLowerCase().trim().replace(" ", "_");
+        boolean renameTable = ms.renameTable(oldTable, newTable);
+        if (renameTable) {
+            boolean updateTableNames = ms.updateRow(MSQL.TABLE_NAMES, "Name", oldTable.replace("_", " "), "Name",
+                    newTable.replace("_", ""));
+            if (updateTableNames) {
+                Menus.getInstance(vf).addMenuItemsReset();// NOT TESTED
+
+                lbStatus.setText("Table '" + oldTable + "' has been rename to '" + newTable + "'");
+                lbStatus.setTextFill(NonCSS.TEXT_FILL_OK);
+            } else {
+                lbStatus.setText("FATAL: table change its name but " + MSQL.TABLE_NAMES + " hasn't been updated");
+                lbStatus.setTextFill(NonCSS.TEXT_FILL_ERROR);
+            }
+
+        } else {
+            lbStatus.setText("Table '" + oldTable + "' fail to be renamed");
+            lbStatus.setTextFill(NonCSS.TEXT_FILL_ERROR);
+        }
+
+        timers.playLbStatusReset(lbStatus);
     }
 
     private void tfsColumnsKeyReleased(KeyEvent e) {
@@ -571,7 +598,7 @@ public class VCController implements Initializable {
         }
     }
 
-    // ----
+    // ADD OR REMOVE COLUMNS-------------------------------------
     void btnsAddCreateAction(ActionEvent e) {
         Button btn = (Button) e.getSource();
         int index = Integer.parseInt(btn.getId()) + 1;
@@ -604,110 +631,6 @@ public class VCController implements Initializable {
         tfasFKControl(-1);
         tfsDefaultControl(-1);
         masterControl();
-    }
-
-    private void first(int index) {
-        int indexChilds = index + 1;
-
-        int extraIndex = currentRowLength + 1;
-        // REMOVING ----------------------------------------
-        System.out.println("\tgridPaneLeft rowCount (Before removing): " + gridPaneLeft.getRowCount());
-        for (int a = 0; a < currentRowLength + 1; a++) {
-            int row = 1 + index;// PLUS HEADER
-            gridPaneLeft.getChildren().removeAll(hbsN[row], hbsName[row], hbsType[row], hbsNull[row], hbsPK[row],
-                    hbsFK[row], hbsDefault[row], hbsExtra[row]);
-
-            gridPaneRight.getChildren().removeAll(btnsDist[row], btnsImageC[row]);
-        }
-        System.out.println("\tgridPaneLeft rowCount (After removing): " + gridPaneLeft.getRowCount());
-        /*
-         * gridPaneLeft.getRowConstraints().remove(1, currentRowLength - 1);//UNTESTED
-         * gridPaneRight.getRowConstraints().remove(1, currentRowLength - 1);//UNTESTED
-         */
-
-        // SAVING THE NEW ROW ELEMENTS TO LATER INSERT THEM INTO THE EMPTY REMAINING ROW
-        System.out.println("\tIndex (after last one to the empty row): " + extraIndex);
-        HBox hbN = hbsN[extraIndex];
-        HBox hbName = hbsName[extraIndex];
-        HBox hbType = hbsType[extraIndex];
-        HBox hbNull = hbsNull[extraIndex];
-        HBox hbPK = hbsPK[extraIndex];
-        HBox hbFK = hbsFK[extraIndex];
-        HBox hbDefault = hbsDefault[extraIndex];
-        HBox hbExtra = hbsExtra[extraIndex];
-
-        ToggleButton btnDist = btnsDist[extraIndex];
-        ToggleButton btnImageC = btnsImageC[extraIndex];
-        // MOVING EACH ARRAY INDEX TO THE NEXT---------------------------
-        for (int a = extraIndex; a > indexChilds; a--) {
-            hbsN[a].getChildren().setAll(hbsN[a - 1].getChildren());
-            hbsName[a].getChildren().setAll(hbsName[a - 1].getChildren());
-            hbsType[a].getChildren().setAll(hbsType[a - 1].getChildren());
-            hbsNull[a].getChildren().setAll(hbsNull[a - 1].getChildren());
-            hbsPK[a].getChildren().setAll(hbsPK[a - 1].getChildren());
-            hbsFK[a].getChildren().setAll(hbsFK[a - 1].getChildren());
-            hbsDefault[a].getChildren().setAll(hbsDefault[a - 1].getChildren());
-            hbsExtra[a].getChildren().setAll(hbsExtra[a - 1].getChildren());
-
-            btnsDist[a] = btnsDist[a - 1];
-            btnsImageC[a] = btnsImageC[a - 1];
-        }
-        // lbsN[indexChilds] = new Label("Column " + (indexChilds + 1));
-        // hbsN[indexChilds].getChildren().add(0, lbsN[indexChilds]);
-        System.out.println("\tEmpy row index: " + indexChilds);
-        hbsN[indexChilds] = hbN;
-        hbsName[indexChilds] = hbName;
-        hbsType[indexChilds] = hbType;
-        hbsNull[indexChilds] = hbNull;
-        hbsPK[indexChilds] = hbPK;
-        hbsFK[indexChilds] = hbFK;
-        hbsDefault[indexChilds] = hbDefault;
-        hbsExtra[indexChilds] = hbExtra;
-
-        btnsDist[indexChilds] = btnDist;
-        btnsImageC[indexChilds] = btnImageC;
-
-        hbsN[indexChilds].setStyle("-fx-background-color: #1456db");
-        // ADDING -------------------------------------------------
-        gridPaneLeft.add(hbsN[indexChilds], 0, indexChilds);
-        gridPaneLeft.add(hbsName[indexChilds], 1, indexChilds);
-        gridPaneLeft.add(hbsType[indexChilds], 2, indexChilds);
-        gridPaneLeft.add(hbsNull[indexChilds], 3, indexChilds);
-        gridPaneLeft.add(hbsPK[indexChilds], 4, indexChilds);
-        gridPaneLeft.add(hbsFK[indexChilds], 5, indexChilds);
-        gridPaneLeft.add(hbsDefault[indexChilds], 6, indexChilds);
-        gridPaneLeft.add(hbsExtra[indexChilds], 7, indexChilds);
-
-        gridPaneRight.add(btnsDist[indexChilds], 0, indexChilds);
-        gridPaneRight.add(btnsImageC[indexChilds], 1, indexChilds);
-
-        System.out.println("----------- COL 1: " + GridPane.getRowIndex(hbsN[0]));
-        System.out.println("----------- COL 1-C: " + hbsN[0].getChildren().indexOf(lbsN[0]));
-        System.out.println("----------- COL 1: " + GridPane.getRowIndex(hbsN[1]));
-        System.out.println("----------- COL 1-C: " + hbsN[1].getChildren().indexOf(lbsN[1]));
-        System.out.println("----------- COL 1: " + GridPane.getRowIndex(hbsN[2]));
-        System.out.println("----------- COL 1-C: " + hbsN[2].getChildren().indexOf(lbsN[2]));
-        System.out.println("----------- COL 1: " + GridPane.getRowIndex(hbsN[3]));
-
-        System.out.println("----------- COL 2: " + GridPane.getRowIndex(hbsName[0]));
-        System.out.println("----------- COL 2: " + GridPane.getRowIndex(hbsName[1]));
-        System.out.println("----------- COL 2: " + GridPane.getRowIndex(hbsName[2]));
-        System.out.println("----------- COL 2: " + GridPane.getRowIndex(hbsName[3]));
-
-        currentRowLength++;
-        for (int a = indexChilds + 1; a < currentRowLength; a++) {
-            gridPaneLeft.add(hbsN[a], 0, a);
-            gridPaneLeft.add(hbsName[a], 1, a);
-            gridPaneLeft.add(hbsType[a], 2, a);
-            gridPaneLeft.add(hbsNull[a], 3, a);
-            gridPaneLeft.add(hbsPK[a], 4, a);
-            gridPaneLeft.add(hbsFK[a], 5, a);
-            gridPaneLeft.add(hbsDefault[a], 6, a);
-            gridPaneLeft.add(hbsExtra[a], 7, a);
-
-            gridPaneRight.add(btnsDist[a], 0, a);
-            gridPaneRight.add(btnsImageC[a], 1, a);
-        }
     }
 
     private void second(int index) {
@@ -771,8 +694,8 @@ public class VCController implements Initializable {
         }
 
         // REPLACE ARRAY ELEMENTS-------------------------------
-        nonFXMLLeftNodesInit(index);
-        nonFXMLRightNodesInit(index);
+        leftGridPaneRestart(index);
+        rightGridPaneRestart(index);
         // ADD ROWS-----------------------------------------
         for (int a = 0; a < storeLength; a++) {
             int row = index + a;
@@ -800,6 +723,15 @@ public class VCController implements Initializable {
         second(index);
     }
 
+    private void btnsAddColumnUpdateAction(ActionEvent e) {
+
+    }
+
+    private void btnsCancelAddColumnUpdateAction(ActionEvent e) {
+
+    }
+
+    // ++++++
     void btnsRemoveCreateAction(ActionEvent e) {
         Button btn = (Button) e.getSource();
         int index = Integer.parseInt(btn.getId());
@@ -829,7 +761,7 @@ public class VCController implements Initializable {
 
     }
 
-    // ----
+    // ---------------------------------------------------------
     private void tfasTypeTextProperty(ObservableValue<? extends String> observable, String oldValue, String newValue) {
         StringProperty textProperty = (StringProperty) observable;
         TextField tf = (TextField) textProperty.getBean();
@@ -1457,7 +1389,7 @@ public class VCController implements Initializable {
         });
     }
 
-    private void nonFXMLLeftNodesInit(int index) {
+    private void initLeftNodes(int index) {
         int forCount;
         if (index == 0) {
             forCount = MSQL.MAX_COLUMNS;
@@ -1609,17 +1541,22 @@ public class VCController implements Initializable {
             hbsDefault[row].setStyle(CSS.BORDER_GRID_BOTTOM);
             hbsExtra[row].setStyle(CSS.BORDER_GRID_BOTTOM);
             // ADDING ROW------------------------------------------------
-            if (index != 0 && row == index) {//FIRST ROW ADDED
-                hbsN[row].setStyle(CSS.NEW_ROW);
-                /*
-                hbsName[row].setStyle(CSS.NEW_ROW);
-                hbsType[row].setStyle(CSS.NEW_ROW);
-                hbsNull[row].setStyle(CSS.NEW_ROW);
-                hbsPK[row].setStyle(CSS.NEW_ROW);
-                hbsFK[row].setStyle(CSS.NEW_ROW);
-                hbsDefault[row].setStyle(CSS.NEW_ROW);
-                */
-                hbsExtra[row].setStyle(CSS.NEW_ROW);
+            if (index != 0) {// FIRST ROW ADDED
+                if (row == index) {
+                    hbsN[row].setStyle(CSS.NEW_ROW);
+                    hbsExtra[row].setStyle(CSS.NEW_ROW);
+
+                } else {
+                    hbsN[row].setDisable(true);
+                    hbsName[row].setDisable(true);
+                    hbsType[row].setDisable(true);
+                    hbsNull[row].setDisable(true);
+                    hbsPK[row].setDisable(true);
+                    hbsFK[row].setDisable(true);
+                    hbsDefault[row].setDisable(true);
+                    hbsExtra[row].setDisable(true);
+                }
+
             }
             // -------------------------------------------------------
             GridPane.setMargin(hbsN[row], INSETS);
@@ -1632,10 +1569,63 @@ public class VCController implements Initializable {
             GridPane.setMargin(hbsExtra[row], INSETS);
         }
         new ToggleGroupD<>(rbsExtra);
-        // SUB-----------------------------------
+        // DISABLE PREVIOUS ROW-----------------------------------
+        for (int a = 0; a < index; a++) {
+            hbsN[a].setDisable(true);
+            hbsName[a].setDisable(true);
+            hbsType[a].setDisable(true);
+            hbsNull[a].setDisable(true);
+            hbsPK[a].setDisable(true);
+            hbsFK[a].setDisable(true);
+            hbsDefault[a].setDisable(true);
+            hbsExtra[a].setDisable(true);
+        }
+
     }
 
-    private void nonFXMLRightNodesInit(int index) {
+    private void leftGridPaneRestart(int index) {
+        initLeftNodes(index);
+        // LISTENERS-------------------
+        Arrays.asList(tfsColumn).forEach(e -> {
+            e.setOnKeyReleased(this::tfsColumnsKeyReleased);
+        });
+        listColumns.removeListener(this::listColumnsChange);
+        listColumns.addListener(this::listColumnsChange);
+
+        Arrays.asList(tfasType).forEach(e -> {
+            e.textProperty().removeListener(this::tfasTypeTextProperty);
+            e.textProperty().addListener(this::tfasTypeTextProperty);
+        });
+        Arrays.asList(tfsTypeLength).forEach(e -> {
+            e.textProperty().removeListener(this::tfsTypeLengthTextProperty);
+            e.textProperty().addListener(this::tfsTypeLengthTextProperty);
+        });
+        Arrays.asList(cksFK).forEach(e -> e.setOnAction(this::cksFKAction));
+        Arrays.asList(tfasFK).forEach(e -> {
+            e.textProperty().removeListener(this::tfasFKTextProperty);
+            e.textProperty().addListener(this::tfasFKTextProperty);
+        });
+        Arrays.asList(cksDefault).forEach(e -> e.setOnAction(this::cksDefaultAction));
+        Arrays.asList(tfsDefault).forEach(e -> e.setOnKeyReleased(this::tfsDefaultKeyReleased));
+        Arrays.asList(rbsExtra).forEach(e -> {
+            e.removeEventHandler(ActionEvent.ACTION, this::rbsExtraAction);
+            e.addEventHandler(ActionEvent.ACTION, this::rbsExtraAction);
+        });
+        // ADD 'ADD COLUMN' LISTENER--------------------
+        if (index != 0) {
+            btnsAddColumn[index].setText("A");
+            btnsAddColumn[index].setStyle(CSS.ADD_COL_BUTTON);
+
+            btnsAddColumn[index].setOnAction(this::btnsAddColumnUpdateAction);
+
+            btnsRemoveColumn[index].setText("C");
+            btnsRemoveColumn[index].setStyle(CSS.REMOVE_COL_BUTTON);
+
+            btnsRemoveColumn[index].setOnAction(this::btnsCancelAddColumnUpdateAction);
+        }
+    }
+
+    private void initRightNodes(int index) {
         int forCount;
         if (index == 0) {
             forCount = MSQL.MAX_COLUMNS;
@@ -1656,6 +1646,15 @@ public class VCController implements Initializable {
             btnsImageC[row] = new ToggleButton("" + (row + 1));
             btnsImageC[row].setSelected(imageCStore);
             btnsImageCPopups[row] = new PopupMessage(btnsImageC[row]);
+            // ADD ROW-------------------------------------
+            if (index != 0) {
+                if (row == index) {
+                    // NOTHING YET
+                } else {
+                    btnsDist[row].setDisable(true);
+                    btnsImageC[row].setDisable(true);
+                }
+            }
             // --------------------------------------------
             btnsDist[row].setId(Integer.toString(row));
             btnsImageC[row].setId(Integer.toString(row));
@@ -1679,8 +1678,21 @@ public class VCController implements Initializable {
         // SUB-------------------------------------
         lbUpdateLeft.setDisable(true);
         directoryChooser.setTitle("Select Image for a column");
+        // DISABLE PREVIOUS ROW-----------------------------------
+        for (int a = 0; a < index; a++) {
+            btnsDist[a].setDisable(true);
+            btnsImageC[a].setDisable(true);
+        }
+    }
 
-        // gridPaneRightSub.setGridLinesVisible(true);
+    private void rightGridPaneRestart(int index) {
+        initRightNodes(index);
+        // LISTENERS----------------------------
+        Arrays.asList(btnsDist).forEach(e -> e.setOnAction(this::btnsDistAction));
+        Arrays.asList(btnsImageC).forEach(e -> {
+            e.removeEventHandler(ActionEvent.ACTION, this::btnsImageCAction);
+            e.addEventHandler(ActionEvent.ACTION, this::btnsImageCAction);
+        });
     }
 
     void btnAddRemoveColumnInit() {
@@ -1731,8 +1743,8 @@ public class VCController implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         presetSomeInit();
-        nonFXMLLeftNodesInit(0);
-        nonFXMLRightNodesInit(0);
+        leftGridPaneRestart(0);
+        rightGridPaneRestart(0);
         // TOP-----------------------------------------------
         tfTable.setPromptText("Table name required");
         btnRenameTable.managedProperty().bind(btnRenameTable.visibleProperty());
@@ -1743,28 +1755,11 @@ public class VCController implements Initializable {
         createHelpPopupReset();
 
         btnCreateUpdate.managedProperty().bind(btnCreateUpdate.visibleProperty());
-
-        // gridPaneLeft.setGridLinesVisible(true);
-        // tfTable.setOnKeyReleased(this::tfTableKeyReleased);
+        // TEST--------------------------------------------
         TextMatchControl tmc = new TextMatchControl(this::testForTextMatchControl, tfTable);
         tmc.addSingleTextFilter(s -> s.toLowerCase().trim().replace(" ", "_"));
         tmc.addMatch(tables.getTables());
-        // LEFT --------------------------------------
-        Arrays.asList(tfsColumn).forEach(e -> {
-            e.setOnKeyReleased(this::tfsColumnsKeyReleased);
-        });
-        listColumns.addListener(this::listColumnsChange);
-
-        Arrays.asList(tfasType).forEach(e -> e.textProperty().addListener(this::tfasTypeTextProperty));
-        Arrays.asList(tfsTypeLength).forEach(e -> e.textProperty().addListener(this::tfsTypeLengthTextProperty));
-        Arrays.asList(cksFK).forEach(e -> e.setOnAction(this::cksFKAction));
-        Arrays.asList(tfasFK).forEach(e -> e.textProperty().addListener(this::tfasFKTextProperty));
-        Arrays.asList(cksDefault).forEach(e -> e.setOnAction(this::cksDefaultAction));
-        Arrays.asList(tfsDefault).forEach(e -> e.setOnKeyReleased(this::tfsDefaultKeyReleased));
-        Arrays.asList(rbsExtra).forEach(e -> e.addEventHandler(ActionEvent.ACTION, this::rbsExtraAction));
-        // RIGHT --------------------------------------
-        Arrays.asList(btnsDist).forEach(e -> e.setOnAction(this::btnsDistAction));
-        Arrays.asList(btnsImageC).forEach(e -> e.addEventHandler(ActionEvent.ACTION, this::btnsImageCAction));
+        // RIGHT LISTENERS--------------------------------------
         btnSelectImageC.setOnAction(this::btnSelectImageCAction);
         listImageC.addListener(this::listImageCChange);
         tfImageCPath.textProperty().addListener(this::tfImageCPathTextProperty);

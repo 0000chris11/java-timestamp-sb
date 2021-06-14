@@ -170,6 +170,7 @@ public class VC {
         setUpdateStore();
         // TOP-------------------------------------------------------
         vc.getBtnRenameTable().setVisible(true);
+        vc.getBtnRenameTable().setOnAction(vc::btnRenameTableAction);
         // LEFT------------------------------------------------------
         rowDisplay(columns.size());
         vc.setCurrentRowLength(columns.size());
