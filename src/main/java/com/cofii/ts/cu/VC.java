@@ -185,8 +185,8 @@ public class VC {
             vc.getBtnsChangeFK()[a].setVisible(true);// DELETE
             vc.getBtnsChangeDefault()[a].setVisible(true);
         }
+         Arrays.asList(vc.getCksPK()).forEach(e -> e.setOnAction(vc::cksPKAction));
         // LEFT-BOTTOM------------------------------------------------
-        Arrays.asList(vc.getCksPK()).forEach(e -> e.setOnAction(vc::cksPKAction));
 
         vc.getLbUpdateLeft().setDisable(false);
         // RIGHT-BOTTOM------------------------------------------------
