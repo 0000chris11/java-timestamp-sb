@@ -331,7 +331,6 @@ public class VFController implements Initializable {
     }
 
     private void splitLeftPositionProperty(Number newValue) {
-        System.out.println("Number: doubleValue: " + newValue.doubleValue());
         fpImages.getChildren().forEach(e -> {
             if (e instanceof ImageView) {
                 ((ImageView) e).setFitHeight(spHBImages.getHeight());

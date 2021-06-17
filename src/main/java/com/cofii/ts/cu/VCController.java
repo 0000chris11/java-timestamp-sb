@@ -30,6 +30,7 @@ import com.cofii2.components.javafx.PopupAutoC;
 import com.cofii2.components.javafx.PopupKV;
 import com.cofii2.components.javafx.PopupMessage;
 import com.cofii2.components.javafx.ToggleGroupD;
+import com.cofii2.custom.Custom;
 import com.cofii2.methods.MList;
 import com.cofii2.mysql.MSQLCreate;
 import com.cofii2.mysql.MSQLP;
@@ -51,7 +52,6 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
-import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
@@ -64,7 +64,6 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
-import javafx.scene.layout.RowConstraints;
 import javafx.stage.DirectoryChooser;
 
 public class VCController implements Initializable {
@@ -259,6 +258,7 @@ public class VCController implements Initializable {
 
         }
     }
+
     // LISTENERS---------------------------------------------
     // TABLE-------------------------------------
     private void tfTableKeyReleased(KeyEvent e) {
@@ -322,6 +322,7 @@ public class VCController implements Initializable {
             boolean updateTableNames = ms.updateRow(MSQL.TABLE_NAMES, "Name", oldTable.replace("_", " "), "Name",
                     newTable.replace("_", ""));
             if (updateTableNames) {
+                updateTable.setTable(newTable);
                 Menus.getInstance(vf).addMenuItemsReset();// NOT TESTED
 
                 lbStatus.setText("Table '" + oldTable + "' has been rename to '" + newTable + "'");
@@ -371,7 +372,7 @@ public class VCController implements Initializable {
         // UPDATE---------------------------------------------------
         if (updateControl) {
             if (update) {
-                String column = updateTable.getColumns()[index].toLowerCase().trim().replace(" ", "_");
+                String column = updateTable.getColumns().get(index).toLowerCase().trim().replace(" ", "_");
                 if (!text.equals(column)) {
                     tfsColumnPopups[index].hide();
                     btnsRenameColumn[index].setDisable(false);
@@ -387,8 +388,6 @@ public class VCController implements Initializable {
     }
 
     private void listColumnsChange(Change<? extends String> c) {
-        System.out.println("\tlistColumnsChange");
-
         while (c.next()) {
             if (c.wasReplaced() || c.wasAdded() || c.wasRemoved()) {
                 if (MList.areTheyDuplicatedElementsOnList(listColumns)) {
@@ -422,8 +421,9 @@ public class VCController implements Initializable {
             }
         }
     }
+
     // ADD OR REMOVE COLUMNS-------------------------------------
-    //CREATE=========================================
+    // CREATE=========================================
     void btnsAddCreateAction(ActionEvent e) {
         Button btn = (Button) e.getSource();
         int index = Integer.parseInt(btn.getId()) + 1;
@@ -482,7 +482,8 @@ public class VCController implements Initializable {
 
         masterControl();
     }
-    //UPDATE========================================
+
+    // UPDATE========================================
     private void updateAddOrRemove(int index, boolean add) {
         // ARRAY STORE CREATION---------------------------
         int storeLength;
@@ -593,27 +594,81 @@ public class VCController implements Initializable {
         int index = Integer.parseInt(btn.getId()) + 1;// PLUS HEADER
         // first(index);
         updateAddOrRemove(index, true);
-    }
-    private void btnsAddColumnUpdateAction(ActionEvent e) {
-        boolean addColumn = ms.addColumn(table, newColumn, type, afterColumn);
-        if(addColumn){
-            
-        }
+
+        tfsColumnControl(-1);
+        tfasTypeControl(-1);
+        tfsTypeLengthControl(-1);
+        tfasFKControl(-1);
+        tfsDefaultControl(-1);
+        masterControl();
     }
 
-    private void updateCancelUpdateAction(ActionEvent e){
+    private void btnsAddColumnUpdateAction(ActionEvent e) {
+        int index = Integer.parseInt(((Button) e.getSource()).getId());
+
+        String table = MSQL.getCurrentTable().getName().toLowerCase().trim().replace(" ", "_");
+        String newColumn = tfsColumn[index].getText().toLowerCase().trim().replace(" ", "_");
+        String type = tfasType[index].getText()
+                + (tfsTypeLength[index].isVisible() ? "(" + tfsTypeLength[index].getText() + ")" : "");
+        /*
+         * String distN = Custom.getOldDist(currentRowLength, btnsDist); String imageCN
+         * = Custom.getOldImageC(currentRowLength, btnsImageC); String imageCPathN =
+         * Custom.getImageCPath(currentRowLength, tfImageCPath, btnsImageC);
+         */
+        String afterColumn;
+        boolean addColumn;
+        try {// ATTEMPTING TO GRAB THE PREVIOUS COLUMN
+            afterColumn = updateTable.getColumns().get(index - 1).toLowerCase().trim().replace(" ", "_");
+
+            addColumn = ms.addColumn(table, newColumn, type, afterColumn);
+        } catch (ArrayIndexOutOfBoundsException ex) {
+            addColumn = ms.addColumn(table, newColumn, type);
+        }
+
+        if (addColumn) {
+            /*
+             * IF BTN-DIST IS ENABLED String dist = Custom.getDist(updateTable.getDist());
+             * if(!dist.equals(distN)){ }
+             */
+            updateTable.getColumns().add(index, newColumn);
+            updateTable.getTypes().add(index, tfasType[index].getText());
+            updateTable.getTypesLength().add(index, Integer.parseInt(tfsTypeLength[index].getText()));
+            updateTable.getNulls().add(index, cksNull[index].isSelected());
+            updateTable.getDefaults().add(index, cksDefault[index].isSelected() ? tfsDefault[index].getText() : null);
+
+            lbStatus.setText("Added column '" + newColumn + "' to '" + MSQL.getCurrentTable().getName() + "'");
+            lbStatus.setTextFill(NonCSS.TEXT_FILL_OK);
+        } else {
+            lbStatus.setText("Couldn't add column '" + newColumn + "'");
+            lbStatus.setTextFill(NonCSS.TEXT_FILL_ERROR);
+        }
+
+        timers.playLbStatusReset(lbStatus);
+    }
+
+    private void updateCancelUpdateAction(ActionEvent e) {
         System.out.println("\nbtnsRemoveUpdateAction");
         Button btn = (Button) e.getSource();
         int index = Integer.parseInt(btn.getId()) + 1;// PLUS HEADER
 
         updateAddOrRemove(index, false);
+
+        tfsColumnControl(-1);
+        tfasTypeControl(-1);
+        tfsTypeLengthControl(-1);
+        tfasFKControl(-1);
+        tfsDefaultControl(-1);
+        masterControl();
     }
+
     private void btnsCancelAddColumnUpdateAction(ActionEvent e) {
         updateCancelUpdateAction(e);
     }
+
     void btnsRemoveUpdateAction(ActionEvent e) {
         updateCancelUpdateAction(e);
     }
+
     // TYPES=====================================================
     private void tfasTypeTextProperty(ObservableValue<? extends String> observable, String oldValue, String newValue) {
         StringProperty textProperty = (StringProperty) observable;
@@ -660,7 +715,7 @@ public class VCController implements Initializable {
         // UPDATE----------------------------------------------------------
         if (updateControl) {
             if (update) {
-                String type = updateTable.getTypes()[index];
+                String type = updateTable.getTypes().get(index);
                 if (!newValue.equals(type)) {
                     tfsTypePopups[index].hide();
                     btnsChangeType[index].setDisable(false);
@@ -678,8 +733,6 @@ public class VCController implements Initializable {
 
     private void tfsTypeLengthTextProperty(ObservableValue<? extends String> observable, String oldValue,
             String newValue) {
-        System.out.println("\ttfsTypeLengthTextProperty");
-
         StringProperty textProperty = (StringProperty) observable;
         TextField tf = (TextField) textProperty.getBean();
         if (tf.isVisible()) {
@@ -716,7 +769,7 @@ public class VCController implements Initializable {
             // UPDATE-----------------------------------------------------
             if (updateControl) {
                 if (update) {
-                    String typeLength = Integer.toString(updateTable.getTypesLength()[index]).toLowerCase().trim();
+                    String typeLength = Integer.toString(updateTable.getTypesLength().get(index)).toLowerCase().trim();
                     if (!text.equals(typeLength)) {
                         tfsTypeLengthPopups[index].hide();
                         btnsChangeType[index].setDisable(false);
@@ -774,6 +827,7 @@ public class VCController implements Initializable {
             }
         }
     }
+
     // PKS/FKS======================================================
     void cksPKAction(ActionEvent e) {
         // ONLY FOR UPDATE
@@ -781,7 +835,7 @@ public class VCController implements Initializable {
         boolean update = false;
 
         for (int c = 0; c < currentRowLength; c++) {
-            boolean pkSelected = updateTable.getPks()[c].equals("Yes");
+            boolean pkSelected = updateTable.getPks().get(c).equals("Yes");
             if (cksPK[c].isSelected() != pkSelected) {
                 update = true;
                 break;
@@ -799,11 +853,8 @@ public class VCController implements Initializable {
     private void cksFKAction(ActionEvent e) {
         CheckBox ck = (CheckBox) e.getSource();
         int index = Integer.parseInt(ck.getId());
-        if (ck.isSelected()) {
-            tfasFK[index].setVisible(true);
-        } else {
-            tfasFK[index].setVisible(false);
-        }
+
+        tfasFK[index].setVisible(ck.isSelected());
 
         tfasFKControl(-1);
         // UPDATE------------------------------------------------
@@ -816,7 +867,6 @@ public class VCController implements Initializable {
         StringProperty textProperty = (StringProperty) observable;
         TextField tf = (TextField) textProperty.getBean();
         int index = Integer.parseInt(tf.getId());
-        System.out.println("\ttfasFKTextProperty FK_" + (index + 1));
 
         if (tf.isVisible()) {
             if (MList.isOnThisList(tfsFKPs[index].getLv().getItems(), newValue, false)) {
@@ -846,26 +896,25 @@ public class VCController implements Initializable {
 
     private void tfasFKControl(int index) {
         for (int a = 0; a < currentRowLength; a++) {
-            if (a != index) {
-                if (tfasFK[a].isVisible()) {
-                    String text = tfasFK[a].getText();
-                    if (!MList.isOnThisList(tfsFKPs[a].getLv().getItems(), text, false)) {
-                        fkSelectionMatch = false;
-                        break;
-                    }
+            if (a != index && tfasFK[a].isVisible()) {
+                String text = tfasFK[a].getText();
+                if (!MList.isOnThisList(tfsFKPs[a].getLv().getItems(), text, false)) {
+                    fkSelectionMatch = false;
+                    break;
                 }
+
             }
         }
     }
-    
+
     private void fkUpdateControl(int index) {
         if (updateControl) {
             if (fkSelectionMatch) {
                 boolean update = false;
                 // DEPENDS ON TFS-FK TO
                 for (int c = 0; c < currentRowLength; c++) {
-                    boolean fkSelected = updateTable.getFks()[c] != null;
-                    String fkText = updateTable.getFkFormed()[c];
+                    boolean fkSelected = updateTable.getFks().get(c) != null;
+                    String fkText = updateTable.getFkFormed().get(c);
 
                     if (cksFK[c].isSelected() != fkSelected
                             || (cksFK[c].isSelected() && !tfasFK[c].getText().equals(fkText))) {
@@ -885,6 +934,7 @@ public class VCController implements Initializable {
             }
         }
     }
+
     // DEFAULTS=================================================
     private void cksDefaultAction(ActionEvent e) {
         CheckBox ck = (CheckBox) e.getSource();
@@ -904,8 +954,6 @@ public class VCController implements Initializable {
     }
 
     private void tfsDefaultTypeControl(int index) {
-        System.out.println("\ttfsDefaultTypeControl");
-
         TextField tf = tfsDefault[index];
         String text = tf.getText();
         boolean update = false;
@@ -979,27 +1027,26 @@ public class VCController implements Initializable {
                     }
                 }
 
-            } else if (updateControl) {
-                if (tfsDefault[a].isVisible()) {
-                    String text = tfsDefault[a].getText();
-                    matcher = patternBWTC.matcher(text);
-                    if (!matcher.matches()) {
-                        single = false;
-                        break;
-                    }
+            } else if (updateControl && tfsDefault[a].isVisible()) {
+                String text = tfsDefault[a].getText();
+                matcher = patternBWTC.matcher(text);
+                if (!matcher.matches()) {
+                    single = false;
+                    break;
                 }
+
             }
         }
 
         return single;
     }
-    
+
     private void defaultUpdateControl(int index, boolean update) {
         if (updateControl) {
             if (currentRowLength <= updateTable.getRowLength()) {// INDEX OUT OF RANGE
                 if (update) {
-                    boolean defaultSelected = updateTable.getDefaults()[index] != null;
-                    String defaultValue = updateTable.getDefaults()[index];
+                    boolean defaultSelected = updateTable.getDefaults().get(index) != null;
+                    String defaultValue = updateTable.getDefaults().get(index);
                     if (cksDefault[index].isSelected() != defaultSelected
                             || (cksDefault[index].isSelected() && !tfsDefault[index].getText().equals(defaultValue))) {
                         cksDefaultPopups[index].hide();
@@ -1019,6 +1066,7 @@ public class VCController implements Initializable {
             }
         }
     }
+
     // EXTRA=================================================
     private void rbsExtraAction(ActionEvent e) {
         RadioButton btn = (RadioButton) e.getSource();
@@ -1093,6 +1141,7 @@ public class VCController implements Initializable {
         // ------------------------------------------------
         masterControl();
     }
+
     // BOTTOM===================================================
     private void btnCancelAction(ActionEvent e) {
         vf.getStage().setScene(vf.getScene());
@@ -1113,11 +1162,12 @@ public class VCController implements Initializable {
         // List<IntString> defaults = new ArrayList<>(MSQL.MAX_COLUMNS);
         int extra = 0;
         // RIGHT-------------------
-        StringBuilder dist = new StringBuilder("NONE");
-        boolean distPresent = false;
-        int distCount = 0;
-        StringBuilder imageC = new StringBuilder("NONE");
-        StringBuilder imageCPath = new StringBuilder("NONE");
+        String dist = Custom.getOldDist(currentRowLength, btnsDist);
+        String imageC = Custom.getOldImageC(currentRowLength, btnsImageC);
+        String imageCPath = Custom.getImageCPath(currentRowLength, tfImageCPath, btnsImageC);
+        /*
+         * boolean distPresent = false; int distCount = 0;
+         */
         // -------------------------------------------------
         for (int a = 0; a < currentRowLength; a++) {
             // LEFT-------------------
@@ -1151,27 +1201,23 @@ public class VCController implements Initializable {
                 extra = a + 1;
             }
             // RIGHT-------------------
-            if (btnsDist[a].isSelected()) {// OLD WAY
-                if (!distPresent) {
-                    dist.delete(0, dist.length());
-                    dist.append("X0: ");
-                    distPresent = true;
-                }
-                dist.deleteCharAt(1);
-                dist.insert(1, Integer.toString(++distCount));
-                dist.append(Integer.toString(a + 1) + "_");
-            }
-            if (btnsImageC[a].isSelected()) {
-                imageC.delete(0, imageC.length());
-                imageC.append("C" + (a + 1));
-
-                imageCPath.delete(0, imageCPath.length());
-                imageCPath.append(tfImageCPath.getText());
-            }
+            /*
+             * if (btnsDist[a].isSelected()) {// OLD WAY if (!distPresent) { dist.delete(0,
+             * dist.length()); dist.append("X0: "); distPresent = true; }
+             * dist.deleteCharAt(1); dist.insert(1, Integer.toString(++distCount));
+             * dist.append(Integer.toString(a + 1) + "_"); }
+             * 
+             * if (btnsImageC[a].isSelected()) { //imageC.delete(0, imageC.length());
+             * //imageC.append("C" + (a + 1));
+             * 
+             * imageCPath.delete(0, imageCPath.length());
+             * imageCPath.append(tfImageCPath.getText()); }
+             */
         }
-        if (distCount > 0) {// DELETE LAST '_'
-            dist.deleteCharAt(dist.length() - 1);
-        }
+        /*
+         * if (distCount > 0) {// DELETE LAST '_' dist.deleteCharAt(dist.length() - 1);
+         * }
+         */
         // CREATE UPDATE ---------------------------------------
         MSQLCreate msc = new MSQLCreate(new CurrenConnection());
         for (int a = 0; a < currentRowLength; a++) {
@@ -1185,8 +1231,7 @@ public class VCController implements Initializable {
         boolean createTable = msc.createTable(tableName, columnsNames, typesNames);
         // INSERT -----------------------------------------------
         if (createTable) {
-            Object[] values = new Object[] { null, tableName.replace("_", " "), dist.toString(), imageC.toString(),
-                    imageCPath.toString() };
+            Object[] values = new Object[] { null, tableName.replace("_", " "), dist, imageC, imageCPath };
             boolean insert = ms.insert(MSQL.TABLE_NAMES, values);
             if (insert) {
                 /*
@@ -1233,6 +1278,7 @@ public class VCController implements Initializable {
         Bounds sb = btnCreateHelp.localToScreen(btnCreateHelp.getBoundsInLocal());
         createHelpPopup.show(btnCreateHelp, sb.getMinX(), sb.getMinY());
     }
+
     // RIGHT-----------------------------------------
     // DIST=================================================
     private void btnsDistAction(ActionEvent e) {
@@ -1267,7 +1313,7 @@ public class VCController implements Initializable {
             if (distExtraOK) {
                 boolean update = false;
                 for (int a = 0; a < currentRowLength; a++) {
-                    boolean dist = updateTable.getDist()[a].equals("Yes");
+                    boolean dist = updateTable.getDist().get(index).equals("Yes");
                     if (btnsDist[index].isSelected() != dist) {
                         update = true;
                         break;
@@ -1292,15 +1338,14 @@ public class VCController implements Initializable {
         for (int a = 0; a < currentRowLength; a++) {
             if (a != index) {
                 ToggleButton btn = btnsDist[a];
-                if (btn.isSelected()) {
-                    if (rbsExtra[a].isSelected()) {
-                        distExtraOK = false;
-                        break;
-                    }
+                if (btn.isSelected() && rbsExtra[a].isSelected()) {
+                    distExtraOK = false;
+                    break;
                 }
             }
         }
     }
+
     // IMAGEC================================================
     private void btnsImageCAction(ActionEvent e) {
         ToggleButton btn = (ToggleButton) e.getSource();
@@ -1320,8 +1365,6 @@ public class VCController implements Initializable {
     }
 
     private void listImageCChange(Change<? extends Boolean> c) {
-        System.out.println("\tlistImageCChange");
-
         while (c.next()) {
             if (c.wasAdded() || c.wasRemoved() || c.wasUpdated() || c.wasReplaced()) {
                 if (listImageC.stream().allMatch(bool -> !bool)) {
@@ -1377,13 +1420,13 @@ public class VCController implements Initializable {
         if (updateControl) {
             if (currentRowLength <= updateTable.getRowLength()) {
                 if (imageCPathOk) {
-                    boolean imageCSelected = updateTable.getImageC()[index].equals("Yes");
+                    boolean imageCSelected = updateTable.getImageC().get(index).equals("Yes");
                     int[] indexs = { -1 };
-                    Arrays.asList(updateTable.getImageCPath()).stream().anyMatch(p -> {
+                    updateTable.getImageCPath().stream().anyMatch(p -> {
                         indexs[0]++;
                         return !p.equals("NONE");
                     });
-                    String pathO = updateTable.getImageCPath()[indexs[0]];
+                    String pathO = updateTable.getImageCPath().get(indexs[0]);
                     if (btnsImageC[index].isSelected() != imageCSelected
                             || (!tfImageCPath.isDisabled() && !tfImageCPath.getText().equals(pathO))) {
                         btnUpdateImageC.setDisable(false);
@@ -1400,6 +1443,7 @@ public class VCController implements Initializable {
             }
         }
     }
+
     // INIT ---------------------------------------------
     private void fkReferencesInit() {
         Key[] row = keys.getRowPrimaryKeys();
@@ -1635,8 +1679,19 @@ public class VCController implements Initializable {
         listColumns.removeListener(this::listColumnsChange);
         listColumns.addListener(this::listColumnsChange);
 
-        Arrays.asList(btnsRemoveColumn).forEach(e -> e.setOnAction(this::btnsRemoveUpdateAction));
-        Arrays.asList(btnsAddColumn).forEach(e -> e.setOnAction(this::btnsAddUpdateAction));
+        int[] indexs = { 0 };
+        Arrays.asList(btnsRemoveColumn).forEach(e -> {
+            if (indexs[0]++ != index) {
+                e.setOnAction(this::btnsRemoveUpdateAction);
+            }
+        });
+        indexs[0] = 0;
+        Arrays.asList(btnsAddColumn).forEach(e -> {
+            if (indexs[0]++ != index) {
+                e.setOnAction(this::btnsAddUpdateAction);
+            }
+        });
+
         Arrays.asList(tfasType).forEach(e -> {
             e.textProperty().removeListener(this::tfasTypeTextProperty);
             e.textProperty().addListener(this::tfasTypeTextProperty);
@@ -1668,6 +1723,10 @@ public class VCController implements Initializable {
             btnsRemoveColumn[index].setStyle(CSS.REMOVE_COL_BUTTON);
 
             btnsRemoveColumn[index].setOnAction(this::btnsCancelAddColumnUpdateAction);
+
+            cksPK[index].setDisable(true);
+            cksFK[index].setDisable(true);
+            rbsExtra[index].setDisable(true);
         }
     }
 
@@ -1736,6 +1795,11 @@ public class VCController implements Initializable {
             e.removeEventHandler(ActionEvent.ACTION, this::btnsImageCAction);
             e.addEventHandler(ActionEvent.ACTION, this::btnsImageCAction);
         });
+
+        if (index != 0) {
+            btnsDist[index].setDisable(true);
+            btnsImageC[index].setDisable(true);
+        }
     }
 
     void btnAddRemoveColumnInit() {

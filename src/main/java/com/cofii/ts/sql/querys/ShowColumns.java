@@ -60,15 +60,13 @@ public class ShowColumns implements IActions {
             nullValue = true;
         }
         //EXTRA---------------------------------------------
-        if(!extra.equals("auto_increment")){
-            extra = "No";
-        }
+        extra = extra.equals("auto_increment") ? "Yes":"No";
         //NODES VISIBILITY ----------------------------------------------
         Text textColumnName = new Text(columnName);
         textColumnName.setFill(NonCSS.TEXT_FILL);
         vf.getLbs()[row - 1].getChildren().add(textColumnName);
         vf.getLbs()[row - 1].setVisible(true);
-        if(!extra.equals("No")){
+        if(extra.equals("Yes")){
             vf.getTfs()[row - 1].setPromptText("AUTO_INCREMENT");
         }else{
             vf.getTfs()[row - 1].setPromptText(null);
