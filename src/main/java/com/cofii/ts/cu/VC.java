@@ -167,8 +167,8 @@ public class VC {
     }
 
     private void updateOption() {
-        vc.pesetListInit(columns.size());
         setUpdateStore();
+        vc.pesetListInit(columns.size());
         // TOP-------------------------------------------------------
         vc.getBtnRenameTable().setVisible(true);
         vc.getBtnRenameTable().setOnAction(vc::btnRenameTableAction);
@@ -178,6 +178,7 @@ public class VC {
         for (int a = 0; a < MSQL.MAX_COLUMNS; a++) {
             vc.getBtnsRemoveColumn()[a].setOnAction(vc::btnsRemoveUpdateAction);
             vc.getBtnsAddColumn()[a].setOnAction(vc::btnsAddUpdateAction);
+            vc.getBtnsRenameColumn()[a].setOnAction(vc::btnsRenameColumn);
 
             vc.getBtnsRenameColumn()[a].setVisible(true);
             vc.getBtnsChangeType()[a].setVisible(true);

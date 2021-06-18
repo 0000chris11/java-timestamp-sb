@@ -5,6 +5,8 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -13,6 +15,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.cofii.ts.first.Menus;
+import com.cofii.ts.first.VF;
 import com.cofii.ts.first.VFController;
 import com.cofii.ts.other.CSS;
 import com.cofii.ts.other.NonCSS;
@@ -23,6 +26,7 @@ import com.cofii.ts.store.Key;
 import com.cofii.ts.store.Keys;
 import com.cofii.ts.store.SQLType;
 import com.cofii.ts.store.SQLTypes;
+import com.cofii.ts.store.Table;
 import com.cofii.ts.store.TableS;
 import com.cofii.ts.store.UpdateTable;
 import com.cofii.ts.store.VCGridNodes;
@@ -57,6 +61,7 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TableFocusModel;
 import javafx.scene.control.ScrollPane.ScrollBarPolicy;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
@@ -285,56 +290,73 @@ public class VCController implements Initializable {
             }
 
             // UPDATE-----------------------------------------------
-            if (updateControl && tableOK) {
-                String tableO = updateTable.getTable().toLowerCase().trim().replace(" ", "_");
-                if (!text.equals(tableO)) {
-                    lbTable.setText("Table Name");
-                    lbTable.setTextFill(NonCSS.TEXT_FILL);
-
-                    btnRenameTable.setDisable(true);
-                    // tableOK = true;
-                } else {
-                    lbTable.setText("Same Value");
-                    lbTable.setTextFill(NonCSS.TEXT_FILL_HINT);
-
-                    btnRenameTable.setDisable(false);
-                    // tableOK = false;
-                }
-            }
-
+            tfTableUpdate(text);
+            //-----------------------------------------
             masterControl();
         }
 
     }
 
-    private void testForTextMatchControl(boolean match) {
-        tableOK = match;
-        System.out.println("tableOK: " + tableOK);
-        masterControl();
+    private void tfTableUpdate(String text){
+        if (updateControl) {
+            if (tableOK) {
+                String tableO = updateTable.getTable().toLowerCase().trim().replace(" ", "_");
+                if (!text.equals(tableO)) {
+                    lbTable.setText("Table Name");
+                    lbTable.setTextFill(NonCSS.TEXT_FILL);
+
+                    btnRenameTable.setDisable(false);
+                    // tableOK = true;
+                } else {
+                    lbTable.setText("Same Value");
+                    lbTable.setTextFill(NonCSS.TEXT_FILL_HINT);
+
+                    btnRenameTable.setDisable(true);
+                    // tableOK = false;
+                }
+            } else {
+                btnRenameTable.setDisable(true);
+            }
+        }
     }
 
     void btnRenameTableAction(ActionEvent e) {
+        System.out.println(CC.CYAN + "Rename Table" + CC.RESET);
         // NOT TESTED------------------------------------
-        String oldTable = MSQL.getCurrentTable().getName();
+        String oldTable = MSQL.getCurrentTable().getName().toLowerCase().trim().replace(" ", "_");
         String newTable = tfTable.getText().toLowerCase().trim().replace(" ", "_");
         boolean renameTable = ms.renameTable(oldTable, newTable);
         if (renameTable) {
             boolean updateTableNames = ms.updateRow(MSQL.TABLE_NAMES, "Name", oldTable.replace("_", " "), "Name",
-                    newTable.replace("_", ""));
+                    newTable.replace("_", " "));
             if (updateTableNames) {
                 updateTable.setTable(newTable);
+
+                try {
+                    ResultSet rs = ms.selectRow(MSQL.TABLE_NAMES, "Name", newTable.replace("_", " "));
+                    Table table = new Table(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5));
+                    MSQL.setCurrentTable(table);
+                } catch (SQLException e1) {
+                    e1.printStackTrace();
+                }
                 Menus.getInstance(vf).addMenuItemsReset();// NOT TESTED
+                btnRenameTable.setDisable(true);
 
                 lbStatus.setText("Table '" + oldTable + "' has been rename to '" + newTable + "'");
                 lbStatus.setTextFill(NonCSS.TEXT_FILL_OK);
+                System.out.println("\ttable Created!");
             } else {
                 lbStatus.setText("FATAL: table change its name but " + MSQL.TABLE_NAMES + " hasn't been updated");
                 lbStatus.setTextFill(NonCSS.TEXT_FILL_ERROR);
+                System.out.println("\tFATAL!");
+
             }
 
         } else {
             lbStatus.setText("Table '" + oldTable + "' fail to be renamed");
             lbStatus.setTextFill(NonCSS.TEXT_FILL_ERROR);
+            System.out.println("\tERROR!");
+
         }
 
         timers.playLbStatusReset(lbStatus);
@@ -345,7 +367,6 @@ public class VCController implements Initializable {
         TextField tf = (TextField) e.getSource();
         int index = Integer.parseInt(tf.getId());
 
-        boolean update = false;
         String text = tf.getText().toLowerCase().trim().replace(" ", "_");
         listColumns.set(index, text);
 
@@ -357,7 +378,6 @@ public class VCController implements Initializable {
                 tfsColumnPopups[index].hide();
 
                 columnBWOK = true;// REST CONTROL
-                update = true;
                 tfsColumnControl(index);
             } else {
                 tf.setStyle(CSS.TEXT_FILL_ERROR);
@@ -371,7 +391,7 @@ public class VCController implements Initializable {
         }
         // UPDATE---------------------------------------------------
         if (updateControl) {
-            if (update) {
+            if (columnBWOK && columnSNOK) {
                 String column = updateTable.getColumns().get(index).toLowerCase().trim().replace(" ", "_");
                 if (!text.equals(column)) {
                     tfsColumnPopups[index].hide();
@@ -422,6 +442,17 @@ public class VCController implements Initializable {
         }
     }
 
+    void btnsRenameColumn(ActionEvent e){
+        int index = Integer.parseInt(((Button)e.getSource()).getId());
+        String table = MSQL.getCurrentTable().getName().toLowerCase().trim().replace(" ", "_");
+        String oldColumn = updateTable.getColumns().get(index).toLowerCase().trim().replace(" ", "_");
+        String newColumn = tfsColumn[index].getText().toLowerCase().trim().replace(" ", "_");
+
+        boolean renameColumn = ms.renameColumn(table, oldColumn, newColumn);
+        if(renameColumn){
+            //RENAME THE COLUMN AND THEN TEST THE CANCEL BUTTON TO RESET
+        }
+    }
     // ADD OR REMOVE COLUMNS-------------------------------------
     // CREATE=========================================
     void btnsAddCreateAction(ActionEvent e) {
@@ -594,6 +625,7 @@ public class VCController implements Initializable {
         int index = Integer.parseInt(btn.getId()) + 1;// PLUS HEADER
         // first(index);
         updateAddOrRemove(index, true);
+        listColumns.add(index - 1, tfsColumn[index - 1].getText().toLowerCase().trim().replace(" ", "_"));
 
         tfsColumnControl(-1);
         tfasTypeControl(-1);
@@ -652,6 +684,7 @@ public class VCController implements Initializable {
         int index = Integer.parseInt(btn.getId()) + 1;// PLUS HEADER
 
         updateAddOrRemove(index, false);
+        listColumns.remove(index - 1);
 
         tfsColumnControl(-1);
         tfasTypeControl(-1);
@@ -1144,7 +1177,8 @@ public class VCController implements Initializable {
 
     // BOTTOM===================================================
     private void btnCancelAction(ActionEvent e) {
-        vf.getStage().setScene(vf.getScene());
+        //vf.getStage().setScene(vf.getScene());
+        new VF(vf.getVl());
     }
 
     private void btnCreateAction(ActionEvent e) {
@@ -1391,8 +1425,6 @@ public class VCController implements Initializable {
 
     private void tfImageCPathTextProperty(ObservableValue<? extends String> observable, String oldValue,
             String newValue) {
-        System.out.println("\ttfImageCPathTextProperty");
-
         Path path = Paths.get(tfImageCPath.getText());
         if (!tfImageCPath.isDisable()) {
             if (Files.exists(path)) {
@@ -1850,16 +1882,13 @@ public class VCController implements Initializable {
         tfTable.setPromptText("Table name required");
         btnRenameTable.managedProperty().bind(btnRenameTable.visibleProperty());
         btnRenameTable.setDisable(true);
+        tfTable.setOnKeyReleased(this::tfTableKeyReleased);
         // --------------------------------------------------
         fkReferencesInit();
         // btnAddRemoveColumnInit();
         createHelpPopupReset();
 
         btnCreateUpdate.managedProperty().bind(btnCreateUpdate.visibleProperty());
-        // TEST--------------------------------------------
-        TextMatchControl tmc = new TextMatchControl(this::testForTextMatchControl, tfTable);
-        tmc.addSingleTextFilter(s -> s.toLowerCase().trim().replace(" ", "_"));
-        tmc.addMatch(tables.getTables());
         // RIGHT LISTENERS--------------------------------------
         btnSelectImageC.setOnAction(this::btnSelectImageCAction);
         listImageC.addListener(this::listImageCChange);
