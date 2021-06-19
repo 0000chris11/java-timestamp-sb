@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import com.cofii.ts.cu.VCController;
 import com.cofii.ts.login.VLController;
 import com.cofii.ts.other.Dist;
 import com.cofii.ts.sql.CurrenConnection;
@@ -35,6 +36,9 @@ import javafx.stage.Stage;
 public class VF {
 
     private static VFController vf;
+    private VLController vl;
+    private VCController vc;
+
     private Stage stage = new Stage();
     private static MSQLP ms;
 
@@ -74,38 +78,25 @@ public class VF {
         }
     }
 
-    // Move to MENUS
-    /*
-     * private void addMenuItems() { Menus menus = Menus.getInstance(vf);
-     * ms.executeQuery(MSQL.SELECT_TABLE_NAMES, new SelectTableNames(false)); if
-     * (tables.size() == 0) { vf.getMenuSelection().getItems().clear();
-     * menus.getTableDelete().getItems().clear();
-     * vf.getMenuSelection().getItems().add(new MenuItem("No tables added"));
-     * menus.getTableDelete().getItems().add(new MenuItem("No tables added")); }
-     * else { vf.getMenuSelection().getItems().clear();
-     * menus.getTableDelete().getItems().clear(); for (int a = 0; a < tables.size();
-     * a++) { vf.getMenuSelection().getItems().add(new
-     * MenuItem(tables.getTable(a))); menus.getTableDelete().getItems().add(new
-     * MenuItem(tables.getTable(a))); } }
-     * 
-     * vf.getMenuSelection().getItems().forEach(e ->
-     * e.setOnAction(menus::selectionForEachTable));
-     * menus.getTableDelete().getItems().forEach(e ->
-     * e.setOnAction(menus::deleteTables)); }
-     */
-    public VF(VLController vl) {
+    private void init() {
         try {
             FXMLLoader loader = new FXMLLoader(VF.class.getResource("/com/cofii/ts/first/VF.fxml"));
             Scene scene = new Scene(loader.load());
             scene.getStylesheets().add(VF.class.getResource("/com/cofii/ts/first/VF.css").toExternalForm());
-            stage.setScene(scene);
+
+            if (vl != null) {//NEW WINDOW
+                stage.setScene(scene);
+            }else{
+                vc.getVf().getStage().setScene(scene);
+            }
             // -------------------------------------------------
             vf = (VFController) loader.getController();
+            Menus.clearInstance();
             menus = Menus.getInstance(vf);
             // -------------------------------------------------
             // Arrays.asList(vf.getTfas()).forEach(e -> e.get);
             // -------------------------------------------------
-            vf.setStage(stage);
+            vf.setStage(vl != null ? stage : vc.getVf().getStage());
             vf.setScene(scene);
             vf.setVl(vl);
 
@@ -120,6 +111,18 @@ public class VF {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public VF(VLController vl) {
+        this.vl = vl;
+        vc = null;
+        init();
+    }
+
+    public VF(VCController vc) {
+        this.vc = vc;
+        vl = null;
+        init();
     }
 
     // -------------------------------------------

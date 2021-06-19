@@ -31,10 +31,10 @@ public class WrongPassword implements IConnectionException {
             Stage stage = new Stage();
 
             TextArea ta = new TextArea();
-            for(StackTraceElement x :ex.getStackTrace()){
+            for (StackTraceElement x : ex.getStackTrace()) {
                 ta.appendText(x.toString() + "\n");
             }
-            
+
             VBox status = new VBox(new Label(ex.getMessage()), ta);
             stage.setScene(new Scene(status));
 
@@ -49,7 +49,9 @@ public class WrongPassword implements IConnectionException {
     @Override
     public void succes() {
         vf.getStage().show();
-        vf.getVl().getStage().close();
+        if (vf.getVl() != null) {
+            vf.getVl().getStage().close();
+        }
         // vl.getStage().close();
     }
 

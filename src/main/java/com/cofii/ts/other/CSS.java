@@ -8,6 +8,10 @@ public class CSS {
 
     public static final String TEXT_FILL_ERROR = "-fx-text-fill: red";
     public static final String TEXT_FILL = "-fx-text-fill: white";
+    public static final String TEXT_FILL_HINT = "-fx-text-fill: blue";
+
+    public static final String BG_COLOR_HINT = "-fx-background-color: blue";
+    public static final String BG_COLOR = "-fx-background-color: white";
 
     public static final String TFAS_DEFAULT_LOOK = "-fx-background-color: #035850; -fx-text-fill: white";
     //VC----------------------------

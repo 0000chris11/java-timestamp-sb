@@ -18,6 +18,9 @@ import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.text.Text;
 import javafx.util.StringConverter;
 
+/**
+ * Class to reset the columns, their nodes and the table columns
+ */
 public class ShowColumns implements IActions {
 
     private int rows;
@@ -38,7 +41,7 @@ public class ShowColumns implements IActions {
 
     @Override
     public void setData(ResultSet rs, int row) throws SQLException {
-        String columnName = rs.getString(1);
+        String columnName = rs.getString(1).replace("_", " ");
         String typeHole = rs.getString(2).toUpperCase();
         String nulll = rs.getString(3);
         String defaultt = rs.getString(5);

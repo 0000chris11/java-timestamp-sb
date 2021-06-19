@@ -44,7 +44,6 @@ public class Menus {
     private Menu tableDelete = new Menu("Delete table");
     private MenuItem tableDeleteThis = new MenuItem("Delete this table");
     // ---------------------------------------------------
-    private static Menus instance;
     private static VFController vf;
     private TableS tables = TableS.getInstance();
     private ColumnDS columnds = ColumnDS.getInstance();
@@ -199,13 +198,16 @@ public class Menus {
         }
     }
     // INIT---------------------------------------------------
-    
+    private static Menus instance;
     public static Menus getInstance(VFController vf) {
         Menus.vf = vf;
         if (instance == null) {
             instance = new Menus();
         }
         return instance;
+    }
+    public static void clearInstance(){
+        instance = null;
     }
 
     private Menus() {
