@@ -5,7 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.cofii.ts.first.VFController;
-
+import com.cofii.ts.other.CSS;
 import com.cofii.ts.sql.MSQL;
 
 import com.cofii.ts.store.ColumnDS;
@@ -31,7 +31,7 @@ public class VC {
     private MSQLP ms;
     private ColumnS columns = ColumnS.getInstance();
 
-    //private UpdateTable updateTable;
+    // private UpdateTable updateTable;
 
     // -----------------------------------------------------
     private void rowDisplay(int size) {
@@ -58,6 +58,7 @@ public class VC {
     }
 
     private void createOption() {
+        setTextFill(true);
         vcc.pesetListInit(vcc.getCurrentRowLength());
         // TOP--------------------------------------------------------
         vcc.getBtnRenameTable().setVisible(false);
@@ -166,8 +167,29 @@ public class VC {
         vcc.setUpdateTable(updateTable);
     }
 
+    private void setTextFill(boolean create) {
+        if (create) {
+            for (int a = 0; a < vcc.getCurrentRowLength(); a++) {
+                vcc.getCksNull()[a].setStyle(CSS.CKS_BG);
+                vcc.getCksDefault()[a].setStyle(CSS.CKS_BG);
+            }
+        } else {
+            vcc.getTfTable().setStyle(CSS.TEXT_FILL_HINT);
+            for (int a = 0; a < columns.size(); a++) {
+                vcc.getTfsColumn()[a].setStyle(CSS.TEXT_FILL_HINT);
+                vcc.getTfasType()[a].setStyle(CSS.TEXT_FILL_HINT);
+                vcc.getTfsTypeLength()[a].setStyle(CSS.TEXT_FILL_HINT);
+                // vcc.getCksNull()[a].setStyle(CSS.TEXT_FILL_HINT);
+                vcc.getCksNull()[a].setStyle(CSS.CKS_BG_HINT);
+                vcc.getCksDefault()[a].setStyle(CSS.CKS_BG_HINT);
+                vcc.getTfsDefault()[a].setStyle(CSS.TEXT_FILL_HINT);
+            }
+        }
+    }
+
     private void updateOption() {
         setUpdateStore();
+        setTextFill(false);
         vcc.pesetListInit(columns.size());
         // TOP-------------------------------------------------------
         vcc.getBtnRenameTable().setVisible(true);
@@ -177,10 +199,12 @@ public class VC {
         vcc.setCurrentRowLength(columns.size());
         for (int a = 0; a < MSQL.MAX_COLUMNS; a++) {
             vcc.getBtnsRemoveColumn()[a].setOnAction(vcc::btnsRemoveUpdateAction);
-            vcc.getBtnsAddColumn()[a].setOnAction(vcc::btnsAddUpdateAction);
+            vcc.getBtnsAddColumn()[a].setOnAction(vcc::btnsColumnSetVisibleAction);
             vcc.getBtnsRenameColumn()[a].setOnAction(vcc::btnsRenameColumn);
-
             vcc.getBtnsChangeType()[a].setOnAction(vcc::btnsChangeType);
+            vcc.getCksNull()[a].setOnAction(vcc::cksNullAction);
+            vcc.getBtnsChangeNull()[a].setOnAction(vcc::btnsChangeNull);
+            vcc.getBtnsChangeDefault()[a].setOnAction(vcc::btnsChangeDefault);
 
             vcc.getBtnsRenameColumn()[a].setVisible(true);
             vcc.getBtnsChangeType()[a].setVisible(true);

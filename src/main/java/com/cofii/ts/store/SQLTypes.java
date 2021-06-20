@@ -45,7 +45,12 @@ public class SQLTypes {
         return returnValue;
     }
     public String getTypeChar(String typeName){
-        SQLType type = types.stream().filter(e -> typeName.equals(e.getTypeName())).findFirst().orElse(null);
+        if(typeName.contains("(")){
+            typeName = typeName.substring(0, typeName.indexOf("("));//TEST
+            System.out.println("typeName : " + typeName);
+        }
+        final String typeNamef = typeName;
+        SQLType type = types.stream().filter(e -> typeNamef.equals(e.getTypeName())).findFirst().orElse(null);
         return type.getTypeChar();
     }
     public SQLType getType(String typeName){

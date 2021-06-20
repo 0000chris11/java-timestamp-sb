@@ -61,7 +61,7 @@ public class Dist {
             String column = columns.getColumn(c);
 
             ms.setDistinctOrder(MSQLP.MOST_USE_ORDER);// WORK 50 50 WITH TAGS
-            ms.selectDistinctColumn(table, column, new SelectDistinct(vf, c));
+            ms.selectDistinctColumn(table, column.replace(" ", "_"), new SelectDistinct(vf, c));
             p += 2;
         }
         gp.getRowConstraints().get(4).setMaxHeight(Short.MAX_VALUE);

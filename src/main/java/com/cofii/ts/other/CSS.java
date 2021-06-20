@@ -18,6 +18,9 @@ public class CSS {
     public static final String NEW_ROW = "-fx-background-color: #0c28f7";
     public static final String ADD_COL_BUTTON = "-fx-background-color: #1ca34d";
     public static final String REMOVE_COL_BUTTON = "-fx-background-color: #9c2f27";
+
+    public static final String CKS_BG = "box-color: white";
+    public static final String CKS_BG_HINT = "box-color: blue";
     //-------------------------------
     private CSS(){
 
