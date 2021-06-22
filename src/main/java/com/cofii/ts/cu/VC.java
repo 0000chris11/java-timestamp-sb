@@ -75,8 +75,6 @@ public class VC {
             vcc.getBtnsRenameColumn()[a].setVisible(false);
             vcc.getBtnsChangeType()[a].setVisible(false);
             vcc.getBtnsChangeNull()[a].setVisible(false);
-            vcc.getBtnsChangePK()[a].setVisible(false);
-            vcc.getBtnsChangeFK()[a].setVisible(false);
             vcc.getBtnsChangeDefault()[a].setVisible(false);
         }
         vcc.btnAddRemoveColumnInit();
@@ -107,7 +105,7 @@ public class VC {
         List<String> pks = Arrays.asList(keys.getPKS());
         List<QString> fks = Arrays.asList(keys.getFKS());
         String[] fksFormed = new String[columns.size()];
-        List<String> defaults = Arrays.asList(columns.getDefaults());
+        List<Object> defaults = Arrays.asList(columns.getDefaults());
         int extra = columns.getExtra();
 
         List<String> dists = Arrays.asList(columnds.getDists());
@@ -121,7 +119,7 @@ public class VC {
             vcc.getTfasType()[a].setText(types.get(a));
             vcc.getTfsTypeLength()[a].setText(Integer.toString(typesLength.get(a)));
             vcc.getCksNull()[a].setSelected(nulls.get(a));
-            vcc.getCksPK()[a].setSelected(pks.get(a).equals("Yes"));
+            vcc.getRbsPK()[a].setSelected(pks.get(a).equals("Yes"));
             if (fks.get(a) != null) {// NOT TESTED
                 vcc.getCksFK()[a].setSelected(true);
                 fksFormed[a] = fks.get(a).getString2() + "." + fks.get(a).getString3() + "." + fks.get(a).getString4();
@@ -131,7 +129,7 @@ public class VC {
             if (defaults.get(a) != null) {
                 vcc.getCksDefault()[a].setSelected(true);
                 vcc.getTfsDefault()[a].setVisible(true);
-                vcc.getTfsDefault()[a].setText(defaults.get(a));
+                vcc.getTfsDefault()[a].setText(defaults.get(a).toString());
             } else {
                 vcc.getCksDefault()[a].setSelected(false);
             }
@@ -209,13 +207,11 @@ public class VC {
             vcc.getBtnsRenameColumn()[a].setVisible(true);
             vcc.getBtnsChangeType()[a].setVisible(true);
             vcc.getBtnsChangeNull()[a].setVisible(true);
-            vcc.getBtnsChangePK()[a].setVisible(true);// DELETE
-            vcc.getBtnsChangeFK()[a].setVisible(true);// DELETE
             vcc.getBtnsChangeDefault()[a].setVisible(true);
         }
-        Arrays.asList(vcc.getCksPK()).forEach(e -> e.setOnAction(vcc::cksPKAction));
+        Arrays.asList(vcc.getRbsPK()).forEach(e -> e.setOnAction(vcc::cksPKAction));
         // LEFT-BOTTOM------------------------------------------------
-
+        vcc.getBtnUpdatePK().setOnAction(vcc::btnUpdatePK);
         vcc.getLbUpdateLeft().setDisable(false);
         // RIGHT-BOTTOM------------------------------------------------
         // BOTTOM-----------------------------------------------------

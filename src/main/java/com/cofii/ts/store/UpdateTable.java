@@ -19,7 +19,7 @@ public class UpdateTable {
     private List<String> pks = new ArrayList<>(max);
     private List<QString> fks = new ArrayList<>(max);
     private List<String> fkFormed = new ArrayList<>(max);
-    private List<String> defaults = new ArrayList<>(max);
+    private List<Object> defaults = new ArrayList<>(max);
     private int extra = -1;
 
     private List<String> dist = new ArrayList<>(max);
@@ -80,10 +80,10 @@ public class UpdateTable {
     public void setFkFormed(List<String> fkFormed) {
         this.fkFormed = fkFormed;
     }
-    public List<String> getDefaults() {
+    public List<Object> getDefaults() {
         return defaults;
     }
-    public void setDefaults(List<String> defaults) {
+    public void setDefaults(List<Object> defaults) {
         this.defaults = defaults;
     }
     public int getExtra() {

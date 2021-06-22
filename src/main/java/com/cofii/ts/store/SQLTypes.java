@@ -6,72 +6,89 @@ import java.util.List;
 public class SQLTypes {
 
     private List<SQLType> types = new ArrayList<>();
-    //---------------------------------------------------
-    public String[] getTypeNames(){
+
+    // ---------------------------------------------------
+    public String[] getTypeNames() {
         String[] typeNames = new String[types.size()];
         int c = 0;
-        for(SQLType x : types){
+        for (SQLType x : types) {
             typeNames[c++] = x.getTypeName();
         }
         return typeNames;
     }
 
-    public String getTypeName(int index){
+    public String getTypeName(int index) {
         return types.get(index).getTypeName();
     }
-    public int getTypeLength(int index){
+
+    public int getTypeLength(int index) {
         return types.get(index).getTypeLength();
     }
-    public int getTypeLength(String element){
+
+    public int getTypeLength(String element) {
         int returnValue = -1;
-        for(SQLType type : types){
-            if(element.equals(type.getTypeName())){
+        for (SQLType type : types) {
+            if (element.equals(type.getTypeName())) {
                 returnValue = type.getTypeLength();
             }
         }
         return returnValue;
-        
+
     }
-    public int getTypeMaxLength(int index){
+
+    public int getTypeMaxLength(int index) {
         return types.get(index).getTypeMaxLength();
     }
-    public int getTypeMaxLength(String element){
+
+    public int getTypeMaxLength(String element) {
         int returnValue = -1;
-        for(SQLType type : types){
-            if(element.equals(type.getTypeName())){
+        for (SQLType type : types) {
+            if (element.equals(type.getTypeName())) {
                 returnValue = type.getTypeMaxLength();
             }
         }
         return returnValue;
     }
-    public String getTypeChar(String typeName){
-        if(typeName.contains("(")){
-            typeName = typeName.substring(0, typeName.indexOf("("));//TEST
-            System.out.println("typeName : " + typeName);
-        }
-        final String typeNamef = typeName;
-        SQLType type = types.stream().filter(e -> typeNamef.equals(e.getTypeName())).findFirst().orElse(null);
+
+    public String getTypeChar(String typeName) {
+        //System.out.println("typeName: [" + typeName + "]");
+        /*
+         * if(typeName.contains("(")){ typeName = typeName.substring(0,
+         * typeName.indexOf("("));//TEST System.out.println("typeName : " + typeName); }
+         * final String typeNamef = typeName;
+         */
+        SQLType type = types.stream()
+                .filter(e -> {
+                    //System.out.println("\te.getTypeName(): [" + e.getTypeName() + "]");
+                        return typeName.equals(e.getTypeName()) || typeName.startsWith(e.getTypeName());
+                    
+                }).findFirst()
+                .orElse(null);
         return type.getTypeChar();
     }
-    public SQLType getType(String typeName){
+
+    public SQLType getType(String typeName) {
         SQLType returnValue = null;
-        for(SQLType type : types){
-            if(typeName.equals(type.getTypeName())){
+        for (SQLType type : types) {
+            if (typeName.equals(type.getTypeName())) {
                 returnValue = type;
                 break;
             }
         }
         return returnValue;
     }
-    //---------------------------------------------------
+
+    // ---------------------------------------------------
     private static SQLTypes instance;
-    public static SQLTypes getInstance(){
-        if(instance == null){
+
+    public static SQLTypes getInstance() {
+        if (instance == null) {
             instance = new SQLTypes();
         }
         return instance;
     }
-    private SQLTypes(){
+
+    private SQLTypes() {
         types.add(new SQLType("INT", 11, 11, "NUMBER"));
         types.add(new SQLType("TINYINT", 4, 4, "NUMBER"));
         types.add(new SQLType("SMALLINT", 6, 6, "NUMBER"));
@@ -86,7 +103,7 @@ public class SQLTypes {
         types.add(new SQLType("DATE", 0, 0, "STRING"));
         types.add(new SQLType("DATETIME", 0, 0, "STRING"));
         types.add(new SQLType("TIMESTAMP", 0, 0, "STRING"));
-        types.add(new SQLType("BINARY", 0, 0, "BINARY"));
-        types.add(new SQLType("VARBINARY", 0, 0, "BINARY"));
+        // types.add(new SQLType("BINARY", 0, 0, "BINARY"));
+        // types.add(new SQLType("VARBINARY", 0, 0, "BINARY"));
     }
 }
