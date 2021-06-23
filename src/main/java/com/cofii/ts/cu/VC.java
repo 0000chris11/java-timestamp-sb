@@ -212,8 +212,17 @@ public class VC {
         Arrays.asList(vcc.getRbsPK()).forEach(e -> e.setOnAction(vcc::cksPKAction));
         // LEFT-BOTTOM------------------------------------------------
         vcc.getBtnUpdatePK().setOnAction(vcc::btnUpdatePK);
+        vcc.getBtnUpdateFK().setOnAction(vcc::btnUpdateFK);
+        vcc.getBtnUpdateExtra().setOnAction(vcc::btnUpdateExtra);
+
         vcc.getLbUpdateLeft().setDisable(false);
+
+        vcc.getBtnUpdatePK().setId(Integer.toString(-1));
+        vcc.getBtnUpdateFK().setId(Integer.toString(-1));
+        vcc.getBtnUpdateExtra().setId(Integer.toString(-1));
         // RIGHT-BOTTOM------------------------------------------------
+        vcc.getBtnUpdateDist().setId(Integer.toString(-1));
+        vcc.getBtnUpdateImageC().setId(Integer.toString(-1));
         // BOTTOM-----------------------------------------------------
         vcc.getBtnCreateUpdate().setVisible(false);
         vcc.setUpdateControl(true);

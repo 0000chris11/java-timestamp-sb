@@ -177,7 +177,7 @@ public class VCController implements Initializable {
     private HBox[] hbsPK = new HBox[MSQL.MAX_COLUMNS];// -----------
     private RadioButton[] rbsPK = new RadioButton[MSQL.MAX_COLUMNS];
     private PopupMessage[] rbsPKPopups = new PopupMessage[MSQL.MAX_COLUMNS];
-    //private Button[] btnsChangePK = new Button[MSQL.MAX_COLUMNS];
+    // private Button[] btnsChangePK = new Button[MSQL.MAX_COLUMNS];
     private HBox[] hbsFK = new HBox[MSQL.MAX_COLUMNS];// -----------
     private RadioButton[] rbsFK = new RadioButton[MSQL.MAX_COLUMNS];
     // private TextFieldAutoC[] tfasFK = new TextFieldAutoC[MSQL.MAX_COLUMNS];
@@ -185,7 +185,7 @@ public class VCController implements Initializable {
     private TextField[] tfasFK = new TextField[MSQL.MAX_COLUMNS];
     private PopupAutoC[] tfsFKPs = new PopupAutoC[MSQL.MAX_COLUMNS];
     private PopupMessage[] tfsFKPopups = new PopupMessage[MSQL.MAX_COLUMNS];
-    //private Button[] btnsChangeFK = new Button[MSQL.MAX_COLUMNS];
+    // private Button[] btnsChangeFK = new Button[MSQL.MAX_COLUMNS];
     private HBox[] hbsDefault = new HBox[MSQL.MAX_COLUMNS];// -----------
     private CheckBox[] cksDefault = new CheckBox[MSQL.MAX_COLUMNS];
     private PopupMessage[] cksDefaultPopups = new PopupMessage[MSQL.MAX_COLUMNS];
@@ -256,9 +256,11 @@ public class VCController implements Initializable {
         }
 
         table = MSQL.getCurrentTable().getName().replace(" ", "_");
-        column = updateTable.getColumns().get(index).replace(" ", "_");
-        type = tfasType[index].getText()
-                + (tfsTypeLength[index].isVisible() ? "(" + tfsTypeLength[index].getText() + ")" : "");
+        if (index >= 0) {
+            column = updateTable.getColumns().get(index).replace(" ", "_");
+            type = tfasType[index].getText()
+                    + (tfsTypeLength[index].isVisible() ? "(" + tfsTypeLength[index].getText() + ")" : "");
+        }
     }
 
     // CONTROL---------------------------------------------
@@ -956,7 +958,9 @@ public class VCController implements Initializable {
                         : "");
         boolean nulll = cksNull[index].isSelected();
         // ----------------------------------------------
-        boolean changeNull = ms.changeType(table, column, type, nulll);
+        ms.setNullValue(nulll);
+        ms.setExtraValue(index == updateTable.getExtra());
+        boolean changeNull = ms.changeType(table, column, type);
         if (changeNull) {
             System.out.println("\tSUCCESS");
             updateTable.getNulls().set(index, nulll);
@@ -994,13 +998,50 @@ public class VCController implements Initializable {
             btnUpdatePK.setDisable(true);
         }
     }
-    
-    void btnUpdatePK(ActionEvent e){
+
+    void btnUpdatePK(ActionEvent e) {
+        System.out.println(CC.CYAN + "Update PK" + CC.RESET);
         setQOLVariables(e);
+
+        boolean dropPK = true;
+        if(updateTable.getPks().stream().anyMatch(p -> p.equals("Yes"))){
+            dropPK = ms.dropPrimaryKey(table);
+        }   
         
-        ms.dropPrimaryKey(table);
+        if (dropPK) {
+            List<String> cols = new ArrayList<>(currentRowLength);
+            int[] indexs = { 0 };
+            Arrays.asList(rbsPK).forEach(el -> {
+                if (el.isSelected()) {
+                    cols.add(updateTable.getColumns().get(indexs[0]).replace(" ", "_"));
+                    updateTable.getPks().set(indexs[0], "Yes");
+                }
+                indexs[0]++;
+            });
+            boolean addPK = true;
+            if (!cols.isEmpty()) {
+                addPK = ms.addPrimaryKey(table, cols.toArray(new String[cols.size()]));
+            }
+            if (addPK) {
+                btnUpdatePK.setDisable(true);
+
+                lbStatus.setText("Changed Primary Key");
+                lbStatus.setTextFill(NonCSS.TEXT_FILL_OK);
+
+                System.out.println("\tSUCCESS");
+            } else {
+                lbStatus.setText("Failt to Change Primary Key");
+                lbStatus.setTextFill(NonCSS.TEXT_FILL_ERROR);
+
+                System.out.println("\tFAILED");
+
+            }
+
+            timers.playLbStatusReset(lbStatus);
+        }
     }
-    //FKS==========================================================
+
+    // FKS==========================================================
     private void cksFKAction(ActionEvent e) {
         CheckBox ck = (CheckBox) e.getSource();
         int index = Integer.parseInt(ck.getId());
@@ -1097,6 +1138,12 @@ public class VCController implements Initializable {
         }
     }
 
+    void btnUpdateFK(ActionEvent e){
+        System.out.println(CC.CYAN + "Update FK" + CC.RESET);
+        if(!updateTable.getFks().stream().allMatch(fk -> fk == null)){
+            //DROP FOREIGN KEY   
+        }
+    }
     // DEFAULTS=================================================
     private void cksDefaultAction(ActionEvent e) {
         CheckBox ck = (CheckBox) e.getSource();
@@ -1244,6 +1291,7 @@ public class VCController implements Initializable {
     }
 
     void btnsChangeDefault(ActionEvent e) {
+        System.out.println(CC.CYAN + "Update Default" + CC.RESET);
         setQOLVariables(e);
         // FINISH
         Object defaultValue = null;
@@ -1291,12 +1339,14 @@ public class VCController implements Initializable {
         setQOLVariables(e);
         int errorCount = 0;
         // ---------------------------------------------
+        Arrays.asList(rbsExtraPopups).forEach(p -> p.hide());
+        // ---------------------------------------------
         if (rbsExtra[index].isSelected()) {
             if (rbsPK[index].isSelected()) {
                 rbsExtraPopups[index].hide();
                 extraPKOK = true;
             } else {
-                lbhExtra.setTextFill(NonCSS.TEXT_FILL_ERROR);
+                // lbhExtra.setTextFill(NonCSS.TEXT_FILL_ERROR);
                 rbsExtraPopups[index].show("An AUTO_INCREMENT column has to be a PRIMARY KEY");
 
                 errorCount++;
@@ -1305,7 +1355,7 @@ public class VCController implements Initializable {
             }
             // ---------------------------------------------
             if (rbsFK[index].isSelected()) {
-                lbhExtra.setTextFill(NonCSS.TEXT_FILL_ERROR);
+                // lbhExtra.setTextFill(NonCSS.TEXT_FILL_ERROR);
                 if (errorCount == 0) {
                     rbsExtraPopups[index].show("There's no need to have a FOREIGN KEY column with AUTO_INCREMENT");
                 } else {
@@ -1320,7 +1370,7 @@ public class VCController implements Initializable {
             }
             // ---------------------------------------------
             if (cksDefault[index].isSelected()) {
-                lbhExtra.setTextFill(NonCSS.TEXT_FILL_ERROR);
+                // lbhExtra.setTextFill(NonCSS.TEXT_FILL_ERROR);
                 if (errorCount == 0) {
                     rbsExtraPopups[index]
                             .show("There's no need to have a DEFAULT value in a column with AUTO_INCREMENT");
@@ -1330,10 +1380,12 @@ public class VCController implements Initializable {
 
                 }
                 extraDefaultOK = false;
+            } else {
+                extraDefaultOK = true;
             }
             // ---------------------------------------------
         } else {
-            lbhExtra.setTextFill(NonCSS.TEXT_FILL);
+            // lbhExtra.setTextFill(NonCSS.TEXT_FILL);
             rbsExtraPopups[index].hide();
 
             extraPKOK = true;
@@ -1348,7 +1400,7 @@ public class VCController implements Initializable {
 
     private void extraUpdate(int index) {
         if (updateControl) {
-            if (extraDefaultOK && extraPKOK && extraFKOK) {// NOT SURE IF NECESSARY
+            if (extraDefaultOK && extraPKOK && extraFKOK) {
                 int extraO = updateTable.getExtra();
                 int extra = rbsExtra[index].isSelected() ? index : -1;
                 if (extra != extraO) {
@@ -1364,6 +1416,35 @@ public class VCController implements Initializable {
                 btnUpdateExtra.setDisable(true);
             }
         }
+    }
+
+    void btnUpdateExtra(ActionEvent e) {
+        System.out.println(CC.CYAN + "Update Extra" + CC.RESET);
+        setQOLVariables(e);
+
+        int[] indexs = { 0 };
+        boolean extra = Arrays.asList(rbsExtra).stream().anyMatch(rb -> {
+            boolean selected = rb.isSelected();
+            indexs[0]++;// MAY WORK -> TEST MORE
+            return selected;
+        });
+        ms.setNullValue(extra ? updateTable.getNulls().get(indexs[0]) : false);
+        ms.setExtraValue(extra);
+        boolean updateExtra = ms.changeType(table, column, type);
+        if (updateExtra) {
+            System.out.println(indexs[0]);
+            updateTable.setExtra(extra ? indexs[0] : -1);
+
+            btnUpdateExtra.setDisable(true);
+
+            lbStatus.setText("Changed Extra");
+            lbStatus.setTextFill(NonCSS.TEXT_FILL_OK);
+        } else {
+            lbStatus.setText("Fail to change Extra");
+            lbStatus.setTextFill(NonCSS.TEXT_FILL_ERROR);
+        }
+
+        timers.playLbStatusReset(lbStatus);
     }
 
     // BOTTOM===================================================
@@ -1736,7 +1817,7 @@ public class VCController implements Initializable {
             rbsPK[row] = new RadioButton();
             rbsPK[row].setSelected(pkStore);
             rbsPKPopups[row] = new PopupMessage(rbsPK[row]);
-            //btnsChangePK[row] = new Button("C");
+            // btnsChangePK[row] = new Button("C");
             hbsPK[row] = new HBox(rbsPK[row]);
             // FKS----------------------------------------------
             boolean fkStore = storeNodes.getFks() != null ? storeNodes.getFks()[a] : false;
@@ -1749,7 +1830,7 @@ public class VCController implements Initializable {
             tfsFKPs[row] = new PopupAutoC(tfasFK[row]);
             tfsFKPopups[row] = new PopupMessage(tfasFK[row]);
 
-            //btnsChangeFK[row] = new Button("C");
+            // btnsChangeFK[row] = new Button("C");
             hbsFK[row] = new HBox(rbsFK[row], tfasFK[row]);
             // DEFAULTS----------------------------------------------
             boolean defaultStore = storeNodes.getDefaults() != null ? storeNodes.getDefaults()[a] : false;
@@ -1815,9 +1896,9 @@ public class VCController implements Initializable {
             tfsTypeLength[row].managedProperty().bind(tfsTypeLength[row].visibleProperty());
             btnsChangeType[row].managedProperty().bind(btnsChangeType[row].visibleProperty());
             btnsChangeNull[row].managedProperty().bind(btnsChangeNull[row].visibleProperty());
-            //btnsChangePK[row].managedProperty().bind(btnsChangePK[row].visibleProperty());
+            // btnsChangePK[row].managedProperty().bind(btnsChangePK[row].visibleProperty());
             tfasFK[row].managedProperty().bind(tfasFK[row].visibleProperty());
-            //btnsChangeFK[row].managedProperty().bind(btnsChangeFK[row].visibleProperty());
+            // btnsChangeFK[row].managedProperty().bind(btnsChangeFK[row].visibleProperty());
             tfsDefault[row].managedProperty().bind(tfsDefault[row].visibleProperty());
             btnsChangeDefault[row].managedProperty().bind(btnsChangeDefault[row].visibleProperty());
             // ----------------------------------------------------------
@@ -2432,6 +2513,14 @@ public class VCController implements Initializable {
 
     public void setHbsN(HBox[] hbsN) {
         this.hbsN = hbsN;
+    }
+
+    public Button getBtnUpdateImageC() {
+        return btnUpdateImageC;
+    }
+
+    public void setBtnUpdateImageC(Button btnUpdateImageC) {
+        this.btnUpdateImageC = btnUpdateImageC;
     }
 
 }
