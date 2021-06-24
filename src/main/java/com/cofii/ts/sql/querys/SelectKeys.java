@@ -6,8 +6,12 @@ import java.sql.SQLException;
 import com.cofii.ts.first.VFController;
 import com.cofii.ts.other.NonCSS;
 import com.cofii.ts.sql.MSQL;
+import com.cofii.ts.store.FK;
+import com.cofii.ts.store.FKS;
 import com.cofii.ts.store.Key;
 import com.cofii.ts.store.Keys;
+import com.cofii.ts.store.PK;
+import com.cofii.ts.store.PKS;
 import com.cofii2.myInterfaces.IActions;
 
 import javafx.scene.text.Text;
@@ -16,6 +20,8 @@ public class SelectKeys implements IActions {
 
     private VFController vf;
     private Keys keys = Keys.getInstance();
+    private PKS pks = PKS.getInstance();
+    private FKS fks = FKS.getInstance();
 
     private String databaseName;
     private String tableName;
@@ -57,7 +63,9 @@ public class SelectKeys implements IActions {
 
     @Override
     public void beforeQuery() {
-        keys.clearKeys();
+        ///keys.clearKeys();
+        pks.clearPKS();
+        fks.clearFKS();
     }
 
     @Override
@@ -71,10 +79,27 @@ public class SelectKeys implements IActions {
         referencedTableName = rs.getString(7);
         referencedColumnName = rs.getString(8);
 
+        if (databaseName.equals("time_stamp")) {
+            System.out.println("########### ROW: " + row);
+            System.out.println("\tdatabaseName: " + databaseName);
+            System.out.println("\ttableName: " + tableName);
+            System.out.println("\tconstraintType: " + constraintType);
+            System.out.println("\tordinalPosition: " + ordinalPosition);
+            System.out.println("\tcolumnName: " + columnName);
+            System.out.println("\treferencedTableSchema: " + referencedTableSchema);
+            System.out.println("\treferencedTableName: " + referencedTableName);
+            System.out.println("\treferencedColumnName: " + referencedColumnName);
+        }
         keysImplement();
         // --------------------------------------------
-        keys.addKey(new Key(databaseName, tableName, constraintType, ordinalPosition, columnName, referencedTableSchema,
-                referencedTableName, referencedColumnName));
+        if (constraintType.equals("PRIMARY KEY")) {
+            pks.addPK(new PK(databaseName, tableName, ordinalPosition, columnName));
+        } else if (constraintType.equals("FOREIGN KEY")) {
+            fks.addFK(new FK(databaseName, tableName, ordinalPosition, columnName, referencedTableSchema,
+                    referencedTableName, referencedColumnName));
+        }
+        //keys.addKey(new Key(databaseName, tableName, constraintType, ordinalPosition, columnName, referencedTableSchema,
+          //      referencedTableName, referencedColumnName));
     }
 
     @Override

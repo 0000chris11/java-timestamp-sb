@@ -10,6 +10,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -21,8 +22,11 @@ import com.cofii.ts.other.NonCSS;
 import com.cofii.ts.other.Timers;
 import com.cofii.ts.sql.CurrenConnection;
 import com.cofii.ts.sql.MSQL;
+import com.cofii.ts.store.FKS;
 import com.cofii.ts.store.Key;
 import com.cofii.ts.store.Keys;
+import com.cofii.ts.store.PK;
+import com.cofii.ts.store.PKS;
 import com.cofii.ts.store.SQLType;
 import com.cofii.ts.store.SQLTypes;
 import com.cofii.ts.store.Table;
@@ -213,7 +217,10 @@ public class VCController implements Initializable {
     private MSQLP ms;
     private TableS tables = TableS.getInstance();
     private SQLTypes types = SQLTypes.getInstance();
-    private Keys keys = Keys.getInstance();
+    // private Keys keys = Keys.getInstance();
+    private PKS pks = PKS.getInstance();
+    private FKS fks = FKS.getInstance();
+
     private Timers timers = Timers.getInstance(vf);
     private UpdateTable updateTable;
     private VCGridNodes storeNodes = VCGridNodes.getInstance();
@@ -1004,10 +1011,10 @@ public class VCController implements Initializable {
         setQOLVariables(e);
 
         boolean dropPK = true;
-        if(updateTable.getPks().stream().anyMatch(p -> p.equals("Yes"))){
+        if (updateTable.getPks().stream().anyMatch(p -> p.equals("Yes"))) {
             dropPK = ms.dropPrimaryKey(table);
-        }   
-        
+        }
+
         if (dropPK) {
             List<String> cols = new ArrayList<>(currentRowLength);
             int[] indexs = { 0 };
@@ -1138,12 +1145,13 @@ public class VCController implements Initializable {
         }
     }
 
-    void btnUpdateFK(ActionEvent e){
+    void btnUpdateFK(ActionEvent e) {
         System.out.println(CC.CYAN + "Update FK" + CC.RESET);
-        if(!updateTable.getFks().stream().allMatch(fk -> fk == null)){
-            //DROP FOREIGN KEY   
+        if (!updateTable.getFks().stream().allMatch(fk -> fk == null)) {
+            // DROP FOREIGN KEY
         }
     }
+
     // DEFAULTS=================================================
     private void cksDefaultAction(ActionEvent e) {
         CheckBox ck = (CheckBox) e.getSource();
@@ -1735,14 +1743,20 @@ public class VCController implements Initializable {
 
     // INIT ---------------------------------------------
     private void fkReferencesInit() {
-        Key[] row = keys.getRowPrimaryKeys();
+        //Key[] row = keys.getRowPrimaryKeys();
         List<String> list = new ArrayList<>();
+        List<PK> pksList = pks.getPksList();
 
-        for (int a = 0; a < row.length; a++) {
-            String database = row[a].getDatabase();
-            String table = row[a].getTableName();
-            String column = row[a].getColumnName();
-            list.add(database + "." + table + "." + column);
+        for (int a = 0; a < pks.getPksList().size(); a++) {
+            String databaseName = pksList.get(a).getDatabase();
+            String tableName = pksList.get(a).getTable();
+            Map<Integer, String> columns = pksList.get(a).getColumns();
+            //String column = row[a].getColumnName();
+            StringBuilder sb = new StringBuilder(databaseName).append(".").append(tableName).append(" (");
+            columns.forEach((i, s) -> sb.append(s).append(","));
+            sb.deleteCharAt(sb.length() - 1);//TEST
+            sb.append(")");
+            list.add(sb.toString());
         }
 
         String[] elements = list.toArray(new String[list.size()]);
