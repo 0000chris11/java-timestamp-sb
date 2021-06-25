@@ -17,7 +17,7 @@ public class UpdateTable {
     private List<Integer> typesLength = new ArrayList<>(max);
     private List<Boolean> nulls = new ArrayList<>(max);
     private List<String> pks = new ArrayList<>(max);
-    private List<QString> fks = new ArrayList<>(max);
+    private List<String> fks = new ArrayList<>(max);
     private List<String> fkFormed = new ArrayList<>(max);
     private List<Object> defaults = new ArrayList<>(max);
     private int extra = -1;
@@ -68,10 +68,10 @@ public class UpdateTable {
     public void setPks(List<String> pks) {
         this.pks = pks;
     }
-    public List<QString> getFks() {
+    public List<String> getFks() {
         return fks;
     }
-    public void setFks(List<QString> fks) {
+    public void setFks(List<String> fks) {
         this.fks = fks;
     }
     public List<String> getFkFormed() {

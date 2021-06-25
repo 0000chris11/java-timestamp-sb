@@ -13,7 +13,6 @@ import com.cofii.ts.sql.querys.SelectDistinct;
 import com.cofii.ts.store.ColumnD;
 import com.cofii.ts.store.ColumnDS;
 import com.cofii.ts.store.ColumnS;
-import com.cofii.ts.store.Keys;
 import com.cofii2.methods.MString;
 import com.cofii2.mysql.MSQLP;
 

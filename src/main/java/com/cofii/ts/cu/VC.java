@@ -10,7 +10,9 @@ import com.cofii.ts.sql.MSQL;
 
 import com.cofii.ts.store.ColumnDS;
 import com.cofii.ts.store.ColumnS;
-import com.cofii.ts.store.Keys;
+import com.cofii.ts.store.FK;
+import com.cofii.ts.store.FKS;
+import com.cofii.ts.store.PKS;
 import com.cofii.ts.store.UpdateTable;
 import com.cofii2.mysql.MSQLP;
 import com.cofii2.stores.CC;
@@ -92,7 +94,10 @@ public class VC {
     }
 
     private void setUpdateStore() {
-        Keys keys = Keys.getInstance();
+        //Keys keys = Keys.getInstance();
+        PKS pks = PKS.getInstance();
+        FKS fks = FKS.getInstance();
+
         ColumnDS columnds = ColumnDS.getInstance();
         int columnCount = columns.size();
 
@@ -102,8 +107,11 @@ public class VC {
         // List<Integer> typesLength = Arrays.asList(columns.getTypesLength());
         List<Integer> typesLength = Arrays.asList(ArrayUtils.toObject(columns.getTypesLength()));
         List<Boolean> nulls = Arrays.asList(ArrayUtils.toObject(columns.getNulls()));
-        List<String> pks = Arrays.asList(keys.getPKS());
-        List<QString> fks = Arrays.asList(keys.getFKS());
+        // List<String> pks = Arrays.asList(keys.getPKS());
+        List<String> cpks = Arrays.asList(pks.getYesAndNoPKS());
+        // List<QString> cfks = Arrays.asList(keys.getFKS());
+        FK[] cfks = fks.getCurrentTableFKS();
+        List<String> yfks = Arrays.asList(fks.getYesAndNoFKS());
         String[] fksFormed = new String[columns.size()];
         List<Object> defaults = Arrays.asList(columns.getDefaults());
         int extra = columns.getExtra();
@@ -119,12 +127,29 @@ public class VC {
             vcc.getTfasType()[a].setText(types.get(a));
             vcc.getTfsTypeLength()[a].setText(Integer.toString(typesLength.get(a)));
             vcc.getCksNull()[a].setSelected(nulls.get(a));
-            vcc.getRbsPK()[a].setSelected(pks.get(a).equals("Yes"));
-            if (fks.get(a) != null) {// NOT TESTED
-                vcc.getCksFK()[a].setSelected(true);
-                fksFormed[a] = fks.get(a).getString2() + "." + fks.get(a).getString3() + "." + fks.get(a).getString4();
-                vcc.getTfasFK()[a].setText(fksFormed[a]);
-            }
+            vcc.getRbsPK()[a].setSelected(cpks.get(a).equals("Yes"));
+            /*
+             * if (fks.get(a) != null) {// NOT TESTED vcc.getCksFK()[a].setSelected(true);
+             * fksFormed[a] = fks.get(a).getString2() + "." + fks.get(a).getString3() + "."
+             * + fks.get(a).getString4(); vcc.getTfasFK()[a].setText(fksFormed[a]); }
+             */
+
+            final int aa = a;
+            Arrays.asList(cfks).forEach(fk -> {
+                StringBuilder sb = new StringBuilder();
+                sb.append(fk.getReferencedDatabase()).append(".");
+                sb.append(fk.getReferencedTable()).append(" (");
+                fk.getColumns().forEach(is -> sb.append(is.string).append(","));
+                sb.deleteCharAt(sb.length()).append(")");//TEST
+
+                fk.getColumns().forEach(is -> {
+                    if (is.index - 1 == aa) {
+                        vcc.getCksFK()[aa].setSelected(true);
+                        fksFormed[aa] = sb.toString();
+                    }
+                });
+            });
+            // fksFormed[a] = pks.get
 
             if (defaults.get(a) != null) {
                 vcc.getCksDefault()[a].setSelected(true);
@@ -151,8 +176,8 @@ public class VC {
         updateTable.setTypes(types);
         updateTable.setTypesLength(typesLength);
         updateTable.setNulls(nulls);
-        updateTable.setPks(pks);
-        updateTable.setFks(fks);
+        updateTable.setPks(cpks);
+        updateTable.setFks(yfks);
         updateTable.setFkFormed(Arrays.asList(fksFormed));
         updateTable.setDefaults(defaults);
         updateTable.setExtra(extra);
@@ -202,6 +227,7 @@ public class VC {
             vcc.getBtnsChangeType()[a].setOnAction(vcc::btnsChangeType);
             vcc.getCksNull()[a].setOnAction(vcc::cksNullAction);
             vcc.getBtnsChangeNull()[a].setOnAction(vcc::btnsChangeNull);
+            //vcc.getBtnsSelectedFK()[a].setOnAction(vcc::btnUpdateFKS);
             vcc.getBtnsChangeDefault()[a].setOnAction(vcc::btnsChangeDefault);
 
             vcc.getBtnsRenameColumn()[a].setVisible(true);
@@ -212,7 +238,7 @@ public class VC {
         Arrays.asList(vcc.getRbsPK()).forEach(e -> e.setOnAction(vcc::cksPKAction));
         // LEFT-BOTTOM------------------------------------------------
         vcc.getBtnUpdatePK().setOnAction(vcc::btnUpdatePK);
-        vcc.getBtnUpdateFK().setOnAction(vcc::btnUpdateFK);
+        vcc.getBtnUpdateFK().setOnAction(vcc::btnUpdateFKS);
         vcc.getBtnUpdateExtra().setOnAction(vcc::btnUpdateExtra);
 
         vcc.getLbUpdateLeft().setDisable(false);

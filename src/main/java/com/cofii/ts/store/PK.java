@@ -1,18 +1,22 @@
 package com.cofii.ts.store;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+
+import com.cofii2.stores.IntString;
 
 public class PK {
     
     private String database;
     private String table;
-    private Map<Integer, String> columns = new HashMap<>();
+    private List<IntString> columns = new ArrayList<>();
     //--------------------------------------------------------
     public PK(String database, String table, int ordinalPosition, String column) {
         this.database = database;
         this.table = table;
-        columns.put(ordinalPosition, column);
+        columns.add(new IntString(ordinalPosition, column));
     }
     //--------------------------------------------------------
     public String getDatabase() {
@@ -27,10 +31,10 @@ public class PK {
     public void setTable(String table) {
         this.table = table;
     }
-    public Map<Integer, String> getColumns() {
+    public List<IntString> getColumns() {
         return columns;
     }
-    public void setColumns(Map<Integer, String> columns) {
+    public void setColumns(List<IntString> columns) {
         this.columns = columns;
     }
 }

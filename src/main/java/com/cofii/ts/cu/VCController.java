@@ -23,8 +23,6 @@ import com.cofii.ts.other.Timers;
 import com.cofii.ts.sql.CurrenConnection;
 import com.cofii.ts.sql.MSQL;
 import com.cofii.ts.store.FKS;
-import com.cofii.ts.store.Key;
-import com.cofii.ts.store.Keys;
 import com.cofii.ts.store.PK;
 import com.cofii.ts.store.PKS;
 import com.cofii.ts.store.SQLType;
@@ -182,14 +180,16 @@ public class VCController implements Initializable {
     private RadioButton[] rbsPK = new RadioButton[MSQL.MAX_COLUMNS];
     private PopupMessage[] rbsPKPopups = new PopupMessage[MSQL.MAX_COLUMNS];
     // private Button[] btnsChangePK = new Button[MSQL.MAX_COLUMNS];
+
     private HBox[] hbsFK = new HBox[MSQL.MAX_COLUMNS];// -----------
     private RadioButton[] rbsFK = new RadioButton[MSQL.MAX_COLUMNS];
     // private TextFieldAutoC[] tfasFK = new TextFieldAutoC[MSQL.MAX_COLUMNS];
     private PopupMessage[] rbsFKPopups = new PopupMessage[MSQL.MAX_COLUMNS];
-    private TextField[] tfasFK = new TextField[MSQL.MAX_COLUMNS];
+    private TextField[] tfsFK = new TextField[MSQL.MAX_COLUMNS];
     private PopupAutoC[] tfsFKPs = new PopupAutoC[MSQL.MAX_COLUMNS];
     private PopupMessage[] tfsFKPopups = new PopupMessage[MSQL.MAX_COLUMNS];
-    // private Button[] btnsChangeFK = new Button[MSQL.MAX_COLUMNS];
+    private ToggleButton[] btnsSelectedFK = new ToggleButton[MSQL.MAX_COLUMNS];
+
     private HBox[] hbsDefault = new HBox[MSQL.MAX_COLUMNS];// -----------
     private CheckBox[] cksDefault = new CheckBox[MSQL.MAX_COLUMNS];
     private PopupMessage[] cksDefaultPopups = new PopupMessage[MSQL.MAX_COLUMNS];
@@ -609,7 +609,7 @@ public class VCController implements Initializable {
                 storeNodes.getNulls()[a] = cksNull[rowE].isSelected();
                 storeNodes.getPks()[a] = rbsPK[rowE].isSelected();
                 storeNodes.getFks()[a] = rbsFK[rowE].isSelected();
-                storeNodes.getFksText()[a] = tfasFK[rowE].getText();
+                storeNodes.getFksText()[a] = tfsFK[rowE].getText();
                 storeNodes.getDefaults()[a] = cksDefault[rowE].isSelected();
                 storeNodes.getDefaultsText()[a] = tfsDefault[rowE].getText();
                 storeNodes.getExtra()[a] = rbsExtra[rowE].isSelected();
@@ -1050,10 +1050,10 @@ public class VCController implements Initializable {
 
     // FKS==========================================================
     private void cksFKAction(ActionEvent e) {
-        CheckBox ck = (CheckBox) e.getSource();
-        int index = Integer.parseInt(ck.getId());
+        RadioButton rb = (RadioButton) e.getSource();
+        int index = Integer.parseInt(rb.getId());
 
-        tfasFK[index].setVisible(ck.isSelected());
+        tfsFK[index].setVisible(rb.isSelected());
 
         tfasFKControl(-1);
         // UPDATE------------------------------------------------
@@ -1095,8 +1095,8 @@ public class VCController implements Initializable {
 
     private void tfasFKControl(int index) {
         for (int a = 0; a < currentRowLength; a++) {
-            if (a != index && tfasFK[a].isVisible()) {
-                String text = tfasFK[a].getText();
+            if (a != index && tfsFK[a].isVisible()) {
+                String text = tfsFK[a].getText();
                 if (!MList.isOnThisList(tfsFKPs[a].getLv().getItems(), text, false)) {
                     fkSelectionMatch = false;
                     break;
@@ -1112,11 +1112,11 @@ public class VCController implements Initializable {
                 boolean update = false;
                 // DEPENDS ON TFS-FK TO
                 for (int c = 0; c < currentRowLength; c++) {
-                    boolean fkSelected = updateTable.getFks().get(c) != null;
+                    boolean fkSelected = updateTable.getFks().get(c).equals("Yes");
                     String fkText = updateTable.getFkFormed().get(c);
 
                     if (rbsFK[c].isSelected() != fkSelected
-                            || (rbsFK[c].isSelected() && !tfasFK[c].getText().equals(fkText))) {
+                            || (rbsFK[c].isSelected() && !tfsFK[c].getText().equals(fkText))) {
                         update = true;
                         break;
                     }
@@ -1125,7 +1125,7 @@ public class VCController implements Initializable {
                     if (cks) {
                         rbsFK[index].setStyle(CSS.BG_COLOR);
                     } else {
-                        tfasFK[index].setStyle(CSS.TEXT_FILL);
+                        tfsFK[index].setStyle(CSS.TEXT_FILL);
                     }
                     btnUpdateFK.setDisable(false);
                     // cksFKPopups[index].hide();
@@ -1134,7 +1134,7 @@ public class VCController implements Initializable {
                     if (cks) {
                         rbsFK[index].setStyle(CSS.BG_COLOR_HINT);
                     } else {
-                        tfasFK[index].setStyle(CSS.TEXT_FILL_HINT);
+                        tfsFK[index].setStyle(CSS.TEXT_FILL_HINT);
                     }
                     btnUpdateFK.setDisable(true);
                     // cksFKPopups[index].show(SAME_VALUE);
@@ -1145,10 +1145,22 @@ public class VCController implements Initializable {
         }
     }
 
-    void btnUpdateFK(ActionEvent e) {
+    void btnUpdateFKS(ActionEvent e) {
         System.out.println(CC.CYAN + "Update FK" + CC.RESET);
-        if (!updateTable.getFks().stream().allMatch(fk -> fk == null)) {
-            // DROP FOREIGN KEY
+        setQOLVariables(e);
+        /*
+         * if (!updateTable.getFks().stream().allMatch(fk -> fk.equals("No"))) {
+         * 
+         * ms.dropForeignKey(table, constraint); }
+         */
+        boolean dropFK = true;
+        if (updateTable.getFks().get(index).equals("Yes")) {// DROP FOREIGN KEY
+            String constraint = fks.getConstraintName(MSQL.getDatabase(), table, index);
+            dropFK = ms.dropForeignKey(table, constraint);
+        }
+        if (dropFK) {
+
+            //boolean addFK = ms.addForeignKey(table, columns, tableReference, columnsReference);
         }
     }
 
@@ -1498,7 +1510,7 @@ public class VCController implements Initializable {
                 pks.add(columnsNames[a]);
             }
             if (rbsFK[a].isSelected()) {
-                String fkText = tfasFK[a].getText();
+                String fkText = tfsFK[a].getText();
                 String[] split = fkText.split(".");
 
                 fks.add(new TString(columnsNames[a], split[1], split[2]));
@@ -1743,18 +1755,18 @@ public class VCController implements Initializable {
 
     // INIT ---------------------------------------------
     private void fkReferencesInit() {
-        //Key[] row = keys.getRowPrimaryKeys();
+        // Key[] row = keys.getRowPrimaryKeys();
         List<String> list = new ArrayList<>();
         List<PK> pksList = pks.getPksList();
 
         for (int a = 0; a < pks.getPksList().size(); a++) {
             String databaseName = pksList.get(a).getDatabase();
             String tableName = pksList.get(a).getTable();
-            Map<Integer, String> columns = pksList.get(a).getColumns();
-            //String column = row[a].getColumnName();
+            List<IntString> columns = pksList.get(a).getColumns();
+            // String column = row[a].getColumnName();
             StringBuilder sb = new StringBuilder(databaseName).append(".").append(tableName).append(" (");
-            columns.forEach((i, s) -> sb.append(s).append(","));
-            sb.deleteCharAt(sb.length() - 1);//TEST
+            columns.forEach(is -> sb.append(is.string).append(","));
+            sb.deleteCharAt(sb.length() - 1);// TEST
             sb.append(")");
             list.add(sb.toString());
         }
@@ -1840,12 +1852,12 @@ public class VCController implements Initializable {
             rbsFKPopups[row] = new PopupMessage(rbsFK[row]);
 
             String fkTextStore = storeNodes.getFksText() != null ? storeNodes.getFksText()[a] : "";
-            tfasFK[row] = new TextField(fkTextStore);
-            tfsFKPs[row] = new PopupAutoC(tfasFK[row]);
-            tfsFKPopups[row] = new PopupMessage(tfasFK[row]);
+            tfsFK[row] = new TextField(fkTextStore);
+            tfsFKPs[row] = new PopupAutoC(tfsFK[row]);
+            tfsFKPopups[row] = new PopupMessage(tfsFK[row]);
 
-            // btnsChangeFK[row] = new Button("C");
-            hbsFK[row] = new HBox(rbsFK[row], tfasFK[row]);
+            btnsSelectedFK[row] = new ToggleButton("S");
+            hbsFK[row] = new HBox(rbsFK[row], tfsFK[row], btnsSelectedFK[row]);
             // DEFAULTS----------------------------------------------
             boolean defaultStore = storeNodes.getDefaults() != null ? storeNodes.getDefaults()[a] : false;
             cksDefault[row] = new CheckBox();
@@ -1878,7 +1890,8 @@ public class VCController implements Initializable {
             btnsChangeNull[row].setId(Integer.toString(row));
             rbsPK[row].setId(Integer.toString(row));
             rbsFK[row].setId(Integer.toString(row));
-            tfasFK[row].setId(Integer.toString(row));
+            tfsFK[row].setId(Integer.toString(row));
+            btnsSelectedFK[row].setId(Integer.toString(row));
             cksDefault[row].setId(Integer.toString(row));
             tfsDefault[row].setId(Integer.toString(row));
             btnsChangeDefault[row].setId(Integer.toString(row));
@@ -1904,19 +1917,19 @@ public class VCController implements Initializable {
             // tfasFK[row].setPrefWidth(-1);
             // tfasFK[row].setMaxHeight(30);
             hbsFK[row].setPrefWidth(-1);
-            tfasFK[row].setPrefWidth(-1);
+            tfsFK[row].setPrefWidth(-1);
             // SOME PROPERTIES AND LISTENERS---------------------------
             btnsRenameColumn[row].managedProperty().bind(btnsRenameColumn[row].visibleProperty());
             tfsTypeLength[row].managedProperty().bind(tfsTypeLength[row].visibleProperty());
             btnsChangeType[row].managedProperty().bind(btnsChangeType[row].visibleProperty());
             btnsChangeNull[row].managedProperty().bind(btnsChangeNull[row].visibleProperty());
             // btnsChangePK[row].managedProperty().bind(btnsChangePK[row].visibleProperty());
-            tfasFK[row].managedProperty().bind(tfasFK[row].visibleProperty());
-            // btnsChangeFK[row].managedProperty().bind(btnsChangeFK[row].visibleProperty());
+            tfsFK[row].managedProperty().bind(tfsFK[row].visibleProperty());
+            btnsSelectedFK[row].managedProperty().bind(btnsSelectedFK[row].visibleProperty());
             tfsDefault[row].managedProperty().bind(tfsDefault[row].visibleProperty());
             btnsChangeDefault[row].managedProperty().bind(btnsChangeDefault[row].visibleProperty());
             // ----------------------------------------------------------
-            tfasFK[row].setVisible(false);
+            tfsFK[row].setVisible(false);
             tfsDefault[row].setVisible(false);
 
             btnsRenameColumn[row].setDisable(true);
@@ -2011,7 +2024,7 @@ public class VCController implements Initializable {
         });
         Arrays.asList(rbsPK).forEach(e -> e.setOnAction(this::cksPKAction));
         Arrays.asList(rbsFK).forEach(e -> e.setOnAction(this::cksFKAction));
-        Arrays.asList(tfasFK).forEach(e -> {
+        Arrays.asList(tfsFK).forEach(e -> {
             e.textProperty().removeListener(this::tfasFKTextProperty);
             e.textProperty().addListener(this::tfasFKTextProperty);
         });
@@ -2330,11 +2343,11 @@ public class VCController implements Initializable {
     }
 
     public TextField[] getTfasFK() {
-        return tfasFK;
+        return tfsFK;
     }
 
     public void setTfasFK(TextField[] tfasFK) {
-        this.tfasFK = tfasFK;
+        this.tfsFK = tfasFK;
     }
 
     public HBox[] getHbsDefault() {
@@ -2535,6 +2548,14 @@ public class VCController implements Initializable {
 
     public void setBtnUpdateImageC(Button btnUpdateImageC) {
         this.btnUpdateImageC = btnUpdateImageC;
+    }
+
+    public ToggleButton[] getBtnsSelectedFK() {
+        return btnsSelectedFK;
+    }
+
+    public void setBtnsSelectedFK(ToggleButton[] btnsChangeFK) {
+        this.btnsSelectedFK = btnsChangeFK;
     }
 
 }

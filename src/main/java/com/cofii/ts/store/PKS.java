@@ -1,7 +1,10 @@
 package com.cofii.ts.store;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+
+import com.cofii.ts.sql.MSQL;
 
 public class PKS {
 
@@ -12,7 +15,7 @@ public class PKS {
         String database = pk.getDatabase();
         String table = pk.getTable();
 
-        int[] indexs = {-1};
+        int[] indexs = { -1 };
         boolean exist = pksList.stream().anyMatch(e -> {
             indexs[0]++;
             return e.getDatabase().equals(database) && e.getTable().equals(table);
@@ -20,7 +23,7 @@ public class PKS {
         if (!exist) {
             pksList.add(pk);
         } else {
-            pk.getColumns().forEach((i, s) -> pksList.get(indexs[0]).getColumns().put(i, s));
+            pk.getColumns().forEach(is -> pksList.get(indexs[0]).getColumns().add(is));
         }
     }
 
@@ -28,7 +31,20 @@ public class PKS {
         pksList.clear();
     }
 
-    //getCurrentTableKeys
+    public PK[] getCurrentTablePKS() {
+        return pksList.stream().filter(e -> e.getDatabase().equals(MSQL.getDatabase())
+                && e.getTable().equals(MSQL.getCurrentTable().getName())).toArray(PK[]::new);
+    }
+
+    public String[] getYesAndNoPKS() {
+        String[] pks = new String[ColumnS.getInstance().size()];
+        Arrays.fill(pks, "No");
+        PK[] cpks = getCurrentTablePKS();
+        for (int a = 0; a < cpks.length; a++) {
+            cpks[a].getColumns().forEach(is -> pks[is.index - 1] = "Yes");
+        }
+        return pks;
+    }
     // --------------------------------------------
     private static PKS instance;
 

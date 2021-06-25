@@ -83,6 +83,7 @@ public class Keys {
         }
         return fks;
     }
+    
     public IntDString[] getFKSWithIndex(){
         IntDString[] fks = new IntDString[ColumnS.getInstance().size()];
         //NULL FILL

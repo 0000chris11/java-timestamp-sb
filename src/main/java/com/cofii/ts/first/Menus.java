@@ -11,8 +11,10 @@ import com.cofii.ts.sql.querys.SelectTableNames;
 import com.cofii.ts.sql.querys.ShowColumns;
 import com.cofii.ts.store.ColumnDS;
 import com.cofii.ts.store.ColumnS;
-import com.cofii.ts.store.Key;
-import com.cofii.ts.store.Keys;
+import com.cofii.ts.store.FK;
+import com.cofii.ts.store.FKS;
+import com.cofii.ts.store.PK;
+import com.cofii.ts.store.PKS;
 import com.cofii.ts.store.TableS;
 import com.cofii2.components.javafx.TrueFalseWindow;
 import com.cofii2.stores.CC;
@@ -48,7 +50,9 @@ public class Menus {
     private TableS tables = TableS.getInstance();
     private ColumnDS columnds = ColumnDS.getInstance();
     private Dist dist = Dist.getInstance(vf);
-    private Keys keys = Keys.getInstance();
+    private PKS pks = PKS.getInstance();
+    private FKS fks = FKS.getInstance();
+
     private Timers timers = Timers.getInstance(vf);
 
     // LISTENERS ---------------------------------------------------
@@ -59,7 +63,8 @@ public class Menus {
     private void tableCreateAction(ActionEvent e) {
         new VC(vf, true);
     }
-    private void tableUpdateAction(ActionEvent e){
+
+    private void tableUpdateAction(ActionEvent e) {
         new VC(vf, false);
     }
 
@@ -76,11 +81,11 @@ public class Menus {
                 vf.getLbs()[a].setVisible(false);
 
                 if (!columnds.getDist(a).equals("No")) {
-                    //vf.getGridPane().getChildren().remove(vf.getTfas()[a]);
-                    //vf.getGridPane().add(vf.getTfs()[a], 1, a);
+                    // vf.getGridPane().getChildren().remove(vf.getTfas()[a]);
+                    // vf.getGridPane().add(vf.getTfs()[a], 1, a);
                     vf.getTfsPs()[a].setTfParent(null);
                     vf.getGridPane().getRowConstraints().get(a).setVgrow(Priority.NEVER);
- 
+
                 }
                 vf.getTfs()[a].setVisible(false);
                 vf.getBtns()[a].setVisible(false);
@@ -102,24 +107,32 @@ public class Menus {
         dist.distStart();
         vf.getMs().selectData(tableA, new SelectData(vf, SelectData.MESSGE_TABLE_CHANGE + table));
     }
-    //DELETE---------------------------------------------------
+
+    // DELETE---------------------------------------------------
     private void deleteTables(ActionEvent e) {
         System.out.println(CC.CYAN + "Delete Table" + CC.RESET);
         String table = ((MenuItem) e.getSource()).getText().replace(" ", "_");
 
         TrueFalseWindow w = new TrueFalseWindow("Delete Table '" + table + "'?");
         w.getBtnFalse().setOnAction(ef -> w.hide());
-        w.getBtnTrue().setOnAction(et -> {deleteTablesYes(table); w.hide();});
+        w.getBtnTrue().setOnAction(et -> {
+            deleteTablesYes(table);
+            w.hide();
+        });
         w.show();
 
     }
-    private void deleteThisTable(ActionEvent e){
+
+    private void deleteThisTable(ActionEvent e) {
         System.out.println(CC.CYAN + "Delete This Table" + CC.RESET);
         String table = MSQL.getCurrentTable().getName().replace(" ", "_");
 
         TrueFalseWindow w = new TrueFalseWindow("Delete Table '" + table + "'?");
         w.getBtnFalse().setOnAction(ef -> w.hide());
-        w.getBtnTrue().setOnAction(et -> {deleteTablesYes(table); w.hide();});
+        w.getBtnTrue().setOnAction(et -> {
+            deleteTablesYes(table);
+            w.hide();
+        });
         w.show();
     }
 
@@ -146,11 +159,13 @@ public class Menus {
         timers.playLbStatusReset(vf.getLbStatus());
 
     }
-    //------------------------------------------------------
+
+    // ------------------------------------------------------
     private void tableInfoAction(ActionEvent e) {
         new VI(vf);
     }
-    //------------------------------------------------------
+
+    // ------------------------------------------------------
     public void addMenuItemsReset() {
         vf.getMs().executeQuery(MSQL.SELECT_TABLE_NAMES, new SelectTableNames(false));
         if (tables.size() == 0) {
@@ -173,8 +188,41 @@ public class Menus {
     }
 
     private void resetKeys() {
-        Key[] keyRows = keys.getCurrentTableKeys();
+        //Key[] keyRows = keys.getCurrentTableKeys();
+        Text textPk = new Text("(P) ");
+        textPk.setFill(NonCSS.TEXT_FILL_PK);
+        Text textFk = new Text("(F) ");
+        textFk.setFill(NonCSS.TEXT_FILL_PK);
+        // PRIMARY KEYS---------------------------------------------
+        PK[] cpks = pks.getCurrentTablePKS();
+        for (int a = 0; a < cpks.length; a++) {
 
+            cpks[a].getColumns().forEach(cols -> {
+                int ordinalPosition = cols.index - 1;
+                String columnName = cols.string;
+
+                Text textColumnName = new Text(columnName);
+                textColumnName.setFill(NonCSS.TEXT_FILL);
+
+                vf.getLbs()[ordinalPosition].getChildren().clear();
+                vf.getLbs()[ordinalPosition].getChildren().addAll(textPk, textColumnName);
+            });
+        }
+        // FOREIGN KEYS---------------------------------------------
+        FK[] cfks = fks.getCurrentTableFKS();
+        for (int a = 0; a < cfks.length; a++) {
+            cfks[a].getColumns().forEach(cols -> {
+                int ordinalPosition = cols.index - 1;
+                String columnName = cols.string;
+
+                Text textColumnName = new Text(columnName);
+                textColumnName.setFill(NonCSS.TEXT_FILL);
+
+                vf.getLbs()[ordinalPosition].getChildren().clear();
+                vf.getLbs()[ordinalPosition].getChildren().addAll(textFk, textColumnName);
+            });
+        }
+        /*
         for (int a = 0; a < keyRows.length; a++) {
             String columnName = keyRows[a].getColumnName();
             String constraintType = keyRows[a].getConstraintType();
@@ -196,9 +244,12 @@ public class Menus {
                 vf.getLbs()[ordinalPosition - 1].getChildren().addAll(textFk, textColumnName);
             }
         }
+        */
     }
+
     // INIT---------------------------------------------------
     private static Menus instance;
+
     public static Menus getInstance(VFController vf) {
         Menus.vf = vf;
         if (instance == null) {
@@ -206,7 +257,8 @@ public class Menus {
         }
         return instance;
     }
-    public static void clearInstance(){
+
+    public static void clearInstance() {
         instance = null;
     }
 
@@ -225,6 +277,7 @@ public class Menus {
         tableCreate.setOnAction(this::tableCreateAction);
         tableUpdate.setOnAction(this::tableUpdateAction);
     }
+
     // GET & SETTERS----------------------------------------------------
     public Menu getTableDelete() {
         return tableDelete;

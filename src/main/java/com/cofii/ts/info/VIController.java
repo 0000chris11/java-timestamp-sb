@@ -8,8 +8,10 @@ import com.cofii.ts.other.NonCSS;
 import com.cofii.ts.sql.MSQL;
 import com.cofii.ts.store.ColumnDS;
 import com.cofii.ts.store.ColumnS;
-import com.cofii.ts.store.Key;
-import com.cofii.ts.store.Keys;
+import com.cofii.ts.store.FK;
+import com.cofii.ts.store.FKS;
+import com.cofii.ts.store.PK;
+import com.cofii.ts.store.PKS;
 
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -24,7 +26,8 @@ public class VIController implements Initializable {
 
     private ColumnS columns = ColumnS.getInstance();
     private ColumnDS columnsd = ColumnDS.getInstance();
-    private Keys keys = Keys.getInstance();
+    private PKS pks = PKS.getInstance();
+    private FKS fks = FKS.getInstance();
 
     // NON-FXML
     private Label[] lbColumns = new Label[MSQL.MAX_COLUMNS];
@@ -89,6 +92,7 @@ public class VIController implements Initializable {
 
             lbDist[a].setText(dist);
         }
+        /*
         //KEYS ------------------------------------------
         Key[] currentKeys = keys.getCurrentTableKeys();
         for(int a = 0;a < currentKeys.length; a++){
@@ -103,9 +107,28 @@ public class VIController implements Initializable {
                 lbPK[ordinalPosition].setTextFill(NonCSS.TEXT_FILL_FK);
                 lbPK[ordinalPosition].setStyle("-fx-font-weight: bold;");
             }
-            
         }
-        
+        */
+        // PRIMARY KEYS---------------------------------------------
+        PK[] cpks = pks.getCurrentTablePKS();
+        for (int a = 0; a < cpks.length; a++) {
+            cpks[a].getColumns().forEach(cols -> {
+                int ordinalPosition = cols.index - 1;
+                lbPK[ordinalPosition].setText("Yes");
+                lbPK[ordinalPosition].setTextFill(NonCSS.TEXT_FILL_PK);
+                lbPK[ordinalPosition].setStyle("-fx-font-weight: bold;");
+            });
+        }
+        // PRIMARY KEYS---------------------------------------------
+        FK[] cfks = fks.getCurrentTableFKS();
+        for (int a = 0; a < cfks.length; a++) {
+            cfks[a].getColumns().forEach(cols -> {
+                int ordinalPosition = cols.index - 1;
+                lbFK[ordinalPosition].setText("Yes");
+                lbPK[ordinalPosition].setTextFill(NonCSS.TEXT_FILL_FK);
+                lbPK[ordinalPosition].setStyle("-fx-font-weight: bold;");
+            });
+        }
     }
 
     @Override

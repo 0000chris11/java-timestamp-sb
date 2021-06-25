@@ -1,11 +1,15 @@
 package com.cofii.ts.store;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+
+import com.cofii.ts.sql.MSQL;
+import com.cofii2.stores.QString;
 
 public class FKS {
 
-    private List<FK> list = new ArrayList<>();
+    private List<FK> fksList = new ArrayList<>();
 
     // -------------------------------------------
     public void addFK(FK fk) {
@@ -15,27 +19,76 @@ public class FKS {
         String referencedTable = fk.getReferencedTable();
 
         int[] indexs = { -1 };
-        boolean exist = list.stream().anyMatch(e -> {
+        boolean exist = fksList.stream().anyMatch(e -> {
             indexs[0]++;
-            return e.getDatabase().equals(database) && e.getTable().equals(table)
+            String tdb = e.getDatabase();
+            String ttable = e.getTable();
+            //System.out.println("TEST: " + indexs[0]);
+            return tdb.equals(database) && ttable.equals(table)
                     && (e.getReferencedDatabase().equals(referencedDatabase)
                             && e.getReferencedTable().equals(referencedTable));
         });
         if (!exist) {
-            list.add(fk);
+            fksList.add(fk);
         } else {
-            fk.getColumns().forEach((i, s) -> list.get(indexs[0]).getColumns().put(i, s));
-            fk.getReferencedColumns().forEach(s -> list.get(indexs[0]).getReferencedColumns().add(s));
+            fk.getColumns().forEach(is -> fksList.get(indexs[0]).getColumns().add(is));
+            fk.getReferencedColumns().forEach(s -> fksList.get(indexs[0]).getReferencedColumns().add(s));
         }
     }
 
     public void clearFKS() {
-        list.clear();
+        fksList.clear();
     }
 
-    public int size(){
-        return list.size();
+    public int size() {
+        return fksList.size();
     }
+
+    public FK[] getCurrentTableFKS() {
+        return fksList.stream().filter(e -> e.getDatabase().equals(MSQL.getDatabase())
+                && e.getTable().equals(MSQL.getCurrentTable().getName())).toArray(FK[]::new);
+    }
+
+    public String[] getYesAndNoFKS() {
+        String[] fks = new String[ColumnS.getInstance().size()];
+        Arrays.fill(fks, "No");
+        FK[] cfks = getCurrentTableFKS();
+        for (int a = 0; a < cfks.length; a++) {
+            cfks[a].getColumns().forEach(is -> fks[is.index - 1] = "Yes");
+        }
+        return fks;
+        /**
+         * QString[] fks = new QString[ColumnS.getInstance().size()]; //NULL FILL
+         * 
+         * Key[] currentKeys = getCurrentTableKeys(); for(int a = 0;a <
+         * currentKeys.length; a++){ int ordinalPosition =
+         * currentKeys[a].getOrdinalPosition() - 1; String columnName =
+         * currentKeys[a].getColumnName();
+         * 
+         * String databaseR = currentKeys[a].getReferencedTableSchema(); String tableR =
+         * currentKeys[a].getReferencedTableName(); String columnR =
+         * currentKeys[a].getReferencedColumnName();
+         * 
+         * String contraintType = currentKeys[a].getConstraintType();
+         * if(contraintType.equals("FOREIGN KEY")){ fks[ordinalPosition] = new
+         * QString(columnName, databaseR, tableR, columnR); } } return fks;
+         */
+    }
+
+    public String getConstraintName(String database, String table, int ordinalPosition) {
+        String[] constraintName = { null };
+        fksList.forEach(fk -> {
+            if (fk.getDatabase().equals(database) && fk.getTable().equals(table)) {
+                fk.getColumns().forEach(is -> {
+                    if (is.index - 1 == ordinalPosition) {
+                        constraintName[0] = fk.getConstraint();
+                    }
+                });
+            }
+        });
+        return constraintName[0];
+    }
+
     // -------------------------------------------
     private static FKS instance;
 
