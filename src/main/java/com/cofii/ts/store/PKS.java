@@ -33,7 +33,7 @@ public class PKS {
 
     public PK[] getCurrentTablePKS() {
         return pksList.stream().filter(e -> e.getDatabase().equals(MSQL.getDatabase())
-                && e.getTable().equals(MSQL.getCurrentTable().getName())).toArray(PK[]::new);
+                && e.getTable().equals(MSQL.getCurrentTable().getName().replace(" ", "_"))).toArray(PK[]::new);
     }
 
     public String[] getYesAndNoPKS() {
@@ -45,6 +45,7 @@ public class PKS {
         }
         return pks;
     }
+
     // --------------------------------------------
     private static PKS instance;
 

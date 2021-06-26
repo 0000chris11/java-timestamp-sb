@@ -1010,6 +1010,8 @@ public class VCController implements Initializable {
         System.out.println(CC.CYAN + "Update PK" + CC.RESET);
         setQOLVariables(e);
 
+        String[] errorMessage = { null };
+        ms.setSQLException((ex, s) -> errorMessage[0] = ex.getMessage());
         boolean dropPK = true;
         if (updateTable.getPks().stream().anyMatch(p -> p.equals("Yes"))) {
             dropPK = ms.dropPrimaryKey(table);
@@ -1037,23 +1039,34 @@ public class VCController implements Initializable {
 
                 System.out.println("\tSUCCESS");
             } else {
-                lbStatus.setText("Failt to Change Primary Key");
+                lbStatus.setText(errorMessage[0] != null ? errorMessage[0] : "Failt to Change Primary Key");
                 lbStatus.setTextFill(NonCSS.TEXT_FILL_ERROR);
 
                 System.out.println("\tFAILED");
 
             }
 
-            timers.playLbStatusReset(lbStatus);
+        } else {
+            lbStatus.setText(errorMessage[0] != null ? errorMessage[0] : "Failt to Change Primary Key");
+            lbStatus.setTextFill(NonCSS.TEXT_FILL_ERROR);
+
+            System.out.println("\tFAILED");
         }
+
+        timers.playLbStatusReset(lbStatus);
     }
 
     // FKS==========================================================
-    private void cksFKAction(ActionEvent e) {
-        RadioButton rb = (RadioButton) e.getSource();
-        int index = Integer.parseInt(rb.getId());
+    private void rbsFKAction(ActionEvent e) {
+        setQOLVariables(e);
 
-        tfsFK[index].setVisible(rb.isSelected());
+        if (rbsFK[index].isSelected()) {
+            tfsFK[index].setVisible(true);
+            // btnsSelectedFK[index].setDisable(false);
+        } else {
+            tfsFK[index].setVisible(false);
+            // btnsSelectedFK[index].setDisable(true);
+        }
 
         tfasFKControl(-1);
         // UPDATE------------------------------------------------
@@ -1148,20 +1161,67 @@ public class VCController implements Initializable {
     void btnUpdateFKS(ActionEvent e) {
         System.out.println(CC.CYAN + "Update FK" + CC.RESET);
         setQOLVariables(e);
-        /*
-         * if (!updateTable.getFks().stream().allMatch(fk -> fk.equals("No"))) {
-         * 
-         * ms.dropForeignKey(table, constraint); }
-         */
+
+        int[] indexs = { -1 };
+        Arrays.asList(btnsSelectedFK).stream().anyMatch(btn -> {
+            indexs[0]++;
+            return btn.isSelected();
+        });
+
+        String[] errorMessage = { null };
+        ms.setSQLException((ex, s) -> errorMessage[0] = ex.getMessage());
         boolean dropFK = true;
-        if (updateTable.getFks().get(index).equals("Yes")) {// DROP FOREIGN KEY
-            String constraint = fks.getConstraintName(MSQL.getDatabase(), table, index);
+        if (updateTable.getFks().get(indexs[0]).equals("Yes")) {// DROP FOREIGN KEY
+            String constraint = fks.getConstraintName(MSQL.getDatabase(), table, indexs[0]);
+
             dropFK = ms.dropForeignKey(table, constraint);
         }
         if (dropFK) {
+            if (rbsFK[indexs[0]].isSelected()) {// ADD
+                List<String> cols = new ArrayList<>(currentRowLength);
+                String tableReference;
+                // List<String> columnsReference = new ArrayList<>(currentRowLength);
+                indexs[0] = 0;
+                Arrays.asList(btnsSelectedFK).forEach(btn -> {
+                    if (btn.isSelected() && !btn.isDisable()) {
+                        indexs[0] = Integer.parseInt(btn.getId());
+                        cols.add(updateTable.getColumns().get(indexs[0]));
+                    }
+                });
+                String text = tfsFK[indexs[0]].getText();
+                tableReference = text.substring(text.indexOf(".") + 1, text.indexOf("(") - 1);
+                text = text.substring(text.indexOf("(") + 1, text.indexOf(")"));
+                String[] columnsReference = text.split(",");
 
-            //boolean addFK = ms.addForeignKey(table, columns, tableReference, columnsReference);
+                boolean addFK = ms.addForeignKey(table, cols.toArray(new String[cols.size()]), tableReference,
+                        columnsReference);
+
+                // SET UPDATE-TABLE FK VALUE!!!!!!!!!!
+                if (addFK) {
+                    // FK ADDED
+                    System.out.println("\tSUCCESS");
+                    lbStatus.setText("FOREIGN KEY added!");
+                    lbStatus.setTextFill(NonCSS.TEXT_FILL_OK);
+                } else {
+                    // FK FAIL ADDED
+                    System.out.println("\tFAILED");
+                    lbStatus.setText(errorMessage[0] != null ? errorMessage[0] : "Fail to add FOREING KEY");
+                    lbStatus.setTextFill(NonCSS.TEXT_FILL_ERROR);
+                }
+            } else {
+                // FK REMOVED
+                System.out.println("\tSUCCESS");
+                lbStatus.setText("FOREIGN KEY removed!");
+                lbStatus.setTextFill(NonCSS.TEXT_FILL_OK);
+            }
+        } else {
+            // FK FAIL REMOVE
+            System.out.println("\tFAILED");
+            lbStatus.setText(errorMessage[0] != null ? errorMessage[0] : "Fail to add FOREING KEY");
+            lbStatus.setTextFill(NonCSS.TEXT_FILL_ERROR);
         }
+
+        timers.playLbStatusReset(lbStatus);
     }
 
     // DEFAULTS=================================================
@@ -2023,7 +2083,7 @@ public class VCController implements Initializable {
             e.textProperty().addListener(this::tfsTypeLengthTextProperty);
         });
         Arrays.asList(rbsPK).forEach(e -> e.setOnAction(this::cksPKAction));
-        Arrays.asList(rbsFK).forEach(e -> e.setOnAction(this::cksFKAction));
+        Arrays.asList(rbsFK).forEach(e -> e.setOnAction(this::rbsFKAction));
         Arrays.asList(tfsFK).forEach(e -> {
             e.textProperty().removeListener(this::tfasFKTextProperty);
             e.textProperty().addListener(this::tfasFKTextProperty);

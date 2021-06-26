@@ -46,7 +46,7 @@ public class FKS {
 
     public FK[] getCurrentTableFKS() {
         return fksList.stream().filter(e -> e.getDatabase().equals(MSQL.getDatabase())
-                && e.getTable().equals(MSQL.getCurrentTable().getName())).toArray(FK[]::new);
+                && e.getTable().equals(MSQL.getCurrentTable().getName().replace(" ", "_"))).toArray(FK[]::new);
     }
 
     public String[] getYesAndNoFKS() {

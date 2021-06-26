@@ -133,6 +133,7 @@ public class VC {
              * fksFormed[a] = fks.get(a).getString2() + "." + fks.get(a).getString3() + "."
              * + fks.get(a).getString4(); vcc.getTfasFK()[a].setText(fksFormed[a]); }
              */
+            //vcc.getBtnsSelectedFK()[a].setDisable(true);
 
             final int aa = a;
             Arrays.asList(cfks).forEach(fk -> {
@@ -140,12 +141,16 @@ public class VC {
                 sb.append(fk.getReferencedDatabase()).append(".");
                 sb.append(fk.getReferencedTable()).append(" (");
                 fk.getColumns().forEach(is -> sb.append(is.string).append(","));
-                sb.deleteCharAt(sb.length()).append(")");//TEST
+                sb.deleteCharAt(sb.length() - 1).append(")");//TEST
 
                 fk.getColumns().forEach(is -> {
                     if (is.index - 1 == aa) {
                         vcc.getCksFK()[aa].setSelected(true);
+                        //vcc.getBtnsSelectedFK()[aa].setDisable(false);
+
                         fksFormed[aa] = sb.toString();
+                        vcc.getTfasFK()[aa].setText(fksFormed[aa]);
+                        vcc.getTfasFK()[aa].setVisible(true);
                     }
                 });
             });

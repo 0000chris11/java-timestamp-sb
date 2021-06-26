@@ -91,14 +91,14 @@ public class SelectKeys implements IActions {
         // --------------------------------------------
 
         if (constraintType.equals("PRIMARY")) {
-            System.out.println("ADDING PRIMARY KEY (" + databaseName + " - " + constraintType + ")");
+            //System.out.println("ADDING PRIMARY KEY (" + databaseName + " - " + constraintType + ")");
             pks.addPK(new PK(databaseName, tableName, ordinalPosition, columnName));
         } else if (referencedTableSchema != null && referencedTableName != null && referencedColumnName != null) {
-            System.out.println("ADDING FOREING KEY (" + databaseName + " - " + constraintType + ")");
+            //System.out.println("ADDING FOREING KEY (" + databaseName + " - " + constraintType + ")");
             fks.addFK(new FK(databaseName, tableName, constraintType, ordinalPosition, columnName,
                     referencedTableSchema, referencedTableName, referencedColumnName));
         }else{
-            System.out.println("UNKOWN CONSTRAINT (" + databaseName + " - " + constraintType + ")");
+            //System.out.println("UNKOWN CONSTRAINT (" + databaseName + " - " + constraintType + ")");
         }
         // keys.addKey(new Key(databaseName, tableName, constraintType, ordinalPosition,
         // columnName, referencedTableSchema,
