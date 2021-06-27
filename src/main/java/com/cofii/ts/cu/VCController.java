@@ -235,6 +235,7 @@ public class VCController implements Initializable {
     private boolean typeSelectionMatch = true;
     private boolean typeLengthOK = true;
     private boolean fkSelectionMatch = true;
+    private boolean fkUpdate = false;
     private boolean defaultBW = true;
     private boolean defaultOK = true;
 
@@ -1017,37 +1018,54 @@ public class VCController implements Initializable {
             dropPK = ms.dropPrimaryKey(table);
         }
 
+        int[] indexs = { 0 };
         if (dropPK) {
-            List<String> cols = new ArrayList<>(currentRowLength);
-            int[] indexs = { 0 };
-            Arrays.asList(rbsPK).forEach(el -> {
-                if (el.isSelected()) {
-                    cols.add(updateTable.getColumns().get(indexs[0]).replace(" ", "_"));
-                    updateTable.getPks().set(indexs[0], "Yes");
+            if (Arrays.asList(rbsPK).stream().anyMatch(rb -> rb.isSelected())) {
+                // ADDING PK------------------------------------------
+                List<String> cols = new ArrayList<>(currentRowLength);
+                indexs[0] = 0;
+                Arrays.asList(rbsPK).forEach(el -> {
+                    if (el.isSelected()) {
+                        cols.add(updateTable.getColumns().get(indexs[0]).replace(" ", "_"));
+                        updateTable.getPks().set(indexs[0], "Yes");
+                    }
+                    indexs[0]++;
+                });
+                boolean addPK = true;
+                if (!cols.isEmpty()) {
+                    addPK = ms.addPrimaryKey(table, cols.toArray(new String[cols.size()]));
                 }
-                indexs[0]++;
-            });
-            boolean addPK = true;
-            if (!cols.isEmpty()) {
-                addPK = ms.addPrimaryKey(table, cols.toArray(new String[cols.size()]));
-            }
-            if (addPK) {
-                btnUpdatePK.setDisable(true);
+                if (addPK) {
+                    btnUpdatePK.setDisable(true);
 
-                lbStatus.setText("Changed Primary Key");
+                    lbStatus.setText("Changed Primary Key");
+                    lbStatus.setTextFill(NonCSS.TEXT_FILL_OK);
+
+                    System.out.println("\tSUCCESS");
+                } else {
+                    lbStatus.setText(errorMessage[0] != null ? errorMessage[0] : "Failt to Change Primary Key");
+                    lbStatus.setTextFill(NonCSS.TEXT_FILL_ERROR);
+
+                    System.out.println("\tFAILED");
+
+                }
+            } else {
+                // SET PK TO UPDATE-TABLE---------------------------
+                indexs[0] = 0;
+                Arrays.asList(rbsPK).forEach(rb -> {
+                    if (!rb.isSelected() != updateTable.getPks().get(indexs[0]).equals("Yes")) {
+                        updateTable.getPks().set(indexs[0], "No");
+                    }
+                    indexs[0]++;
+                });
+
+                lbStatus.setText("Primary key has been deleted");
                 lbStatus.setTextFill(NonCSS.TEXT_FILL_OK);
 
                 System.out.println("\tSUCCESS");
-            } else {
-                lbStatus.setText(errorMessage[0] != null ? errorMessage[0] : "Failt to Change Primary Key");
-                lbStatus.setTextFill(NonCSS.TEXT_FILL_ERROR);
-
-                System.out.println("\tFAILED");
-
             }
-
         } else {
-            lbStatus.setText(errorMessage[0] != null ? errorMessage[0] : "Failt to Change Primary Key");
+            lbStatus.setText(errorMessage[0] != null ? errorMessage[0] : "Failt to delete Primary Key");
             lbStatus.setTextFill(NonCSS.TEXT_FILL_ERROR);
 
             System.out.println("\tFAILED");
@@ -1140,7 +1158,7 @@ public class VCController implements Initializable {
                     } else {
                         tfsFK[index].setStyle(CSS.TEXT_FILL);
                     }
-                    btnUpdateFK.setDisable(false);
+                    fkUpdate = true;
                     // cksFKPopups[index].hide();
 
                 } else {
@@ -1149,27 +1167,63 @@ public class VCController implements Initializable {
                     } else {
                         tfsFK[index].setStyle(CSS.TEXT_FILL_HINT);
                     }
-                    btnUpdateFK.setDisable(true);
+                    fkUpdate = false;
                     // cksFKPopups[index].show(SAME_VALUE);
                 }
             } else {
-                btnUpdateFK.setDisable(true);
+                fkUpdate = false;
             }
+
+            btnUpdateFK.setDisable(
+                    !(fkUpdate && Arrays.asList(btnsSelectedFK).stream().anyMatch(btn -> btn.isSelected())));
+
         }
+    }
+
+    void btnsSelectedFK(ActionEvent e) {
+        setQOLVariables(e);
+        int[] indexs = { 0 };
+        int[] scount = { 0 };
+
+        List<ToggleButton> list = Arrays.asList(btnsSelectedFK);
+        list.forEach(btn -> {
+            if (btn.isSelected()) {
+                scount[0]++;
+                if (updateTable.getFks().get(indexs[0]).equals("No")) {
+                    if (scount[0] == 1) {
+                        btn.setText("ADD");
+                    } else if (scount[0] > 1) {
+                        //btn.setText("ADD (A)");
+                        list.stream().filter(btnn -> btnn.isSelected()).forEach(btnn -> btnn.setText("ADD (A)"));
+                    }
+                } else if (updateTable.getFks().get(indexs[0]).equals("Yes")) {
+                    btn.setText("REM");
+                }
+            }else{
+                if (updateTable.getFks().get(indexs[0]).equals("No")) {
+                    btn.setText("ADD");
+                }
+            }
+
+        });
+        // ----------------------------------------
+        btnUpdateFK.setDisable(!(fkUpdate && Arrays.asList(btnsSelectedFK).stream().anyMatch(btn -> btn.isSelected())));
     }
 
     void btnUpdateFKS(ActionEvent e) {
         System.out.println(CC.CYAN + "Update FK" + CC.RESET);
         setQOLVariables(e);
 
+        // FIRST INDEX-------------------------------
         int[] indexs = { -1 };
         Arrays.asList(btnsSelectedFK).stream().anyMatch(btn -> {
             indexs[0]++;
             return btn.isSelected();
         });
-
+        // EXCEPTION CONTROL-------------------------
         String[] errorMessage = { null };
         ms.setSQLException((ex, s) -> errorMessage[0] = ex.getMessage());
+        // DROP FK-----------------------------------
         boolean dropFK = true;
         if (updateTable.getFks().get(indexs[0]).equals("Yes")) {// DROP FOREIGN KEY
             String constraint = fks.getConstraintName(MSQL.getDatabase(), table, indexs[0]);
@@ -1177,7 +1231,9 @@ public class VCController implements Initializable {
             dropFK = ms.dropForeignKey(table, constraint);
         }
         if (dropFK) {
-            if (rbsFK[indexs[0]].isSelected()) {// ADD
+
+            if (rbsFK[indexs[0]].isSelected()) {
+                // ADD VALUES---------------------------------
                 List<String> cols = new ArrayList<>(currentRowLength);
                 String tableReference;
                 // List<String> columnsReference = new ArrayList<>(currentRowLength);
@@ -1195,11 +1251,11 @@ public class VCController implements Initializable {
 
                 boolean addFK = ms.addForeignKey(table, cols.toArray(new String[cols.size()]), tableReference,
                         columnsReference);
-
-                // SET UPDATE-TABLE FK VALUE!!!!!!!!!!
+                // RESULTS-------------------------------------
                 if (addFK) {
                     // FK ADDED
                     System.out.println("\tSUCCESS");
+                    updateTable.getFks().set(indexs[0], "Yes");// SINGLE
                     lbStatus.setText("FOREIGN KEY added!");
                     lbStatus.setTextFill(NonCSS.TEXT_FILL_OK);
                 } else {
@@ -1211,6 +1267,7 @@ public class VCController implements Initializable {
             } else {
                 // FK REMOVED
                 System.out.println("\tSUCCESS");
+                updateTable.getFks().set(indexs[0], "No");// SINGLE
                 lbStatus.setText("FOREIGN KEY removed!");
                 lbStatus.setTextFill(NonCSS.TEXT_FILL_OK);
             }
@@ -1916,7 +1973,7 @@ public class VCController implements Initializable {
             tfsFKPs[row] = new PopupAutoC(tfsFK[row]);
             tfsFKPopups[row] = new PopupMessage(tfsFK[row]);
 
-            btnsSelectedFK[row] = new ToggleButton("S");
+            btnsSelectedFK[row] = new ToggleButton("ADD");
             hbsFK[row] = new HBox(rbsFK[row], tfsFK[row], btnsSelectedFK[row]);
             // DEFAULTS----------------------------------------------
             boolean defaultStore = storeNodes.getDefaults() != null ? storeNodes.getDefaults()[a] : false;

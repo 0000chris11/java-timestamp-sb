@@ -94,7 +94,7 @@ public class VC {
     }
 
     private void setUpdateStore() {
-        //Keys keys = Keys.getInstance();
+        // Keys keys = Keys.getInstance();
         PKS pks = PKS.getInstance();
         FKS fks = FKS.getInstance();
 
@@ -133,7 +133,7 @@ public class VC {
              * fksFormed[a] = fks.get(a).getString2() + "." + fks.get(a).getString3() + "."
              * + fks.get(a).getString4(); vcc.getTfasFK()[a].setText(fksFormed[a]); }
              */
-            //vcc.getBtnsSelectedFK()[a].setDisable(true);
+            // vcc.getBtnsSelectedFK()[a].setDisable(true);
 
             final int aa = a;
             Arrays.asList(cfks).forEach(fk -> {
@@ -141,18 +141,26 @@ public class VC {
                 sb.append(fk.getReferencedDatabase()).append(".");
                 sb.append(fk.getReferencedTable()).append(" (");
                 fk.getColumns().forEach(is -> sb.append(is.string).append(","));
-                sb.deleteCharAt(sb.length() - 1).append(")");//TEST
+                sb.deleteCharAt(sb.length() - 1).append(")");// TEST
 
                 fk.getColumns().forEach(is -> {
                     if (is.index - 1 == aa) {
                         vcc.getCksFK()[aa].setSelected(true);
-                        //vcc.getBtnsSelectedFK()[aa].setDisable(false);
+                        // vcc.getBtnsSelectedFK()[aa].setDisable(false);
 
                         fksFormed[aa] = sb.toString();
                         vcc.getTfasFK()[aa].setText(fksFormed[aa]);
                         vcc.getTfasFK()[aa].setVisible(true);
+
+                        vcc.getBtnsSelectedFK()[aa].setText("REM");
+
+                    } else {
+
                     }
                 });
+                //FOR ONLY ONE MIX FOREIGN KEY
+                Arrays.asList(vcc.getBtnsSelectedFK()).stream().filter(btn -> btn.getText().equals("REM"))
+                        .forEach(btn -> btn.setText("REM (A)"));
             });
             // fksFormed[a] = pks.get
 
@@ -232,7 +240,7 @@ public class VC {
             vcc.getBtnsChangeType()[a].setOnAction(vcc::btnsChangeType);
             vcc.getCksNull()[a].setOnAction(vcc::cksNullAction);
             vcc.getBtnsChangeNull()[a].setOnAction(vcc::btnsChangeNull);
-            //vcc.getBtnsSelectedFK()[a].setOnAction(vcc::btnUpdateFKS);
+            vcc.getBtnsSelectedFK()[a].setOnAction(vcc::btnsSelectedFK);
             vcc.getBtnsChangeDefault()[a].setOnAction(vcc::btnsChangeDefault);
 
             vcc.getBtnsRenameColumn()[a].setVisible(true);
