@@ -134,3 +134,17 @@
     -fx-background-color: box-color;
     background-color: box-color;
 }
+/*ID*/
+#lbStatus{
+    -fx-border-style: solid solid solid solid;
+    border-style: solid solid solid solid;
+    -fx-border-width: 2;
+    border-width: 2;
+    -fx-border-color: -fx-boreders-color;
+    border-color: -fx-boreders-color;
+}
+#btnCloseStatus{
+    -fx-background-color: #9c2f27;
+    background-color: #9c2f27;
+    -fx-text-fill: white;
+}

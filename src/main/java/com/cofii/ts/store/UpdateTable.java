@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.cofii.ts.sql.MSQL;
-import com.cofii2.stores.QString;
 
 public class UpdateTable {
     
@@ -17,8 +16,11 @@ public class UpdateTable {
     private List<Integer> typesLength = new ArrayList<>(max);
     private List<Boolean> nulls = new ArrayList<>(max);
     private List<String> pks = new ArrayList<>(max);
+
     private List<String> fks = new ArrayList<>(max);
+    private List<String> fksConstraint = new ArrayList<>(max);
     private List<String> fkFormed = new ArrayList<>(max);
+
     private List<Object> defaults = new ArrayList<>(max);
     private int extra = -1;
 
@@ -109,6 +111,12 @@ public class UpdateTable {
     }
     public void setImageCPath(List<String> imageCPath) {
         this.imageCPath = imageCPath;
+    }
+    public List<String> getFksConstraint() {
+        return fksConstraint;
+    }
+    public void setFksConstraint(List<String> fksConstraint) {
+        this.fksConstraint = fksConstraint;
     }
  
     

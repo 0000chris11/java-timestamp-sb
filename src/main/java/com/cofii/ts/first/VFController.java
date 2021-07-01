@@ -22,6 +22,7 @@ import com.cofii.ts.sql.MSQL;
 import com.cofii.ts.sql.querys.SelectData;
 import com.cofii.ts.store.ColumnDS;
 import com.cofii.ts.store.ColumnS;
+import com.cofii2.components.javafx.LabelStatus;
 import com.cofii2.components.javafx.PopupAutoC;
 import com.cofii2.components.javafx.TextFieldAutoC;
 import com.cofii2.methods.MString;
@@ -58,9 +59,11 @@ import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+import javafx.scene.paint.Paint;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 public class VFController implements Initializable {
 
@@ -93,14 +96,22 @@ public class VFController implements Initializable {
     private TextFlow[] lbs = new TextFlow[MSQL.MAX_COLUMNS];
     private TextField[] tfs = new TextField[MSQL.MAX_COLUMNS];
     // private ComboBox[] cbs = new ComboBox[MSQL.MAX_COLUMNS];
-    //private TextFieldAutoC[] tfas = new TextFieldAutoC[MSQL.MAX_COLUMNS];
-    //private TextField[] tfas = new TextField[MSQL.MAX_COLUMNS];
+    // private TextFieldAutoC[] tfas = new TextFieldAutoC[MSQL.MAX_COLUMNS];
+    // private TextField[] tfas = new TextField[MSQL.MAX_COLUMNS];
     private PopupAutoC[] tfsPs = new PopupAutoC[MSQL.MAX_COLUMNS];
     private List<List<String>> cbElements = new ArrayList<>(MSQL.MAX_COLUMNS);
     private Button[] btns = new Button[MSQL.MAX_COLUMNS];
-
+    //BOTTOM-----------------------------------
+    @FXML
+    private HBox statusPanel;
+    /*
     @FXML
     private Label lbStatus;
+    @FXML
+    private Button btnCloseStatus;
+    */
+    private LabelStatus lbStatus = new LabelStatus();
+    //private boolean autoClose = false;
 
     @FXML
     private Button btnDelete;
@@ -134,7 +145,7 @@ public class VFController implements Initializable {
     private int imageCounter = 0;
 
     // OTHER -------------------------------------------
-    
+
     private void forEachAction(int length, ActionForEachNode en) {
         for (int a = 0; a < length; a++) {
             // MISING FOR PRIMARY KEY
@@ -142,7 +153,7 @@ public class VFController implements Initializable {
             en.either(a);
         }
     }
-    
+
     private void comboBoxConfig() {
         /*
          * for (int a = 0; a < cbs.length; a++) { ComboBoxListViewSkin<String>
@@ -169,7 +180,7 @@ public class VFController implements Initializable {
                     String selectedImage = list.get(0).get(imageCPathIndex).toString();
                     System.out.println("selectedImage: " + selectedImage);
                     String formattedSelectedText = MString.getCustomFormattedString(selectedImage);
-    
+
                     System.out.println("--------------------------------------------------");
                     List<String> filePath2 = dist.getImageCFilesPath().stream().filter(e -> {
                         String subFile = e.replaceAll("(.jpg|.png|.gif)$", "");
@@ -316,9 +327,7 @@ public class VFController implements Initializable {
 
         ms.setIDataToLong(e -> {
             System.out.println("\tData too long");
-            lbStatus.setText(e.getMessage());
-            lbStatus.setTextFill(NonCSS.TEXT_FILL_ERROR);
-            Timers.getInstance(this).playLbStatusReset(lbStatus);
+            lbStatus.setText(e.getMessage(), NonCSS.TEXT_FILL_ERROR, Duration.seconds(2));
         });
         boolean update = ms.insert(tableName, gn.getValues());
         if (update) {
@@ -344,7 +353,7 @@ public class VFController implements Initializable {
 
         Arrays.asList(lbs).forEach(e -> e.setVisible(false));
         Arrays.asList(tfs).forEach(e -> e.setVisible(false));
-        //Arrays.asList(tfas).forEach(e -> e.setVisible(false));
+        // Arrays.asList(tfas).forEach(e -> e.setVisible(false));
         Arrays.asList(btns).forEach(e -> e.setVisible(false));
 
         splitLeft.setDividerPositions(1.0);
@@ -364,12 +373,12 @@ public class VFController implements Initializable {
             text.setFill(NonCSS.TEXT_FILL);
             lbs[a] = new TextFlow(text);
             tfs[a] = new TextField();
-            //tfas[a] = new TextFieldAutoC(a);
-            //tfas[a] = new TextField();
+            // tfas[a] = new TextFieldAutoC(a);
+            // tfas[a] = new TextField();
             tfsPs[a] = new PopupAutoC();
             btns[a] = new Button();
 
-            //tfas[a].setStyle(CSS.TFAS_DEFAULT_LOOK);
+            // tfas[a].setStyle(CSS.TFAS_DEFAULT_LOOK);
 
             lbs[a].setVisible(false);
             tfs[a].setVisible(false);
@@ -377,7 +386,7 @@ public class VFController implements Initializable {
 
             GridPane.setMargin(lbs[a], new Insets(2, 2, 2, 2));
             GridPane.setMargin(tfs[a], new Insets(2, 2, 2, 2));
-            //GridPane.setMargin(tfas[a], new Insets(2, 2, 2, 2));
+            // GridPane.setMargin(tfas[a], new Insets(2, 2, 2, 2));
             GridPane.setMargin(btns[a], new Insets(2, 2, 2, 2));
 
             gridPane.add(lbs[a], 0, a);
@@ -402,9 +411,6 @@ public class VFController implements Initializable {
         nonFXMLNodesInit();
         comboBoxConfig();
         // IMAGE-VIEW-------------------------------------
-        // hbImages.minWidthProperty().bind(spHBImages.prefWidthProperty());
-        // hbImages.minHeightProperty().bind(spHBImages.prefHeightProperty());
-        // hbImages.setAlignment(Pos.CENTER);
         fpImages.setOrientation(Orientation.HORIZONTAL);
         fpImages.getChildren().add(lbImageC);
         fpImages.minWidthProperty().bind(spHBImages.widthProperty());
@@ -418,6 +424,12 @@ public class VFController implements Initializable {
         table.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         table.getSelectionModel().selectedItemProperty().addListener(this::tableRowSelected);
 
+        //STATUS
+        lbStatus.setStyle(CSS.LB_STATUS);
+        lbStatus.getBtnCloseStatus().setStyle(CSS.LB_STATUS_BUTTON);
+        HBox.setHgrow(lbStatus, Priority.ALWAYS);
+        statusPanel.getChildren().add(0, lbStatus);
+        
     }
     // GET AND SET -------------------------------------------
 
@@ -525,14 +537,6 @@ public class VFController implements Initializable {
         this.ms = ms;
     }
 
-    public Label getLbStatus() {
-        return lbStatus;
-    }
-
-    public void setLbStatus(Label lbStatus) {
-        this.lbStatus = lbStatus;
-    }
-
     public List<List<String>> getCbElements() {
         return cbElements;
     }
@@ -622,5 +626,13 @@ public class VFController implements Initializable {
     public void setBtnAdd(Button btnAdd) {
         this.btnAdd = btnAdd;
     }
-    
+
+    public LabelStatus getLbStatus() {
+        return lbStatus;
+    }
+
+    public void setLbStatus(LabelStatus lbStatus) {
+        this.lbStatus = lbStatus;
+    }
+
 }

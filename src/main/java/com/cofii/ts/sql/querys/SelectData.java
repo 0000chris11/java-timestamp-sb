@@ -14,6 +14,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
+import javafx.util.Duration;
 
 /**
  * Selec the data from the current Table
@@ -63,8 +64,7 @@ public class SelectData implements IActions {
         if (rsValue) {
             vf.getTable().setItems(data);
             if (message != null) {
-                vf.getLbStatus().setText(message);
-                vf.getLbStatus().setTextFill(NonCSS.TEXT_FILL_OK);
+                vf.getLbStatus().setText(message, NonCSS.TEXT_FILL_OK, Duration.seconds(2));
 
                 Media media;
                 MediaPlayer mediaPlayer;
@@ -86,15 +86,6 @@ public class SelectData implements IActions {
                 
                 mediaPlayer = new MediaPlayer(media);
                 mediaPlayer.play();
-
-                Timers.getInstance(vf).playLbStatusReset(vf.getLbStatus());
-            }else{
-                /*
-                if(vf.getTableData() != null){
-                    vf.getTableData().removeListener(vf::tableCellChanged);
-                }
-                vf.setTableData(vf.getTable().getItems());
-                */
             }
         }
     }

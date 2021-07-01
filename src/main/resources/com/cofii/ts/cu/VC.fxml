@@ -22,9 +22,8 @@
       </HBox>
    </top>
    <bottom>
-      <HBox spacing="2.0" BorderPane.alignment="CENTER">
+      <HBox fx:id="hbStatus" spacing="2.0" BorderPane.alignment="CENTER">
          <children>
-            <Label fx:id="lbStatus" maxWidth="1.7976931348623157E308" text="Waiting for action..." HBox.hgrow="ALWAYS" />
             <Button fx:id="btnCancel" mnemonicParsing="false" text="Go Back" />
             <Button fx:id="btnCreateUpdate" disable="true" mnemonicParsing="false" text="Create" HBox.hgrow="NEVER" />
             <Button fx:id="btnCreateHelp" mnemonicParsing="false" text="?" />

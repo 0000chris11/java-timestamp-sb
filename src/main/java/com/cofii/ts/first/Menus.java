@@ -30,6 +30,7 @@ import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.text.Text;
+import javafx.util.Duration;
 
 public class Menus {
     // Open
@@ -141,23 +142,19 @@ public class Menus {
         if (deleteTable) {
             boolean removeFromTableNames = vf.getMs().deleteRow(MSQL.TABLE_NAMES, "Name", table.replace("_", " "));
             if (removeFromTableNames) {
-                vf.getLbStatus().setText("Table '" + table + "' has been deleted");
-                vf.getLbStatus().setTextFill(NonCSS.TEXT_FILL_OK);
+                vf.getLbStatus().setText("Table '" + table + "' has been deleted", NonCSS.TEXT_FILL_OK,
+                        Duration.seconds(2));
 
                 addMenuItemsReset();
                 vf.clearCurrentTableView();
             } else {
                 vf.getLbStatus().setText(
-                        "FATAL: Table '" + table + "' has been deleted but not removed from " + MSQL.TABLE_NAMES);
-                vf.getLbStatus().setTextFill(NonCSS.TEXT_FILL_ERROR);
+                        "FATAL: Table '" + table + "' has been deleted but not removed from " + MSQL.TABLE_NAMES,
+                        NonCSS.TEXT_FILL_ERROR);
             }
         } else {
-            vf.getLbStatus().setText("Table '" + table + "' fail to be deleted");
-            vf.getLbStatus().setTextFill(NonCSS.TEXT_FILL_ERROR);
+            vf.getLbStatus().setText("Table '" + table + "' fail to be deleted", NonCSS.TEXT_FILL_ERROR);
         }
-
-        timers.playLbStatusReset(vf.getLbStatus());
-
     }
 
     // ------------------------------------------------------
@@ -188,7 +185,7 @@ public class Menus {
     }
 
     private void resetKeys() {
-        //Key[] keyRows = keys.getCurrentTableKeys();
+        // Key[] keyRows = keys.getCurrentTableKeys();
         Text textPk = new Text("(P) ");
         textPk.setFill(NonCSS.TEXT_FILL_PK);
         Text textFk = new Text("(F) ");
@@ -223,28 +220,24 @@ public class Menus {
             });
         }
         /*
-        for (int a = 0; a < keyRows.length; a++) {
-            String columnName = keyRows[a].getColumnName();
-            String constraintType = keyRows[a].getConstraintType();
-            int ordinalPosition = keyRows[a].getOrdinalPosition();
-
-            vf.getLbs()[ordinalPosition - 1].getChildren().clear();
-            Text textColumnName = new Text(columnName);
-            textColumnName.setFill(NonCSS.TEXT_FILL);
-
-            if (constraintType.equals("PRIMARY KEY")) {
-                Text textPk = new Text("(P) ");
-                textPk.setFill(NonCSS.TEXT_FILL_PK);
-
-                vf.getLbs()[ordinalPosition - 1].getChildren().addAll(textPk, textColumnName);
-            } else if (constraintType.equals("FOREIGN KEY")) {
-                Text textFk = new Text("(F) ");
-                textFk.setFill(NonCSS.TEXT_FILL_PK);
-
-                vf.getLbs()[ordinalPosition - 1].getChildren().addAll(textFk, textColumnName);
-            }
-        }
-        */
+         * for (int a = 0; a < keyRows.length; a++) { String columnName =
+         * keyRows[a].getColumnName(); String constraintType =
+         * keyRows[a].getConstraintType(); int ordinalPosition =
+         * keyRows[a].getOrdinalPosition();
+         * 
+         * vf.getLbs()[ordinalPosition - 1].getChildren().clear(); Text textColumnName =
+         * new Text(columnName); textColumnName.setFill(NonCSS.TEXT_FILL);
+         * 
+         * if (constraintType.equals("PRIMARY KEY")) { Text textPk = new Text("(P) ");
+         * textPk.setFill(NonCSS.TEXT_FILL_PK);
+         * 
+         * vf.getLbs()[ordinalPosition - 1].getChildren().addAll(textPk,
+         * textColumnName); } else if (constraintType.equals("FOREIGN KEY")) { Text
+         * textFk = new Text("(F) "); textFk.setFill(NonCSS.TEXT_FILL_PK);
+         * 
+         * vf.getLbs()[ordinalPosition - 1].getChildren().addAll(textFk,
+         * textColumnName); } }
+         */
     }
 
     // INIT---------------------------------------------------

@@ -1,3 +1,4 @@
+com\cofii\ts\store\PK.class
 com\cofii\ts\first\Menus.class
 com\cofii\ts\other\AWTEventListenerImpl.class
 com\cofii\ts\store\Key.class
@@ -5,9 +6,11 @@ com\cofii\ts\store\UpdateTable.class
 com\cofii\ts\cu\VC.class
 com\cofii\ts\other\MultipleValuesSelectedImpl.class
 com\cofii\ts\sql\querys\ShowUsers.class
+com\cofii\ts\store\PKS.class
 com\cofii\ts\store\TableS.class
 com\cofii\ts\other\Timers.class
 com\cofii\ts\sql\querys\SelectTableDefault.class
+com\cofii\ts\store\FKS.class
 com\cofii\ts\store\VCGridNodes.class
 com\cofii\ts\sql\querys\SelectDefaultUser.class
 com\cofii\ts\store\Table.class
@@ -45,3 +48,4 @@ com\cofii\ts\login\VL.class
 com\cofii\ts\store\ColumnS.class
 com\cofii\ts\sql\CurrenConnection.class
 com\cofii\ts\first\VFDController.class
+com\cofii\ts\store\FK.class

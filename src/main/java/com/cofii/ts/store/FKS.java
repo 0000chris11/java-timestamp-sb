@@ -99,4 +99,13 @@ public class FKS {
         return instance;
     }
     // -------------------------------------------
+
+    public List<FK> getFksList() {
+        return fksList;
+    }
+
+    public void setFksList(List<FK> fksList) {
+        this.fksList = fksList;
+    }
+    
 }

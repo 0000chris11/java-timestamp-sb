@@ -18,7 +18,7 @@ public class PKS {
         int[] indexs = { -1 };
         boolean exist = pksList.stream().anyMatch(e -> {
             indexs[0]++;
-            return e.getDatabase().equals(database) && e.getTable().equals(table);
+            return e.getDatabase().equalsIgnoreCase(database) && e.getTable().equalsIgnoreCase(table);
         });
         if (!exist) {
             pksList.add(pk);
@@ -32,8 +32,8 @@ public class PKS {
     }
 
     public PK[] getCurrentTablePKS() {
-        return pksList.stream().filter(e -> e.getDatabase().equals(MSQL.getDatabase())
-                && e.getTable().equals(MSQL.getCurrentTable().getName().replace(" ", "_"))).toArray(PK[]::new);
+        return pksList.stream().filter(e -> e.getDatabase().equalsIgnoreCase(MSQL.getDatabase())
+                && e.getTable().equalsIgnoreCase(MSQL.getCurrentTable().getName().replace(" ", "_"))).toArray(PK[]::new);
     }
 
     public String[] getYesAndNoPKS() {

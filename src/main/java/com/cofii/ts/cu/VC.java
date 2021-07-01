@@ -1,6 +1,7 @@
 package com.cofii.ts.cu;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -107,12 +108,17 @@ public class VC {
         // List<Integer> typesLength = Arrays.asList(columns.getTypesLength());
         List<Integer> typesLength = Arrays.asList(ArrayUtils.toObject(columns.getTypesLength()));
         List<Boolean> nulls = Arrays.asList(ArrayUtils.toObject(columns.getNulls()));
-        // List<String> pks = Arrays.asList(keys.getPKS());
+
         List<String> cpks = Arrays.asList(pks.getYesAndNoPKS());
-        // List<QString> cfks = Arrays.asList(keys.getFKS());
+        System.out.println("######TEST");
+        cpks.forEach(System.out::println);
+        
         FK[] cfks = fks.getCurrentTableFKS();
         List<String> yfks = Arrays.asList(fks.getYesAndNoFKS());
+        List<String> fksConstraint = new ArrayList<>(MSQL.MAX_COLUMNS);
+
         String[] fksFormed = new String[columns.size()];
+
         List<Object> defaults = Arrays.asList(columns.getDefaults());
         int extra = columns.getExtra();
 
@@ -140,12 +146,12 @@ public class VC {
                 StringBuilder sb = new StringBuilder();
                 sb.append(fk.getReferencedDatabase()).append(".");
                 sb.append(fk.getReferencedTable()).append(" (");
-                fk.getColumns().forEach(is -> sb.append(is.string).append(","));
+                fk.getReferencedColumns().forEach(s -> sb.append(s).append(","));
                 sb.deleteCharAt(sb.length() - 1).append(")");// TEST
 
                 fk.getColumns().forEach(is -> {
                     if (is.index - 1 == aa) {
-                        vcc.getCksFK()[aa].setSelected(true);
+                        //vcc.getCksFK()[aa].setSelected(true);
                         // vcc.getBtnsSelectedFK()[aa].setDisable(false);
 
                         fksFormed[aa] = sb.toString();
@@ -154,8 +160,9 @@ public class VC {
 
                         vcc.getBtnsSelectedFK()[aa].setText("REM");
 
+                        fksConstraint.add(aa, fk.getConstraint());
                     } else {
-
+                        fksConstraint.add(aa, "none");
                     }
                 });
                 //FOR ONLY ONE MIX FOREIGN KEY
@@ -191,6 +198,7 @@ public class VC {
         updateTable.setNulls(nulls);
         updateTable.setPks(cpks);
         updateTable.setFks(yfks);
+        updateTable.setFksConstraint(fksConstraint);
         updateTable.setFkFormed(Arrays.asList(fksFormed));
         updateTable.setDefaults(defaults);
         updateTable.setExtra(extra);
