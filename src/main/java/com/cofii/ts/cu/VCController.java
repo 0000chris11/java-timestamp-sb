@@ -982,6 +982,7 @@ public class VCController implements Initializable {
                 break;
             }
         }
+
         if (update) {
             btnUpdatePK.setDisable(false);
         } else {
@@ -1238,6 +1239,7 @@ public class VCController implements Initializable {
 
         // FIRST INDEX-------------------------------
         int[] indexs = { -1 };
+
         Arrays.asList(btnsSelectedFK).stream().anyMatch(btn -> {
             indexs[0]++;
             return btn.isSelected();
@@ -1253,23 +1255,26 @@ public class VCController implements Initializable {
         });
         // DROP FK-----------------------------------
         boolean dropFK = true;
-        if (updateTable.getFks().get(indexs[0]).equals("Yes")) {// DROP FOREIGN KEY
-            String constraint = fks.getConstraintName(MSQL.getDatabase(), table, indexs[0]);
+        if (updateTable.getFks().get(indexs[0]++).equals("Yes")) {// DROP FOREIGN KEY
+            String constraint = fks.getConstraintName(MSQL.getDatabase(), table, indexs[0]++);
             dropFK = ms.dropForeignKey(table, constraint);
         }
         if (dropFK) {
-            if (btnsSelectedFK[indexs[0]].getText().contains("ADD")) {
+            List<Integer> indexsList = new ArrayList<>(MSQL.MAX_COLUMNS);
+
+            List<String> cols = new ArrayList<>(currentRowLength);
+            indexs[0] = 0;
+            Arrays.asList(btnsSelectedFK).forEach(btn -> {
+                if (btn.isSelected()) {
+                    indexs[0] = Integer.parseInt(btn.getId());
+                    indexsList.add(indexs[0]);
+                    cols.add(updateTable.getColumns().get(indexs[0]).replace(" ", "_"));
+                }
+            });
+            if (btnsSelectedFK[indexs[0]++].getText().contains("ADD")) {
                 // ADD VALUES---------------------------------
-                List<String> cols = new ArrayList<>(currentRowLength);
                 String tableReference;
-                // List<String> columnsReference = new ArrayList<>(currentRowLength);
-                indexs[0] = 0;
-                Arrays.asList(btnsSelectedFK).forEach(btn -> {
-                    if (btn.isSelected()) {
-                        indexs[0] = Integer.parseInt(btn.getId());
-                        cols.add(updateTable.getColumns().get(indexs[0]).replace(" ", "_"));
-                    }
-                });
+
                 String text = tfsFK[indexs[0]].getText();
                 tableReference = text.substring(text.indexOf(".") + 1, text.indexOf("(") - 1);
                 text = text.substring(text.indexOf("(") + 1, text.indexOf(")"));
@@ -1291,16 +1296,18 @@ public class VCController implements Initializable {
                         columnsReference);
                 // RESULTS-------------------------------------
                 if (addFK) {
-                    // FK ADDED
-                    indexs[0] = 0;
-                    Arrays.asList(btnsSelectedFK).forEach(btn -> {
-                        // ADD ONLY
-                        if (btn.isSelected()) {
-                            updateTable.getFks().set(indexs[0], "Yes");// SINGLE
-                            updateTable.getFksConstraint().set(indexs[0], sb.toString());
-                        }
-                        indexs[0]++;
+
+                    btnUpdateFK.setDisable(true);
+                    indexsList.forEach(i -> {
+                        updateTable.getFks().set(i, "Yes");
+                        btnsSelectedFK[i].setSelected(false);
                     });
+
+                    if (indexsList.size() == 1) {
+                        btnsSelectedFK[indexsList.get(0)].setText("REM");
+                    } else if (indexsList.size() > 1) {
+                        indexsList.forEach(i -> btnsSelectedFK[i].setText("REM (A)"));
+                    }
 
                     lbStatus.setText("FOREIGN KEY added!", NonCSS.TEXT_FILL_OK, Duration.seconds(2));
                     System.out.println("\tSUCCESS");
@@ -1312,9 +1319,15 @@ public class VCController implements Initializable {
                 }
             } else {
                 // FK REMOVED
-                System.out.println("\tSUCCESS");
-                updateTable.getFks().set(indexs[0], "No");// SINGLE
+                btnUpdateFK.setDisable(true);
+                indexsList.forEach(i -> {
+                    updateTable.getFks().set(i, "No");
+                    btnsSelectedFK[i].setSelected(false);
+                    btnsSelectedFK[i].setText("ADD");
+                });
+
                 lbStatus.setText("FOREIGN KEY removed!", NonCSS.TEXT_FILL_OK, Duration.seconds(2));
+                System.out.println("\tSUCCESS");
             }
         } else {
             // FK FAIL REMOVE
@@ -1644,7 +1657,7 @@ public class VCController implements Initializable {
         // RIGHT-------------------
         String dist = Custom.getOldDist(currentRowLength, btnsDist);
         String imageC = Custom.getOldImageC(currentRowLength, btnsImageC);
-        String imageCPath = Custom.getImageCPath(currentRowLength, tfImageCPath, btnsImageC);
+        String imageCPath = Custom.getImageCPath(currentRowLength, tfImageCPath.getText(), btnsImageC);
         /*
          * boolean distPresent = false; int distCount = 0;
          */
@@ -1748,7 +1761,7 @@ public class VCController implements Initializable {
         }
 
         // UPDATE--------------------------------------------------------------
-        distUpdate(index);
+        distUpdate();
         // --------------------------------------------------------------
         masterControl();
     }
@@ -1765,29 +1778,50 @@ public class VCController implements Initializable {
         }
     }
 
-    private void distUpdate(int index) {
+    private void distUpdate() {
         if (updateControl) {
             if (distExtraOK) {
                 boolean update = false;
                 for (int a = 0; a < currentRowLength; a++) {
-                    boolean dist = updateTable.getDist().get(index).equals("Yes");
-                    if (btnsDist[index].isSelected() != dist) {
+                    boolean dist = updateTable.getDist().get(a).equals("Yes");
+                    if (btnsDist[a].isSelected() != dist) {
                         update = true;
                         break;
                     }
                 }
-                if (update) {
-                    // btnsDistPopups[index].hide();
-                    btnUpdateDist.setStyle(CSS.TEXT_FILL);
-                    btnUpdateDist.setDisable(false);
-                } else {
-                    // btnsDistPopups[index].show(SAME_VALUE);
-                    btnUpdateDist.setStyle(CSS.TEXT_FILL_HINT);
-                    btnUpdateDist.setDisable(true);
-                }
+
+                btnUpdateDist.setDisable(!update);
             } else {
                 btnUpdateDist.setDisable(true);
             }
+        }
+    }
+
+    void btnUpdateDist(ActionEvent e) {
+        System.out.println(CC.CYAN + "Update Dist" + CC.RESET);
+        setQOLVariables(e);
+
+        // String disto = Custom.getOldDist(updateTable.getDist().toArray(new
+        // String[updateTable.getDist().size()]));
+        String dist = Custom.getOldDist(currentRowLength, btnsDist);
+
+        boolean updateDist = ms.updateRow(MSQL.TABLE_NAMES, "Name", table.replace("_", " "), "Dist1", dist);
+        if (updateDist) {
+            int[] indexs = { 0 };
+            Arrays.asList(btnsDist).forEach(btn -> {
+                if (currentRowLength > indexs[0]) {
+                    updateTable.getDist().set(indexs[0], btnsDist[indexs[0]].isSelected() ? "Yes" : "No");
+                }
+                indexs[0]++;
+            });
+            btnUpdateDist.setDisable(true);
+
+            lbStatus.setText("Dist has change to '" + dist + "'", NonCSS.TEXT_FILL_OK, Duration.seconds(2));
+            System.out.println("\tSUCCESS");
+        } else {
+            lbStatus.setText("Dist fail to changed", NonCSS.TEXT_FILL_ERROR);
+            System.out.println("\tFAILED");
+
         }
     }
 
@@ -1805,7 +1839,7 @@ public class VCController implements Initializable {
         }
 
         // UPDATE---------------------------------------
-        imageCUpdate(index);
+        imageCUpdate();
     }
 
     private void listImageCChange(Change<? extends Boolean> c) {
@@ -1815,12 +1849,12 @@ public class VCController implements Initializable {
                     tfImageCPath.setDisable(true);
                     btnSelectImageC.setDisable(true);
 
-                    imageCPathOk = true;
+                    // imageCPathOk = true;
                 } else {
                     tfImageCPath.setDisable(false);
                     btnSelectImageC.setDisable(false);
 
-                    imageCPathOk = false;
+                    // imageCPathOk = false;
                 }
             }
         }
@@ -1855,29 +1889,30 @@ public class VCController implements Initializable {
             imageCPathOk = true;
         }
 
+        imageCUpdate();
         masterControl();
     }
 
-    private void imageCUpdate(int index) {
+    private void imageCUpdate() {
         if (updateControl) {
             if (currentRowLength <= updateTable.getRowLength()) {
                 if (imageCPathOk) {
-                    boolean imageCSelected = updateTable.getImageC().get(index).equals("Yes");
-                    int[] indexs = { -1 };
-                    updateTable.getImageCPath().stream().anyMatch(p -> {
-                        indexs[0]++;
-                        return !p.equals("NONE");
-                    });
-                    String pathO = updateTable.getImageCPath().get(indexs[0]);
-                    if (btnsImageC[index].isSelected() != imageCSelected
-                            || (!tfImageCPath.isDisabled() && !tfImageCPath.getText().equals(pathO))) {
-                        btnUpdateImageC.setStyle(CSS.TEXT_FILL);
-                        btnUpdateImageC.setDisable(false);
-                    } else {
-                        // btnsImageCPopups[index].show(SAME_VALUE);
-                        btnUpdateImageC.setStyle(CSS.TEXT_FILL_HINT);
-                        btnUpdateImageC.setDisable(true);
-                    }
+
+                    String imageCO = Custom.getOldImageC(currentRowLength, updateTable.getImageC().toArray(new String[updateTable.getImageC().size()]));
+                    String imageC = Custom.getOldImageC(currentRowLength, btnsImageC);
+
+                    String imageCPathO = updateTable.getImageCPath();
+                    String imageCPath = tfImageCPath.getText();
+
+
+                    boolean disable = !imageCO.equals(imageC) || !imageCPathO.equals(imageCPath);
+                    //boolean disable = imageCPathO.equals(imageCPath);    
+/*
+                    boolean disable = btnsImageC[index].isSelected() != imageCSelected
+                            || (!tfImageCPath.isDisabled() && !tfImageCPath.getText().equals(pathO));
+                    */
+                    btnUpdateImageC.setDisable(!disable);
+
                 } else {
                     btnUpdateImageC.setDisable(true);
                 }
@@ -1888,13 +1923,16 @@ public class VCController implements Initializable {
         }
     }
 
+    void btnUpdateImageC(ActionEvent e){
+        System.out.println(CC.CYAN + "Update ImageC" + CC.RESET);
+
+    }
     // INIT ---------------------------------------------
     private void fkReferencesInit() {
         System.out.println("\n#####TEST FOR fkReferencesInit####");
         // Key[] row = keys.getRowPrimaryKeys();
         List<String> list = new ArrayList<>();
         List<PK> pksList = pks.getPksList();
-        List<FK> fksList = fks.getFksList();
 
         for (int a = 0; a < pksList.size(); a++) {
             String databaseName = pksList.get(a).getDatabase();
@@ -2703,6 +2741,14 @@ public class VCController implements Initializable {
 
     public void setBtnsSelectedFK(ToggleButton[] btnsChangeFK) {
         this.btnsSelectedFK = btnsChangeFK;
+    }
+
+    public Button getBtnSelectImageC() {
+        return btnSelectImageC;
+    }
+
+    public void setBtnSelectImageC(Button btnSelectImageC) {
+        this.btnSelectImageC = btnSelectImageC;
     }
 
 }

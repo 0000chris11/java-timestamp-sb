@@ -124,7 +124,9 @@ public class VC {
 
         List<String> dists = Arrays.asList(columnds.getDists());
         List<String> imageCS = Arrays.asList(columnds.getImageCS());
-        List<String> imageCPath = Arrays.asList(columnds.getImageCPaths());
+        List<String> imageCPathList = Arrays.asList(columnds.getImageCPaths());
+        String imageCPath = "NONE";
+        
         // ----------------------------------------------------
 
         vcc.getTfTable().setText(table);
@@ -182,8 +184,9 @@ public class VC {
             // DISTS---------------------------------------------
             vcc.getBtnsDist()[a].setSelected(dists.get(a).equals("Yes"));
             vcc.getBtnsImageC()[a].setSelected(imageCS.get(a).equals("Yes"));// ERROR IF THERE IS MORE THAN ONE
-            if (!imageCPath.get(a).equals("NONE")) {
-                vcc.getTfImageCPath().setText(imageCPath.get(a));
+            if (!imageCPathList.get(a).equals("NONE")) {
+                vcc.getTfImageCPath().setText(imageCPathList.get(a));
+                imageCPath = imageCPathList.get(a);
             }
         }
 
@@ -268,6 +271,9 @@ public class VC {
         vcc.getBtnUpdateFK().setId(Integer.toString(-1));
         vcc.getBtnUpdateExtra().setId(Integer.toString(-1));
         // RIGHT-BOTTOM------------------------------------------------
+        vcc.getBtnUpdateDist().setOnAction(vcc::btnUpdateDist);
+        vxx.getBtnUpdateImageC().setOnAction(vcc::btnUpdateImageC);
+
         vcc.getBtnUpdateDist().setId(Integer.toString(-1));
         vcc.getBtnUpdateImageC().setId(Integer.toString(-1));
         // BOTTOM-----------------------------------------------------
@@ -295,6 +301,10 @@ public class VC {
                 System.out.println(CC.CYAN + "\nUPDATE TABLE" + CC.RESET);
                 updateOption();
             }
+            //OTHERS----------------------------
+            boolean disable = Arrays.asList(vcc.getBtnsImageC()).stream().anyMatch(btn -> btn.isSelected());
+            vcc.getTfImageCPath().setDisable(!disable);
+            vcc.getBtnSelectImageC().setDisable(!disable);
         } catch (IOException e) {
             e.printStackTrace();
         }

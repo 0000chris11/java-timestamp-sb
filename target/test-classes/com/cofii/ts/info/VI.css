@@ -1,0 +1,28 @@
+*{
+    -fx-cell-color: white ;
+    -fx-cell-border-color: black ;
+}
+
+.root{
+    -fx-background-color: #100c49;
+    background-color: #100c49;
+}
+
+.label{
+    -fx-text-fill: white;
+}
+/**/
+
+.grid-pane .grid {
+    /* 1 pixel border around the top and right of the grid: */
+    -fx-background-color: -fx-cell-border-color, -fx-cell-color ;
+    background-color: -fx-cell-border-color, -fx-cell-color ;
+    -fx-background-insets: 0, 1 1 0 0 ;
+    /*-fx-padding: 1 ;*/
+}
+.grid-pane .cell {
+    /* 1 pixel border around the left and bottom of each cell: */
+    -fx-background-color: cell-border-color, cell-color ;
+    background-color: cell-border-color, cell-color ;
+    -fx-background-insets: 0, 0 0 1 1 ;
+}

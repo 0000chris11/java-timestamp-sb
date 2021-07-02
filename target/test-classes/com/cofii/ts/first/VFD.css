@@ -1,0 +1,58 @@
+*{
+    /*ROOT---------------------------*/
+    -fx-root-background-color: #100c49;
+    /*LABELS---------------------------*/
+    -fx-label-text-fill-color: white;
+    /*TEXTFIELD---------------------------*/
+    -fx-textfield-dist-background-color: #0e0866;
+    -fx-textfield-background-color: #090631;
+    -fx-textfield-text-fill-color: white;
+    /*TABLE-LIST---------------------------*/
+    -fx-table-column-header-background: #0a0553;
+    -fx-table-column-headet-text-fill-color: white;
+    -fx-table-row-cell-text-fill-color: white;
+    -fx-table-row-cell-background-color: #100a5c;
+    -fx-table-row-cell-odd-background-color: #0b0741;
+    -fx-table-row-cell-selected-background-color: #160e88;
+}
+.root{
+    -fx-background-color: -fx-root-background-color;
+    background-color: -fx-root-background-color;
+}
+.vbox{
+    -fx-background-color: -fx-root-background-color;
+    background-color: -fx-root-background-color;
+}
+.hbox{
+    -fx-background-color: -fx-root-background-color;
+    background-color: -fx-root-background-color;
+}
+.label{
+    -fx-text-fill: -fx-label-text-fill-color;
+}
+.text-field{
+    -fx-background-color: -fx-textfield-background-color;
+    background-color: -fx-textfield-background-color;
+
+    -fx-text-fill: -fx-textfield-text-fill-color;
+}
+.list-cell:filled:selected:focused, .list-cell:filled:selected {
+    -fx-background-color: -fx-table-row-cell-selected-background-color;
+    background-color: -fx-table-row-cell-selected-background-color;
+    -fx-text-fill: white;
+}
+.list-cell:even {
+    -fx-background-color: -fx-table-row-cell-background-color;
+    background-color: -fx-table-row-cell-background-color;
+    -fx-text-fill: white;
+}
+.list-cell:odd {
+    -fx-background-color: -fx-table-row-cell-odd-background-color;
+    background-color: -fx-table-row-cell-odd-background-color;
+    -fx-text-fill: white;
+}
+.list-cell:filled:hover {
+    -fx-background-color: -fx-table-row-cell-selected-background-color;
+    background-color: -fx-table-row-cell-selected-background-color;
+    -fx-text-fill: white;
+}

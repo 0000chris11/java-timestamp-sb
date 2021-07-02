@@ -155,8 +155,8 @@
                         <HBox fx:id="hbRightUpdate" prefHeight="100.0" spacing="10.0">
                            <children>
                               <Button fx:id="btnUpdateDist" disable="true" mnemonicParsing="false" text="Dist" />
-                              <TextField fx:id="tfImageCPath" disable="true" prefWidth="200.0" promptText="ImageCPath" />
-                              <Button fx:id="btnSelectImageC" disable="true" mnemonicParsing="false" />
+                              <TextField fx:id="tfImageCPath" prefWidth="200.0" promptText="ImageCPath" />
+                              <Button fx:id="btnSelectImageC" mnemonicParsing="false" />
                               <Button fx:id="btnUpdateImageC" disable="true" mnemonicParsing="false" text="ImageC" />
                            </children>
                            <padding>

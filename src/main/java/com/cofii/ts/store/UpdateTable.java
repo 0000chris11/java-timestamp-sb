@@ -26,7 +26,8 @@ public class UpdateTable {
 
     private List<String> dist = new ArrayList<>(max);
     private List<String> imageC = new ArrayList<>(max);
-    private List<String> imageCPath = new ArrayList<>(max);
+    private String imageCPath = "NONE";
+    //private List<String> imageCPath = new ArrayList<>(max);//DELETE
     //----------------------------------------------------------------------------
     public int getRowLength() {
         return rowLength;
@@ -106,10 +107,10 @@ public class UpdateTable {
     public void setImageC(List<String> imageC) {
         this.imageC = imageC;
     }
-    public List<String> getImageCPath() {
+    public String getImageCPath() {
         return imageCPath;
     }
-    public void setImageCPath(List<String> imageCPath) {
+    public void setImageCPath(String imageCPath) {
         this.imageCPath = imageCPath;
     }
     public List<String> getFksConstraint() {
