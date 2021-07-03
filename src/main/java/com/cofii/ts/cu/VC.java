@@ -41,22 +41,22 @@ public class VC {
         for (int a = 0; a < size; a++) {
             int row = a + 1;
 
-            vcc.getGridPaneLeft().add(vcc.getHbsN()[a], 0, row);
-            vcc.getGridPaneLeft().add(vcc.getHbsName()[a], 1, row);
-            vcc.getGridPaneLeft().add(vcc.getHbsType()[a], 2, row);
-            vcc.getGridPaneLeft().add(vcc.getHbsNull()[a], 3, row);
-            vcc.getGridPaneLeft().add(vcc.getHbsPK()[a], 4, row);
-            vcc.getGridPaneLeft().add(vcc.getHbsFK()[a], 5, row);
-            vcc.getGridPaneLeft().add(vcc.getHbsDefault()[a], 6, row);
-            vcc.getGridPaneLeft().add(vcc.getHbsExtra()[a], 7, row);
+            vcc.getGridPaneLeft().add(vcc.getHbsN().get(a), 0, row);
+            vcc.getGridPaneLeft().add(vcc.getHbsName().get(a), 1, row);
+            vcc.getGridPaneLeft().add(vcc.getHbsType().get(a), 2, row);
+            vcc.getGridPaneLeft().add(vcc.getHbsNull().get(a), 3, row);
+            vcc.getGridPaneLeft().add(vcc.getHbsPK().get(a), 4, row);
+            vcc.getGridPaneLeft().add(vcc.getHbsFK().get(a), 5, row);
+            vcc.getGridPaneLeft().add(vcc.getHbsDefault().get(a), 6, row);
+            vcc.getGridPaneLeft().add(vcc.getHbsExtra().get(a), 7, row);
 
-            GridPane.setValignment(vcc.getLbsN()[a], VPos.TOP);
+            GridPane.setValignment(vcc.getLbsN().get(a), VPos.TOP);
             // RIGHT-----------------------------------------
-            vcc.getGridPaneRight().add(vcc.getBtnsDist()[a], 0, row);
-            vcc.getGridPaneRight().add(vcc.getBtnsImageC()[a], 1, row);
+            vcc.getGridPaneRight().add(vcc.getBtnsDist().get(a), 0, row);
+            vcc.getGridPaneRight().add(vcc.getBtnsImageC().get(a), 1, row);
 
-            GridPane.setValignment(vcc.getBtnsDist()[a], VPos.TOP);
-            GridPane.setValignment(vcc.getBtnsImageC()[a], VPos.TOP);
+            GridPane.setValignment(vcc.getBtnsDist().get(a), VPos.TOP);
+            GridPane.setValignment(vcc.getBtnsImageC().get(a), VPos.TOP);
         }
     }
 
@@ -72,13 +72,13 @@ public class VC {
             e.setVgrow(Priority.NEVER);
         });
         for (int a = 0; a < MSQL.MAX_COLUMNS; a++) {
-            vcc.getBtnsRemoveColumn()[a].setOnAction(vcc::btnsRemoveCreateAction);
-            vcc.getBtnsAddColumn()[a].setOnAction(vcc::btnsAddCreateAction);
+            vcc.getBtnsRemoveColumn().get(a).setOnAction(vcc::btnsRemoveCreateAction);
+            vcc.getBtnsAddColumn().get(a).setOnAction(vcc::btnsAddCreateAction);
 
-            vcc.getBtnsRenameColumn()[a].setVisible(false);
-            vcc.getBtnsChangeType()[a].setVisible(false);
-            vcc.getBtnsChangeNull()[a].setVisible(false);
-            vcc.getBtnsChangeDefault()[a].setVisible(false);
+            vcc.getBtnsRenameColumn().get(a).setVisible(false);
+            vcc.getBtnsChangeType().get(a).setVisible(false);
+            vcc.getBtnsChangeNull().get(a).setVisible(false);
+            vcc.getBtnsChangeDefault().get(a).setVisible(false);
         }
         vcc.btnAddRemoveColumnInit();
         // LEFT-BOTTOM------------------------------------------------
@@ -131,11 +131,11 @@ public class VC {
 
         vcc.getTfTable().setText(table);
         for (int a = 0; a < columnCount; a++) {
-            vcc.getTfsColumn()[a].setText(columnsName.get(a).replace("_", " "));
-            vcc.getTfasType()[a].setText(types.get(a));
-            vcc.getTfsTypeLength()[a].setText(Integer.toString(typesLength.get(a)));
-            vcc.getCksNull()[a].setSelected(nulls.get(a));
-            vcc.getRbsPK()[a].setSelected(cpks.get(a).equals("Yes"));
+            vcc.getTfsColumn().get(a).setText(columnsName.get(a).replace("_", " "));
+            vcc.getTfasType().get(a).setText(types.get(a));
+            vcc.getTfsTypeLength().get(a).setText(Integer.toString(typesLength.get(a)));
+            vcc.getCksNull().get(a).setSelected(nulls.get(a));
+            vcc.getRbsPK().get(a).setSelected(cpks.get(a).equals("Yes"));
             /*
              * if (fks.get(a) != null) {// NOT TESTED vcc.getCksFK()[a].setSelected(true);
              * fksFormed[a] = fks.get(a).getString2() + "." + fks.get(a).getString3() + "."
@@ -157,10 +157,10 @@ public class VC {
                         // vcc.getBtnsSelectedFK()[aa].setDisable(false);
 
                         fksFormed[aa] = sb.toString();
-                        vcc.getTfasFK()[aa].setText(fksFormed[aa]);
-                        vcc.getTfasFK()[aa].setVisible(true);
+                        vcc.getTfasFK().get(aa).setText(fksFormed[aa]);
+                        vcc.getTfasFK().get(aa).setVisible(true);
 
-                        vcc.getBtnsSelectedFK()[aa].setText("REM");
+                        vcc.getBtnsSelectedFK().get(aa).setText("REM");
 
                         fksConstraint.add(aa, fk.getConstraint());
                     } else {
@@ -168,22 +168,22 @@ public class VC {
                     }
                 });
                 //FOR ONLY ONE MIX FOREIGN KEY
-                Arrays.asList(vcc.getBtnsSelectedFK()).stream().filter(btn -> btn.getText().equals("REM"))
+                vcc.getBtnsSelectedFK().stream().filter(btn -> btn.getText().equals("REM"))
                         .forEach(btn -> btn.setText("REM (A)"));
             });
             // fksFormed[a] = pks.get
 
             if (defaults.get(a) != null) {
-                vcc.getCksDefault()[a].setSelected(true);
-                vcc.getTfsDefault()[a].setVisible(true);
-                vcc.getTfsDefault()[a].setText(defaults.get(a).toString());
+                vcc.getCksDefault().get(a).setSelected(true);
+                vcc.getTfsDefault().get(a).setVisible(true);
+                vcc.getTfsDefault().get(a).setText(defaults.get(a).toString());
             } else {
-                vcc.getCksDefault()[a].setSelected(false);
+                vcc.getCksDefault().get(a).setSelected(false);
             }
-            vcc.getRbsExtra()[a].setSelected(extra == a);
+            vcc.getRbsExtra().get(a).setSelected(extra == a);
             // DISTS---------------------------------------------
-            vcc.getBtnsDist()[a].setSelected(dists.get(a).equals("Yes"));
-            vcc.getBtnsImageC()[a].setSelected(imageCS.get(a).equals("Yes"));// ERROR IF THERE IS MORE THAN ONE
+            vcc.getBtnsDist().get(a).setSelected(dists.get(a).equals("Yes"));
+            vcc.getBtnsImageC().get(a).setSelected(imageCS.get(a).equals("Yes"));// ERROR IF THERE IS MORE THAN ONE
             if (!imageCPathList.get(a).equals("NONE")) {
                 vcc.getTfImageCPath().setText(imageCPathList.get(a));
                 imageCPath = imageCPathList.get(a);
@@ -217,19 +217,19 @@ public class VC {
     private void setTextFill(boolean create) {
         if (create) {
             for (int a = 0; a < vcc.getCurrentRowLength(); a++) {
-                vcc.getCksNull()[a].setStyle(CSS.CKS_BG);
-                vcc.getCksDefault()[a].setStyle(CSS.CKS_BG);
+                vcc.getCksNull().get(a).setStyle(CSS.CKS_BG);
+                vcc.getCksDefault().get(a).setStyle(CSS.CKS_BG);
             }
         } else {
             vcc.getTfTable().setStyle(CSS.TEXT_FILL_HINT);
             for (int a = 0; a < columns.size(); a++) {
-                vcc.getTfsColumn()[a].setStyle(CSS.TEXT_FILL_HINT);
-                vcc.getTfasType()[a].setStyle(CSS.TEXT_FILL_HINT);
-                vcc.getTfsTypeLength()[a].setStyle(CSS.TEXT_FILL_HINT);
-                // vcc.getCksNull()[a].setStyle(CSS.TEXT_FILL_HINT);
-                vcc.getCksNull()[a].setStyle(CSS.CKS_BG_HINT);
-                vcc.getCksDefault()[a].setStyle(CSS.CKS_BG_HINT);
-                vcc.getTfsDefault()[a].setStyle(CSS.TEXT_FILL_HINT);
+                vcc.getTfsColumn().get(a).setStyle(CSS.TEXT_FILL_HINT);
+                vcc.getTfasType().get(a).setStyle(CSS.TEXT_FILL_HINT);
+                vcc.getTfsTypeLength().get(a).setStyle(CSS.TEXT_FILL_HINT);
+                // vcc.getCksNull().get(a).setStyle(CSS.TEXT_FILL_HINT);
+                vcc.getCksNull().get(a).setStyle(CSS.CKS_BG_HINT);
+                vcc.getCksDefault().get(a).setStyle(CSS.CKS_BG_HINT);
+                vcc.getTfsDefault().get(a).setStyle(CSS.TEXT_FILL_HINT);
             }
         }
     }
@@ -245,21 +245,21 @@ public class VC {
         rowDisplay(columns.size());
         vcc.setCurrentRowLength(columns.size());
         for (int a = 0; a < MSQL.MAX_COLUMNS; a++) {
-            vcc.getBtnsRemoveColumn()[a].setOnAction(vcc::btnsRemoveUpdateAction);
-            vcc.getBtnsAddColumn()[a].setOnAction(vcc::btnsColumnSetVisibleAction);
-            vcc.getBtnsRenameColumn()[a].setOnAction(vcc::btnsRenameColumn);
-            vcc.getBtnsChangeType()[a].setOnAction(vcc::btnsChangeType);
-            vcc.getCksNull()[a].setOnAction(vcc::cksNullAction);
-            vcc.getBtnsChangeNull()[a].setOnAction(vcc::btnsChangeNull);
-            vcc.getBtnsSelectedFK()[a].setOnAction(vcc::btnsSelectedFK);
-            vcc.getBtnsChangeDefault()[a].setOnAction(vcc::btnsChangeDefault);
+            vcc.getBtnsRemoveColumn().get(a).setOnAction(vcc::btnsRemoveUpdateAction);
+            vcc.getBtnsAddColumn().get(a).setOnAction(vcc::btnsColumnSetVisibleAction);
+            vcc.getBtnsRenameColumn().get(a).setOnAction(vcc::btnsRenameColumn);
+            vcc.getBtnsChangeType().get(a).setOnAction(vcc::btnsChangeType);
+            vcc.getCksNull().get(a).setOnAction(vcc::cksNullAction);
+            vcc.getBtnsChangeNull().get(a).setOnAction(vcc::btnsChangeNull);
+            vcc.getBtnsSelectedFK().get(a).setOnAction(vcc::btnsSelectedFK);
+            vcc.getBtnsChangeDefault().get(a).setOnAction(vcc::btnsChangeDefault);
 
-            vcc.getBtnsRenameColumn()[a].setVisible(true);
-            vcc.getBtnsChangeType()[a].setVisible(true);
-            vcc.getBtnsChangeNull()[a].setVisible(true);
-            vcc.getBtnsChangeDefault()[a].setVisible(true);
+            vcc.getBtnsRenameColumn().get(a).setVisible(true);
+            vcc.getBtnsChangeType().get(a).setVisible(true);
+            vcc.getBtnsChangeNull().get(a).setVisible(true);
+            vcc.getBtnsChangeDefault().get(a).setVisible(true);
         }
-        Arrays.asList(vcc.getRbsPK()).forEach(e -> e.setOnAction(vcc::cksPKAction));
+        vcc.getRbsPK().forEach(e -> e.setOnAction(vcc::cksPKAction));
         // LEFT-BOTTOM------------------------------------------------
         vcc.getBtnUpdatePK().setOnAction(vcc::btnUpdatePK);
         vcc.getBtnUpdateFK().setOnAction(vcc::btnUpdateFKS);
@@ -272,7 +272,7 @@ public class VC {
         vcc.getBtnUpdateExtra().setId(Integer.toString(-1));
         // RIGHT-BOTTOM------------------------------------------------
         vcc.getBtnUpdateDist().setOnAction(vcc::btnUpdateDist);
-        vxx.getBtnUpdateImageC().setOnAction(vcc::btnUpdateImageC);
+        vcc.getBtnUpdateImageC().setOnAction(vcc::btnUpdateImageC);
 
         vcc.getBtnUpdateDist().setId(Integer.toString(-1));
         vcc.getBtnUpdateImageC().setId(Integer.toString(-1));
@@ -302,7 +302,7 @@ public class VC {
                 updateOption();
             }
             //OTHERS----------------------------
-            boolean disable = Arrays.asList(vcc.getBtnsImageC()).stream().anyMatch(btn -> btn.isSelected());
+            boolean disable = vcc.getBtnsImageC().stream().anyMatch(btn -> btn.isSelected());
             vcc.getTfImageCPath().setDisable(!disable);
             vcc.getBtnSelectImageC().setDisable(!disable);
         } catch (IOException e) {
