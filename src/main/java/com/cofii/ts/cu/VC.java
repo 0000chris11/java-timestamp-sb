@@ -103,33 +103,36 @@ public class VC {
         int columnCount = columns.size();
 
         String table = MSQL.getCurrentTable().getName().replace("_", " ");
-        List<String> columnsName = Arrays.asList(columns.getColumns());
-        List<String> types = Arrays.asList(columns.getTypes());
-        // List<Integer> typesLength = Arrays.asList(columns.getTypesLength());
-        List<Integer> typesLength = Arrays.asList(ArrayUtils.toObject(columns.getTypesLength()));
-        List<Boolean> nulls = Arrays.asList(ArrayUtils.toObject(columns.getNulls()));
+        List<String> columnsName = new ArrayList<>(Arrays.asList(columns.getColumns()));
 
-        List<String> cpks = Arrays.asList(pks.getYesAndNoPKS());
+        List<String> types = new ArrayList<>(Arrays.asList(columns.getTypes()));
+        // List<Integer> typesLength = Arrays.asList(columns.getTypesLength());
+        List<Integer> typesLength = new ArrayList<>(Arrays.asList(ArrayUtils.toObject(columns.getTypesLength())));
+        List<Boolean> nulls = new ArrayList<>(Arrays.asList(ArrayUtils.toObject(columns.getNulls())));
+
+        List<String> cpks = new ArrayList<>(Arrays.asList(pks.getYesAndNoPKS()));
         System.out.println("######TEST");
         cpks.forEach(System.out::println);
-        
+
         FK[] cfks = fks.getCurrentTableFKS();
-        List<String> yfks = Arrays.asList(fks.getYesAndNoFKS());
-        List<String> fksConstraint = new ArrayList<>(MSQL.MAX_COLUMNS);
+        List<String> yfks = new ArrayList<>(Arrays.asList(fks.getYesAndNoFKS()));
+        //List<String> fksConstraint = new ArrayList<>(MSQL.MAX_COLUMNS);
 
         String[] fksFormed = new String[columns.size()];
 
-        List<Object> defaults = Arrays.asList(columns.getDefaults());
+        List<Object> defaults = new ArrayList<>(Arrays.asList(columns.getDefaults()));
         int extra = columns.getExtra();
 
-        List<String> dists = Arrays.asList(columnds.getDists());
-        List<String> imageCS = Arrays.asList(columnds.getImageCS());
+        List<String> dists = new ArrayList<>(Arrays.asList(columnds.getDists()));
+        List<String> imageCS = new ArrayList<>(Arrays.asList(columnds.getImageCS()));
         List<String> imageCPathList = Arrays.asList(columnds.getImageCPaths());
         String imageCPath = "NONE";
-        
+
         // ----------------------------------------------------
 
         vcc.getTfTable().setText(table);
+        System.out.println("#### TEST getTfsColumn size: " + vcc.getTfsColumn().size());
+        System.out.println("#### TEST columnsName size: " + columnsName.size());
         for (int a = 0; a < columnCount; a++) {
             vcc.getTfsColumn().get(a).setText(columnsName.get(a).replace("_", " "));
             vcc.getTfasType().get(a).setText(types.get(a));
@@ -153,7 +156,7 @@ public class VC {
 
                 fk.getColumns().forEach(is -> {
                     if (is.index - 1 == aa) {
-                        //vcc.getCksFK()[aa].setSelected(true);
+                        // vcc.getCksFK()[aa].setSelected(true);
                         // vcc.getBtnsSelectedFK()[aa].setDisable(false);
 
                         fksFormed[aa] = sb.toString();
@@ -162,12 +165,24 @@ public class VC {
 
                         vcc.getBtnsSelectedFK().get(aa).setText("REM");
 
-                        fksConstraint.add(aa, fk.getConstraint());
+                        /*
+                        try {
+                            fksConstraint.get(aa);
+                        } catch (IndexOutOfBoundsException ex) {
+                            fksConstraint.add(aa, fk.getConstraint());
+                        }
+                        */
                     } else {
-                        fksConstraint.add(aa, "none");
+                        /*
+                        try {
+                            fksConstraint.get(aa);
+                        } catch (IndexOutOfBoundsException ex) {
+                            fksConstraint.add(aa, "none");
+                        }
+                        */
                     }
                 });
-                //FOR ONLY ONE MIX FOREIGN KEY
+                // FOR ONLY ONE MIX FOREIGN KEY
                 vcc.getBtnsSelectedFK().stream().filter(btn -> btn.getText().equals("REM"))
                         .forEach(btn -> btn.setText("REM (A)"));
             });
@@ -201,8 +216,8 @@ public class VC {
         updateTable.setNulls(nulls);
         updateTable.setPks(cpks);
         updateTable.setFks(yfks);
-        updateTable.setFksConstraint(fksConstraint);
-        updateTable.setFkFormed(Arrays.asList(fksFormed));
+        //updateTable.setFksConstraint(fksConstraint);
+        updateTable.setFkFormed(new ArrayList<>(Arrays.asList(fksFormed)));
         updateTable.setDefaults(defaults);
         updateTable.setExtra(extra);
 
@@ -244,7 +259,7 @@ public class VC {
         // LEFT------------------------------------------------------
         rowDisplay(columns.size());
         vcc.setCurrentRowLength(columns.size());
-        for (int a = 0; a < MSQL.MAX_COLUMNS; a++) {
+        for (int a = 0; a < columns.size(); a++) {
             vcc.getBtnsRemoveColumn().get(a).setOnAction(vcc::btnsRemoveUpdateAction);
             vcc.getBtnsAddColumn().get(a).setOnAction(vcc::btnsColumnSetVisibleAction);
             vcc.getBtnsRenameColumn().get(a).setOnAction(vcc::btnsRenameColumn);
@@ -301,7 +316,7 @@ public class VC {
                 System.out.println(CC.CYAN + "\nUPDATE TABLE" + CC.RESET);
                 updateOption();
             }
-            //OTHERS----------------------------
+            // OTHERS----------------------------
             boolean disable = vcc.getBtnsImageC().stream().anyMatch(btn -> btn.isSelected());
             vcc.getTfImageCPath().setDisable(!disable);
             vcc.getBtnSelectImageC().setDisable(!disable);

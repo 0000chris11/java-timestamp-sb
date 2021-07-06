@@ -18,7 +18,7 @@ public class UpdateTable {
     private List<String> pks = new ArrayList<>(max);
 
     private List<String> fks = new ArrayList<>(max);
-    private List<String> fksConstraint = new ArrayList<>(max);
+    //private List<String> fksConstraint = new ArrayList<>(max);
     private List<String> fkFormed = new ArrayList<>(max);
 
     private List<Object> defaults = new ArrayList<>(max);
@@ -112,12 +112,6 @@ public class UpdateTable {
     }
     public void setImageCPath(String imageCPath) {
         this.imageCPath = imageCPath;
-    }
-    public List<String> getFksConstraint() {
-        return fksConstraint;
-    }
-    public void setFksConstraint(List<String> fksConstraint) {
-        this.fksConstraint = fksConstraint;
     }
  
     

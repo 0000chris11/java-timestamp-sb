@@ -15,9 +15,16 @@ public class CSS {
 
     public static final String TFAS_DEFAULT_LOOK = "-fx-background-color: #035850; -fx-text-fill: white";
     // VC----------------------------
+    public static final String ROW = "-fx-background-color: #100c49";
+    public static final String ROW_DIST_BUTTONS = "-fx-border-style: none";
+    public static final String ROW_ADD_BUTTON = "-fx-background-color: #2115c3";
+    public static final String ROW_REMOVE_BUTTON = "-fx-background-color: #2115c3";
+    //public static final String 
+
     public static final String NEW_ROW = "-fx-background-color: #0c28f7";
-    public static final String ADD_COL_BUTTON = "-fx-background-color: #1ca34d";
-    public static final String REMOVE_COL_BUTTON = "-fx-background-color: #9c2f27";
+    public static final String NEW_ROW_DIST_BUTTONS = "-fx-border-width: 2;  -fx-border-color: #0c28f7;";
+    public static final String NEW_ROW_ADD_BUTTON = "-fx-background-color: #1ca34d";
+    public static final String NEW_ROW_REMOVE_BUTTON = "-fx-background-color: #9c2f27";
 
     public static final String CKS_BG = "box-color: white";
     public static final String CKS_BG_HINT = "box-color: blue";
