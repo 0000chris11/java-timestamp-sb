@@ -1,17 +1,21 @@
+/*DEFAULT VARIABLES*/
 *{
+    /*ROOT-----------------------------*/
     -fx-root-background-color: #100c49;
-
+    /*MENU---------------------------*/
     -fx-menu-background-color: #05013a;
     -fx-menu-background-highlighted: #0b0375;
-
+    -fx-menu-text-fill-color: white;
+    -fx-menu-text-fill-color-highlighted: white;
+    /*LABELS---------------------------*/
     -fx-label-text-fill-color: white;
-
+    /*TEXTFIELD---------------------------*/
     -fx-textfield-dist-background-color: #0e0866;
     -fx-textfield-background-color: #090631;
     -fx-textfield-text-fill-color: white;
-
+    /*SCROLLPANE---------------------------*/
     -fx-scrollpane-track-background-color:-fx-textfield-background-color;
-    -fx-scrollpane-track-thump-background-color: #130b77;
+    -fx-scrollpane-track-thump-background-color: #130b77;;
 
     -fx-region-left-background-color: -fx-textfield-background-color;
 
@@ -81,7 +85,29 @@
     -fx-background-color: -fx-region-left-background-color;
     background-color: -fx-region-left-background-color;
 }
-/* OTHER NODES */
+/*MENU-------------------------------*/
+.menu-item .label {
+    -fx-text-fill: -fx-menu-text-fill-color
+}
+.menu-item:focused {
+    -fx-background-color: -fx-menu-background-highlighted;
+    background-color: -fx-menu-background-highlighted;
+}
+.menu-item:focused .label {
+    -fx-text-fill: -fx-menu-text-fill-color
+}
+.context-menu {
+    -fx-skin: "javafx.scene.control.skin.ContextMenuSkin";
+    -fx-background-color: -fx-menu-background-color;
+    background-color: -fx-menu-background-color;
+    /*
+    -fx-background-insets: 0, 1, 2;
+    -fx-background-radius: 0 6 6 6, 0 5 5 5, 0 4 4 4;
+    -fx-padding: 0.666667em 0.083333em 0.666667em 0.083333em;  8 1 8 1 
+    -fx-padding: 0.333333em 0.083333em 0.666667em 0.083333em;  4 1 8 1 
+    */
+}
+/* OTHER NODES --------------------------*/
 .label{
     -fx-text-fill: white;
 }

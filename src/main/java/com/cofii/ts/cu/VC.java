@@ -25,6 +25,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.VPos;
 import javafx.scene.Scene;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 
@@ -62,6 +63,7 @@ public class VC {
 
     private void createOption() {
         setTextFill(true);
+        vcc.createHelpPopupReset();
         vcc.pesetListInit(vcc.getCurrentRowLength());
         // TOP--------------------------------------------------------
         vcc.getBtnRenameTable().setVisible(false);
@@ -116,7 +118,7 @@ public class VC {
 
         FK[] cfks = fks.getCurrentTableFKS();
         List<String> yfks = new ArrayList<>(Arrays.asList(fks.getYesAndNoFKS()));
-        //List<String> fksConstraint = new ArrayList<>(MSQL.MAX_COLUMNS);
+        // List<String> fksConstraint = new ArrayList<>(MSQL.MAX_COLUMNS);
 
         String[] fksFormed = new String[columns.size()];
 
@@ -166,20 +168,14 @@ public class VC {
                         vcc.getBtnsSelectedFK().get(aa).setText("REM");
 
                         /*
-                        try {
-                            fksConstraint.get(aa);
-                        } catch (IndexOutOfBoundsException ex) {
-                            fksConstraint.add(aa, fk.getConstraint());
-                        }
-                        */
+                         * try { fksConstraint.get(aa); } catch (IndexOutOfBoundsException ex) {
+                         * fksConstraint.add(aa, fk.getConstraint()); }
+                         */
                     } else {
                         /*
-                        try {
-                            fksConstraint.get(aa);
-                        } catch (IndexOutOfBoundsException ex) {
-                            fksConstraint.add(aa, "none");
-                        }
-                        */
+                         * try { fksConstraint.get(aa); } catch (IndexOutOfBoundsException ex) {
+                         * fksConstraint.add(aa, "none"); }
+                         */
                     }
                 });
                 // FOR ONLY ONE MIX FOREIGN KEY
@@ -216,7 +212,7 @@ public class VC {
         updateTable.setNulls(nulls);
         updateTable.setPks(cpks);
         updateTable.setFks(yfks);
-        //updateTable.setFksConstraint(fksConstraint);
+        // updateTable.setFksConstraint(fksConstraint);
         updateTable.setFkFormed(new ArrayList<>(Arrays.asList(fksFormed)));
         updateTable.setDefaults(defaults);
         updateTable.setExtra(extra);
@@ -252,6 +248,7 @@ public class VC {
     private void updateOption() {
         setUpdateStore();
         setTextFill(false);
+        vcc.createAddColumnHelpPopupReset();
         vcc.pesetListInit(columns.size());
         // TOP-------------------------------------------------------
         vcc.getBtnRenameTable().setVisible(true);
@@ -261,7 +258,12 @@ public class VC {
         vcc.setCurrentRowLength(columns.size());
         for (int a = 0; a < columns.size(); a++) {
             vcc.getBtnsRemoveColumn().get(a).setOnAction(vcc::btnsRemoveUpdateAction);
-            vcc.getBtnsAddColumn().get(a).setOnAction(vcc::btnsColumnSetVisibleAction);
+            if (a > 0) {
+                vcc.getBtnsAddColumn().get(a).setOnAction(vcc::btnsColumnSetVisibleAction);
+            } else {
+                vcc.getBtnsAddColumn().get(a).setOnAction(vcc::firstBtnColumnSetVisibleAction);
+                vcc.getBtnsAddColumn().get(a).setTooltip(new Tooltip("Right click to add..."));
+            }
             vcc.getBtnsRenameColumn().get(a).setOnAction(vcc::btnsRenameColumn);
             vcc.getBtnsChangeType().get(a).setOnAction(vcc::btnsChangeType);
             vcc.getCksNull().get(a).setOnAction(vcc::cksNullAction);

@@ -8,7 +8,7 @@ import com.cofii.ts.other.CSS;
 import com.cofii.ts.other.NonCSS;
 import com.cofii.ts.sql.MSQL;
 import com.cofii.ts.store.ColumnS;
-import com.cofii2.components.javafx.PopupAutoC;
+import com.cofii2.components.javafx.popup.PopupAutoC;
 
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;

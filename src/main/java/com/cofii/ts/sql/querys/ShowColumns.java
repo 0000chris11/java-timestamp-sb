@@ -9,6 +9,7 @@ import com.cofii.ts.other.NonCSS;
 import com.cofii.ts.sql.MSQL;
 import com.cofii.ts.store.Column;
 import com.cofii.ts.store.ColumnS;
+import com.cofii.ts.store.SQLTypes;
 import com.cofii2.myInterfaces.IActions;
 
 import javafx.beans.property.ReadOnlyObjectWrapper;
@@ -26,6 +27,7 @@ public class ShowColumns implements IActions {
     private int rows;
     private VFController vf;
     private ColumnS columns = ColumnS.getInstance();
+    private SQLTypes types = SQLTypes.getInstance();
 
     public ShowColumns(VFController vf) {
         this.vf = vf;
@@ -52,8 +54,12 @@ public class ShowColumns implements IActions {
         if(typeHole.contains("(")){
             type = typeHole.substring(0, typeHole.indexOf("("));
             typeLength = Integer.parseInt(typeHole.substring(typeHole.indexOf("(") + 1, typeHole.length() - 1));
-        }else if(typeHole.equalsIgnoreCase("int")){
-            typeLength = 11;
+        }else if(typeHole.equalsIgnoreCase("INT")){
+            typeLength = types.getTypeLength("INT");
+        } else if(typeHole.equalsIgnoreCase("SMALLINT")){
+            typeLength = types.getTypeLength("SMALLINT");
+        } else if(typeHole.equalsIgnoreCase("BIGINT")){
+            typeLength = types.getTypeLength("BIGINT");
         }
         //NULL------------------------------------
         boolean nullValue;
