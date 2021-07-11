@@ -44,6 +44,7 @@
     -fx-background-color: -fx-root-background-color;
     background-color: -fx-root-background-color;
 }
+/*
 .scroll-pane > .viewport {
     -fx-background-color: transparent;
     background-color: transparent;
@@ -52,6 +53,7 @@
     -fx-background-color: transparent;
     background-color: transparent;
  }
+ */
  .grid-pane{
     -fx-grid-lines-visible: true
  }
@@ -64,7 +66,6 @@
     background-color: -fx-root-background-color;
 }
 /*TABLE ------------------------------------------*/
-
 .table-view{
     -fx-background-color: -fx-table-column-header-background;
     background-color: -fx-table-column-header-background;

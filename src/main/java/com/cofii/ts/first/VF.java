@@ -48,6 +48,16 @@ public class VF {
     private static ColumnDS columnsd = ColumnDS.getInstance();
     private Dist dist;
 
+    // -----------------------------------------
+    private void stageMaximizedPropertyChange(boolean newValue) {
+        if (newValue) {
+            if (Arrays.asList(columnsd.getImageCS()).stream().allMatch(s -> s.equals("No"))) {
+                vf.getSplitLeft().setDividerPositions(1.0);
+            }
+        }
+    }
+
+    // -----------------------------------------
     private void afterFirstQuerySucces() {
         ms.selectTables(new ShowTableCurrentDB());
         if (!MSQL.isTableNamesExist()) {
@@ -84,9 +94,9 @@ public class VF {
             Scene scene = new Scene(loader.load());
             scene.getStylesheets().add(VF.class.getResource("/com/cofii/ts/first/VF.css").toExternalForm());
 
-            if (vl != null) {//NEW WINDOW
+            if (vl != null) {// NEW WINDOW
                 stage.setScene(scene);
-            }else{
+            } else {
                 vc.getVf().getStage().setScene(scene);
             }
             // -------------------------------------------------
@@ -94,7 +104,7 @@ public class VF {
             Menus.clearInstance();
             menus = Menus.getInstance(vf);
             // -------------------------------------------------
-            // Arrays.asList(vf.getTfas()).forEach(e -> e.get);
+            stage.maximizedProperty().addListener((obs, oldValue, newValue) -> stageMaximizedPropertyChange(newValue));
             // -------------------------------------------------
             vf.setStage(vl != null ? stage : vc.getVf().getStage());
             vf.setScene(scene);

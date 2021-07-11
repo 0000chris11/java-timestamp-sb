@@ -19,13 +19,19 @@ import com.cofii2.mysql.MSQLP;
 import com.cofii2.stores.CC;
 
 import com.cofii2.stores.QString;
+import com.sun.prism.paint.Color;
 
 import org.apache.commons.lang3.ArrayUtils;
 
+import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Insets;
 import javafx.geometry.VPos;
 import javafx.scene.Scene;
 import javafx.scene.control.Tooltip;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 
@@ -84,16 +90,21 @@ public class VC {
         }
         vcc.btnAddRemoveColumnInit();
         // LEFT-BOTTOM------------------------------------------------
+        vcc.getHbLeftUpdate().setDisable(true);
+        /*
         vcc.getBtnUpdatePK().setDisable(true);
         vcc.getBtnUpdateFK().setDisable(true);
         vcc.getBtnUpdateExtra().setDisable(true);
+        */
         // RIGHT ROW-------------------------------------------------------
         vcc.getGridPaneRight().getRowConstraints().forEach(e -> {
             e.setValignment(VPos.TOP);
             e.setVgrow(Priority.NEVER);
         });
         // RIGHT-BOTTOM------------------------------------------------
+        //vcc.getHbRightUpdate().setDisable(true);
         vcc.getBtnUpdateDist().setDisable(true);
+        vcc.getBtnUpdateImageC().setDisable(true);
     }
 
     private void setUpdateStore() {
@@ -228,7 +239,10 @@ public class VC {
     private void setTextFill(boolean create) {
         if (create) {
             for (int a = 0; a < vcc.getCurrentRowLength(); a++) {
+                vcc.getCksNull().get(a).applyCss();
                 vcc.getCksNull().get(a).setStyle(CSS.CKS_BG);
+                // vcc.getCksNull().get(a).setBackground(new Background(new BackgroundFill(,
+                // CornerRadii.EMPTY, Insets.EMPTY)));
                 vcc.getCksDefault().get(a).setStyle(CSS.CKS_BG);
             }
         } else {
@@ -258,17 +272,17 @@ public class VC {
         vcc.setCurrentRowLength(columns.size());
         for (int a = 0; a < columns.size(); a++) {
             vcc.getBtnsRemoveColumn().get(a).setOnAction(vcc::btnsRemoveUpdateAction);
-            if (a > 0) {
-                vcc.getBtnsAddColumn().get(a).setOnAction(vcc::btnsColumnSetVisibleAction);
-            } else {
-                vcc.getBtnsAddColumn().get(a).setOnAction(vcc::firstBtnColumnSetVisibleAction);
-                vcc.getBtnsAddColumn().get(a).setTooltip(new Tooltip("Right click to add..."));
+            vcc.getBtnsAddColumn().get(a).setOnAction(vcc::btnsColumnSetVisibleAction);
+
+            if (a == 0) {
+                vcc.getBtnsAddColumn().get(a).setContextMenu(vcc.getBeforeAfterOptionMenu());
+                vcc.getBtnsAddColumn().get(a).setTooltip(vcc.getBeforeAfterOptionTooltip());
             }
             vcc.getBtnsRenameColumn().get(a).setOnAction(vcc::btnsRenameColumn);
             vcc.getBtnsChangeType().get(a).setOnAction(vcc::btnsChangeType);
             vcc.getCksNull().get(a).setOnAction(vcc::cksNullAction);
             vcc.getBtnsChangeNull().get(a).setOnAction(vcc::btnsChangeNull);
-            vcc.getBtnsSelectedFK().get(a).setOnAction(vcc::btnsSelectedFK);
+            //vcc.getBtnsSelectedFK().get(a).setOnAction(vcc::btnsSelectedFK);
             vcc.getBtnsChangeDefault().get(a).setOnAction(vcc::btnsChangeDefault);
 
             vcc.getBtnsRenameColumn().get(a).setVisible(true);
@@ -276,7 +290,7 @@ public class VC {
             vcc.getBtnsChangeNull().get(a).setVisible(true);
             vcc.getBtnsChangeDefault().get(a).setVisible(true);
         }
-        vcc.getRbsPK().forEach(e -> e.setOnAction(vcc::cksPKAction));
+        //vcc.getRbsPK().forEach(e -> e.setOnAction(vcc::cksPKAction));
         // LEFT-BOTTOM------------------------------------------------
         vcc.getBtnUpdatePK().setOnAction(vcc::btnUpdatePK);
         vcc.getBtnUpdateFK().setOnAction(vcc::btnUpdateFKS);

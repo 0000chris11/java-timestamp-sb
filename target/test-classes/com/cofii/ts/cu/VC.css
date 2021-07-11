@@ -156,9 +156,10 @@
     -fx-text-fill: white;
 }
 .check-box > .box {
-    /* background color of unselected checkbox */
+    /* background color of unselected checkbox 
     -fx-background-color: box-color;
     background-color: box-color;
+    */
 }
 /*ID*/
 #lbStatus{

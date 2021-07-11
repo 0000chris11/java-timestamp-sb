@@ -17,7 +17,7 @@
       </MenuBar>
    </top>
    <bottom>
-      <HBox fx:id="statusPanel" spacing="6.0" BorderPane.alignment="CENTER">
+      <HBox fx:id="statusPanel" alignment="CENTER_LEFT" spacing="6.0" BorderPane.alignment="CENTER">
          <children>
             <Button fx:id="btnDelete" disable="true" mnemonicParsing="false" onAction="#btnDeleteAction" text="Delete" />
             <Button fx:id="btnUpdate" disable="true" layoutX="238.0" layoutY="10.0" mnemonicParsing="false" onAction="#btnUpdateAction" text="Update" />

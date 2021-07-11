@@ -1,4 +1,6 @@
+/*ROOT----------------------------------------------*/
 *{
+    /*GRIDPANE-----------------*/
     -fx-cell-color: white ;
     -fx-cell-border-color: black ;
 }
@@ -7,12 +9,12 @@
     -fx-background-color: #100c49;
     background-color: #100c49;
 }
-
+/*NODES----------------------------------------------*/
 .label{
     -fx-text-fill: white;
 }
 /**/
-
+/*GRIDPANE----------------------------------------------*/
 .grid-pane .grid {
     /* 1 pixel border around the top and right of the grid: */
     -fx-background-color: -fx-cell-border-color, -fx-cell-color ;

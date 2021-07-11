@@ -4,6 +4,7 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.ResourceBundle;
 
+import com.cofii.ts.other.CSS;
 import com.cofii.ts.other.NonCSS;
 import com.cofii.ts.sql.MSQL;
 import com.cofii.ts.store.ColumnDS;
@@ -17,13 +18,37 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.paint.Color;
 
 public class VIController implements Initializable {
+
+    @FXML
+    private HBox hbColumnName;
+    @FXML
+    private HBox hbType;
+    @FXML
+    private HBox hbTypeLength;
+    @FXML
+    private HBox hbNull;
+    @FXML
+    private HBox hbPK;
+    @FXML
+    private HBox hbFK;
+    @FXML
+    private HBox hbDefault;
+    @FXML
+    private HBox hbExtra;
+    @FXML
+    private HBox hbDist;
+    @FXML
+    private HBox hbImageC;
+    // --------------------------------------
     @FXML
     private GridPane gridPaneLeft;
     @FXML
     private GridPane gridPaneRight;
-
+    // --------------------------------------
     private ColumnS columns = ColumnS.getInstance();
     private ColumnDS columnsd = ColumnDS.getInstance();
     private PKS pks = PKS.getInstance();
@@ -40,6 +65,7 @@ public class VIController implements Initializable {
     private Label[] lbExtras = new Label[MSQL.MAX_COLUMNS];
 
     private Label[] lbDist = new Label[MSQL.MAX_COLUMNS];
+    private Label[] lbImageC = new Label[MSQL.MAX_COLUMNS];
 
     // -----------------------------------------------------------
     private void nonFXMLNodeInit() {
@@ -54,6 +80,7 @@ public class VIController implements Initializable {
             lbExtras[a] = new Label();
 
             lbDist[a] = new Label();
+            lbImageC[a] = new Label();
 
             int row = a + 1;
             gridPaneLeft.add(lbColumns[a], 0, row);
@@ -66,6 +93,7 @@ public class VIController implements Initializable {
             gridPaneLeft.add(lbExtras[a], 7, row);
 
             gridPaneRight.add(lbDist[a], 0, row);
+            gridPaneRight.add(lbImageC[a], 1, row);
         }
     }
 
@@ -80,6 +108,7 @@ public class VIController implements Initializable {
             String extra = columns.getExtraAsString(a);
 
             String dist = columnsd.getDist(a);
+            String imageC = columnsd.getImageC(a);
 
             lbColumns[a].setText(column);
             lbTypes[a].setText(type);
@@ -87,28 +116,32 @@ public class VIController implements Initializable {
             lbNulls[a].setText(Boolean.toString(nulll));
             lbPK[a].setText("No");
             lbFK[a].setText("No");
-            lbDefaults[a].setText(defaultt);
-            lbExtras[a].setText(extra);
+
+            if (defaultt != null) {
+                lbDefaults[a].setText(defaultt);
+            }else{
+                lbDefaults[a].setText("null");
+                lbDefaults[a].setTextFill(Color.DARKGRAY);
+            }
+
+            if (extra.equals("Yes")) {
+                lbExtras[a].setText("AUTO INCREMENT");
+                lbExtras[a].setStyle("-fx-font-weight: bold;");
+            } else {
+                lbExtras[a].setText("No");
+            }
 
             lbDist[a].setText(dist);
-        }
-        /*
-        //KEYS ------------------------------------------
-        Key[] currentKeys = keys.getCurrentTableKeys();
-        for(int a = 0;a < currentKeys.length; a++){
-            int ordinalPosition = currentKeys[a].getOrdinalPosition() - 1;
-            String contraintType = currentKeys[a].getConstraintType();
-            if(contraintType.equals("PRIMARY KEY")){
-                lbPK[ordinalPosition].setText("Yes");
-                lbPK[ordinalPosition].setTextFill(NonCSS.TEXT_FILL_PK);
-                lbPK[ordinalPosition].setStyle("-fx-font-weight: bold;");
-            }else if(contraintType.equals("FOREIGN KEY")){
-                lbFK[ordinalPosition].setText("Yes");
-                lbPK[ordinalPosition].setTextFill(NonCSS.TEXT_FILL_FK);
-                lbPK[ordinalPosition].setStyle("-fx-font-weight: bold;");
+            if (dist.equals("Yes")) {
+                lbDist[a].setStyle("-fx-font-weight: bold;");
+            }
+
+            if (imageC.equals("Yes")) {
+                lbImageC[a].setText(imageC + "\n" + columnsd.getImageCPaths()[a]);
+            } else {
+                lbImageC[a].setText("No");
             }
         }
-        */
         // PRIMARY KEYS---------------------------------------------
         PK[] cpks = pks.getCurrentTablePKS();
         for (int a = 0; a < cpks.length; a++) {
@@ -133,9 +166,24 @@ public class VIController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        // TOP--------------------
+        hbColumnName.setStyle(CSS.NEW_ROW);
+        hbType.setStyle(CSS.NEW_ROW);
+        hbTypeLength.setStyle(CSS.NEW_ROW);
+        hbNull.setStyle(CSS.NEW_ROW);
+        hbPK.setStyle(CSS.NEW_ROW);
+        hbFK.setStyle(CSS.NEW_ROW);
+        hbDefault.setStyle(CSS.NEW_ROW);
+        hbExtra.setStyle(CSS.NEW_ROW);
+
+        hbDist.setStyle(CSS.NEW_ROW);
+        hbImageC.setStyle(CSS.NEW_ROW);
+        // -----------------------
         nonFXMLNodeInit();
         nonFXMLNodeSet();
+
         gridPaneLeft.setGridLinesVisible(true);
+        gridPaneRight.setGridLinesVisible(true);
     }
 
 }

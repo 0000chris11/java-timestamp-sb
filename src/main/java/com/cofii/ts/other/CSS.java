@@ -26,8 +26,8 @@ public class CSS {
     public static final String NEW_ROW_ADD_BUTTON = "-fx-background-color: #1ca34d";
     public static final String NEW_ROW_REMOVE_BUTTON = "-fx-background-color: #9c2f27";
 
-    public static final String CKS_BG = "box-color: white";
-    public static final String CKS_BG_HINT = "box-color: blue";
+    public static final String CKS_BG = " -fx-background-color: white";
+    public static final String CKS_BG_HINT = " -fx-background-color: blue";
 
     public static final String LB_STATUS = "-fx-border-style: solid solid solid solid;  -fx-border-width: 2;  -fx-border-color: white; -fx-padding : 6 6 6 6;";
     public static final String LB_STATUS_BUTTON = "-fx-background-color: #9c2f27; -fx-text-fill: white;";

@@ -34,6 +34,9 @@ public class ColumnDS {
         }
         return dists;
     }
+    public String getImageC(int index){
+        return list.get(index).getImageC();
+    }
     public String[] getImageCS(){
         String[] imageCS = new String[size()];
         int c = 0;

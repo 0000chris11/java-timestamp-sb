@@ -14,7 +14,7 @@ public class NonCSS {
 
     public static final Color TEXT_FILL_OK = Color.LIGHTGREEN;
 
-    public static final Color TEXT_FILL_PK = Color.YELLOW;
+    public static final Color TEXT_FILL_PK = Color.YELLOW.darker();
     public static final Color TEXT_FILL_FK = Color.BLUE;
     private NonCSS(){
 
