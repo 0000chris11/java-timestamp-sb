@@ -7,6 +7,7 @@ import java.util.List;
 
 import com.cofii.ts.cu.VCController;
 import com.cofii.ts.login.VLController;
+import com.cofii.ts.other.CSS;
 import com.cofii.ts.other.Dist;
 import com.cofii.ts.sql.CurrenConnection;
 import com.cofii.ts.sql.MSQL;
@@ -24,14 +25,22 @@ import com.cofii.ts.store.ColumnS;
 import com.cofii.ts.store.TableS;
 import com.cofii2.mysql.MSQLP;
 
+import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Group;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TableColumn;
+import javafx.scene.input.KeyCode;
 import javafx.stage.Stage;
+
+import com.cofii2.components.javafx.ZoomingPane;
 
 public class VF {
 
@@ -47,6 +56,8 @@ public class VF {
     private static ColumnS columns = ColumnS.getInstance();
     private static ColumnDS columnsd = ColumnDS.getInstance();
     private Dist dist;
+
+    private DoubleProperty scaleVF = new SimpleDoubleProperty(1.0);
 
     // -----------------------------------------
     private void stageMaximizedPropertyChange(boolean newValue) {
@@ -91,7 +102,16 @@ public class VF {
     private void init() {
         try {
             FXMLLoader loader = new FXMLLoader(VF.class.getResource("/com/cofii/ts/first/VF.fxml"));
-            Scene scene = new Scene(loader.load());
+
+            ZoomingPane zp = new ZoomingPane(loader.load());
+            zp.zoomFactorProperty().bind(scaleVF);
+
+            Group gp = new Group(zp);
+            ScrollPane scMain = new ScrollPane(gp);
+            scMain.setFitToWidth(true);
+            scMain.setFitToHeight(true);
+
+            Scene scene = new Scene(scMain);
             scene.getStylesheets().add(VF.class.getResource("/com/cofii/ts/first/VF.css").toExternalForm());
 
             if (vl != null) {// NEW WINDOW
@@ -101,10 +121,41 @@ public class VF {
             }
             // -------------------------------------------------
             vf = (VFController) loader.getController();
+
             Menus.clearInstance();
             menus = Menus.getInstance(vf);
             // -------------------------------------------------
             stage.maximizedProperty().addListener((obs, oldValue, newValue) -> stageMaximizedPropertyChange(newValue));
+            // ZOOMING-------------------
+            vf.getBpMain().prefHeightProperty().bind(scene.heightProperty());
+            vf.getBpMain().prefWidthProperty().bind(scene.widthProperty());
+
+            scene.setOnKeyReleased(e -> {
+                if (e.isControlDown()) {
+                    double newValue = scaleVF.getValue();
+                    if (e.getCode() == KeyCode.PLUS) {
+                        newValue += 0.01;
+                    } else if (e.getCode() == KeyCode.MINUS && newValue > 1.0) {
+                        newValue -= 0.01;
+                    }
+                    scaleVF.setValue(newValue);
+
+                }
+            });
+            // TEST
+            /*
+            zp.setStyle(
+                    "-fx-border-style: solid solid solid solid;  -fx-border-width: 2;  -fx-border-color: RED;");
+            vf.getBtnAdd().addEventHandler(ActionEvent.ACTION, e -> {
+                if (!zp.getStyle().contains("-fx-border-style: none")) {
+                    zp.setStyle("-fx-border-style: none");
+                    gp.setStyle("-fx-border-style: solid solid solid solid;  -fx-border-width: 2;  -fx-border-color: red;");
+                }else{
+                    gp.setStyle("-fx-border-style: none");
+                    zp.setStyle("-fx-border-style: solid solid solid solid;  -fx-border-width: 2;  -fx-border-color: blue;");
+                }
+            });
+            */
             // -------------------------------------------------
             vf.setStage(vl != null ? stage : vc.getVf().getStage());
             vf.setScene(scene);

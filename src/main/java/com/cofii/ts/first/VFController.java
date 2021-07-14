@@ -33,6 +33,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.collections.ListChangeListener.Change;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
@@ -55,6 +56,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -73,6 +75,8 @@ public class VFController implements Initializable {
     private Stage stage;
     private Scene scene;
 
+    @FXML
+    private BorderPane bpMain;
     @FXML
     private MenuBar menuBar;
     @FXML
@@ -633,6 +637,14 @@ public class VFController implements Initializable {
 
     public void setLbStatus(LabelStatus lbStatus) {
         this.lbStatus = lbStatus;
+    }
+
+    public BorderPane getBpMain() {
+        return bpMain;
+    }
+
+    public void setBpMain(BorderPane bpMain) {
+        this.bpMain = bpMain;
     }
 
 }
