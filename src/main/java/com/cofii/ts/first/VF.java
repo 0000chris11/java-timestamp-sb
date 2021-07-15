@@ -40,6 +40,7 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.input.KeyCode;
 import javafx.stage.Stage;
 
+import com.cofii2.components.javafx.SceneZoom;
 import com.cofii2.components.javafx.ZoomingPane;
 
 public class VF {
@@ -102,7 +103,7 @@ public class VF {
     private void init() {
         try {
             FXMLLoader loader = new FXMLLoader(VF.class.getResource("/com/cofii/ts/first/VF.fxml"));
-
+            /*
             ZoomingPane zp = new ZoomingPane(loader.load());
             zp.zoomFactorProperty().bind(scaleVF);
 
@@ -111,22 +112,29 @@ public class VF {
             scMain.setFitToWidth(true);
             scMain.setFitToHeight(true);
 
-            Scene scene = new Scene(scMain);
+            */
+
+            SceneZoom sceneZoom = new SceneZoom(loader.load(), scaleVF);
+            vf = (VFController) loader.getController();
+            sceneZoom.setParent(vf.getBpMain());
+
+            Scene scene = sceneZoom.getScene();
             scene.getStylesheets().add(VF.class.getResource("/com/cofii/ts/first/VF.css").toExternalForm());
 
+            //START OR GO BACK-----------------------------
             if (vl != null) {// NEW WINDOW
                 stage.setScene(scene);
             } else {
                 vc.getVf().getStage().setScene(scene);
             }
             // -------------------------------------------------
-            vf = (VFController) loader.getController();
 
             Menus.clearInstance();
             menus = Menus.getInstance(vf);
             // -------------------------------------------------
             stage.maximizedProperty().addListener((obs, oldValue, newValue) -> stageMaximizedPropertyChange(newValue));
             // ZOOMING-------------------
+            /*
             vf.getBpMain().prefHeightProperty().bind(scene.heightProperty());
             vf.getBpMain().prefWidthProperty().bind(scene.widthProperty());
 
@@ -140,19 +148,6 @@ public class VF {
                     }
                     scaleVF.setValue(newValue);
 
-                }
-            });
-            // TEST
-            /*
-            zp.setStyle(
-                    "-fx-border-style: solid solid solid solid;  -fx-border-width: 2;  -fx-border-color: RED;");
-            vf.getBtnAdd().addEventHandler(ActionEvent.ACTION, e -> {
-                if (!zp.getStyle().contains("-fx-border-style: none")) {
-                    zp.setStyle("-fx-border-style: none");
-                    gp.setStyle("-fx-border-style: solid solid solid solid;  -fx-border-width: 2;  -fx-border-color: red;");
-                }else{
-                    gp.setStyle("-fx-border-style: none");
-                    zp.setStyle("-fx-border-style: solid solid solid solid;  -fx-border-width: 2;  -fx-border-color: blue;");
                 }
             });
             */
