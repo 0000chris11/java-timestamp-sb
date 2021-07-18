@@ -2,10 +2,7 @@ package com.cofii.ts.other;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
 
 import com.cofii.ts.first.VFController;
 import com.cofii.ts.sql.MSQL;
@@ -16,14 +13,8 @@ import com.cofii.ts.store.ColumnS;
 import com.cofii2.methods.MString;
 import com.cofii2.mysql.MSQLP;
 
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
-import javafx.geometry.VPos;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.RowConstraints;
 
 public class Dist {
 

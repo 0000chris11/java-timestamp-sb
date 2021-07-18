@@ -3,6 +3,7 @@ package com.cofii.ts.sql.querys;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Arrays;
+import java.util.List;
 
 import com.cofii.ts.first.VFController;
 import com.cofii.ts.other.NonCSS;
@@ -89,12 +90,18 @@ public class ShowColumns implements IActions {
         //ADDING COLUMNS-------------------------------
         final int index = row - 1;
         TableColumn<ObservableList<Object>, Object> column = new TableColumn<>(columnName);
-        column.setCellValueFactory(e -> new ReadOnlyObjectWrapper<>(e.getValue().get(index)));
+        //column.setCellValueFactory(e -> new ReadOnlyObjectWrapper<>(e.getValue().get(index)));
+        column.setCellValueFactory(data -> {
+            List<Object> rowValues = data.getValue();
+            return index >= 0 && index < rowValues.size()
+                         ? new ReadOnlyObjectWrapper<>(rowValues.get(index)) // does just the same as ReadOnlyStringWrapper in this case
+                         : null; // no value, if outside of valid index range
+        });
         //EDITABLE CELL----------------------------------
         column.setCellFactory(TextFieldTableCell.forTableColumn(new StringConverter<Object>(){
             @Override
             public String toString(Object object) {
-                return object.toString();
+                return object != null ? object.toString() : "ERROR";
             }
             @Override
             public Object fromString(String string) {

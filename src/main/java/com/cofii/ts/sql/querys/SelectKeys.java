@@ -44,9 +44,9 @@ public class SelectKeys implements IActions {
                 textPk.setFill(NonCSS.TEXT_FILL_PK);
 
                 vf.getLbs()[ordinalPosition - 1].getChildren().addAll(textPk, textColumnName);
-            } else {
+            } else { //FK CONSTRAINT NAME
                 Text textFk = new Text("(F) ");
-                textFk.setFill(NonCSS.TEXT_FILL_PK);
+                textFk.setFill(NonCSS.TEXT_FILL_FK);
 
                 vf.getLbs()[ordinalPosition - 1].getChildren().addAll(textFk, textColumnName);
             }

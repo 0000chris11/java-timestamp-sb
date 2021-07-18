@@ -401,6 +401,8 @@ public class VFController implements Initializable {
             gridPane.getRowConstraints().get(a).setVgrow(Priority.NEVER);
             gridPane.getRowConstraints().get(a).setPrefHeight(-1);
             gridPane.getRowConstraints().get(a).setMaxHeight(-1);
+
+            btns[a].setDisable(true);
         }
         // Arrays.fill(ivImageC, new ImageView());//DUPLICATED CHILDREN
         for (int a = 0; a < MSQL.MAX_IMAGES; a++) {
