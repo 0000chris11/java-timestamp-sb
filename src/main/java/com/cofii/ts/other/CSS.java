@@ -13,6 +13,7 @@ public class CSS {
     public static final String BG_COLOR_HINT = "-fx-background-color: blue";
     public static final String BG_COLOR = "-fx-background-color: white";
 
+    public static final String TFS_DEFAULT_LOOK = "-fx-background-color: #090631";
     public static final String TFAS_DEFAULT_LOOK = "-fx-background-color: #035850; -fx-text-fill: white";
     // VC----------------------------
     public static final String ROW = "-fx-background-color: #100c49";

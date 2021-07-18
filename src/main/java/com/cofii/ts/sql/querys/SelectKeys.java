@@ -34,7 +34,7 @@ public class SelectKeys implements IActions {
         String currentDatabase = MSQL.getDatabase().toLowerCase();
         String currentTable = MSQL.getCurrentTable().getName().replace(" ", "_").toLowerCase();
 
-        if (databaseName.equals(currentDatabase) && tableName.equals(currentTable)) {
+        if (databaseName.equals(currentDatabase) && tableName.equals(currentTable) && !constraintType.isEmpty()) {
             vf.getLbs()[ordinalPosition - 1].getChildren().clear();
             Text textColumnName = new Text(columnName);
             textColumnName.setFill(NonCSS.TEXT_FILL);

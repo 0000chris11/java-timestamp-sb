@@ -2,6 +2,7 @@ package com.cofii.ts.first;
 
 import com.cofii.ts.cu.VC;
 import com.cofii.ts.info.VI;
+import com.cofii.ts.other.CSS;
 import com.cofii.ts.other.Dist;
 import com.cofii.ts.other.NonCSS;
 import com.cofii.ts.other.Timers;
@@ -81,11 +82,12 @@ public class Menus {
             if (vf.getLbs()[a].isVisible()) {
                 vf.getLbs()[a].setVisible(false);
 
-                if (!columnds.getDist(a).equals("No")) {
+                if (!columnds.getDist(a).equals("No")) {// RESETING DIST
                     // vf.getGridPane().getChildren().remove(vf.getTfas()[a]);
                     // vf.getGridPane().add(vf.getTfs()[a], 1, a);
                     vf.getTfsPs()[a].setTfParent(null);
-                    vf.getGridPane().getRowConstraints().get(a).setVgrow(Priority.NEVER);
+                    vf.getTfs()[a].setStyle(CSS.TFS_DEFAULT_LOOK);
+                    // vf.getGridPane().getRowConstraints().get(a).setVgrow(Priority.NEVER);
 
                 }
                 vf.getTfs()[a].setVisible(false);
@@ -185,32 +187,31 @@ public class Menus {
     }
 
     private void resetKeys() {
-        // Key[] keyRows = keys.getCurrentTableKeys();
-        Text textPk = new Text("(P) ");
-        textPk.setFill(NonCSS.TEXT_FILL_PK);
-        Text textFk = new Text("(F) ");
-        textFk.setFill(NonCSS.TEXT_FILL_PK);
         // PRIMARY KEYS---------------------------------------------
         PK[] cpks = pks.getCurrentTablePKS();
-        for (int a = 0; a < cpks.length; a++) {
+        cpks[0].getColumns().forEach(cols -> {
+            int ordinalPosition = cols.index - 1;
+            String columnName = cols.string;
 
-            cpks[a].getColumns().forEach(cols -> {
-                int ordinalPosition = cols.index - 1;
-                String columnName = cols.string;
+            Text textPk = new Text("(P) ");
+            textPk.setFill(NonCSS.TEXT_FILL_PK);
 
-                Text textColumnName = new Text(columnName);
-                textColumnName.setFill(NonCSS.TEXT_FILL);
+            Text textColumnName = new Text(columnName);
+            textColumnName.setFill(NonCSS.TEXT_FILL);
 
-                vf.getLbs()[ordinalPosition].getChildren().clear();
-                vf.getLbs()[ordinalPosition].getChildren().addAll(textPk, textColumnName);
-            });
-        }
+            vf.getLbs()[ordinalPosition].getChildren().clear();
+            vf.getLbs()[ordinalPosition].getChildren().addAll(textPk, textColumnName);
+        });
+
         // FOREIGN KEYS---------------------------------------------
         FK[] cfks = fks.getCurrentTableFKS();
         for (int a = 0; a < cfks.length; a++) {
             cfks[a].getColumns().forEach(cols -> {
                 int ordinalPosition = cols.index - 1;
                 String columnName = cols.string;
+
+                Text textFk = new Text("(F) ");
+                textFk.setFill(NonCSS.TEXT_FILL_PK);
 
                 Text textColumnName = new Text(columnName);
                 textColumnName.setFill(NonCSS.TEXT_FILL);

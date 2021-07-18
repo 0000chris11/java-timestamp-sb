@@ -60,6 +60,8 @@ public class VF {
 
     private DoubleProperty scaleVF = new SimpleDoubleProperty(1.0);
 
+    private boolean start = true;
+
     // -----------------------------------------
     private void stageMaximizedPropertyChange(boolean newValue) {
         if (newValue) {
@@ -85,7 +87,9 @@ public class VF {
         // addMenuItems();
         menus.addMenuItemsReset();
 
-        ms.executeQuery(MSQL.SELECT_TABLE_ROW_DEFAULT, new SelectTableDefault());
+        if (start) {
+            ms.executeQuery(MSQL.SELECT_TABLE_ROW_DEFAULT, new SelectTableDefault());
+        }
         if (MSQL.getCurrentTable() != null) {
             String table = MSQL.getCurrentTable().getName();
             vf.getLbTable().setText(table);
@@ -98,21 +102,12 @@ public class VF {
         } else {
             vf.clearCurrentTableView();
         }
+
     }
 
     private void init() {
         try {
             FXMLLoader loader = new FXMLLoader(VF.class.getResource("/com/cofii/ts/first/VF.fxml"));
-            /*
-            ZoomingPane zp = new ZoomingPane(loader.load());
-            zp.zoomFactorProperty().bind(scaleVF);
-
-            Group gp = new Group(zp);
-            ScrollPane scMain = new ScrollPane(gp);
-            scMain.setFitToWidth(true);
-            scMain.setFitToHeight(true);
-
-            */
 
             SceneZoom sceneZoom = new SceneZoom(loader.load(), scaleVF);
             vf = (VFController) loader.getController();
@@ -121,11 +116,12 @@ public class VF {
             Scene scene = sceneZoom.getScene();
             scene.getStylesheets().add(VF.class.getResource("/com/cofii/ts/first/VF.css").toExternalForm());
 
-            //START OR GO BACK-----------------------------
+            // START OR GO BACK-----------------------------
             if (vl != null) {// NEW WINDOW
                 stage.setScene(scene);
             } else {
                 vc.getVf().getStage().setScene(scene);
+                start = false;
             }
             // -------------------------------------------------
 
@@ -135,22 +131,16 @@ public class VF {
             stage.maximizedProperty().addListener((obs, oldValue, newValue) -> stageMaximizedPropertyChange(newValue));
             // ZOOMING-------------------
             /*
-            vf.getBpMain().prefHeightProperty().bind(scene.heightProperty());
-            vf.getBpMain().prefWidthProperty().bind(scene.widthProperty());
-
-            scene.setOnKeyReleased(e -> {
-                if (e.isControlDown()) {
-                    double newValue = scaleVF.getValue();
-                    if (e.getCode() == KeyCode.PLUS) {
-                        newValue += 0.01;
-                    } else if (e.getCode() == KeyCode.MINUS && newValue > 1.0) {
-                        newValue -= 0.01;
-                    }
-                    scaleVF.setValue(newValue);
-
-                }
-            });
-            */
+             * vf.getBpMain().prefHeightProperty().bind(scene.heightProperty());
+             * vf.getBpMain().prefWidthProperty().bind(scene.widthProperty());
+             * 
+             * scene.setOnKeyReleased(e -> { if (e.isControlDown()) { double newValue =
+             * scaleVF.getValue(); if (e.getCode() == KeyCode.PLUS) { newValue += 0.01; }
+             * else if (e.getCode() == KeyCode.MINUS && newValue > 1.0) { newValue -= 0.01;
+             * } scaleVF.setValue(newValue);
+             * 
+             * } });
+             */
             // -------------------------------------------------
             vf.setStage(vl != null ? stage : vc.getVf().getStage());
             vf.setScene(scene);
