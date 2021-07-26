@@ -3,6 +3,7 @@ package com.cofii.ts.sql.querys;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import com.cofii.ts.first.Menus;
 import com.cofii.ts.first.VFController;
 import com.cofii.ts.other.NonCSS;
 import com.cofii.ts.sql.MSQL;
@@ -44,7 +45,7 @@ public class SelectKeys implements IActions {
                 textPk.setFill(NonCSS.TEXT_FILL_PK);
 
                 vf.getLbs()[ordinalPosition - 1].getChildren().addAll(textPk, textColumnName);
-            } else { //FK CONSTRAINT NAME
+            } else if(!constraintType.isEmpty()){ //FK CONSTRAINT NAME
                 Text textFk = new Text("(F) ");
                 textFk.setFill(NonCSS.TEXT_FILL_FK);
 
@@ -76,20 +77,9 @@ public class SelectKeys implements IActions {
         referencedTableName = rs.getString(7);
         referencedColumnName = rs.getString(8);
 
-        if (databaseName.equals("time_stamp")) {
-            System.out.println("########### ROW: " + row);
-            System.out.println("\tdatabaseName: " + databaseName);
-            System.out.println("\ttableName: " + tableName);
-            System.out.println("\tconstraintType: " + constraintType);
-            System.out.println("\tordinalPosition: " + ordinalPosition);
-            System.out.println("\tcolumnName: " + columnName);
-            System.out.println("\treferencedTableSchema: " + referencedTableSchema);
-            System.out.println("\treferencedTableName: " + referencedTableName);
-            System.out.println("\treferencedColumnName: " + referencedColumnName);
-        }
-        keysImplement();
+        //keysImplement();
+        Menus.getInstance(vf).resetKeys();
         // --------------------------------------------
-
         if (constraintType.equals("PRIMARY")) {
             //System.out.println("ADDING PRIMARY KEY (" + databaseName + " - " + constraintType + ")");
             pks.addPK(new PK(databaseName, tableName, ordinalPosition, columnName));
@@ -97,12 +87,8 @@ public class SelectKeys implements IActions {
             //System.out.println("ADDING FOREING KEY (" + databaseName + " - " + constraintType + ")");
             fks.addFK(new FK(databaseName, tableName, constraintType, ordinalPosition, columnName,
                     referencedTableSchema, referencedTableName, referencedColumnName));
-        }else{
-            //System.out.println("UNKOWN CONSTRAINT (" + databaseName + " - " + constraintType + ")");
         }
-        // keys.addKey(new Key(databaseName, tableName, constraintType, ordinalPosition,
-        // columnName, referencedTableSchema,
-        // referencedTableName, referencedColumnName));
+
     }
 
     @Override

@@ -1,7 +1,9 @@
 package com.cofii.ts.other;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import com.cofii.ts.first.VFController;
@@ -38,20 +40,22 @@ public class Dist {
         GridPane gp = vf.getGridPane();
         while (p <= length) {
             int c = Character.getNumericValue(dist.charAt(p - 1)) - 1;
-            vf.getTfsPs()[c].setTfParent(vf.getTfs()[c]);
-            vf.getTfs()[c].setStyle(CSS.TFAS_DEFAULT_LOOK);
+            if (vf.getTfsFKList().get(c).isEmpty()) {// NOT IF THIS COLUMN HAS FK
+                //vf.getTfsAutoC()[c].setTfParent(vf.getTfs()[c]);
+                vf.getTfs()[c].setStyle(CSS.TFS_DIST_LOOK);
 
-            if (columns.getExtraAsString(c).equals("auto_increment")) {
-                vf.getTfs()[c].setPromptText("AUTO_INCREMENT");
+                if (columns.getExtraAsString(c).equals("auto_increment")) {
+                    vf.getTfs()[c].setPromptText("AUTO_INCREMENT");
+                }
+
+                columnsd.getList().get(c).setDist("Yes");
+                // QUERY --------------------------------------------------
+                String table = MSQL.getCurrentTable().getName().replace(" ", "_");
+                String column = columns.getColumn(c);
+
+                ms.setDistinctOrder(MSQLP.MOST_USE_ORDER);// WORK 50 50 WITH TAGS
+                ms.selectDistinctColumn(table, column.replace(" ", "_"), new SelectDistinct(vf, c));
             }
-
-            columnsd.getList().get(c).setDist("Yes");
-            // --------------------------------------------------
-            String table = MSQL.getCurrentTable().getName().replace(" ", "_");
-            String column = columns.getColumn(c);
-
-            ms.setDistinctOrder(MSQLP.MOST_USE_ORDER);// WORK 50 50 WITH TAGS
-            ms.selectDistinctColumn(table, column.replace(" ", "_"), new SelectDistinct(vf, c));
             p += 2;
         }
         gp.getRowConstraints().get(4).setMaxHeight(Short.MAX_VALUE);
@@ -69,21 +73,24 @@ public class Dist {
             vf.getSplitLeft().setDividerPositions(0.6);
             File imageCDirectory = new File(imageCPath);
 
-            vf.getFpImages().getChildren().clear();
+            vf.getHbImages().getChildren().clear();
             if (imageCDirectory.exists()) {
-                vf.getFpImages().getChildren().add(vf.getIvImageC()[0]);
+                vf.getHbImages().getChildren().add(vf.getIvImageC()[0]);
                 imageCFilesPath.clear();
                 imageCFiles.clear();
 
                 if (imageCDirectory.isDirectory()) {
-                    for (File file : imageCDirectory.listFiles()) {
-                        imageCFilesPath.add(file.getPath());
-                        imageCFiles.add(MString.getRemoveCustomFormattedString(file.getName()));
-                    }
+                    int[] indexs = {0};
+                    Arrays.asList(imageCDirectory.listFiles(f -> f.isDirectory() || f.isFile())).stream().forEach(f -> {
+                        imageCFilesPath.add(f.getPath());
+                        imageCFiles.add(MString.getRemoveCustomFormattedString(f.getName()));
+                        indexs[0]++;
+                    });
+                    System.out.println("TEST ImageCPath Count: " + indexs[0]);
                 }
             } else {
                 // GET HBOX of imageView TO REPLACED WITH 'path to ImageC not found'
-                vf.getFpImages().getChildren().add(new Label("Path '" + imageCPath + "' not found"));
+                vf.getHbImages().getChildren().add(new Label("Path '" + imageCPath + "' not found"));
             }
         } else {
             vf.getSplitLeft().setDividerPositions(1.0);

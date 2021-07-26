@@ -1,5 +1,10 @@
 package com.cofii.ts.first;
 
+import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import com.cofii.ts.cu.VC;
 import com.cofii.ts.info.VI;
 import com.cofii.ts.other.CSS;
@@ -8,6 +13,7 @@ import com.cofii.ts.other.NonCSS;
 import com.cofii.ts.other.Timers;
 import com.cofii.ts.sql.MSQL;
 import com.cofii.ts.sql.querys.SelectData;
+import com.cofii.ts.sql.querys.SelectDistinct;
 import com.cofii.ts.sql.querys.SelectTableNames;
 import com.cofii.ts.sql.querys.ShowColumns;
 import com.cofii.ts.store.ColumnDS;
@@ -18,6 +24,7 @@ import com.cofii.ts.store.PK;
 import com.cofii.ts.store.PKS;
 import com.cofii.ts.store.TableS;
 import com.cofii2.components.javafx.TrueFalseWindow;
+import com.cofii2.mysql.MSQLP;
 import com.cofii2.stores.CC;
 
 import javafx.collections.ObservableList;
@@ -28,6 +35,7 @@ import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
+import javafx.scene.control.ToggleButton;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.text.Text;
@@ -82,13 +90,9 @@ public class Menus {
             if (vf.getLbs()[a].isVisible()) {
                 vf.getLbs()[a].setVisible(false);
 
-                if (!columnds.getDist(a).equals("No")) {// RESETING DIST
-                    // vf.getGridPane().getChildren().remove(vf.getTfas()[a]);
-                    // vf.getGridPane().add(vf.getTfs()[a], 1, a);
-                    vf.getTfsPs()[a].setTfParent(null);
+                if (columnds.getDist(a).equals("Yes") || fks.getYesAndNoFKS()[a].equals("Yes")) {// RESETING DIST
+                    vf.getTfsAutoC().get(a).setTfParent(null);
                     vf.getTfs()[a].setStyle(CSS.TFS_DEFAULT_LOOK);
-                    // vf.getGridPane().getRowConstraints().get(a).setVgrow(Priority.NEVER);
-
                 }
                 vf.getTfs()[a].setVisible(false);
                 vf.getBtns()[a].setVisible(false);
@@ -96,6 +100,9 @@ public class Menus {
                 vf.getTfs()[a].setText("");
             }
         }
+        vf.getTfsFKList().forEach(List::clear);
+        Arrays.asList(vf.getBtns()).forEach(btn -> btn.setSelected(true));
+        vf.setSelectedRow(null);
 
         vf.getBtnFind().setDisable(false);
         vf.getBtnAdd().setDisable(false);
@@ -186,38 +193,66 @@ public class Menus {
         tableDeleteThis.setOnAction(this::deleteThisTable);
     }
 
-    private void resetKeys() {
+    public void resetKeys() {
         // PRIMARY KEYS---------------------------------------------
         PK[] cpks = pks.getCurrentTablePKS();
-        cpks[0].getColumns().forEach(cols -> {
-            int ordinalPosition = cols.index - 1;
-            String columnName = cols.string;
+        if (cpks.length > 0) {
+            cpks[0].getColumns().forEach(cols -> {
+                int ordinalPosition = cols.index - 1;
+                String columnName = cols.string;
 
-            Text textPk = new Text("(P) ");
-            textPk.setFill(NonCSS.TEXT_FILL_PK);
+                Text textPk = new Text("(P) ");
+                textPk.setFill(NonCSS.TEXT_FILL_PK);
 
-            Text textColumnName = new Text(columnName);
-            textColumnName.setFill(NonCSS.TEXT_FILL);
+                Text textColumnName = new Text(columnName);
+                textColumnName.setFill(NonCSS.TEXT_FILL);
 
-            vf.getLbs()[ordinalPosition].getChildren().clear();
-            vf.getLbs()[ordinalPosition].getChildren().addAll(textPk, textColumnName);
-        });
-
+                vf.getLbs()[ordinalPosition].getChildren().clear();
+                vf.getLbs()[ordinalPosition].getChildren().addAll(textPk, textColumnName);
+            });
+        }
         // FOREIGN KEYS---------------------------------------------
         FK[] cfks = fks.getCurrentTableFKS();
         for (int a = 0; a < cfks.length; a++) {
+            final String referencedDatabase = cfks[a].getReferencedDatabase();
+            final String referencedTable = cfks[a].getReferencedTable();
+
+            int[] indexs = { 0 };
+            final int aa = a;
             cfks[a].getColumns().forEach(cols -> {
                 int ordinalPosition = cols.index - 1;
                 String columnName = cols.string;
 
                 Text textFk = new Text("(F) ");
-                textFk.setFill(NonCSS.TEXT_FILL_PK);
+                textFk.setFill(NonCSS.TEXT_FILL_FK);
 
                 Text textColumnName = new Text(columnName);
                 textColumnName.setFill(NonCSS.TEXT_FILL);
 
                 vf.getLbs()[ordinalPosition].getChildren().clear();
                 vf.getLbs()[ordinalPosition].getChildren().addAll(textFk, textColumnName);
+
+                //vf.getTfsAutoC()[ordinalPosition].setTfParent(vf.getTfs()[ordinalPosition]);
+                vf.getTfs()[ordinalPosition].setStyle(CSS.TFS_FK_LOOK);
+                // QUERY---------------------------
+                String column = cfks[aa].getReferencedColumns().get(indexs[0]++);
+
+                vf.getMs().setDistinctOrder(MSQLP.MOST_USE_ORDER);// WORK 50 50 WITH TAGS
+                vf.getMs().selectDistinctColumn(referencedDatabase + "." + referencedTable, column.replace(" ", "_"),
+                        rs -> {
+                            try {
+                                boolean rsValues = false;
+                                while (rs.next()) {
+                                    rsValues = true;
+                                    vf.getTfsFKList().get(ordinalPosition).add(rs.getString(1));
+                                }
+                                if (!rsValues) {
+                                    vf.addTfsFKTextProperty(ordinalPosition);
+                                }
+                            } catch (SQLException e) {
+                                e.printStackTrace();
+                            }
+                        });
             });
         }
         /*

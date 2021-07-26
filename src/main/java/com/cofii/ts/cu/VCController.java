@@ -73,6 +73,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.Tooltip;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -100,6 +101,9 @@ public class VCController implements Initializable {
 
     private ObservableList<String> listColumns = FXCollections.observableArrayList();
     private ObservableList<Boolean> listImageC = FXCollections.observableArrayList();
+
+    @FXML
+    private BorderPane bpMain;
     // HEADERS-------------------------------------------------
     @FXML
     private Label lbhColumnNames;
@@ -759,7 +763,7 @@ public class VCController implements Initializable {
         String defaultText = tfsDefault.get(index).getText();//
         String typeChar = types.getTypeChar(tfsType.get(index).getText());
         // WILL FAIL WITH DECIMALS
-        Object defaultValue = typeChar.equals("NUMBER") || typeChar.equals("DECIMAL") ? Integer.parseInt(defaultText)
+        Object defaultValue = !defaultText.isEmpty() && (typeChar.equals("NUMBER") || typeChar.equals("DECIMAL")) ? Integer.parseInt(defaultText)
                 : defaultText;
         defaultValue = cksDefault.get(index).isSelected() ? defaultValue : null;
         ms.setDefaultValue(defaultValue);
@@ -1943,9 +1947,10 @@ public class VCController implements Initializable {
             final int aa = a;
             if (btnsSelectedFK.get(index).isSelected() && Arrays.asList(pksReferences).stream().anyMatch(s -> s.equals(tfsFK.get(aa).getText()))) {
                 String fkText = tfsFK.get(a).getText();
-                String[] split = fkText.split(".");
+                String[] split = fkText.split("\\.");
 
-                cfks.add(new TString(columnsNames[a], split[1], split[2]));
+                //column - database - table
+                cfks.add(new TString(columnsNames[a], split[0], split[1].replaceAll("[\\(||\\)]", "").replace(" ", "__").replace(",", "_")));
                 // listFK.add(new TString(colNames[a], tableR, colR));
             }
             if (cksDefault.get(a).isSelected()) {
@@ -2533,7 +2538,7 @@ public class VCController implements Initializable {
             tfsDefault.get(a).setPromptText("Value Required");
             tfsFK.get(a).setPromptText("NO FOREING KEY");
             // ----------------------------------------------
-            tfsType.get(a).setStyle(CSS.TFAS_DEFAULT_LOOK);
+            tfsType.get(a).setStyle(CSS.TFS_DIST_LOOK);
             // TYPE DEFAULT SELECTION----------------------------
             tfsTypePs.get(a).getLv().getSelectionModel().select(presetTypeSelected.get(a).getTypeName());
             tfsTypeLength.get(a).setText(Integer.toString(presetTypeSelected.get(a).getTypeLength()));
@@ -3166,6 +3171,14 @@ public class VCController implements Initializable {
 
     public void setHbRightUpdate(HBox hbRightUpdate) {
         this.hbRightUpdate = hbRightUpdate;
+    }
+
+    public BorderPane getBpMain() {
+        return bpMain;
+    }
+
+    public void setBpMain(BorderPane bpMain) {
+        this.bpMain = bpMain;
     }
 
 }

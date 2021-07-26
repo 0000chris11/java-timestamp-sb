@@ -21,11 +21,19 @@ public class GetNodesValuesImpl implements ActionForEachNode {
         if (columns.getType(c).contains("CHAR")) {
             if (!tf.getText().trim().isEmpty()) {
                 values[c] = tf.getText().trim();
+            } else if (columns.getDefaults()[c] != null) {
+                // DEFAULT
+                values[c] = columns.getDefaults()[c];
+            }else if(columns.getExtra() == c){
+                
             }
         } else if (columns.getType(c).contains("INT")) {
             try {
                 if (!tf.getText().trim().isEmpty()) {
                     values[c] = Integer.parseInt(tf.getText().trim());
+                } else if (columns.getDefaults()[c] != null) {
+                    // DEFAULT
+                    values[c] = Integer.parseInt(columns.getDefaults()[c]);
                 }
             } catch (NumberFormatException e) {
                 throw new IllegalArgumentException("C0FII: Only integer are accepted in this column");

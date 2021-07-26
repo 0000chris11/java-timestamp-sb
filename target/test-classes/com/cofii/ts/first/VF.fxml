@@ -9,11 +9,11 @@
 <BorderPane fx:id="bpMain" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="500.0" minWidth="800.0" prefHeight="500.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cofii.ts.first.VFController">
    <top>
       <MenuBar fx:id="menuBar" BorderPane.alignment="CENTER">
-        <menus>
-          <Menu fx:id="menuOpen" mnemonicParsing="false" text="Open" />
-          <Menu fx:id="menuSelection" mnemonicParsing="false" text="Selection" />
-          <Menu fx:id="menuTable" mnemonicParsing="false" text="Table" />
-        </menus>
+         <menus>
+            <Menu fx:id="menuOpen" mnemonicParsing="false" text="Open" />
+            <Menu fx:id="menuSelection" mnemonicParsing="false" text="Selection" />
+            <Menu fx:id="menuTable" mnemonicParsing="false" text="Table" />
+         </menus>
       </MenuBar>
    </top>
    <bottom>
@@ -31,7 +31,7 @@
    </bottom>
    <center>
       <SplitPane fx:id="splitPane" dividerPositions="0.5" prefHeight="160.0" prefWidth="200.0" BorderPane.alignment="CENTER">
-        <items>
+         <items>
             <VBox fx:id="leftSplit">
                <children>
                   <HBox fx:id="leftSplitHBox" spacing="6.0" VBox.vgrow="NEVER">
@@ -43,19 +43,16 @@
                      </padding>
                   </HBox>
                   <SplitPane fx:id="splitLeft" dividerPositions="1.0" orientation="VERTICAL" prefHeight="200.0" prefWidth="160.0" VBox.vgrow="ALWAYS">
-                    <items>
+                     <items>
                         <ScrollPane fitToWidth="true" prefViewportHeight="391.0" prefViewportWidth="235.0">
                            <content>
                               <GridPane fx:id="gridPane" hgap="4.0" VBox.vgrow="ALWAYS">
-                                <columnConstraints>
-                                  <ColumnConstraints hgrow="NEVER" maxWidth="50.0" minWidth="60.0" prefWidth="60.0" />
-                                  <ColumnConstraints hgrow="ALWAYS" maxWidth="1.7976931348623157E308" minWidth="10.0" />
+                                 <columnConstraints>
+                                    <ColumnConstraints hgrow="NEVER" maxWidth="50.0" minWidth="60.0" prefWidth="60.0" />
+                                    <ColumnConstraints hgrow="ALWAYS" maxWidth="1.7976931348623157E308" minWidth="10.0" />
                                     <ColumnConstraints hgrow="NEVER" maxWidth="20.0" minWidth="20.0" prefWidth="20.0" />
-                                </columnConstraints>
-                                <rowConstraints>
-                                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
-                                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
-                                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
+                                 </columnConstraints>
+                                 <rowConstraints>
                                     <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
                                     <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
                                     <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
@@ -63,7 +60,10 @@
                                     <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
                                     <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
                                     <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
-                                </rowConstraints>
+                                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
+                                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
+                                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
+                                 </rowConstraints>
                                  <padding>
                                     <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                                  </padding>
@@ -72,10 +72,14 @@
                         </ScrollPane>
                         <ScrollPane fx:id="spHBImages" minHeight="0.0" minWidth="0.0" prefViewportHeight="150.0" prefViewportWidth="394.0">
                            <content>
-                              <FlowPane fx:id="fpImages" alignment="CENTER" prefHeight="200.0" />
+                              <StackPane>
+                                 <children>
+                                    <HBox fx:id="hbImages" alignment="CENTER" prefHeight="200.0" />
+                                 </children>
+                              </StackPane>
                            </content>
                         </ScrollPane>
-                    </items>
+                     </items>
                   </SplitPane>
                </children>
             </VBox>
@@ -84,7 +88,7 @@
                   <TableView fx:id="table" editable="true" prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS" />
                </children>
             </VBox>
-        </items>
+         </items>
       </SplitPane>
    </center>
 </BorderPane>

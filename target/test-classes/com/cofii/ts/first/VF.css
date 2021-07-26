@@ -19,6 +19,7 @@
     -fx-combo-box-background-color: #222130;
     /*BUTTONS---------------------------*/
     -fx-button-background-color: #2115c3;
+    -fx-button-background-color-selected: #23a3ee;
     -fx-button-text-fill-color: white;
     /*SCROLLPANE---------------------------*/
     -fx-scrollpane-track-background-color:-fx-textfield-background-color;
@@ -202,6 +203,24 @@
 
     -fx-text-fill: -fx-button-text-fill-color;
 }
+.button:pressed{
+    -fx-background-color: -fx-button-background-color-selected;   
+    background-color: -fx-button-background-color; 
+
+    -fx-text-fill: -fx-button-text-fill-color;
+}
+.toggle-button{
+    -fx-background-color: -fx-button-background-color;
+    background-color: -fx-button-background-color; 
+
+    -fx-text-fill: -fx-button-text-fill-color;
+}
+.toggle-button:selected {
+    -fx-background-color: -fx-button-background-color-selected;   
+    background-color: -fx-button-background-color; 
+
+    -fx-text-fill: -fx-button-text-fill-color;
+}
 /*MENU BAR ----------------------------------------------*/
 .menu-bar {
     -fx-background-color: -fx-menu-background-color;
@@ -285,4 +304,12 @@
     -fx-background-color: #9c2f27;
     background-color: #9c2f27;
     -fx-text-fill: white;
+}
+#hbImages{
+    -fx-border-style: solid none none none;
+    border-style: solid none none none;
+    -fx-border-width: 2;
+    border-width: 2;
+    -fx-border-color: -fx-boreders-color;
+    border-color: -fx-boreders-color;
 }

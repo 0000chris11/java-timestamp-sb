@@ -15,6 +15,8 @@ import com.cofii.ts.store.FK;
 import com.cofii.ts.store.FKS;
 import com.cofii.ts.store.PKS;
 import com.cofii.ts.store.UpdateTable;
+import com.cofii2.components.javafx.SceneZoom;
+import com.cofii2.components.javafx.ZoomingPane;
 import com.cofii2.mysql.MSQLP;
 import com.cofii2.stores.CC;
 
@@ -23,6 +25,8 @@ import com.sun.prism.paint.Color;
 
 import org.apache.commons.lang3.ArrayUtils;
 
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
@@ -41,6 +45,7 @@ public class VC {
     private MSQLP ms;
     private ColumnS columns = ColumnS.getInstance();
 
+    private DoubleProperty zoomProperty = new SimpleDoubleProperty(1.0);
     // private UpdateTable updateTable;
 
     // -----------------------------------------------------
@@ -316,11 +321,19 @@ public class VC {
     public VC(VFController vf, boolean create) {
         try {
             FXMLLoader loader = new FXMLLoader(VC.class.getResource("/com/cofii/ts/cu/VC.fxml"));
+
+            /*
+            SceneZoom sz = new SceneZoom(loader.load(), zoomProperty);
+            vcc = (VCController) loader.getController();
+            sz.setParent(vcc.getBpMain());
+            Scene scene = sz.getScene();
+            */
             Scene scene = new Scene(loader.load());
+            vcc = (VCController) loader.getController();
+
             scene.getStylesheets().add(VC.class.getResource("/com/cofii/ts/cu/VC.css").toExternalForm());
             vf.getStage().setScene(scene);
             // ------------------------------------------------------
-            vcc = (VCController) loader.getController();
             vcc.setVf(vf);
             ms = vf.getMs();
             vcc.setMs(ms);

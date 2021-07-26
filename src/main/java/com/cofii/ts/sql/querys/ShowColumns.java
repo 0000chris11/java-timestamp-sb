@@ -47,7 +47,7 @@ public class ShowColumns implements IActions {
         String columnName = rs.getString(1).replace("_", " ");
         String typeHole = rs.getString(2).toUpperCase();
         String nulll = rs.getString(3);
-        String defaultt = rs.getString(5);
+        String defaultt = rs.getString(5) == null ? null : rs.getString(5);
         String extra = rs.getString(6);
         //TYPE & TYPE-LENGTH------------------------------------
         String type = typeHole;
@@ -69,6 +69,8 @@ public class ShowColumns implements IActions {
         }else{
             nullValue = true;
         }
+        //DEFAULT------------------------------------
+        vf.getTfs()[row - 1].setPromptText(defaultt);
         //EXTRA---------------------------------------------
         extra = extra.equals("auto_increment") ? "Yes":"No";
         //NODES VISIBILITY ----------------------------------------------
@@ -78,7 +80,7 @@ public class ShowColumns implements IActions {
         vf.getLbs()[row - 1].setVisible(true);
         if(extra.equals("Yes")){
             vf.getTfs()[row - 1].setPromptText("AUTO_INCREMENT");
-        }else{
+        }else if(defaultt == null || defaultt.isEmpty()){
             vf.getTfs()[row - 1].setPromptText(null);
         }
         vf.getTfs()[row - 1].setVisible(true);
@@ -90,6 +92,7 @@ public class ShowColumns implements IActions {
         //ADDING COLUMNS-------------------------------
         final int index = row - 1;
         TableColumn<ObservableList<Object>, Object> column = new TableColumn<>(columnName);
+        vf.getTable().getColumns().add(column);
         //column.setCellValueFactory(e -> new ReadOnlyObjectWrapper<>(e.getValue().get(index)));
         column.setCellValueFactory(data -> {
             List<Object> rowValues = data.getValue();
@@ -110,7 +113,7 @@ public class ShowColumns implements IActions {
         }));
         column.setOnEditCommit(vf::tableCellEdit);
         //--------------------------------------------------
-        vf.getTable().getColumns().add(column);
+        
   
     }
 

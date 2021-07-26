@@ -150,7 +150,7 @@ public class VLController implements Initializable {
         MSQL.setDatabase(database);
 
         if (cbRemember.isSelected()) {
-            msRoot.executeUpdate(MSQL.UPDATE_TABLE_DEFAULT_USER);
+            msRoot.executeStringUpdate(MSQL.UPDATE_TABLE_DEFAULT_USER);
         }
 
         msRoot.close();
@@ -179,7 +179,7 @@ public class VLController implements Initializable {
     private void initQuerys() {
         msInit.selectDatabases(new ShowDatabases(this));// AND ADDING TO cbDB
         if (!MSQL.isDbRootconfigExist()) {
-            msInit.executeUpdate(MSQL.CREATE_DB_ROOTCONFIG);// NOT TESTED
+            msInit.executeStringUpdate(MSQL.CREATE_DB_ROOTCONFIG);// NOT TESTED
         }
         msInit.close();
     }
@@ -188,8 +188,8 @@ public class VLController implements Initializable {
         msRoot = new MSQLP(new RootConfigConnection());
         msRoot.selectTables(new ShowTablesRootConfig());
         if (!MSQL.isTableDefaultUserExist()) {
-            msRoot.executeUpdate(MSQL.CREATE_TABLE_DEFAULT_USER);
-            msRoot.executeUpdate(MSQL.INSERT_TABLE_DEFAULT_USER);
+            msRoot.executeStringUpdate(MSQL.CREATE_TABLE_DEFAULT_USER);
+            msRoot.executeStringUpdate(MSQL.INSERT_TABLE_DEFAULT_USER);
         }
 
         msRoot.executeQuery(MSQL.SELECT_TABLE_ROW_DEFAULT_USER, new SelectDefaultUser());

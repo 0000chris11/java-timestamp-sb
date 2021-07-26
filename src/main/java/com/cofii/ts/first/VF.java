@@ -9,6 +9,7 @@ import com.cofii.ts.cu.VCController;
 import com.cofii.ts.login.VLController;
 import com.cofii.ts.other.CSS;
 import com.cofii.ts.other.Dist;
+import com.cofii.ts.other.NonCSS;
 import com.cofii.ts.sql.CurrenConnection;
 import com.cofii.ts.sql.MSQL;
 import com.cofii.ts.sql.WrongPassword;
@@ -58,7 +59,7 @@ public class VF {
     private static ColumnDS columnsd = ColumnDS.getInstance();
     private Dist dist;
 
-    private DoubleProperty scaleVF = new SimpleDoubleProperty(1.0);
+    private DoubleProperty scaleVF = new SimpleDoubleProperty(1.02);
 
     private boolean start = true;
 
@@ -75,13 +76,13 @@ public class VF {
     private void afterFirstQuerySucces() {
         ms.selectTables(new ShowTableCurrentDB());
         if (!MSQL.isTableNamesExist()) {
-            ms.executeUpdate(MSQL.CREATE_TABLE_NAMES);// NOT TESTED
+            ms.executeStringUpdate(MSQL.CREATE_TABLE_NAMES);// NOT TESTED
         }
         if (!MSQL.isTableDefaultExist()) {
-            ms.executeUpdate(MSQL.CREATE_TABLE_DEFAUT);// NOT TESTED
+            ms.executeStringUpdate(MSQL.CREATE_TABLE_DEFAUT);// NOT TESTED
         }
         if (!MSQL.isTableConfigExist()) {
-            ms.executeUpdate(MSQL.CREATE_TABLE_CONFIG);// NOT TESTED
+            ms.executeStringUpdate(MSQL.CREATE_TABLE_CONFIG);// NOT TESTED
         }
         // TABLE LIST
         // addMenuItems();
@@ -102,7 +103,8 @@ public class VF {
         } else {
             vf.clearCurrentTableView();
         }
-
+        //OTHERS LISTENERS--------------------
+        ms.setSQLException((ex, s) -> vf.getLbStatus().setText(ex.getMessage(), NonCSS.TEXT_FILL_ERROR));
     }
 
     private void init() {

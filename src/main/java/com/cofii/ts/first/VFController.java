@@ -1,5 +1,6 @@
 package com.cofii.ts.first;
 
+import javafx.beans.property.StringProperty;
 import java.io.File;
 import java.net.URL;
 import java.nio.file.Files;
@@ -29,7 +30,13 @@ import com.cofii2.methods.MString;
 import com.cofii2.mysql.MSQLP;
 import com.cofii2.stores.CC;
 
+import org.controlsfx.control.textfield.AutoCompletionBinding;
+import org.controlsfx.control.textfield.TextFields;
+import org.controlsfx.control.textfield.AutoCompletionBinding.AutoCompletionEvent;
+
+import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.collections.ListChangeListener.Change;
@@ -46,14 +53,17 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
+import javafx.scene.control.PopupControl;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.ToggleButton;
 import javafx.scene.control.TableColumn.CellEditEvent;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
@@ -66,6 +76,7 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import javafx.util.StringConverter;
 
 public class VFController implements Initializable {
 
@@ -91,7 +102,7 @@ public class VFController implements Initializable {
     @FXML
     private ScrollPane spHBImages;
     @FXML
-    private FlowPane fpImages;
+    private HBox hbImages;
     @FXML
     private Label lbTable;
 
@@ -99,23 +110,23 @@ public class VFController implements Initializable {
     private GridPane gridPane;
     private TextFlow[] lbs = new TextFlow[MSQL.MAX_COLUMNS];
     private TextField[] tfs = new TextField[MSQL.MAX_COLUMNS];
-    // private ComboBox[] cbs = new ComboBox[MSQL.MAX_COLUMNS];
-    // private TextFieldAutoC[] tfas = new TextFieldAutoC[MSQL.MAX_COLUMNS];
-    // private TextField[] tfas = new TextField[MSQL.MAX_COLUMNS];
-    private PopupAutoC[] tfsPs = new PopupAutoC[MSQL.MAX_COLUMNS];
+    private final List<PopupAutoC> tfsAutoC = new ArrayList<>(MSQL.MAX_COLUMNS);
+    //private final List<AutoCompletionBinding<String>> tfsAutoC = new ArrayList<>(MSQL.MAX_COLUMNS);
+    private final List<ObservableList<String>> tfsFKList = new ArrayList<>();
+    private final ChangeListener<String> tfsFKTextPropertyListener = this::tfsFKTextProperty;
+
     private List<List<String>> cbElements = new ArrayList<>(MSQL.MAX_COLUMNS);
-    private Button[] btns = new Button[MSQL.MAX_COLUMNS];
-    //BOTTOM-----------------------------------
+    private final ToggleButton[] btns = new ToggleButton[MSQL.MAX_COLUMNS];
+    // BOTTOM-----------------------------------
     @FXML
     private HBox statusPanel;
     /*
-    @FXML
-    private Label lbStatus;
-    @FXML
-    private Button btnCloseStatus;
-    */
+     * @FXML private Label lbStatus;
+     * 
+     * @FXML private Button btnCloseStatus;
+     */
     private LabelStatus lbStatus = new LabelStatus();
-    //private boolean autoClose = false;
+    // private boolean autoClose = false;
 
     @FXML
     private Button btnDelete;
@@ -136,7 +147,7 @@ public class VFController implements Initializable {
 
     private ColumnS columns = ColumnS.getInstance();
     private ColumnDS columnds = ColumnDS.getInstance();
-    private Object[] rowData;
+    private Object[] rowData;// DELETE
     private Object[] selectedRow;
     private MSQLP ms;
     // ----------------------------------------------
@@ -145,9 +156,6 @@ public class VFController implements Initializable {
 
     private static final int CB_STARTS_WITH = 0;
     private int cbSearchOption = CB_STARTS_WITH;
-
-    private int imageCounter = 0;
-
     // OTHER -------------------------------------------
 
     private void forEachAction(int length, ActionForEachNode en) {
@@ -158,76 +166,145 @@ public class VFController implements Initializable {
         }
     }
 
-    private void comboBoxConfig() {
-        /*
-         * for (int a = 0; a < cbs.length; a++) { ComboBoxListViewSkin<String>
-         * comboBoxListViewSkin = new ComboBoxListViewSkin<>(cbs[a]);
-         * comboBoxListViewSkin.getPopupContent().addEventFilter(KeyEvent.ANY, event ->
-         * { if (event.getCode() == KeyCode.SPACE) { event.consume(); } });
-         * cbs[a].setSkin(comboBoxListViewSkin); }
-         */
+    // CONTROL--------------------------------------
+    private void btnAddUpdateControl() {
+        boolean ok = Arrays.asList(tfs).stream().filter(Node::isVisible)
+                .anyMatch(tf -> tf.getStyle().equals(CSS.TEXT_FILL));
+        btnAdd.setDisable(!ok);
+        btnUpdate.setDisable(!ok);
     }
 
     // LISTENER -----------------------------------------
+    // TEXTFIELD-----------------------------------
+    public void addTfsFKTextProperty(int index) {
+        System.out.println("TEST tfs[index].getStyle(): " + tfs[index].getStyle());
+        tfs[index].textProperty().addListener(tfsFKTextPropertyListener);
+        // tfsFKTextProperty------------------
+        boolean match = tfsFKList.get(index).stream().anyMatch(s -> tfs[index].getText().equals(s));
+        // IDK WHY IT WAS RESETING THE CSS.TFS_FK_LOOK SO I CONCAT THEM
+        tfs[index].setStyle(CSS.TFS_FK_LOOK + "; " + (match ? CSS.TEXT_FILL : CSS.TEXT_FILL_ERROR));
+        System.out.println("TEST tfs[index].getStyle(): " + tfs[index].getStyle());
+    }
+
+    public void tfsFKListChange(Change<? extends String> c) {
+        int index = tfsFKList.indexOf(c.getList());
+        while (c.next()) {
+            if (c.getList().size() == 1) {
+                addTfsFKTextProperty(index);
+
+            } else if (c.getList().isEmpty()) {
+                tfs[index].setStyle(CSS.TFS_DEFAULT_LOOK);
+                tfs[index].setStyle(CSS.TEXT_FILL);
+                tfs[index].textProperty().removeListener(tfsFKTextPropertyListener);
+            }
+        }
+        btnAddUpdateControl();
+    }
+
+    private void tfsFKTextProperty(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+        int index = Integer.parseInt(((TextField) ((StringProperty) observable).getBean()).getId());
+        boolean match = tfsFKList.get(index).stream().anyMatch(s -> tfs[index].getText().equals(s));
+        tfs[index].setStyle(CSS.TFS_FK_LOOK + "; " + (match ? CSS.TEXT_FILL : CSS.TEXT_FILL_ERROR));
+
+        btnAddUpdateControl();
+    }
+
+    /*
+    private void tfsSetOnAutoCompleted(AutoCompletionEvent<String> v) {
+        System.out.println("TEST tfsSetOnAutoCompleted");
+        int index = tfsAutoC.indexOf(v.getSource());
+        String newValue = v.getCompletion();
+        if (newValue.contains("; ")) {
+            newValue = tfs[index].getText() + newValue;
+        }
+        tfs[index].setText(newValue);
+    }
+    */
+    // BUTTONS------------------------------------
+    private void btnsOnAction(ActionEvent e) {
+        int index = Integer.parseInt(((ToggleButton) e.getSource()).getId());
+        if (!btns[index].isSelected()) {
+            tfs[index].setText("");
+        } else {
+            if (selectedRow != null) {
+                tfs[index].setText(selectedRow[index] != null ? selectedRow[index].toString() : "");
+            } else {
+                tfs[index].setText("");
+            }
+        }
+    }
+
+    // TABLE------------------------------------
     private <T> void tableRowSelected(ObservableValue<? extends T> observable, T oldValue, T newValue) {
         ObservableList<ObservableList<Object>> list = table.getSelectionModel().getSelectedItems();
-        if (list.size() == 1) {
+        if (list.size() == 1) {// ONE ROW SELECTED
             rowData = new Object[list.get(0).size()];
             selectedRow = list.get(0).toArray();
-            GetRowSelectedImpl nr = new GetRowSelectedImpl(selectedRow);
+            GetRowSelectedImpl nr = new GetRowSelectedImpl(this, selectedRow);
             forEachAction(rowData.length, nr);
             // ImageC----------------------------------------
             if (!MSQL.getCurrentTable().getImageC().equals("NONE")) {
                 String imageCPath = MSQL.getCurrentTable().getImageCPath();
                 if (new File(imageCPath).exists()) {
-                    int imageCPathIndex = Character.getNumericValue(MSQL.getCurrentTable().getImageC().charAt(1)) - 1;
-                    String selectedImage = list.get(0).get(imageCPathIndex).toString();
-                    System.out.println("selectedImage: " + selectedImage);
-                    String formattedSelectedText = MString.getCustomFormattedString(selectedImage);
+                    int imageCIndex = Character.getNumericValue(MSQL.getCurrentTable().getImageC().charAt(1)) - 1;
+                    String itemSelected = list.get(0).get(imageCIndex).toString();
+                    // System.out.println("itemSelected: " + itemSelected);
+                    String formattedSelectedText = MString.getCustomFormattedString(itemSelected);
 
-                    System.out.println("--------------------------------------------------");
-                    List<String> filePath2 = dist.getImageCFilesPath().stream().filter(e -> {
+                    // System.out.println("--------------------------------------------------");
+                    List<String> itemsMatch = dist.getImageCFilesPath().stream().filter(e -> {
                         String subFile = e.replaceAll("(.jpg|.png|.gif)$", "");
                         // System.out.println("\tsubFile: " + subFile);
-                        System.out.println("\nsubFile: " + subFile);
+                        // System.out.println("\nsubFile: [" + subFile + "]");
                         if (formattedSelectedText.contains("; ")) {
                             String[] split = formattedSelectedText.split("; ");
                             List<String> spList = Arrays.asList(split);
-                            System.out.println("SPLITS");
-                            spList.forEach(System.out::println);
+                            // System.out.println("SPLITS");
+
                             return spList.stream().anyMatch(se -> subFile.endsWith(se));
                         } else {
-                            System.out.println("formattedSelectedText: " + formattedSelectedText);
-                            return subFile.endsWith(formattedSelectedText);
+                            // System.out.println("formattedSelectedText: [" + formattedSelectedText + "]");
+                            return subFile.endsWith(formattedSelectedText) || subFile.equals(formattedSelectedText);
                         }
                     }).collect(Collectors.toList());
-                    System.out.println("SIZE: " + filePath2.size() + " ---------------------------------------------");
+                    // System.out.println("SIZE: " + itemsMatch.size() + "
+                    // ---------------------------------------------");
 
-                    fpImages.getChildren().clear();
+                    hbImages.getChildren().clear();
                     Arrays.asList(ivImageC).forEach(e -> e.setImage(null));
-                    if (!filePath2.isEmpty()) {
+                    if (!itemsMatch.isEmpty()) {
                         // ivImageC.setImage(new Image(new File(filePath).toURI().toString()));
-                        imageCounter = 0;
-                        filePath2.forEach(e -> {
-                            ivImageC[imageCounter].setFitHeight(spHBImages.getHeight());
-                            System.out.println("BEFORE spHBImages.getHeight(): " + spHBImages.getHeight());
-                            ivImageC[imageCounter]
-                                    .setImage(new Image(new File(filePath2.get(imageCounter++)).toURI().toString()));
-                            System.out.println("AFTER spHBImages.getHeight(): " + spHBImages.getHeight());
+                        int[] imageCounter = { 0 };
+                        final boolean[] isDirectory = { false };
+                        final boolean[] isFile = { false };
+                        itemsMatch.forEach(e -> {
+                            // ivImageC[imageCounter].setFitHeight(hbImages.getHeight());
+                            String filePath = itemsMatch.get(imageCounter[0]);
+                            File toShow = new File(filePath);
+                            if (toShow.isFile() && !isDirectory[0]) {
+                                ivImageC[imageCounter[0]++].setImage(new Image(toShow.toURI().toString()));
+                                isFile[0] = true;
+                            } else if (toShow.isDirectory() && !isFile[0]) {// ALWAYS SHOUL BE ONE MATCH
+                                imageCounter[0] = 0;
+                                Arrays.asList(toShow.listFiles()).stream().limit(MSQL.MAX_IMAGES)
+                                        .forEach(file -> ivImageC[imageCounter[0]++]
+                                                .setImage(new Image(file.toURI().toString())));
+                                isDirectory[0] = true;
+                            }
                         });
                         // Children: duplicate children
                         /*
                          * hbImages.getChildren().addAll(Arrays.asList(ivImageC).stream().filter(e ->
                          * e.getImage() != null) .collect(Collectors.toList()));
                          */
-                        for (int a = 0; a < imageCounter + 1; a++) {
-                            fpImages.getChildren().add(ivImageC[a]);
+                        // System.out.println("IMAGE-COUNTER: " + imageCounter[0]);
+                        for (int a = 0; a < imageCounter[0]; a++) {
+                            hbImages.getChildren().add(ivImageC[a]);
                         }
                     } else {
-                        ivImageC[0].setFitHeight(spHBImages.getHeight());
                         ivImageC[0].setImage(new Image(
                                 VFController.class.getResource("/com/cofii/ts/images/Black.png").toExternalForm()));
-                        fpImages.getChildren().add(ivImageC[0]);
+                        hbImages.getChildren().add(ivImageC[0]);
                     }
                 }
             }
@@ -243,7 +320,6 @@ public class VFController implements Initializable {
             btnDelete.setDisable(true);
             btnUpdate.setDisable(true);
         }
-
     }
 
     public void tableCellChanged(Change<? extends ObservableList<Object>> c) {
@@ -279,6 +355,7 @@ public class VFController implements Initializable {
         }
     }
 
+    // MAIN SQL FUNC----------------------------------
     @FXML
     private void btnDeleteAction() {
         System.out.println(CC.CYAN + "\nDELETE ROW" + CC.RESET);
@@ -304,6 +381,8 @@ public class VFController implements Initializable {
         GetNodesValuesImpl gn = new GetNodesValuesImpl(newValues);
         forEachAction(length, gn);
 
+        System.out.println("\nUPDATE TEST");
+        Arrays.asList(gn.getValues()).forEach(v -> System.out.println(v != null ? v.toString() : "null"));
         boolean returnValue = ms.updateRow(tableName, selectedRow, gn.getValues());
         if (returnValue) {
             ms.selectData(tableName, new SelectData(this, SelectData.MESSAGE_UPDATED_ROW + tableName));
@@ -333,6 +412,9 @@ public class VFController implements Initializable {
             System.out.println("\tData too long");
             lbStatus.setText(e.getMessage(), NonCSS.TEXT_FILL_ERROR, Duration.seconds(2));
         });
+
+        System.out.println("\nADD TEST");
+        Arrays.asList(gn.getValues()).forEach(v -> System.out.println(v != null ? v.toString() : "null"));
         boolean update = ms.insert(tableName, gn.getValues());
         if (update) {
             ms.selectData(tableName, new SelectData(this, SelectData.MESSAGE_INSERT + tableName));
@@ -344,7 +426,7 @@ public class VFController implements Initializable {
     }
 
     private void splitLeftPositionProperty(Number newValue) {
-        fpImages.getChildren().forEach(e -> {
+        hbImages.getChildren().forEach(e -> {
             if (e instanceof ImageView) {
                 ((ImageView) e).setFitHeight(spHBImages.getHeight());
             }
@@ -377,16 +459,32 @@ public class VFController implements Initializable {
             text.setFill(NonCSS.TEXT_FILL);
             lbs[a] = new TextFlow(text);
             tfs[a] = new TextField();
-            // tfas[a] = new TextFieldAutoC(a);
-            // tfas[a] = new TextField();
-            tfsPs[a] = new PopupAutoC();
-            btns[a] = new Button();
+            tfsAutoC.add(a, new PopupAutoC(tfs[a]));
+            tfsFKList.add(FXCollections.observableArrayList()); // FK MATCH
+            /*
+            tfsAutoC.add(a, TextFields.bindAutoCompletion(tfs[a]));
+            tfsAutoC.get(a).setDelay(0);
+            tfsAutoC.get(a).setOnAutoCompleted(this::tfsSetOnAutoCompleted);
+            tfs[a].addEventHandler(KeyEvent.KEY_RELEASED, e -> {
+                if (!e.getCode().isNavigationKey()) {
+                    int index = Integer.parseInt(((TextField) e.getSource()).getId());
+                    String[] split = tfs[index].getText().split("; ");
+                    if (split.length > 1) {
+                        tfsAutoC.get(index).setUserInput(split[split.length - 1]);
+                    }
+                }
+            });
+            */
+            btns[a] = new ToggleButton();
 
             // tfas[a].setStyle(CSS.TFAS_DEFAULT_LOOK);
+            tfs[a].setId(Integer.toString(a));
+            btns[a].setId(Integer.toString(a));
 
             lbs[a].setVisible(false);
             tfs[a].setVisible(false);
             btns[a].setVisible(false);
+            btns[a].setSelected(true);
 
             GridPane.setMargin(lbs[a], new Insets(2, 2, 2, 2));
             GridPane.setMargin(tfs[a], new Insets(2, 2, 2, 2));
@@ -401,8 +499,6 @@ public class VFController implements Initializable {
             gridPane.getRowConstraints().get(a).setVgrow(Priority.NEVER);
             gridPane.getRowConstraints().get(a).setPrefHeight(-1);
             gridPane.getRowConstraints().get(a).setMaxHeight(-1);
-
-            btns[a].setDisable(true);
         }
         // Arrays.fill(ivImageC, new ImageView());//DUPLICATED CHILDREN
         for (int a = 0; a < MSQL.MAX_IMAGES; a++) {
@@ -414,14 +510,20 @@ public class VFController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        // NODES-----------------------------------
         nonFXMLNodesInit();
-        comboBoxConfig();
+        tfsFKList.forEach(l -> l.addListener(this::tfsFKListChange));
+        Arrays.asList(btns).forEach(btn -> btn.setOnAction(this::btnsOnAction));
         // IMAGE-VIEW-------------------------------------
-        fpImages.setOrientation(Orientation.HORIZONTAL);
-        fpImages.getChildren().add(lbImageC);
-        fpImages.minWidthProperty().bind(spHBImages.widthProperty());
-        splitLeft.getDividers().get(0).positionProperty()
-                .addListener((obs, oldValue, newValue) -> splitLeftPositionProperty(newValue));
+        // hbImages.setOrientation(Orientation.HORIZONTAL);
+        hbImages.getChildren().add(lbImageC);
+        spHBImages.setFitToHeight(true);
+        spHBImages.setFitToWidth(true);
+
+        hbImages.prefHeightProperty().bind(spHBImages.heightProperty());
+        hbImages.maxHeightProperty().bind(spHBImages.heightProperty());
+
+        Arrays.asList(ivImageC).forEach(iv -> iv.fitHeightProperty().bind(spHBImages.heightProperty()));
         // CB ELEMENTS-----------------------------------------
         for (int a = 0; a < MSQL.MAX_COLUMNS; a++) {
             cbElements.add(new ArrayList<>());
@@ -430,12 +532,12 @@ public class VFController implements Initializable {
         table.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         table.getSelectionModel().selectedItemProperty().addListener(this::tableRowSelected);
 
-        //STATUS
+        // STATUS
         lbStatus.setStyle(CSS.LB_STATUS);
         lbStatus.getBtnCloseStatus().setStyle(CSS.LB_STATUS_BUTTON);
         HBox.setHgrow(lbStatus, Priority.ALWAYS);
         statusPanel.getChildren().add(0, lbStatus);
-        
+
     }
     // GET AND SET -------------------------------------------
 
@@ -511,12 +613,8 @@ public class VFController implements Initializable {
         this.tfs = tfs;
     }
 
-    public Button[] getBtns() {
+    public ToggleButton[] getBtns() {
         return btns;
-    }
-
-    public void setBtns(Button[] btns) {
-        this.btns = btns;
     }
 
     public Label getLbTable() {
@@ -585,20 +683,16 @@ public class VFController implements Initializable {
         this.splitLeft = splitLeft;
     }
 
-    public FlowPane getFpImages() {
-        return fpImages;
+    public HBox getHbImages() {
+        return hbImages;
     }
 
-    public void setFpImages(FlowPane fpImages) {
-        this.fpImages = fpImages;
+    public void setHbImages(HBox fpImages) {
+        this.hbImages = fpImages;
     }
 
-    public PopupAutoC[] getTfsPs() {
-        return tfsPs;
-    }
-
-    public void setTfsPs(PopupAutoC[] tfsPs) {
-        this.tfsPs = tfsPs;
+    public List<PopupAutoC> getTfsAutoC() {
+        return tfsAutoC;
     }
 
     public Button getBtnDelete() {
@@ -647,6 +741,18 @@ public class VFController implements Initializable {
 
     public void setBpMain(BorderPane bpMain) {
         this.bpMain = bpMain;
+    }
+
+    public List<ObservableList<String>> getTfsFKList() {
+        return tfsFKList;
+    }
+
+    public Object[] getSelectedRow() {
+        return selectedRow;
+    }
+
+    public void setSelectedRow(Object[] selectedRow) {
+        this.selectedRow = selectedRow;
     }
 
 }

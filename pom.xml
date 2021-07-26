@@ -18,6 +18,13 @@
   </properties>
 
   <dependencies>
+
+    <dependency>
+      <groupId>org.controlsfx</groupId>
+      <artifactId>fxsampler</artifactId>
+      <version>1.0.11</version>
+    </dependency>
+
     <dependency>
       <groupId>com.cofii</groupId>
       <artifactId>C0FII</artifactId>
@@ -33,13 +40,19 @@
     <dependency>
       <groupId>org.openjfx</groupId>
       <artifactId>javafx-controls</artifactId>
-      <version>15</version>
+      <version>16</version>
     </dependency>
 
     <dependency>
       <groupId>org.openjfx</groupId>
       <artifactId>javafx-fxml</artifactId>
       <version>16</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.controlsfx</groupId>
+      <artifactId>controlsfx</artifactId>
+      <version>11.1.0</version>
     </dependency>
   </dependencies>
 
