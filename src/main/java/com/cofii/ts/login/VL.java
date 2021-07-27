@@ -20,7 +20,7 @@ public class VL extends Application {
         FXMLLoader loader = new FXMLLoader(VL.class.getResource("/com/cofii/ts/login/VL.fxml"));
         Scene scene = new Scene(loader.load());
         
-        scene.getStylesheets().add(VL.class.getResource("/com/cofii/ts/login/VL.css").toExternalForm());
+        scene.getStylesheets().add(VL.class.getResource("/com/cofii/ts/first/VF.css").toExternalForm());
         stage.setScene(scene);
 
         

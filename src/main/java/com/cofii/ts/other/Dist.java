@@ -5,6 +5,8 @@ import java.io.FilenameFilter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import com.cofii.ts.first.VFController;
 import com.cofii.ts.sql.MSQL;
@@ -32,33 +34,36 @@ public class Dist {
     // -----------------------------------------------------
     private void dist() {
         String dist = MSQL.getCurrentTable().getDist();
-        ms = vf.getMs();
+        if (!dist.equals("NONE")) {
+            String[] split = dist.split(",");
+            if (split.length == 0) {
+                split = new String[] { dist };
+            }
+            ms = vf.getMs();
 
-        int length = dist.length();
-        int p = 5;
+            GridPane gp = vf.getGridPane();
+            for (int a = 0; a < split.length; a++) {
+                int c = columns.getColumnIndex(split[a].replace("_", " "));
+                if (vf.getTfsFKList().get(c).isEmpty()) {// NOT IF THIS COLUMN HAS FK
+                    vf.getTfsAutoC().get(c).setTfParent(vf.getTfs()[c]);
+                    vf.getTfs()[c].setStyle(CSS.TFS_DIST_LOOK);
 
-        GridPane gp = vf.getGridPane();
-        while (p <= length) {
-            int c = Character.getNumericValue(dist.charAt(p - 1)) - 1;
-            if (vf.getTfsFKList().get(c).isEmpty()) {// NOT IF THIS COLUMN HAS FK
-                //vf.getTfsAutoC()[c].setTfParent(vf.getTfs()[c]);
-                vf.getTfs()[c].setStyle(CSS.TFS_DIST_LOOK);
+                    if (columns.getExtraAsString(c).equals("auto_increment")) {
+                        vf.getTfs()[c].setPromptText("AUTO_INCREMENT");
+                    }
 
-                if (columns.getExtraAsString(c).equals("auto_increment")) {
-                    vf.getTfs()[c].setPromptText("AUTO_INCREMENT");
+                    columnsd.getList().get(c).setDist("Yes");
+                    // QUERY --------------------------------------------------
+                    String table = MSQL.getCurrentTable().getName().replace(" ", "_");
+                    String column = columns.getColumn(c);
+
+                    ms.setDistinctOrder(MSQLP.MOST_USE_ORDER);// WORK 50 50 WITH TAGS
+                    ms.selectDistinctColumn(table, column.replace(" ", "_"), new SelectDistinct(vf, c));
                 }
 
-                columnsd.getList().get(c).setDist("Yes");
-                // QUERY --------------------------------------------------
-                String table = MSQL.getCurrentTable().getName().replace(" ", "_");
-                String column = columns.getColumn(c);
-
-                ms.setDistinctOrder(MSQLP.MOST_USE_ORDER);// WORK 50 50 WITH TAGS
-                ms.selectDistinctColumn(table, column.replace(" ", "_"), new SelectDistinct(vf, c));
+                gp.getRowConstraints().get(4).setMaxHeight(Short.MAX_VALUE);
             }
-            p += 2;
         }
-        gp.getRowConstraints().get(4).setMaxHeight(Short.MAX_VALUE);
     }
 
     private void imageC() {
@@ -66,7 +71,7 @@ public class Dist {
         String imageCPath = MSQL.getCurrentTable().getImageCPath();
 
         if (!imageCPath.equals("NONE")) {
-            int index = Character.getNumericValue(imageC.charAt(1)) - 1;
+            int index = columns.getColumnIndex(imageC);
             columnsd.getList().get(index).setImageC("Yes");
             columnsd.getList().get(index).setImageCPath(imageCPath);
 
@@ -80,13 +85,12 @@ public class Dist {
                 imageCFiles.clear();
 
                 if (imageCDirectory.isDirectory()) {
-                    int[] indexs = {0};
+                    int[] indexs = { 0 };
                     Arrays.asList(imageCDirectory.listFiles(f -> f.isDirectory() || f.isFile())).stream().forEach(f -> {
                         imageCFilesPath.add(f.getPath());
                         imageCFiles.add(MString.getRemoveCustomFormattedString(f.getName()));
                         indexs[0]++;
                     });
-                    System.out.println("TEST ImageCPath Count: " + indexs[0]);
                 }
             } else {
                 // GET HBOX of imageView TO REPLACED WITH 'path to ImageC not found'

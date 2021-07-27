@@ -48,6 +48,16 @@ public class VC {
     private DoubleProperty zoomProperty = new SimpleDoubleProperty(1.0);
     // private UpdateTable updateTable;
 
+    //LISTENERS----------------------------------------
+    private void stageMaximizedPropertyChange(boolean newValue) {
+        /*
+        if (newValue) {
+            if (Arrays.asList(columnsd.getImageCS()).stream().allMatch(s -> s.equals("No"))) {
+                vf.getSplitLeft().setDividerPositions(1.0);
+            }
+        }
+        */
+    }
     // -----------------------------------------------------
     private void rowDisplay(int size) {
         for (int a = 0; a < size; a++) {
@@ -129,8 +139,6 @@ public class VC {
         List<Boolean> nulls = new ArrayList<>(Arrays.asList(ArrayUtils.toObject(columns.getNulls())));
 
         List<String> cpks = new ArrayList<>(Arrays.asList(pks.getYesAndNoPKS()));
-        System.out.println("######TEST");
-        cpks.forEach(System.out::println);
 
         FK[] cfks = fks.getCurrentTableFKS();
         List<String> yfks = new ArrayList<>(Arrays.asList(fks.getYesAndNoFKS()));
@@ -149,8 +157,6 @@ public class VC {
         // ----------------------------------------------------
 
         vcc.getTfTable().setText(table);
-        System.out.println("#### TEST getTfsColumn size: " + vcc.getTfsColumn().size());
-        System.out.println("#### TEST columnsName size: " + columnsName.size());
         for (int a = 0; a < columnCount; a++) {
             vcc.getTfsColumn().get(a).setText(columnsName.get(a).replace("_", " "));
             vcc.getTfasType().get(a).setText(types.get(a));
@@ -322,21 +328,20 @@ public class VC {
         try {
             FXMLLoader loader = new FXMLLoader(VC.class.getResource("/com/cofii/ts/cu/VC.fxml"));
 
-            /*
+            
             SceneZoom sz = new SceneZoom(loader.load(), zoomProperty);
             vcc = (VCController) loader.getController();
             sz.setParent(vcc.getBpMain());
             Scene scene = sz.getScene();
-            */
-            Scene scene = new Scene(loader.load());
-            vcc = (VCController) loader.getController();
 
-            scene.getStylesheets().add(VC.class.getResource("/com/cofii/ts/cu/VC.css").toExternalForm());
+            scene.getStylesheets().add(VC.class.getResource("/com/cofii/ts/first/VF.css").toExternalForm());
             vf.getStage().setScene(scene);
             // ------------------------------------------------------
             vcc.setVf(vf);
             ms = vf.getMs();
             vcc.setMs(ms);
+            //LISTENERS------------------------------------
+            //vf.getStage().maximizedProperty().addListener((obs, oldValue, newValue) -> stageMaximizedPropertyChange(newValue));
             // ------------------------------------------------------
             if (create) {// THE REASON FOR NOT ADDING THE NODES IN THE CONTROLLER
                 createOption();

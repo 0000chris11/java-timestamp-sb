@@ -31,6 +31,8 @@
     -fx-table-row-cell-background-color: #100a5c;
     -fx-table-row-cell-odd-background-color: #0b0741;
     -fx-table-row-cell-selected-background-color: #160e88;
+    /*REGION-----------------------------------*/
+    -fx-region-left-background-color: -fx-textfield-background-color;
 }
 /*LAYOUTS ----------------------------------------*/
 .root{
@@ -46,15 +48,16 @@
     background-color: -fx-root-background-color;
 }
 
-
-#statusPanel{
+.split-pane:horizontal{
     -fx-background-color: -fx-root-background-color;
     background-color: -fx-root-background-color;
-    -fx-padding: 10;
-    padding: 10;
+}
+.split-pane:vertical{
+    -fx-background-color: -fx-root-background-color;
+    background-color: -fx-root-background-color;
 }
 
-/*
+/*SCROLL PANE*/
 .scroll-pane > .viewport {
     -fx-background-color: transparent;
     background-color: transparent;
@@ -63,17 +66,23 @@
     -fx-background-color: transparent;
     background-color: transparent;
  }
- */
- .grid-pane{
-    -fx-grid-lines-visible: true
- }
-.split-pane:horizontal{
-    -fx-background-color: -fx-root-background-color;
-    background-color: -fx-root-background-color;
+ .scroll-pane .increment-button, .decrement-button {
+    -fx-background-color: -fx-scrollpane-track-background-color;
+    background-color: -fx-scrollpane-track-background-color;
+    /*-fx-border-color: -fx-scrollpane-track-background-color;*/
 }
-.split-pane:vertical{
-    -fx-background-color: -fx-root-background-color;
-    background-color: -fx-root-background-color;
+.scroll-bar:horizontal .track,
+.scroll-bar:vertical .track{
+    -fx-background-color: -fx-scrollpane-track-background-color;
+    background-color: -fx-scrollpane-track-background-color;
+    /*-fx-border-color: transparent;*/
+    /*-fx-background-radius: 0em;*/
+}
+.scroll-bar:horizontal .thumb,
+.scroll-bar:vertical .thumb {
+    -fx-background-color: -fx-scrollpane-track-thump-background-color;
+    background-color: -fx-scrollpane-track-thump-background-color;
+    /*-fx-background-radius: 5em;*/
 }
 /*TABLE ------------------------------------------*/
 .table-view{
@@ -247,35 +256,21 @@
     -fx-padding: 0.333333em 0.083333em 0.666667em 0.083333em;  4 1 8 1 
     */
 }
-/*SCROLL PANE*/
-.scroll-pane > .viewport {
-    -fx-background-color: transparent;
-    background-color: transparent;
- }
- .scroll-pane {
-    -fx-background-color: transparent;
-    background-color: transparent;
- }
- .scroll-pane .increment-button, .decrement-button {
-    -fx-background-color: -fx-scrollpane-track-background-color;
-    background-color: -fx-scrollpane-track-background-color;
-    /*-fx-border-color: -fx-scrollpane-track-background-color;*/
+/*ID VL----------------------*/
+#cbRemember{
+    -fx-text-fill:white;
 }
-.scroll-bar:horizontal .track,
-.scroll-bar:vertical .track{
-    -fx-background-color: -fx-scrollpane-track-background-color;
-    background-color: -fx-scrollpane-track-background-color;
-    /*-fx-border-color: transparent;*/
-    /*-fx-background-radius: 0em;*/
+/*ID VF---------------------*/
+#fpImages{
+    -fx-border-style: solid solid solid solid;
+    border-style: solid solid solid solid;
+    -fx-border-width: 2;
+    border-width: 2;
+    -fx-border-color: -fx-boreders-color;
+    border-color: -fx-boreders-color;
 }
-.scroll-bar:horizontal .thumb,
-.scroll-bar:vertical .thumb {
-    -fx-background-color: -fx-scrollpane-track-thump-background-color;
-    background-color: -fx-scrollpane-track-thump-background-color;
-    /*-fx-background-radius: 5em;*/
-}
-/*ID*/
-#statusPanel{
+
+#hbImages{
     -fx-border-style: solid none none none;
     border-style: solid none none none;
     -fx-border-width: 2;
@@ -283,9 +278,15 @@
     -fx-border-color: -fx-boreders-color;
     border-color: -fx-boreders-color;
 }
-#fpImages{
-    -fx-border-style: solid solid solid solid;
-    border-style: solid solid solid solid;
+/*ID ANY--------------------------*/
+#hbStatus{
+    -fx-background-color: -fx-root-background-color;
+    background-color: -fx-root-background-color;
+    -fx-padding: 10;
+    padding: 10;
+
+    -fx-border-style: solid none none none;
+    border-style: solid none none none;
     -fx-border-width: 2;
     border-width: 2;
     -fx-border-color: -fx-boreders-color;
@@ -305,11 +306,12 @@
     background-color: #9c2f27;
     -fx-text-fill: white;
 }
-#hbImages{
-    -fx-border-style: solid none none none;
-    border-style: solid none none none;
-    -fx-border-width: 2;
-    border-width: 2;
-    -fx-border-color: -fx-boreders-color;
-    border-color: -fx-boreders-color;
+/*VC ID---------------------------*/
+#hbTop{
+    -fx-background-color: -fx-root-background-color;
+    background-color: -fx-root-background-color;
+}
+#regionLeft{
+    -fx-background-color: -fx-region-left-background-color;
+    background-color: -fx-region-left-background-color;
 }

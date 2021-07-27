@@ -119,7 +119,7 @@ public class VFController implements Initializable {
     private final ToggleButton[] btns = new ToggleButton[MSQL.MAX_COLUMNS];
     // BOTTOM-----------------------------------
     @FXML
-    private HBox statusPanel;
+    private HBox hbStatus;
     /*
      * @FXML private Label lbStatus;
      * 
@@ -177,13 +177,11 @@ public class VFController implements Initializable {
     // LISTENER -----------------------------------------
     // TEXTFIELD-----------------------------------
     public void addTfsFKTextProperty(int index) {
-        System.out.println("TEST tfs[index].getStyle(): " + tfs[index].getStyle());
         tfs[index].textProperty().addListener(tfsFKTextPropertyListener);
         // tfsFKTextProperty------------------
         boolean match = tfsFKList.get(index).stream().anyMatch(s -> tfs[index].getText().equals(s));
         // IDK WHY IT WAS RESETING THE CSS.TFS_FK_LOOK SO I CONCAT THEM
         tfs[index].setStyle(CSS.TFS_FK_LOOK + "; " + (match ? CSS.TEXT_FILL : CSS.TEXT_FILL_ERROR));
-        System.out.println("TEST tfs[index].getStyle(): " + tfs[index].getStyle());
     }
 
     public void tfsFKListChange(Change<? extends String> c) {
@@ -209,17 +207,6 @@ public class VFController implements Initializable {
         btnAddUpdateControl();
     }
 
-    /*
-    private void tfsSetOnAutoCompleted(AutoCompletionEvent<String> v) {
-        System.out.println("TEST tfsSetOnAutoCompleted");
-        int index = tfsAutoC.indexOf(v.getSource());
-        String newValue = v.getCompletion();
-        if (newValue.contains("; ")) {
-            newValue = tfs[index].getText() + newValue;
-        }
-        tfs[index].setText(newValue);
-    }
-    */
     // BUTTONS------------------------------------
     private void btnsOnAction(ActionEvent e) {
         int index = Integer.parseInt(((ToggleButton) e.getSource()).getId());
@@ -246,7 +233,7 @@ public class VFController implements Initializable {
             if (!MSQL.getCurrentTable().getImageC().equals("NONE")) {
                 String imageCPath = MSQL.getCurrentTable().getImageCPath();
                 if (new File(imageCPath).exists()) {
-                    int imageCIndex = Character.getNumericValue(MSQL.getCurrentTable().getImageC().charAt(1)) - 1;
+                    int imageCIndex = columns.getColumnIndex(MSQL.getCurrentTable().getImageC());
                     String itemSelected = list.get(0).get(imageCIndex).toString();
                     // System.out.println("itemSelected: " + itemSelected);
                     String formattedSelectedText = MString.getCustomFormattedString(itemSelected);
@@ -536,7 +523,7 @@ public class VFController implements Initializable {
         lbStatus.setStyle(CSS.LB_STATUS);
         lbStatus.getBtnCloseStatus().setStyle(CSS.LB_STATUS_BUTTON);
         HBox.setHgrow(lbStatus, Priority.ALWAYS);
-        statusPanel.getChildren().add(0, lbStatus);
+        hbStatus.getChildren().add(0, lbStatus);
 
     }
     // GET AND SET -------------------------------------------

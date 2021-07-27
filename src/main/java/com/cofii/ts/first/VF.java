@@ -59,7 +59,7 @@ public class VF {
     private static ColumnDS columnsd = ColumnDS.getInstance();
     private Dist dist;
 
-    private DoubleProperty scaleVF = new SimpleDoubleProperty(1.02);
+    private DoubleProperty scaleVF = new SimpleDoubleProperty(1.0);
 
     private boolean start = true;
 
@@ -69,6 +69,12 @@ public class VF {
             if (Arrays.asList(columnsd.getImageCS()).stream().allMatch(s -> s.equals("No"))) {
                 vf.getSplitLeft().setDividerPositions(1.0);
             }
+        }
+    }
+
+    private void heightPropertyChangeListener() {
+        if (Arrays.asList(columnsd.getImageCS()).stream().allMatch(s -> s.equals("No"))) {
+            vf.getSplitLeft().setDividerPositions(1.0);
         }
     }
 
@@ -103,7 +109,7 @@ public class VF {
         } else {
             vf.clearCurrentTableView();
         }
-        //OTHERS LISTENERS--------------------
+        // OTHERS LISTENERS--------------------
         ms.setSQLException((ex, s) -> vf.getLbStatus().setText(ex.getMessage(), NonCSS.TEXT_FILL_ERROR));
     }
 
@@ -129,20 +135,9 @@ public class VF {
 
             Menus.clearInstance();
             menus = Menus.getInstance(vf);
-            // -------------------------------------------------
+            // STAGE LISTENER-------------------------------------------------
             stage.maximizedProperty().addListener((obs, oldValue, newValue) -> stageMaximizedPropertyChange(newValue));
-            // ZOOMING-------------------
-            /*
-             * vf.getBpMain().prefHeightProperty().bind(scene.heightProperty());
-             * vf.getBpMain().prefWidthProperty().bind(scene.widthProperty());
-             * 
-             * scene.setOnKeyReleased(e -> { if (e.isControlDown()) { double newValue =
-             * scaleVF.getValue(); if (e.getCode() == KeyCode.PLUS) { newValue += 0.01; }
-             * else if (e.getCode() == KeyCode.MINUS && newValue > 1.0) { newValue -= 0.01;
-             * } scaleVF.setValue(newValue);
-             * 
-             * } });
-             */
+            stage.heightProperty().addListener((obs, oldValue, newValue) -> heightPropertyChangeListener());
             // -------------------------------------------------
             vf.setStage(vl != null ? stage : vc.getVf().getStage());
             vf.setScene(scene);

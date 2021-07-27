@@ -23,7 +23,6 @@ public class FKS {
             indexs[0]++;
             String tdb = e.getDatabase();
             String ttable = e.getTable();
-            //System.out.println("TEST: " + indexs[0]);
             return tdb.equals(database) && ttable.equals(table)
                     && (e.getReferencedDatabase().equals(referencedDatabase)
                             && e.getReferencedTable().equals(referencedTable));

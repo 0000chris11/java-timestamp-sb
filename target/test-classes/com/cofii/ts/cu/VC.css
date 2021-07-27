@@ -1,25 +1,27 @@
 /*DEFAULT VARIABLES*/
 *{
     /*ROOT-----------------------------*/
+    /*
     -fx-root-background-color: #100c49;
-    /*MENU---------------------------*/
     -fx-menu-background-color: #05013a;
     -fx-menu-background-highlighted: #0b0375;
     -fx-menu-text-fill-color: white;
     -fx-menu-text-fill-color-highlighted: white;
     /*LABELS---------------------------*/
+    /*
     -fx-label-text-fill-color: white;
     /*TEXTFIELD---------------------------*/
+    /*
     -fx-textfield-dist-background-color: #0e0866;
     -fx-textfield-background-color: #090631;
     -fx-textfield-text-fill-color: white;
+    */
     /*SCROLLPANE---------------------------*/
+    /*
     -fx-scrollpane-track-background-color:-fx-textfield-background-color;
     -fx-scrollpane-track-thump-background-color: #130b77;;
 
     -fx-region-left-background-color: -fx-textfield-background-color;
-
-    -fx-combo-box-background-color: #0c0750;
 
     -fx-button-background-color: #2115c3;
     -fx-button-background-color-selected: #23a3ee;
@@ -28,22 +30,29 @@
     -fx-table-row-cell-background-color: #100a5c;
     -fx-table-row-cell-odd-background-color: #0b0741;
     -fx-table-row-cell-selected-background-color: #160e88;
-    /*CHECK BOX*/
+    */
+    
 }
-
+/*
 .root{
     -fx-background-color: -fx-root-background-color;
     background-color: -fx-root-background-color;
 }
+*/
+/*
 .vbox{
     -fx-background-color: -fx-root-background-color;
     background-color: -fx-root-background-color;
 }
+*/
+/*
 .hbox{
     -fx-background-color: -fx-root-background-color;
     background-color: -fx-root-background-color;
 }
+*/
 /*SCROLL PANE*/
+/*
 .scroll-pane > .viewport {
     -fx-background-color: transparent;
     background-color: transparent;
@@ -55,21 +64,22 @@
  .scroll-pane .increment-button, .decrement-button {
     -fx-background-color: -fx-scrollpane-track-background-color;
     background-color: -fx-scrollpane-track-background-color;
-    /*-fx-border-color: -fx-scrollpane-track-background-color;*/
+    /*-fx-border-color: -fx-scrollpane-track-background-color;
 }
 .scroll-bar:horizontal .track,
 .scroll-bar:vertical .track{
     -fx-background-color: -fx-scrollpane-track-background-color;
     background-color: -fx-scrollpane-track-background-color;
     /*-fx-border-color: transparent;*/
-    /*-fx-background-radius: 0em;*/
+    /*-fx-background-radius: 0em;
 }
 .scroll-bar:horizontal .thumb,
 .scroll-bar:vertical .thumb {
     -fx-background-color: -fx-scrollpane-track-thump-background-color;
     background-color: -fx-scrollpane-track-thump-background-color;
-    /*-fx-background-radius: 5em;*/
+    /*-fx-background-radius: 5em;
 }
+*/
  /*
 .scroll-bar:horizontal .thumb,
 .scroll-bar:vertical .thumb {
@@ -77,15 +87,19 @@
     -fx-background-radius: 5em;
 }
 */
+/*
  .split-pane:horizontal{
     -fx-background-color: -fx-root-background-color;
     background-color: -fx-root-background-color;
 }
+
 #regionLeft{
     -fx-background-color: -fx-region-left-background-color;
     background-color: -fx-region-left-background-color;
 }
+*/
 /*MENU-------------------------------*/
+/*
 .menu-item .label {
     -fx-text-fill: -fx-menu-text-fill-color
 }
@@ -105,9 +119,11 @@
     -fx-background-radius: 0 6 6 6, 0 5 5 5, 0 4 4 4;
     -fx-padding: 0.666667em 0.083333em 0.666667em 0.083333em;  8 1 8 1 
     -fx-padding: 0.333333em 0.083333em 0.666667em 0.083333em;  4 1 8 1 
-    */
+    
 }
+*/
 /* OTHER NODES --------------------------*/
+/*
 .label{
     -fx-text-fill: white;
 }
@@ -135,6 +151,8 @@
 
     -fx-text-fill: -fx-button-text-fill-color;
 }
+*/
+/*
 .list-cell:filled:selected:focused, .list-cell:filled:selected {
     -fx-background-color: -fx-table-row-cell-selected-background-color;
     background-color: -fx-table-row-cell-selected-background-color;
@@ -159,9 +177,11 @@
     /* background color of unselected checkbox 
     -fx-background-color: box-color;
     background-color: box-color;
-    */
+    
 }
+*/
 /*ID*/
+/*
 #lbStatus{
     -fx-border-style: solid solid solid solid;
     border-style: solid solid solid solid;
@@ -170,8 +190,10 @@
     -fx-border-color: -fx-boreders-color;
     border-color: -fx-boreders-color;
 }
+
 #btnCloseStatus{
     -fx-background-color: #9c2f27;
     background-color: #9c2f27;
     -fx-text-fill: white;
 }
+*/

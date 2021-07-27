@@ -1,16 +1,2 @@
 
-.root{
-    -fx-background-color: #100c49;
-    background-color: #100c49;
-}
 
-.button{
-    -fx-background-color: #2115c3;
-    background-color: #2115c3;
-
-    -fx-text-fill: rgb(241, 239, 239);
-}
-
-.cbRemember{
-    -fx-text-fill:rgb(241, 239, 239);
-}

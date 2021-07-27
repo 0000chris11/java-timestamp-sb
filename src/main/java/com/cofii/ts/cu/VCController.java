@@ -313,13 +313,17 @@ public class VCController implements Initializable {
         }
     }
 
+    private String getImageC(){
+        int[] indexs = {-1};
+        boolean imageCIndexMatch = btnsImageC.stream().anyMatch(btn -> {
+            indexs[0]++; 
+            return btn.isSelected(); 
+        });
+        return imageCIndexMatch ? ColumnS.getInstance().getColumn(indexs[0]) : "NONE";
+    }
     // MASTER CONTROL---------------------------------------------
     private void createControl() {
         createHelpPopupReset();
-        System.out.println("extraPKOK: " + extraPKOK);
-        System.out.println("extraFKOK: " + extraFKOK);
-        System.out.println("extraDefaultOK: " + extraDefaultOK);
-        System.out.println("distExtraOK: " + distExtraOK);
         boolean allOk = tableOK && columnSNOK && columnBWOK && typeSelectionMatch && typeLengthOK && fkSelectionMatch
                 && defaultBW && defaultOK && extraPKOK && extraFKOK && extraDefaultOK && distExtraOK && imageCPathOk;
 
@@ -406,7 +410,6 @@ public class VCController implements Initializable {
                     ResultSet rs = ms.selectRow(MSQL.TABLE_NAMES, "Name", newTable.replace("_", " "));
                     Table ctable = null;
                     while (rs.next()) {
-                        System.out.println("TEST HAPPEN");
                         ctable = new Table(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getString(4),
                                 rs.getString(5));
                     }
@@ -783,7 +786,7 @@ public class VCController implements Initializable {
         // ADD DIST---------------------
         boolean addDist = true;
         if (btnsDist.get(index).isSelected()) {
-            String dist = Custom.getOldDist(currentRowLength, btnsDist.toArray(new ToggleButton[btnsDist.size()]));
+            String dist = getImageC();
             addDist = ms.updateRow(MSQL.TABLE_NAMES, "Name", table.replace("_", " "), "Dist1", dist);
         }
 
@@ -1926,7 +1929,7 @@ public class VCController implements Initializable {
         int extra = 0;
         // RIGHT-------------------
         String dist = Custom.getOldDist(currentRowLength, btnsDist.toArray(new ToggleButton[btnsDist.size()]));
-        String imageC = Custom.getOldImageC(currentRowLength, btnsImageC.toArray(new ToggleButton[btnsImageC.size()]));
+        String imageC = getImageC();
         String imageCPath = Custom.getImageCPath(currentRowLength, tfImageCPath.getText(),
                 btnsImageC.toArray(new ToggleButton[btnsImageC.size()]));
         // ADDING VALUES -------------------------------------------------
@@ -2285,7 +2288,7 @@ public class VCController implements Initializable {
 
     // INIT ---------------------------------------------
     private void fkReferencesInit() {
-        System.out.println("\n#####TEST FOR fkReferencesInit####");
+        //System.out.println("\n#####TEST FOR fkReferencesInit####");
         // Key[] row = keys.getRowPrimaryKeys();
         List<String> list = new ArrayList<>();
         List<PK> pksList = pks.getPksList();
@@ -2297,17 +2300,7 @@ public class VCController implements Initializable {
             // String column = row[a].getColumnName();
             StringBuilder sb = new StringBuilder(databaseName).append(".").append(tableName).append(" (");
             columnsNames.forEach(is -> sb.append(is.string).append(","));
-            /*
-             * long count = fksList.stream().filter(fk ->
-             * fk.getReferencedDatabase().equalsIgnoreCase(databaseName) &&
-             * fk.getReferencedTable().equalsIgnoreCase(tableName)).count();
-             * System.out.println("count: " + count); fksList.stream().filter(fk ->
-             * fk.getReferencedDatabase().equalsIgnoreCase(databaseName) &&
-             * fk.getReferencedTable().equalsIgnoreCase(tableName)).forEach(fk -> { // SHOUL
-             * BE ONE System.out.println("databaseName: " + databaseName);
-             * System.out.println("tableName: " + tableName);
-             * fk.getReferencedColumns().forEach(s -> { sb.append(s).append(","); }); });
-             */
+
             sb.deleteCharAt(sb.length() - 1);// TEST
             sb.append(")");
             list.add(sb.toString());
