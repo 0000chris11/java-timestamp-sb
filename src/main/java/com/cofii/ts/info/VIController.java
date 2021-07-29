@@ -1,18 +1,16 @@
 package com.cofii.ts.info;
 
 import java.net.URL;
-import java.util.Arrays;
 import java.util.ResourceBundle;
 
 import com.cofii.ts.other.CSS;
 import com.cofii.ts.other.NonCSS;
 import com.cofii.ts.sql.MSQL;
-import com.cofii.ts.store.ColumnDS;
-import com.cofii.ts.store.ColumnS;
 import com.cofii.ts.store.FK;
 import com.cofii.ts.store.FKS;
 import com.cofii.ts.store.PK;
 import com.cofii.ts.store.PKS;
+import com.cofii.ts.store.Table;
 
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -49,8 +47,8 @@ public class VIController implements Initializable {
     @FXML
     private GridPane gridPaneRight;
     // --------------------------------------
-    private ColumnS columns = ColumnS.getInstance();
-    private ColumnDS columnsd = ColumnDS.getInstance();
+    //private ColumnS columns = ColumnS.getInstance();
+    //private ColumnDS columnsd = ColumnDS.getInstance();
     private PKS pks = PKS.getInstance();
     private FKS fks = FKS.getInstance();
 
@@ -98,17 +96,18 @@ public class VIController implements Initializable {
     }
 
     private void nonFXMLNodeSet() {
-        int length = columns.size();
+        Table table = MSQL.getCurrentTable();
+        int length = table.getColumns().size();
         for (int a = 0; a < length; a++) {
-            String column = columns.getColumn(a);
-            String type = columns.getType(a);
-            int typeLength = columns.getTypeLength(a);
-            boolean nulll = columns.getNull(a);
-            String defaultt = columns.getDefault(a);
-            String extra = columns.getExtraAsString(a);
+            String column = table.getColumns().get(a).getName();
+            String type = table.getColumns().get(a).getType();
+            int typeLength = table.getColumns().get(a).getTypeLength();
+            boolean nulll = table.getColumns().get(a).getNulll();
+            String defaultt = table.getColumns().get(a).getDefaultt();
+            String extra = table.getColumns().get(a).getExtra() ? "Yes" : "No";
 
-            String dist = columnsd.getDist(a);
-            String imageC = columnsd.getImageC(a);
+            String dist = table.getColumns().get(a).getDist() ? "Yes" : "No";
+            String imageC = table.getColumns().get(a).getImageC() ? "Yes" : "No";
 
             lbColumns[a].setText(column);
             lbTypes[a].setText(type);
@@ -137,7 +136,7 @@ public class VIController implements Initializable {
             }
 
             if (imageC.equals("Yes")) {
-                lbImageC[a].setText(imageC + "\n" + columnsd.getImageCPaths()[a]);
+                lbImageC[a].setText(imageC + "\n" + table.getImageCPath());
             } else {
                 lbImageC[a].setText("No");
             }

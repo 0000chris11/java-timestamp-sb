@@ -1,9 +1,7 @@
 package com.cofii.ts.first;
 
-import javafx.beans.property.StringProperty;
 import java.io.File;
 import java.net.URL;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -18,34 +16,25 @@ import com.cofii.ts.other.GetNodesValuesImpl;
 import com.cofii.ts.other.GetRowSelectedImpl;
 import com.cofii.ts.other.MultipleValuesSelectedImpl;
 import com.cofii.ts.other.NonCSS;
-import com.cofii.ts.other.Timers;
 import com.cofii.ts.sql.MSQL;
 import com.cofii.ts.sql.querys.SelectData;
-import com.cofii.ts.store.ColumnDS;
-import com.cofii.ts.store.ColumnS;
+import com.cofii.ts.store.Table;
 import com.cofii2.components.javafx.LabelStatus;
-import com.cofii2.components.javafx.TextFieldAutoC;
 import com.cofii2.components.javafx.popup.PopupAutoC;
 import com.cofii2.methods.MString;
 import com.cofii2.mysql.MSQLP;
 import com.cofii2.stores.CC;
 
-import org.controlsfx.control.textfield.AutoCompletionBinding;
-import org.controlsfx.control.textfield.TextFields;
-import org.controlsfx.control.textfield.AutoCompletionBinding.AutoCompletionEvent;
-
+import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
-import javafx.collections.ObservableList;
 import javafx.collections.ListChangeListener.Change;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
-import javafx.geometry.Orientation;
-import javafx.geometry.Pos;
 import javafx.geometry.VPos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -53,30 +42,23 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
-import javafx.scene.control.PopupControl;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.SplitPane;
+import javafx.scene.control.TableColumn.CellEditEvent;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
-import javafx.scene.control.TableColumn.CellEditEvent;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
-import javafx.scene.paint.Paint;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
 import javafx.util.Duration;
-import javafx.util.StringConverter;
 
 public class VFController implements Initializable {
 
@@ -138,15 +120,15 @@ public class VFController implements Initializable {
     private Button btnAdd;
 
     @FXML
-    private TableView<ObservableList<Object>> table;
+    private TableView<ObservableList<Object>> tableView;
     private ObservableList<ObservableList<Object>> tableData;
 
     private ImageView[] ivImageC = new ImageView[MSQL.MAX_IMAGES];
     public static final String NO_IMAGE = "ImageC is set to NONE";
     private Label lbImageC = new Label(NO_IMAGE);
 
-    private ColumnS columns = ColumnS.getInstance();
-    private ColumnDS columnds = ColumnDS.getInstance();
+    //private ColumnS columns = ColumnS.getInstance();
+    //private ColumnDS columnds = ColumnDS.getInstance();
     private Object[] rowData;// DELETE
     private Object[] selectedRow;
     private MSQLP ms;
@@ -223,7 +205,9 @@ public class VFController implements Initializable {
 
     // TABLE------------------------------------
     private <T> void tableRowSelected(ObservableValue<? extends T> observable, T oldValue, T newValue) {
-        ObservableList<ObservableList<Object>> list = table.getSelectionModel().getSelectedItems();
+        Table table = MSQL.getCurrentTable();
+
+        ObservableList<ObservableList<Object>> list = tableView.getSelectionModel().getSelectedItems();
         if (list.size() == 1) {// ONE ROW SELECTED
             rowData = new Object[list.get(0).size()];
             selectedRow = list.get(0).toArray();
@@ -233,7 +217,7 @@ public class VFController implements Initializable {
             if (!MSQL.getCurrentTable().getImageC().equals("NONE")) {
                 String imageCPath = MSQL.getCurrentTable().getImageCPath();
                 if (new File(imageCPath).exists()) {
-                    int imageCIndex = columns.getColumnIndex(MSQL.getCurrentTable().getImageC());
+                    int imageCIndex = table.getColumnIndex(MSQL.getCurrentTable().getImageC());
                     String itemSelected = list.get(0).get(imageCIndex).toString();
                     // System.out.println("itemSelected: " + itemSelected);
                     String formattedSelectedText = MString.getCustomFormattedString(itemSelected);
@@ -265,7 +249,6 @@ public class VFController implements Initializable {
                         final boolean[] isDirectory = { false };
                         final boolean[] isFile = { false };
                         itemsMatch.forEach(e -> {
-                            // ivImageC[imageCounter].setFitHeight(hbImages.getHeight());
                             String filePath = itemsMatch.get(imageCounter[0]);
                             File toShow = new File(filePath);
                             if (toShow.isFile() && !isDirectory[0]) {
@@ -279,12 +262,6 @@ public class VFController implements Initializable {
                                 isDirectory[0] = true;
                             }
                         });
-                        // Children: duplicate children
-                        /*
-                         * hbImages.getChildren().addAll(Arrays.asList(ivImageC).stream().filter(e ->
-                         * e.getImage() != null) .collect(Collectors.toList()));
-                         */
-                        // System.out.println("IMAGE-COUNTER: " + imageCounter[0]);
                         for (int a = 0; a < imageCounter[0]; a++) {
                             hbImages.getChildren().add(ivImageC[a]);
                         }
@@ -299,7 +276,7 @@ public class VFController implements Initializable {
             btnDelete.setDisable(false);
             btnUpdate.setDisable(false);
         } else if (list.size() > 1) {
-            forEachAction(columns.size(), new MultipleValuesSelectedImpl());
+            forEachAction(table.getColumns().size(), new MultipleValuesSelectedImpl());
             btnDelete.setDisable(true);
             btnUpdate.setDisable(true);
 
@@ -321,6 +298,7 @@ public class VFController implements Initializable {
     }
 
     public void tableCellEdit(CellEditEvent<ObservableList<Object>, Object> t) {
+        Table table = MSQL.getCurrentTable();
         System.out.println("OLD Value: " + t.getOldValue().toString());
         System.out.println("NEW Value: " + t.getNewValue().toString());
 
@@ -329,7 +307,7 @@ public class VFController implements Initializable {
         if (!newValue.toString().equals(oldValue.toString())) {
             String tableName = MSQL.getCurrentTable().getName().replace(" ", "_");
             int colIndex = t.getTablePosition().getColumn();
-            String columnName = columns.getColumn(colIndex);
+            String columnName = table.getColumns().get(colIndex).getName();
 
             boolean returnValue = ms.updateRow(tableName, selectedRow, columnName, newValue);
             if (returnValue) {
@@ -431,7 +409,7 @@ public class VFController implements Initializable {
 
         splitLeft.setDividerPositions(1.0);
 
-        table.getColumns().clear();
+        tableView.getColumns().clear();
 
         btnDelete.setDisable(true);
         btnUpdate.setDisable(true);
@@ -516,8 +494,8 @@ public class VFController implements Initializable {
             cbElements.add(new ArrayList<>());
         }
         // LISTENERS
-        table.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-        table.getSelectionModel().selectedItemProperty().addListener(this::tableRowSelected);
+        tableView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+        tableView.getSelectionModel().selectedItemProperty().addListener(this::tableRowSelected);
 
         // STATUS
         lbStatus.setStyle(CSS.LB_STATUS);
@@ -613,11 +591,11 @@ public class VFController implements Initializable {
     }
 
     public TableView<ObservableList<Object>> getTable() {
-        return table;
+        return tableView;
     }
 
     public void setTable(TableView<ObservableList<Object>> table) {
-        this.table = table;
+        this.tableView = table;
     }
 
     public MSQLP getMs() {

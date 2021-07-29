@@ -3,7 +3,6 @@ package com.cofii.ts.first;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import com.cofii.ts.cu.VC;
 import com.cofii.ts.info.VI;
@@ -13,31 +12,23 @@ import com.cofii.ts.other.NonCSS;
 import com.cofii.ts.other.Timers;
 import com.cofii.ts.sql.MSQL;
 import com.cofii.ts.sql.querys.SelectData;
-import com.cofii.ts.sql.querys.SelectDistinct;
 import com.cofii.ts.sql.querys.SelectTableNames;
 import com.cofii.ts.sql.querys.ShowColumns;
-import com.cofii.ts.store.ColumnDS;
-import com.cofii.ts.store.ColumnS;
 import com.cofii.ts.store.FK;
 import com.cofii.ts.store.FKS;
 import com.cofii.ts.store.PK;
 import com.cofii.ts.store.PKS;
+import com.cofii.ts.store.Table;
 import com.cofii.ts.store.TableS;
 import com.cofii2.components.javafx.TrueFalseWindow;
 import com.cofii2.mysql.MSQLP;
 import com.cofii2.stores.CC;
 
-import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
-import javafx.geometry.Insets;
-import javafx.geometry.VPos;
 import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
-import javafx.scene.control.ToggleButton;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Priority;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
 
@@ -58,7 +49,7 @@ public class Menus {
     // ---------------------------------------------------
     private static VFController vf;
     private TableS tables = TableS.getInstance();
-    private ColumnDS columnds = ColumnDS.getInstance();
+    //private ColumnDS columnds = ColumnDS.getInstance();
     private Dist dist = Dist.getInstance(vf);
     private PKS pks = PKS.getInstance();
     private FKS fks = FKS.getInstance();
@@ -80,17 +71,19 @@ public class Menus {
 
     public void selectionForEachTable(ActionEvent e) {
         System.out.println(CC.CYAN + "\nCHANGE TABLE" + CC.RESET);
-        MenuItem mi = (MenuItem) e.getSource();
-        String table = mi.getText();
-        System.out.println("\ttable: " + table);
+        Table table = MSQL.getCurrentTable();
 
-        vf.getLbTable().setText(table);
+        MenuItem mi = (MenuItem) e.getSource();
+        String tableName = mi.getText();
+        System.out.println("\ttable: " + tableName);
+
+        vf.getLbTable().setText(tableName);
         // RESET NODES ---------------------------------
         for (int a = 0; a < MSQL.MAX_COLUMNS; a++) {
             if (vf.getLbs()[a].isVisible()) {
                 vf.getLbs()[a].setVisible(false);
 
-                if (columnds.getDist(a).equals("Yes") || fks.getYesAndNoFKS()[a].equals("Yes")) {// RESETING DIST
+                if (Boolean.TRUE.equals(table.getColumnDists().get(a)) || fks.getYesAndNoFKS()[a].equals("Yes")) {// RESETING DIST
                     vf.getTfsAutoC().get(a).setTfParent(null);
                     vf.getTfs()[a].setStyle(CSS.TFS_DEFAULT_LOOK);
                 }
@@ -107,15 +100,15 @@ public class Menus {
         vf.getBtnFind().setDisable(false);
         vf.getBtnAdd().setDisable(false);
         // SELECT -------------------------------------
-        String tableA = table.replace(" ", "_");
-        vf.getMs().selectDataWhere(MSQL.TABLE_NAMES, "name", table, new SelectTableNames(true));
+        String tableA = tableName.replace(" ", "_");
+        vf.getMs().selectDataWhere(MSQL.TABLE_NAMES, "name", tableName, new SelectTableNames(true));
         vf.getMs().selectColumns(tableA, new ShowColumns(vf));
         resetKeys();
         System.out.println("\tMSQL's table: " + MSQL.getCurrentTable().getId() + " - "
                 + MSQL.getCurrentTable().getName() + " - " + MSQL.getCurrentTable().getDist());
 
         dist.distStart();
-        vf.getMs().selectData(tableA, new SelectData(vf, SelectData.MESSGE_TABLE_CHANGE + table));
+        vf.getMs().selectData(tableA, new SelectData(vf, SelectData.MESSGE_TABLE_CHANGE + tableName));
     }
 
     // DELETE---------------------------------------------------

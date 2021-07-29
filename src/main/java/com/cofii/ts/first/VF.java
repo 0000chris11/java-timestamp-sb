@@ -1,48 +1,29 @@
 package com.cofii.ts.first;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 import com.cofii.ts.cu.VCController;
 import com.cofii.ts.login.VLController;
-import com.cofii.ts.other.CSS;
 import com.cofii.ts.other.Dist;
 import com.cofii.ts.other.NonCSS;
 import com.cofii.ts.sql.CurrenConnection;
 import com.cofii.ts.sql.MSQL;
 import com.cofii.ts.sql.WrongPassword;
 import com.cofii.ts.sql.querys.SelectData;
-import com.cofii.ts.sql.querys.SelectDistinct;
 import com.cofii.ts.sql.querys.SelectKeys;
 import com.cofii.ts.sql.querys.SelectTableDefault;
-import com.cofii.ts.sql.querys.SelectTableNames;
 import com.cofii.ts.sql.querys.ShowColumns;
 import com.cofii.ts.sql.querys.ShowTableCurrentDB;
-import com.cofii.ts.store.ColumnD;
-import com.cofii.ts.store.ColumnDS;
-import com.cofii.ts.store.ColumnS;
 import com.cofii.ts.store.TableS;
+import com.cofii2.components.javafx.SceneZoom;
 import com.cofii2.mysql.MSQLP;
 
 import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.SimpleDoubleProperty;
-import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Group;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.TableColumn;
-import javafx.scene.input.KeyCode;
 import javafx.stage.Stage;
-
-import com.cofii2.components.javafx.SceneZoom;
-import com.cofii2.components.javafx.ZoomingPane;
 
 public class VF {
 
@@ -55,8 +36,8 @@ public class VF {
 
     private TableS tables = TableS.getInstance();
     private Menus menus;
-    private static ColumnS columns = ColumnS.getInstance();
-    private static ColumnDS columnsd = ColumnDS.getInstance();
+    //private static ColumnS columns = ColumnS.getInstance();
+    //private static ColumnDS columnsd = ColumnDS.getInstance();
     private Dist dist;
 
     private DoubleProperty scaleVF = new SimpleDoubleProperty(1.0);
@@ -66,14 +47,22 @@ public class VF {
     // -----------------------------------------
     private void stageMaximizedPropertyChange(boolean newValue) {
         if (newValue) {
+            /*
             if (Arrays.asList(columnsd.getImageCS()).stream().allMatch(s -> s.equals("No"))) {
+                vf.getSplitLeft().setDividerPositions(1.0);
+            }*/
+            if (MSQL.getCurrentTable().getImageC().equals("NONE")) {
                 vf.getSplitLeft().setDividerPositions(1.0);
             }
         }
     }
 
     private void heightPropertyChangeListener() {
+        /*
         if (Arrays.asList(columnsd.getImageCS()).stream().allMatch(s -> s.equals("No"))) {
+            vf.getSplitLeft().setDividerPositions(1.0);
+        }*/
+        if (MSQL.getCurrentTable().getImageC().equals("NONE")) {
             vf.getSplitLeft().setDividerPositions(1.0);
         }
     }

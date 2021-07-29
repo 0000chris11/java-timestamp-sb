@@ -1,19 +1,14 @@
 package com.cofii.ts.other;
 
 import java.io.File;
-import java.io.FilenameFilter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import com.cofii.ts.first.VFController;
 import com.cofii.ts.sql.MSQL;
 import com.cofii.ts.sql.querys.SelectDistinct;
-import com.cofii.ts.store.ColumnD;
-import com.cofii.ts.store.ColumnDS;
-import com.cofii.ts.store.ColumnS;
+import com.cofii.ts.store.Table;
 import com.cofii2.methods.MString;
 import com.cofii2.mysql.MSQLP;
 
@@ -23,8 +18,8 @@ import javafx.scene.layout.GridPane;
 public class Dist {
 
     private static VFController vf;
-    private ColumnS columns = ColumnS.getInstance();
-    private ColumnDS columnsd = ColumnDS.getInstance();
+    //private ColumnS columns = ColumnS.getInstance();
+    //private ColumnDS columnsd = ColumnDS.getInstance();
     // private Keys keys = Keys.getInstance();
 
     private List<String> imageCFiles = new ArrayList<>();
@@ -33,6 +28,7 @@ public class Dist {
 
     // -----------------------------------------------------
     private void dist() {
+        Table table = MSQL.getCurrentTable();
         String dist = MSQL.getCurrentTable().getDist();
         if (!dist.equals("NONE")) {
             String[] split = dist.split(",");
@@ -43,22 +39,24 @@ public class Dist {
 
             GridPane gp = vf.getGridPane();
             for (int a = 0; a < split.length; a++) {
-                int c = columns.getColumnIndex(split[a].replace("_", " "));
+                int c = table.getColumnIndex(split[a].replace("_", " "));
                 if (vf.getTfsFKList().get(c).isEmpty()) {// NOT IF THIS COLUMN HAS FK
                     vf.getTfsAutoC().get(c).setTfParent(vf.getTfs()[c]);
                     vf.getTfs()[c].setStyle(CSS.TFS_DIST_LOOK);
 
-                    if (columns.getExtraAsString(c).equals("auto_increment")) {
+                    if (table.getColumns().get(c).getExtra()) {
                         vf.getTfs()[c].setPromptText("AUTO_INCREMENT");
                     }
 
-                    columnsd.getList().get(c).setDist("Yes");
+                    //???????????????????????
+                    //columnsd.getList().get(c).setDist("Yes");
+                    table.getColumns().get(c).setDist(true);
                     // QUERY --------------------------------------------------
-                    String table = MSQL.getCurrentTable().getName().replace(" ", "_");
-                    String column = columns.getColumn(c);
+                    String tableName = MSQL.getCurrentTable().getName().replace(" ", "_");
+                    String column = table.getColumns().get(c).getName();
 
                     ms.setDistinctOrder(MSQLP.MOST_USE_ORDER);// WORK 50 50 WITH TAGS
-                    ms.selectDistinctColumn(table, column.replace(" ", "_"), new SelectDistinct(vf, c));
+                    ms.selectDistinctColumn(tableName, column.replace(" ", "_"), new SelectDistinct(vf, c));
                 }
 
                 gp.getRowConstraints().get(4).setMaxHeight(Short.MAX_VALUE);
@@ -67,13 +65,16 @@ public class Dist {
     }
 
     private void imageC() {
-        String imageC = MSQL.getCurrentTable().getImageC();
-        String imageCPath = MSQL.getCurrentTable().getImageCPath();
+        Table table = MSQL.getCurrentTable();
+        String imageC = table.getImageC();
+        String imageCPath = table.getImageCPath();
 
         if (!imageCPath.equals("NONE")) {
-            int index = columns.getColumnIndex(imageC);
-            columnsd.getList().get(index).setImageC("Yes");
-            columnsd.getList().get(index).setImageCPath(imageCPath);
+            int index = table.getColumnIndex(imageC);
+            //columnsd.getList().get(index).setImageC("Yes");
+            table.getColumns().get(index).setImageC(true);
+            table.setImageCPath(imageCPath);
+            //columnsd.getList().get(index).setImageCPath(imageCPath);
 
             vf.getSplitLeft().setDividerPositions(0.6);
             File imageCDirectory = new File(imageCPath);
@@ -102,9 +103,10 @@ public class Dist {
     }
 
     public void distStart() {
-        columnsd.clear();
-        for (int a = 0; a < columns.size(); a++) {
-            columnsd.addColumnD(new ColumnD());
+        Table table = MSQL.getCurrentTable();
+        //columnsd.clear();
+        for (int a = 0; a < table.getColumns().size(); a++) {
+            //columnsd.addColumnD(new ColumnD());
         }
 
         dist();
@@ -112,13 +114,14 @@ public class Dist {
     }
 
     public void distAction() {
-        for (int a = 0; a < columnsd.size(); a++) {
-            String dist = columnsd.getDist(a);
-            if (dist.equals("Yes")) {
-                String table = MSQL.getCurrentTable().getName().replace(" ", "_");
-                String column = columns.getColumn(a);
+        Table table = MSQL.getCurrentTable();
+        
+        for (int a = 0; a < table.getColumns().size(); a++) {
+            if (table.getColumns().get(a).getDist()){
+                String tableName = MSQL.getCurrentTable().getName().replace(" ", "_");
+                String column = table.getColumns().get(a).getName();
                 ms.setDistinctOrder(MSQLP.MOST_USE_ORDER);// WORK 50 50 WITH TAGS
-                ms.selectDistinctColumn(table, column, new SelectDistinct(vf, a));
+                ms.selectDistinctColumn(tableName, column, new SelectDistinct(vf, a));
             }
         }
     }

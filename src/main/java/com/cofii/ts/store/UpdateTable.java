@@ -24,8 +24,11 @@ public class UpdateTable {
     private List<Object> defaults = new ArrayList<>(max);
     private int extra = -1;
 
-    private List<String> dist = new ArrayList<>(max);
-    private List<String> imageC = new ArrayList<>(max);
+    private String dist = "NONE";
+    private List<Boolean> dists = new ArrayList<>(max);
+
+    private String imageC = "NONE";
+    private List<Boolean> imageCS = new ArrayList<>(max);
     private String imageCPath = "NONE";
     //private List<String> imageCPath = new ArrayList<>(max);//DELETE
     //----------------------------------------------------------------------------
@@ -95,17 +98,31 @@ public class UpdateTable {
     public void setExtra(int extra) {
         this.extra = extra;
     }
-    public List<String> getDist() {
+    //-------------------------------------------
+    public String getDist() {
         return dist;
     }
-    public void setDist(List<String> dist) {
+    public void setDist(String dist) {
         this.dist = dist;
     }
-    public List<String> getImageC() {
+    public List<Boolean> getDists() {
+        return dists;
+    }
+    public void setDists(List<Boolean> dists) {
+        this.dists = dists;
+    }
+
+    public String getImageC() {
         return imageC;
     }
-    public void setImageC(List<String> imageC) {
+    public void setImageC(String imageC) {
         this.imageC = imageC;
+    }
+    public List<Boolean> getImageCS() {
+        return imageCS;
+    }
+    public void setImageCS(List<Boolean> imageCS) {
+        this.imageCS = imageCS;
     }
     public String getImageCPath() {
         return imageCPath;
@@ -113,6 +130,5 @@ public class UpdateTable {
     public void setImageCPath(String imageCPath) {
         this.imageCPath = imageCPath;
     }
- 
     
 }

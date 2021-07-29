@@ -7,9 +7,12 @@ public class Column {
     private int typeLength;
     private boolean nulll;
     private String defaultt;
-    private String extra;
+    private boolean extra;
 
-    public Column(String name, String type, int typeLength, boolean nulll, String defaultt, String extra) {
+    private boolean dist;
+    private boolean imageC;
+
+    public Column(String name, String type, int typeLength, boolean nulll, String defaultt, boolean extra) {
         this.name = name;
         this.type = type;
         this.typeLength = typeLength;
@@ -58,12 +61,28 @@ public class Column {
         this.defaultt = defaultt;
     }
 
-    public String getExtra() {
+    public boolean getExtra() {
         return extra;
     }
 
-    public void setExtra(String extra) {
+    public void setExtra(boolean extra) {
         this.extra = extra;
+    }
+
+    public boolean getDist() {
+        return dist;
+    }
+
+    public void setDist(boolean dist) {
+        this.dist = dist;
+    }
+
+    public boolean getImageC() {
+        return imageC;
+    }
+
+    public void setImageC(boolean imageC) {
+        this.imageC = imageC;
     }
     
 }
