@@ -1,4 +1,4 @@
-package com.cofii.ts.store;
+package com.cofii.ts.store.main;
 
 public class Column {
     

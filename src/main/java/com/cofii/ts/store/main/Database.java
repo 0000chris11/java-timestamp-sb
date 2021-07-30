@@ -1,14 +1,14 @@
-package com.cofii.ts.store;
+package com.cofii.ts.store.main;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class TableS {
+public class Database {
 
-    private static TableS instance;
-    public static TableS getInstance(){
+    private static Database instance;
+    public static Database getInstance(){
         if(instance == null){
-            instance = new TableS();
+            instance = new Database();
         }
         return instance;
     }
@@ -39,7 +39,7 @@ public class TableS {
         return list.toArray(new String[list.size()]);
     }
     //------------------------------------------
-    private TableS(){
+    private Database(){
 
     }
 }

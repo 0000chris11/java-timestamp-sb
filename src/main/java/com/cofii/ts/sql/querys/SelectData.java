@@ -7,7 +7,7 @@ import com.cofii.ts.first.VFController;
 import com.cofii.ts.other.NonCSS;
 import com.cofii.ts.other.Timers;
 import com.cofii.ts.sql.MSQL;
-import com.cofii.ts.store.ColumnS;
+import com.cofii.ts.store.main.Table;
 import com.cofii2.myInterfaces.IActions;
 
 import javafx.collections.FXCollections;
@@ -26,9 +26,8 @@ public class SelectData implements IActions {
     public static final String MESSAGE_UPDATED_ROW = "Row updated in ";
     // --------------------------------------------------
     private VFController vf;
+    private Table table = MSQL.getCurrentTable();
     private String message;
-
-    private ColumnS columns = ColumnS.getInstance();
 
     private int columnCount;
     private ObservableList<ObservableList<Object>> data = FXCollections.observableArrayList();
@@ -48,9 +47,9 @@ public class SelectData implements IActions {
     public void setData(ResultSet rs, int rowN) throws SQLException {
         ObservableList<Object> row = FXCollections.observableArrayList();
         for (int a = 0; a < columnCount; a++) {
-            if (columns.getType(a).contains("CHAR")) {
+            if (table.getColumns().get(a).getType().contains("CHAR")) {
                 row.add(rs.getString((a + 1)));
-            } else if (columns.getType(a).contains("INT")) {
+            } else if (table.getColumns().get(a).getType().contains("INT")) {
                 row.add(rs.getInt((a + 1)));
             }
 

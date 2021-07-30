@@ -49,7 +49,7 @@ public class Keys {
     }
 
     public String[] getPKS(){
-        String[] pks = new String[ColumnS.getInstance().size()];
+        String[] pks = new String[MSQL.getCurrentTable().getColumns().size()];
         Arrays.fill(pks, "No");
 
         Key[] currentKeys = getCurrentTableKeys();
@@ -64,7 +64,7 @@ public class Keys {
     }
     
     public QString[] getFKS(){
-        QString[] fks = new QString[ColumnS.getInstance().size()];
+        QString[] fks = new QString[MSQL.getCurrentTable().getColumns().size()];
         //NULL FILL
 
         Key[] currentKeys = getCurrentTableKeys();
@@ -85,7 +85,7 @@ public class Keys {
     }
     
     public IntDString[] getFKSWithIndex(){
-        IntDString[] fks = new IntDString[ColumnS.getInstance().size()];
+        IntDString[] fks = new IntDString[MSQL.getCurrentTable().getColumns().size()];
         //NULL FILL
 
         Key[] currentKeys = getCurrentTableKeys();

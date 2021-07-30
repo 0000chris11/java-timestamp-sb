@@ -8,9 +8,9 @@ import java.util.List;
 import com.cofii.ts.first.VFController;
 import com.cofii.ts.other.NonCSS;
 import com.cofii.ts.sql.MSQL;
-import com.cofii.ts.store.Column;
-import com.cofii.ts.store.ColumnS;
 import com.cofii.ts.store.SQLTypes;
+import com.cofii.ts.store.main.Column;
+import com.cofii.ts.store.main.Table;
 import com.cofii2.myInterfaces.IActions;
 
 import javafx.beans.property.ReadOnlyObjectWrapper;
@@ -27,7 +27,8 @@ public class ShowColumns implements IActions {
 
     private int rows;
     private VFController vf;
-    private ColumnS columns = ColumnS.getInstance();
+    private Table table = MSQL.getCurrentTable();
+    //private ColumnS columns = ColumnS.getInstance();
     private SQLTypes types = SQLTypes.getInstance();
 
     public ShowColumns(VFController vf) {
@@ -39,7 +40,8 @@ public class ShowColumns implements IActions {
         Arrays.asList(vf.getLbs()).forEach(e -> e.getChildren().clear());
 
         vf.getTable().getColumns().clear();
-        columns.clearColumn();
+        //columns.clearColumn();
+        table.getColumns().clear();
     }
 
     @Override
@@ -48,7 +50,7 @@ public class ShowColumns implements IActions {
         String typeHole = rs.getString(2).toUpperCase();
         String nulll = rs.getString(3);
         String defaultt = rs.getString(5) == null ? null : rs.getString(5);
-        String extra = rs.getString(6);
+        boolean extra = rs.getString(6).equals("auto_increment");
         //TYPE & TYPE-LENGTH------------------------------------
         String type = typeHole;
         int typeLength = -1;
@@ -71,14 +73,12 @@ public class ShowColumns implements IActions {
         }
         //DEFAULT------------------------------------
         vf.getTfs()[row - 1].setPromptText(defaultt);
-        //EXTRA---------------------------------------------
-        extra = extra.equals("auto_increment") ? "Yes":"No";
         //NODES VISIBILITY ----------------------------------------------
         Text textColumnName = new Text(columnName);
         textColumnName.setFill(NonCSS.TEXT_FILL);
         vf.getLbs()[row - 1].getChildren().add(textColumnName);
         vf.getLbs()[row - 1].setVisible(true);
-        if(extra.equals("Yes")){
+        if(extra){
             vf.getTfs()[row - 1].setPromptText("AUTO_INCREMENT");
         }else if(defaultt == null || defaultt.isEmpty()){
             vf.getTfs()[row - 1].setPromptText(null);
@@ -86,7 +86,8 @@ public class ShowColumns implements IActions {
         vf.getTfs()[row - 1].setVisible(true);
         vf.getBtns()[row - 1].setVisible(true);
         //---------------------------------------------
-        columns.addColumn(new Column(columnName, type, typeLength, nullValue, defaultt, extra));
+        //columns.addColumn(new Column(columnName, type, typeLength, nullValue, defaultt, extra));
+        table.getColumns().add(new Column(columnName, type, typeLength, nullValue, defaultt, extra));
         //---------------------------------------------
         rows = row;
         //ADDING COLUMNS-------------------------------

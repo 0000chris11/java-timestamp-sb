@@ -4,8 +4,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import com.cofii.ts.sql.MSQL;
-import com.cofii.ts.store.Table;
-import com.cofii.ts.store.TableS;
+import com.cofii.ts.store.main.Database;
+import com.cofii.ts.store.main.Table;
 import com.cofii2.myInterfaces.IActions;
 
 /**
@@ -13,7 +13,7 @@ import com.cofii2.myInterfaces.IActions;
  */
 public class SelectTableNames implements IActions {
 
-    private TableS tables = TableS.getInstance();
+    private Database tables = Database.getInstance();
     private boolean selectTable;
 
     public SelectTableNames(boolean selectTable) {

@@ -15,7 +15,7 @@ import com.cofii.ts.sql.querys.SelectKeys;
 import com.cofii.ts.sql.querys.SelectTableDefault;
 import com.cofii.ts.sql.querys.ShowColumns;
 import com.cofii.ts.sql.querys.ShowTableCurrentDB;
-import com.cofii.ts.store.TableS;
+import com.cofii.ts.store.main.Database;
 import com.cofii2.components.javafx.SceneZoom;
 import com.cofii2.mysql.MSQLP;
 
@@ -34,10 +34,10 @@ public class VF {
     private Stage stage = new Stage();
     private static MSQLP ms;
 
-    private TableS tables = TableS.getInstance();
+    private Database tables = Database.getInstance();
     private Menus menus;
-    //private static ColumnS columns = ColumnS.getInstance();
-    //private static ColumnDS columnsd = ColumnDS.getInstance();
+    // private static ColumnS columns = ColumnS.getInstance();
+    // private static ColumnDS columnsd = ColumnDS.getInstance();
     private Dist dist;
 
     private DoubleProperty scaleVF = new SimpleDoubleProperty(1.0);
@@ -48,22 +48,26 @@ public class VF {
     private void stageMaximizedPropertyChange(boolean newValue) {
         if (newValue) {
             /*
-            if (Arrays.asList(columnsd.getImageCS()).stream().allMatch(s -> s.equals("No"))) {
-                vf.getSplitLeft().setDividerPositions(1.0);
-            }*/
-            if (MSQL.getCurrentTable().getImageC().equals("NONE")) {
-                vf.getSplitLeft().setDividerPositions(1.0);
+             * if (Arrays.asList(columnsd.getImageCS()).stream().allMatch(s ->
+             * s.equals("No"))) { vf.getSplitLeft().setDividerPositions(1.0); }
+             */
+            if (MSQL.getCurrentTable() != null) {
+                if (MSQL.getCurrentTable().getImageC().equals("NONE")) {
+                    vf.getSplitLeft().setDividerPositions(1.0);
+                }
             }
         }
     }
 
     private void heightPropertyChangeListener() {
         /*
-        if (Arrays.asList(columnsd.getImageCS()).stream().allMatch(s -> s.equals("No"))) {
-            vf.getSplitLeft().setDividerPositions(1.0);
-        }*/
-        if (MSQL.getCurrentTable().getImageC().equals("NONE")) {
-            vf.getSplitLeft().setDividerPositions(1.0);
+         * if (Arrays.asList(columnsd.getImageCS()).stream().allMatch(s ->
+         * s.equals("No"))) { vf.getSplitLeft().setDividerPositions(1.0); }
+         */
+        if (MSQL.getCurrentTable() != null) {
+            if (MSQL.getCurrentTable().getImageC().equals("NONE")) {
+                vf.getSplitLeft().setDividerPositions(1.0);
+            }
         }
     }
 

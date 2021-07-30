@@ -18,7 +18,7 @@ import com.cofii.ts.other.MultipleValuesSelectedImpl;
 import com.cofii.ts.other.NonCSS;
 import com.cofii.ts.sql.MSQL;
 import com.cofii.ts.sql.querys.SelectData;
-import com.cofii.ts.store.Table;
+import com.cofii.ts.store.main.Table;
 import com.cofii2.components.javafx.LabelStatus;
 import com.cofii2.components.javafx.popup.PopupAutoC;
 import com.cofii2.methods.MString;

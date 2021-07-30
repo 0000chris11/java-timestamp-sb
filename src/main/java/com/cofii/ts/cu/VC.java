@@ -11,8 +11,8 @@ import com.cofii.ts.sql.MSQL;
 import com.cofii.ts.store.FK;
 import com.cofii.ts.store.FKS;
 import com.cofii.ts.store.PKS;
-import com.cofii.ts.store.Table;
 import com.cofii.ts.store.UpdateTable;
+import com.cofii.ts.store.main.Table;
 import com.cofii2.components.javafx.SceneZoom;
 import com.cofii2.mysql.MSQLP;
 import com.cofii2.stores.CC;
@@ -201,12 +201,12 @@ public class VC {
         updateTable.setDefaults(defaults);
         updateTable.setExtra(extra);
 
-        updateTable.setDist(table.getDist());
+        updateTable.setDistHole(table.getDist());
         updateTable.setDists(dists);
         //updateTable.setDistYN(dists);
-        updateTable.setImageC(table.getImageC());
+        updateTable.setImageCHole(table.getImageC());
         updateTable.setImageCS(imageCS);
-        updateTable.setImageCPath(table.getImageCPath());
+        updateTable.setImageCPathHole(table.getImageCPath());
 
         updateTable.setRowLength(columnCount);
         vcc.setUpdateTable(updateTable);

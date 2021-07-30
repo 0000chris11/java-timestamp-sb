@@ -4,7 +4,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import com.cofii.ts.sql.MSQL;
-import com.cofii.ts.store.Table;
+import com.cofii.ts.store.main.Table;
 import com.cofii2.myInterfaces.IActions;
 
 public class SelectTableDefault implements IActions{

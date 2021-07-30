@@ -49,7 +49,7 @@ public class FKS {
     }
 
     public String[] getYesAndNoFKS() {
-        String[] fks = new String[ColumnS.getInstance().size()];
+        String[] fks = new String[MSQL.getCurrentTable().getColumns().size()];
         Arrays.fill(fks, "No");
         FK[] cfks = getCurrentTableFKS();
         for (int a = 0; a < cfks.length; a++) {

@@ -8,7 +8,7 @@ import java.util.List;
 import com.cofii.ts.first.VFController;
 import com.cofii.ts.sql.MSQL;
 import com.cofii.ts.sql.querys.SelectDistinct;
-import com.cofii.ts.store.Table;
+import com.cofii.ts.store.main.Table;
 import com.cofii2.methods.MString;
 import com.cofii2.mysql.MSQLP;
 

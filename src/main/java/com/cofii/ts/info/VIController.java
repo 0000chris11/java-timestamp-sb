@@ -10,7 +10,7 @@ import com.cofii.ts.store.FK;
 import com.cofii.ts.store.FKS;
 import com.cofii.ts.store.PK;
 import com.cofii.ts.store.PKS;
-import com.cofii.ts.store.Table;
+import com.cofii.ts.store.main.Table;
 
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;

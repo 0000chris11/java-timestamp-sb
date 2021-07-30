@@ -18,8 +18,8 @@ import com.cofii.ts.store.FK;
 import com.cofii.ts.store.FKS;
 import com.cofii.ts.store.PK;
 import com.cofii.ts.store.PKS;
-import com.cofii.ts.store.Table;
-import com.cofii.ts.store.TableS;
+import com.cofii.ts.store.main.Database;
+import com.cofii.ts.store.main.Table;
 import com.cofii2.components.javafx.TrueFalseWindow;
 import com.cofii2.mysql.MSQLP;
 import com.cofii2.stores.CC;
@@ -48,7 +48,7 @@ public class Menus {
     private MenuItem tableDeleteThis = new MenuItem("Delete this table");
     // ---------------------------------------------------
     private static VFController vf;
-    private TableS tables = TableS.getInstance();
+    private Database tables = Database.getInstance();
     //private ColumnDS columnds = ColumnDS.getInstance();
     private Dist dist = Dist.getInstance(vf);
     private PKS pks = PKS.getInstance();

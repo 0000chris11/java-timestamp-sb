@@ -1,4 +1,4 @@
-package com.cofii.ts.store;
+package com.cofii.ts.store.main;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,7 +10,7 @@ public class Table {
     private int id;
     private String name;
 
-    private List<Column> columns;
+    private List<Column> columns = new ArrayList<>(MSQL.MAX_COLUMNS);
     private int extra = -1;
 
     private String dist = "NONE";
@@ -20,7 +20,7 @@ public class Table {
     private String imageCPath = "NONE";
     //-------------------------------------------------
     private int max = MSQL.MAX_COLUMNS;
-    //-------------------------------------------------
+    // GETS -------------------------------------------------
     public int getColumnIndex(String columnName){
         int index = -1;
         for(int a = 0;a < columns.size(); a++){
@@ -80,7 +80,7 @@ public class Table {
         }
         return columnImageCS;
     }
-
+    //------------------------------------------------
     public void setDistYN(){
         distYN = new ArrayList<>();
     }

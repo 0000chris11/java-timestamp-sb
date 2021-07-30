@@ -37,7 +37,7 @@ public class PKS {
     }
 
     public String[] getYesAndNoPKS() {
-        String[] pks = new String[ColumnS.getInstance().size()];
+        String[] pks = new String[MSQL.getCurrentTable().getColumns().size()];
         Arrays.fill(pks, "No");
         PK[] cpks = getCurrentTablePKS();
         for (int a = 0; a < cpks.length; a++) {

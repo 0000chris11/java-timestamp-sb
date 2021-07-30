@@ -1,6 +1,6 @@
 package com.cofii.ts.sql;
 
-import com.cofii.ts.store.Table;
+import com.cofii.ts.store.main.Table;
 
 public class MSQL {
     // DBS AND TABLES
