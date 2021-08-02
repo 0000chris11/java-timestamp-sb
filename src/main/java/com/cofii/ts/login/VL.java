@@ -19,21 +19,23 @@ public class VL extends Application {
         System.out.println("START");
         FXMLLoader loader = new FXMLLoader(VL.class.getResource("/com/cofii/ts/login/VL.fxml"));
         Scene scene = new Scene(loader.load());
-        
+
         scene.getStylesheets().add(VL.class.getResource("/com/cofii/ts/first/VF.css").toExternalForm());
         stage.setScene(scene);
 
-        
-        //AFTER INIT
-        VLController controller = (VLController)loader.getController();
-        //controller.sceneKR(null);
-        //scene.setOnKeyReleased(controller::sceneKR); //FIND A SOLUTION
+        // AFTER INIT
+        VLController controller = (VLController) loader.getController();
+        // controller.sceneKR(null);
+        // scene.setOnKeyReleased(controller::sceneKR); //FIND A SOLUTION
 
         controller.setStage(stage);
-        if (!MSQL.getUser().equals("NONE")) {
-            new VF(controller);
+        String option = "";
+        if (!getParameters().getRaw().isEmpty()) {
+            option = getParameters().getRaw().get(0);
         }
-        if(controller.isShowStage()){
+        if (!MSQL.getUser().equals("NONE") && !option.equals("login")) {
+            new VF(controller);
+        } else if (controller.isShowStage() || option.equals("login")) {
             stage.show();
         }
     }

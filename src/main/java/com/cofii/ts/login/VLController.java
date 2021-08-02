@@ -11,6 +11,7 @@ import com.cofii.ts.sql.querys.SelectDefaultUser;
 import com.cofii.ts.sql.querys.ShowDatabases;
 import com.cofii.ts.sql.querys.ShowTablesRootConfig;
 import com.cofii.ts.sql.querys.ShowUsers;
+import com.cofii2.components.javafx.popup.PopupAutoC;
 import com.cofii2.methods.MList;
 import com.cofii2.mysql.DefaultConnection;
 import com.cofii2.mysql.MSQLP;
@@ -25,6 +26,7 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
+import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.HBox;
@@ -45,11 +47,13 @@ public class VLController implements Initializable {
     private Label lbDB;
 
     @FXML
-    private ComboBox<String> cbUser;
+    private TextField tfUser;
+    private PopupAutoC tfUserAC;
     @FXML
     private PasswordField tfPassword;
     @FXML
-    private ComboBox<String> cbDB;
+    private TextField tfDB;
+    private PopupAutoC tfDBAC;
 
     @FXML
     private CheckBox cbRemember;
@@ -95,11 +99,11 @@ public class VLController implements Initializable {
 
     // NON-FXML
     private void cbUserKR(KeyEvent e) {
-        String text = cbUser.getEditor().getText();
+        String text = tfUser.getText();
         if (text.isEmpty()) {
             lbUser.setTextFill(NonCSS.TEXT_FILL_ERROR);
         } else {
-            if (MList.isOnThisList(cbUser.getItems(), text, true)) {
+            if (MList.isOnThisList(tfUserAC.getLv().getItems(), text, true)) {
                 lbUser.setTextFill(NonCSS.TEXT_FILL);
             } else {
                 lbUser.setTextFill(NonCSS.TEXT_FILL_ERROR);
@@ -118,11 +122,11 @@ public class VLController implements Initializable {
 
     // NON-FXML
     private void cbDBKR(KeyEvent e) {
-        String text = cbDB.getEditor().getText();
+        String text = tfDB.getText();
         if (text.isEmpty()) {
             lbDB.setTextFill(NonCSS.TEXT_FILL_ERROR);
         } else {
-            if (MList.isOnThisList(cbDB.getItems(), text, true)) {
+            if (MList.isOnThisList(tfDBAC.getLv().getItems(), text, true)) {
                 lbDB.setTextFill(NonCSS.TEXT_FILL);
             } else {
                 lbDB.setTextFill(NonCSS.TEXT_FILL_ERROR);
@@ -141,9 +145,9 @@ public class VLController implements Initializable {
 
     @FXML
     private void btnLoginAction() {
-        String user = cbUser.getEditor().getText();
+        String user = tfUser.getText();
         String password = tfPassword.getText();
-        String database = cbDB.getEditor().getText();
+        String database = tfDB.getText();
 
         MSQL.setUser(user);
         MSQL.setPassword(password);
@@ -206,6 +210,10 @@ public class VLController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         // DO QUERYS
         if (initOption.equalsIgnoreCase("Login")) {
+            // -----------------------
+            tfUserAC = new PopupAutoC(tfUser);
+            tfDBAC = new PopupAutoC(tfDB);
+            // -----------------------
             initQuerys();
             // -----------------------
             rootQuerys();
@@ -214,10 +222,10 @@ public class VLController implements Initializable {
             lbPassword.setTextFill(NonCSS.TEXT_FILL);
             lbDB.setTextFill(NonCSS.TEXT_FILL);
 
-            cbUser.getSelectionModel().selectedItemProperty().addListener(this::cbUserSelection);
-            cbUser.getEditor().setOnKeyReleased(this::cbUserKR);
-            cbDB.getSelectionModel().selectedItemProperty().addListener(this::cbDBSelection);
-            cbDB.getEditor().setOnKeyReleased(this::cbDBKR);
+            tfUserAC.getLv().getSelectionModel().selectedItemProperty().addListener(this::cbUserSelection);
+            tfUser.setOnKeyReleased(this::cbUserKR);
+            tfDBAC.getLv().getSelectionModel().selectedItemProperty().addListener(this::cbDBSelection);
+            tfDB.setOnKeyReleased(this::cbDBKR);
 
         }
     }
@@ -255,12 +263,12 @@ public class VLController implements Initializable {
         this.lbDB = lbDB;
     }
 
-    public ComboBox<String> getCbUser() {
-        return cbUser;
+    public TextField getTfUser() {
+        return tfUser;
     }
 
-    public void setCbUser(ComboBox<String> cbUser) {
-        this.cbUser = cbUser;
+    public void setTfUser(TextField tfUser) {
+        this.tfUser = tfUser;
     }
 
     public PasswordField getTfPassword() {
@@ -271,12 +279,12 @@ public class VLController implements Initializable {
         this.tfPassword = tfPassword;
     }
 
-    public ComboBox<String> getCbDB() {
-        return cbDB;
+    public TextField getTfDB() {
+        return tfDB;
     }
 
-    public void setCbDB(ComboBox<String> cbDB) {
-        this.cbDB = cbDB;
+    public void setTfDB(TextField tfDB) {
+        this.tfDB = tfDB;
     }
 
     public CheckBox getCbRemember() {
@@ -309,6 +317,22 @@ public class VLController implements Initializable {
 
     public void setLayout(HBox layout) {
         this.layout = layout;
+    }
+
+    public PopupAutoC getTfUserAC() {
+        return tfUserAC;
+    }
+
+    public void setTfUserAC(PopupAutoC tfUserAC) {
+        this.tfUserAC = tfUserAC;
+    }
+
+    public PopupAutoC getTfDBAC() {
+        return tfDBAC;
+    }
+
+    public void setTfDBAC(PopupAutoC tfDBAC) {
+        this.tfDBAC = tfDBAC;
     }
 
 }

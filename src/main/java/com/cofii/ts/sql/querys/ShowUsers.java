@@ -10,23 +10,25 @@ import com.cofii2.myInterfaces.IActions;
 
 public class ShowUsers implements IActions{
 
-    private VLController c;
+    private VLController vlc;
 
-    public ShowUsers(VLController c){
-        this.c = c;
+    public ShowUsers(VLController vlc){
+        this.vlc = vlc;
     }
 
     @Override
     public void beforeQuery() {
-        c.getCbUser().getItems().clear();
-        
+        //vlc.getTfUser().getItems().clear();
+        vlc.getTfUserAC().clearItems();
     }
 
     @Override
     public void setData(ResultSet rs, int row) throws SQLException {
         String user = rs.getString(1);
         if(!MList.isOnThisList(MSQL.BAND_USERS, user, false)){
-            c.getCbUser().getItems().add(user);
+            //vlc.getTfUser().getItems().add(user);
+            //vlc.getTfUserAC().getLv().getItems().add(user);
+            vlc.getTfUserAC().addItem(user);
         }
         
     }
@@ -34,7 +36,7 @@ public class ShowUsers implements IActions{
     @Override
     public void afterQuery(String query, boolean rsValue) {
         if(rsValue){
-            c.getCbUser().getSelectionModel().select(0);
+            vlc.getTfUserAC().getLv().getSelectionModel().select(0);
         }
         
     }
