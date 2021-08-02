@@ -322,7 +322,7 @@ public class VCController implements Initializable {
             indexs[0]++;
         });
 
-        return sb.isEmpty() ? "NONE" : sb.deleteCharAt(sb.length() - 1).toString();
+        return sb.length() == 0 ? "NONE" : sb.deleteCharAt(sb.length() - 1).toString();
     }
 
     private String getDistFromUpdateTable() {
@@ -336,7 +336,7 @@ public class VCController implements Initializable {
             indexs[0]++;
         });
 
-        return sb.isEmpty() ? "NONE" : sb.deleteCharAt(sb.length() - 1).toString();
+        return sb.length() == 0 ? "NONE" : sb.deleteCharAt(sb.length() - 1).toString();
     }
 
     private String getImageCBeforeUpdate() {
