@@ -3,7 +3,7 @@ package com.cofii.ts.login;
 import java.awt.Toolkit;
 import java.net.URL;
 import java.util.ResourceBundle;
-
+import javafx.animation.KeyFrame;
 import com.cofii.ts.first.VF;
 import com.cofii.ts.other.NonCSS;
 import com.cofii.ts.sql.MSQL;
@@ -12,12 +12,17 @@ import com.cofii.ts.sql.querys.ShowDatabases;
 import com.cofii.ts.sql.querys.ShowTablesRootConfig;
 import com.cofii.ts.sql.querys.ShowUsers;
 import com.cofii2.components.javafx.popup.PopupAutoC;
+import com.cofii2.components.javafx.popup.PopupMenu;
 import com.cofii2.methods.MList;
 import com.cofii2.mysql.DefaultConnection;
 import com.cofii2.mysql.MSQLP;
 import com.cofii2.mysql.RootConfigConnection;
-
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
+import javafx.animation.Animation;
+import javafx.animation.FillTransition;
 import javafx.beans.value.ObservableValue;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Scene;
@@ -30,7 +35,9 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.HBox;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 public class VLController implements Initializable {
 
@@ -59,6 +66,20 @@ public class VLController implements Initializable {
     private CheckBox cbRemember;
     @FXML
     private Button btnLogin;
+    private Timeline tlHelp;
+    @FXML
+    private Button btnLoginHelp;
+    @FXML
+    private Button btnCreate;
+    private PopupMenu btnCreatePM = new PopupMenu("User", "Database");
+    // ---------------------------------------------
+    private MSQLP msInit = new MSQLP(new DefaultConnection());
+    private MSQLP msRoot;
+    private String initOption = "Login";
+
+    private boolean showStage = false;
+    // -----------------------------------------------
+    private boolean noUser = false;
 
     // LISTENERS---------------------------------------------
     // NON-FXML
@@ -97,7 +118,6 @@ public class VLController implements Initializable {
         btnLoginEnableControl();
     }
 
-    // NON-FXML
     private void cbUserKR(KeyEvent e) {
         String text = tfUser.getText();
         if (text.isEmpty()) {
@@ -114,13 +134,11 @@ public class VLController implements Initializable {
 
     }
 
-    // NON-FXML
     private void cbUserSelection(ObservableValue<? extends String> object, String oldValue, String newValue) {
         lbUser.setTextFill(NonCSS.TEXT_FILL);
         btnLoginEnableControl();
     }
 
-    // NON-FXML
     private void cbDBKR(KeyEvent e) {
         String text = tfDB.getText();
         if (text.isEmpty()) {
@@ -137,7 +155,6 @@ public class VLController implements Initializable {
         btnLoginEnableControl();
     }
 
-    // NON-FXML
     private void cbDBSelection(ObservableValue<? extends String> object, String oldValue, String newValue) {
         lbDB.setTextFill(NonCSS.TEXT_FILL);
         btnLoginEnableControl();
@@ -162,25 +179,28 @@ public class VLController implements Initializable {
         new VF(this);
     }
 
+    private void btnCreateAction(ActionEvent e){
+        btnCreatePM.showPopup((Button)e.getSource());
+    }
     // BTNLOGIN ENABLE
     private void btnLoginEnableControl() {
-        if (lbUser.getTextFill().equals(NonCSS.TEXT_FILL) && lbPassword.getTextFill().equals(NonCSS.TEXT_FILL)
-                && lbDB.getTextFill().equals(NonCSS.TEXT_FILL)) {
+        boolean userOK = lbUser.getTextFill().equals(NonCSS.TEXT_FILL);
+        boolean passOK = lbPassword.getTextFill().equals(NonCSS.TEXT_FILL);
+        boolean dbOK = lbDB.getTextFill().equals(NonCSS.TEXT_FILL);
+
+        if (!noUser && userOK && passOK && dbOK) {
             btnLogin.setDisable(false);
+            tlHelp.stop();
         } else {
             btnLogin.setDisable(true);
+            tlHelp.play();
         }
     }
 
-    // ---------------------------------------------
-    private MSQLP msInit = new MSQLP(new DefaultConnection());
-    private MSQLP msRoot;
-    private String initOption = "Login";
-
-    private boolean showStage = false;
+    
 
     // ---------------------------------------------
-    private void initQuerys() {
+    private void initQuery() {
         msInit.selectDatabases(new ShowDatabases(this));// AND ADDING TO cbDB
         if (!MSQL.isDbRootconfigExist()) {
             msInit.executeStringUpdate(MSQL.CREATE_DB_ROOTCONFIG);// NOT TESTED
@@ -191,18 +211,17 @@ public class VLController implements Initializable {
     private void rootQuerys() {
         msRoot = new MSQLP(new RootConfigConnection());
         msRoot.selectTables(new ShowTablesRootConfig());
+        if (!MSQL.isTableUsersExist()) {
+            msRoot.executeStringUpdate(MSQL.CREATE_TABLE_USERS);
+            noUser = true;
+        }
+        if(!MSQL.isTableDatabasesExist()){
+            msRoot.executeStringUpdate(MSQL.CREATE_TABLE_DATABASES);
+        }
         if (!MSQL.isTableDefaultUserExist()) {
             msRoot.executeStringUpdate(MSQL.CREATE_TABLE_DEFAULT_USER);
             msRoot.executeStringUpdate(MSQL.INSERT_TABLE_DEFAULT_USER);
         }
-
-        msRoot.executeQuery(MSQL.SELECT_TABLE_ROW_DEFAULT_USER, new SelectDefaultUser());
-        if (MSQL.getUser().equals("NONE")) {
-            msRoot.selectUsers(new ShowUsers(this));
-
-            showStage = true;
-        }
-
     }
 
     // ---------------------------------------------
@@ -212,9 +231,11 @@ public class VLController implements Initializable {
         if (initOption.equalsIgnoreCase("Login")) {
             // -----------------------
             tfUserAC = new PopupAutoC(tfUser);
+            tfUserAC.setShowOption(PopupAutoC.WHEN_FOCUS);
             tfDBAC = new PopupAutoC(tfDB);
+            tfDBAC.setShowOption(PopupAutoC.WHEN_FOCUS);
             // -----------------------
-            initQuerys();
+            initQuery();
             // -----------------------
             rootQuerys();
             // -----------------------
@@ -227,6 +248,14 @@ public class VLController implements Initializable {
             tfDBAC.getLv().getSelectionModel().selectedItemProperty().addListener(this::cbDBSelection);
             tfDB.setOnKeyReleased(this::cbDBKR);
 
+            btnCreate.setContextMenu(btnCreatePM);
+            btnCreate.setOnAction(this::btnCreateAction);
+            // ------------------------
+            tlHelp = new Timeline(
+                    new KeyFrame(Duration.seconds(2), new KeyValue(btnLoginHelp.textFillProperty(), Color.RED)));
+            //timeline.setAutoReverse(true);
+            tlHelp.setCycleCount(Animation.INDEFINITE);
+            
         }
     }
     // ---------------------------------------------
@@ -333,6 +362,14 @@ public class VLController implements Initializable {
 
     public void setTfDBAC(PopupAutoC tfDBAC) {
         this.tfDBAC = tfDBAC;
+    }
+
+    public MSQLP getMsRoot() {
+        return msRoot;
+    }
+
+    public void setMsRoot(MSQLP msRoot) {
+        this.msRoot = msRoot;
     }
 
 }

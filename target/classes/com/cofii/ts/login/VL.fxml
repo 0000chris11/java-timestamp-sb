@@ -5,21 +5,23 @@
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="347.0" prefWidth="350.0" spacing="5.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cofii.ts.login.VLController">
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="347.0" prefWidth="340.0" spacing="5.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cofii.ts.login.VLController">
    <children>
       <Label fx:id="lbUser" text="User" />
-      <TextField fx:id="tfUser"/>
+      <TextField fx:id="tfUser" />
       <Label fx:id="lbPassword" text="Password" />
       <PasswordField fx:id="tfPassword" onKeyReleased="#tfPasswordKR" />
       <Label fx:id="lbDB" text="Database" />
-      <TextField fx:id="tfDB"/>
+      <TextField fx:id="tfDB" />
       <Region prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS" />
       <HBox fx:id="layout">
          <children>
             <CheckBox fx:id="cbRemember" mnemonicParsing="false" prefHeight="17.0" prefWidth="139.0" text="Remeber Login" />
             <Region HBox.hgrow="ALWAYS" />
             <Button fx:id="btnLogin" disable="true" mnemonicParsing="false" onAction="#btnLoginAction" prefHeight="25.0" text="Login" />
-            <Button fx:id="btnCreateUser" mnemonicParsing="false" text="Create User" />
+            <Button fx:id="btnLoginHelp" mnemonicParsing="false" text="?" />
+            <Region prefWidth="10.0" />
+            <Button fx:id="btnCreate" mnemonicParsing="false" text="Create" />
          </children>
       </HBox>
    </children>

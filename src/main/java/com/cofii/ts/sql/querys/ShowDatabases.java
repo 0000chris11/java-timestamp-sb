@@ -18,7 +18,7 @@ public class ShowDatabases implements IActions {
 
     @Override
     public void beforeQuery() {
-        vlc.getTfDBAC().getLv().getItems().clear();
+        vlc.getTfDBAC().clearItems();
     }
 
     @Override
@@ -31,7 +31,7 @@ public class ShowDatabases implements IActions {
         //ADD TO CBDB
         if(!MList.isOnThisList(MSQL.BAND_DB, db, false)){
             //vlc.getTfDB().getItems().add(db);
-            vlc.getTfDBAC().getLv().getItems().add(db);
+            vlc.getTfDBAC().addItem(db);
         }
     }
 

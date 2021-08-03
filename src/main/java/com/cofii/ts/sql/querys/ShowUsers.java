@@ -24,10 +24,9 @@ public class ShowUsers implements IActions{
 
     @Override
     public void setData(ResultSet rs, int row) throws SQLException {
-        String user = rs.getString(1);
+        String user = rs.getString(2);
+        System.out.println("TEST user: " + user);
         if(!MList.isOnThisList(MSQL.BAND_USERS, user, false)){
-            //vlc.getTfUser().getItems().add(user);
-            //vlc.getTfUserAC().getLv().getItems().add(user);
             vlc.getTfUserAC().addItem(user);
         }
         
