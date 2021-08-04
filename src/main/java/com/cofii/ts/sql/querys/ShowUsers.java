@@ -35,6 +35,7 @@ public class ShowUsers implements IActions{
     @Override
     public void afterQuery(String query, boolean rsValue) {
         if(rsValue){
+            vlc.setUserOK(true);
             vlc.getTfUserAC().getLv().getSelectionModel().select(0);
         }
         

@@ -2359,8 +2359,8 @@ public class VCController implements Initializable {
 
         pksReferences = list.toArray(new String[list.size()]);
         tfsFKPs.forEach(e -> {
-            e.setLvOriginalItems(pksReferences);
-            e.getLv().getItems().addAll(pksReferences);
+            e.addAllItems(pksReferences);
+            //e.getLv().getItems().addAll(pksReferences);
         });
         tfsFKPs.get(0).getLv().getSelectionModel().select(0);
     }

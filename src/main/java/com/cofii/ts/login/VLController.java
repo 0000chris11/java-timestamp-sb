@@ -12,6 +12,7 @@ import com.cofii.ts.sql.querys.ShowDatabases;
 import com.cofii.ts.sql.querys.ShowTablesRootConfig;
 import com.cofii.ts.sql.querys.ShowUsers;
 import com.cofii2.components.javafx.popup.PopupAutoC;
+import com.cofii2.components.javafx.popup.PopupKV;
 import com.cofii2.components.javafx.popup.PopupMenu;
 import com.cofii2.methods.MList;
 import com.cofii2.mysql.DefaultConnection;
@@ -21,7 +22,11 @@ import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
 import javafx.animation.Animation;
 import javafx.animation.FillTransition;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableMap;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -41,27 +46,25 @@ import javafx.util.Duration;
 
 public class VLController implements Initializable {
 
-    @FXML
-    private HBox layout;
     private Stage stage;
     private Scene scene;
-
+    // TOP----------------------------------
+    @FXML
+    private Label lbTitle;
+    // CENTER-------------------------------
     @FXML
     private Label lbUser;
     @FXML
-    private Label lbPassword;
-    @FXML
-    private Label lbDB;
-
-    @FXML
     private TextField tfUser;
     private PopupAutoC tfUserAC;
+
+    @FXML
+    private Label lbPassword;
     @FXML
     private PasswordField tfPassword;
+    // BOTTOM-------------------------------
     @FXML
-    private TextField tfDB;
-    private PopupAutoC tfDBAC;
-
+    private HBox hbBottom;
     @FXML
     private CheckBox cbRemember;
     @FXML
@@ -69,6 +72,8 @@ public class VLController implements Initializable {
     private Timeline tlHelp;
     @FXML
     private Button btnLoginHelp;
+    private PopupKV btnLoginHelpPopup;
+    private ObservableMap<String, Boolean> btnLoginHelpMap = FXCollections.observableHashMap();
     @FXML
     private Button btnCreate;
     private PopupMenu btnCreatePM = new PopupMenu("User", "Database");
@@ -79,46 +84,34 @@ public class VLController implements Initializable {
 
     private boolean showStage = false;
     // -----------------------------------------------
+    private BooleanProperty userOK = new SimpleBooleanProperty(false);
+    private BooleanProperty passOK = new SimpleBooleanProperty(false);
+
     private boolean noUser = false;
 
-    // LISTENERS---------------------------------------------
-    // NON-FXML
-    void sceneKR(KeyEvent e) {
-        if (e != null) {
-            if (e.getCode() == KeyCode.CAPS) {
-                boolean capsOn = Toolkit.getDefaultToolkit().getLockingKeyState(java.awt.event.KeyEvent.VK_CAPS_LOCK);
-                if (capsOn) {
-                    lbPassword.setText("Password ~ CAPS On");
-                    lbPassword.setTextFill(NonCSS.TEXT_FILL_HINT);
-                } else {
-                    tfPasswordKR();
-                }
-            }
-        } else {
-            if (Toolkit.getDefaultToolkit().getLockingKeyState(20)) {
-                lbPassword.setText(lbPassword.getText() + " ~ CAPS On");
-                lbPassword.setTextFill(NonCSS.TEXT_FILL_HINT);
-            }
-        }
+    // CONTROL---------------------------------------
+    private void btnLoginControl() {
+        userOK.setValue(lbUser.getTextFill().equals(NonCSS.TEXT_FILL));
+        passOK.setValue(lbPassword.getTextFill().equals(NonCSS.TEXT_FILL));
+        // boolean dbOK = lbDB.getTextFill().equals(NonCSS.TEXT_FILL);
 
+        if (!noUser && userOK.getValue() && passOK.getValue() /* && dbOK */) {
+            btnLogin.setDisable(false);
+        } else {
+            btnLogin.setDisable(true);
+        }
     }
 
-    @FXML
-    private void tfPasswordKR() {
-        if (!lbPassword.getText().equals("Password")) {
-            lbPassword.setText("Password");
-        }
+    private void disableCenter(boolean disable){
+        lbUser.setDisable(disable);
+        tfUser.setDisable(disable);
 
-        if (tfPassword.getText().isEmpty()) {
-            lbPassword.setTextFill(NonCSS.TEXT_FILL_ERROR);
-        } else {
-            lbPassword.setTextFill(NonCSS.TEXT_FILL);
-        }
-
-        btnLoginEnableControl();
+        lbPassword.setDisable(disable);
+        tfPassword.setDisable(disable);
     }
-
-    private void cbUserKR(KeyEvent e) {
+    // LISTENERS=========================================
+    // CENTER------------------------------------------------
+    private void tfUserKeyReleased(KeyEvent e) {
         String text = tfUser.getText();
         if (text.isEmpty()) {
             lbUser.setTextFill(NonCSS.TEXT_FILL_ERROR);
@@ -130,76 +123,98 @@ public class VLController implements Initializable {
             }
         }
 
-        btnLoginEnableControl();
+        btnLoginControl();
 
     }
 
-    private void cbUserSelection(ObservableValue<? extends String> object, String oldValue, String newValue) {
+    private void tfUserSelectionChangeListener(ObservableValue<? extends String> object, String oldValue,
+            String newValue) {
         lbUser.setTextFill(NonCSS.TEXT_FILL);
-        btnLoginEnableControl();
+        btnLoginControl();
     }
 
-    private void cbDBKR(KeyEvent e) {
+    private void tfPasswordKeyReleased(KeyEvent e) {
+        e.consume();
+        if (!lbPassword.getText().equals("Password")) {
+            lbPassword.setText("Password");
+        }
+
+        if (tfPassword.getText().isEmpty()) {
+            lbPassword.setTextFill(NonCSS.TEXT_FILL_ERROR);
+        } else {
+            lbPassword.setTextFill(NonCSS.TEXT_FILL);
+        }
+
+        btnLoginControl();
+    }
+
+    private void tfDBKeyReleased(KeyEvent e) {
+        TextField tfDB = (TextField) e.getSource();
         String text = tfDB.getText();
         if (text.isEmpty()) {
-            lbDB.setTextFill(NonCSS.TEXT_FILL_ERROR);
+            // lbDB.setTextFill(NonCSS.TEXT_FILL_ERROR);
         } else {
-            if (MList.isOnThisList(tfDBAC.getLv().getItems(), text, true)) {
-                lbDB.setTextFill(NonCSS.TEXT_FILL);
-            } else {
-                lbDB.setTextFill(NonCSS.TEXT_FILL_ERROR);
-            }
-
+            /*
+             * if (MList.isOnThisList(tfDBAC.getLv().getItems(), text, true)) {
+             * lbDB.setTextFill(NonCSS.TEXT_FILL); } else {
+             * lbDB.setTextFill(NonCSS.TEXT_FILL_ERROR); }
+             */
         }
 
-        btnLoginEnableControl();
+        btnLoginControl();
     }
 
-    private void cbDBSelection(ObservableValue<? extends String> object, String oldValue, String newValue) {
-        lbDB.setTextFill(NonCSS.TEXT_FILL);
-        btnLoginEnableControl();
+    private void tfDBSelectionChangeListener(ObservableValue<? extends String> object, String oldValue,
+            String newValue) {
+        // lbDB.setTextFill(NonCSS.TEXT_FILL);
+        btnLoginControl();
     }
 
-    @FXML
-    private void btnLoginAction() {
+    // BOTTOM----------------------------------------------
+    private void btnLoginAction(ActionEvent e) {
+        e.consume();
         String user = tfUser.getText();
         String password = tfPassword.getText();
-        String database = tfDB.getText();
 
-        MSQL.setUser(user);
-        MSQL.setPassword(password);
-        MSQL.setDatabase(database);
+        boolean correctPassword = msRoot.selectCorrectPassword(MSQL.TABLE_USERS, "user_password", user, password);
+        if (correctPassword) {
+            MSQL.setUser(user);
+            MSQL.setPassword(password);
 
-        if (cbRemember.isSelected()) {
-            msRoot.executeStringUpdate(MSQL.UPDATE_TABLE_DEFAULT_USER);
+            if (cbRemember.isSelected()) {
+                msRoot.executeStringUpdate(MSQL.UPDATE_TABLE_DEFAULT_USER);
+            }
+            disableCenter(true);
+            btnLogin.setText("Connect");
+            //CREATE DATABASE FIELD
+
+            msRoot.close();
+            new VF(this);
         }
-
-        msRoot.close();
-
-        new VF(this);
     }
 
-    private void btnCreateAction(ActionEvent e){
-        btnCreatePM.showPopup((Button)e.getSource());
+    private void btnLoginHelpAction(ActionEvent e) {
+        btnLoginHelpPopup.showPopup();
     }
-    // BTNLOGIN ENABLE
-    private void btnLoginEnableControl() {
-        boolean userOK = lbUser.getTextFill().equals(NonCSS.TEXT_FILL);
-        boolean passOK = lbPassword.getTextFill().equals(NonCSS.TEXT_FILL);
-        boolean dbOK = lbDB.getTextFill().equals(NonCSS.TEXT_FILL);
 
-        if (!noUser && userOK && passOK && dbOK) {
-            btnLogin.setDisable(false);
-            tlHelp.stop();
-        } else {
-            btnLogin.setDisable(true);
+    private void btnLoginHelpMapReset() {
+        btnLoginHelpMap.put("User", userOK.getValue());
+        btnLoginHelpMap.put("Password", passOK.getValue());
+    }
+
+    private void btnLoginDisablePropertyChangeListener(boolean newValue) {
+        if (newValue) {
             tlHelp.play();
+        } else {
+            tlHelp.stop();
         }
     }
 
-    
+    private void btnCreateAction(ActionEvent e) {
+        btnCreatePM.showPopup((Button) e.getSource());
+    }
 
-    // ---------------------------------------------
+    // INIT---------------------------------------------
     private void initQuery() {
         msInit.selectDatabases(new ShowDatabases(this));// AND ADDING TO cbDB
         if (!MSQL.isDbRootconfigExist()) {
@@ -215,7 +230,7 @@ public class VLController implements Initializable {
             msRoot.executeStringUpdate(MSQL.CREATE_TABLE_USERS);
             noUser = true;
         }
-        if(!MSQL.isTableDatabasesExist()){
+        if (!MSQL.isTableDatabasesExist()) {
             msRoot.executeStringUpdate(MSQL.CREATE_TABLE_DATABASES);
         }
         if (!MSQL.isTableDefaultUserExist()) {
@@ -230,32 +245,46 @@ public class VLController implements Initializable {
         // DO QUERYS
         if (initOption.equalsIgnoreCase("Login")) {
             // -----------------------
+            lbUser.setTextFill(NonCSS.TEXT_FILL);
             tfUserAC = new PopupAutoC(tfUser);
             tfUserAC.setShowOption(PopupAutoC.WHEN_FOCUS);
-            tfDBAC = new PopupAutoC(tfDB);
-            tfDBAC.setShowOption(PopupAutoC.WHEN_FOCUS);
+
+            lbPassword.setTextFill(NonCSS.TEXT_FILL_ERROR);
+            // tfDBAC = new PopupAutoC(tfDB);
+            // tfDBAC.setShowOption(PopupAutoC.WHEN_FOCUS);
+            btnLoginHelpMapReset();
+            btnLoginHelpPopup = new PopupKV(btnLoginHelp, btnLoginHelpMap);
             // -----------------------
             initQuery();
             // -----------------------
             rootQuerys();
             // -----------------------
-            lbUser.setTextFill(NonCSS.TEXT_FILL);
-            lbPassword.setTextFill(NonCSS.TEXT_FILL);
-            lbDB.setTextFill(NonCSS.TEXT_FILL);
+            userOK.addListener((obs, oldValue, newValue) -> btnLoginHelpMapReset());
+            passOK.addListener((obs, oldValue, newValue) -> btnLoginHelpMapReset());
 
-            tfUserAC.getLv().getSelectionModel().selectedItemProperty().addListener(this::cbUserSelection);
-            tfUser.setOnKeyReleased(this::cbUserKR);
-            tfDBAC.getLv().getSelectionModel().selectedItemProperty().addListener(this::cbDBSelection);
-            tfDB.setOnKeyReleased(this::cbDBKR);
+            tfUserAC.getLv().getSelectionModel().selectedItemProperty()
+                    .addListener(this::tfUserSelectionChangeListener);
+            tfUser.setOnKeyReleased(this::tfUserKeyReleased);
+            // tfDBAC.getLv().getSelectionModel().selectedItemProperty().addListener(this::cbDBSelection);
+            // tfDB.setOnKeyReleased(this::cbDBKR);
+            tfPassword.setOnKeyReleased(this::tfPasswordKeyReleased);
+
+            btnLogin.disableProperty()
+                    .addListener((obs, oldValue, newValue) -> btnLoginDisablePropertyChangeListener(newValue));
+            btnLogin.setOnAction(this::btnLoginAction);
+
+            btnLoginHelp.setOnAction(this::btnLoginHelpAction);
 
             btnCreate.setContextMenu(btnCreatePM);
             btnCreate.setOnAction(this::btnCreateAction);
+            // AFTER LISTENERS--------------------------
+            btnLogin.setDisable(true);
             // ------------------------
             tlHelp = new Timeline(
                     new KeyFrame(Duration.seconds(2), new KeyValue(btnLoginHelp.textFillProperty(), Color.RED)));
-            //timeline.setAutoReverse(true);
+            // timeline.setAutoReverse(true);
             tlHelp.setCycleCount(Animation.INDEFINITE);
-            
+
         }
     }
     // ---------------------------------------------
@@ -284,14 +313,6 @@ public class VLController implements Initializable {
         this.lbPassword = lbPassword;
     }
 
-    public Label getLbDB() {
-        return lbDB;
-    }
-
-    public void setLbDB(Label lbDB) {
-        this.lbDB = lbDB;
-    }
-
     public TextField getTfUser() {
         return tfUser;
     }
@@ -306,14 +327,6 @@ public class VLController implements Initializable {
 
     public void setTfPassword(PasswordField tfPassword) {
         this.tfPassword = tfPassword;
-    }
-
-    public TextField getTfDB() {
-        return tfDB;
-    }
-
-    public void setTfDB(TextField tfDB) {
-        this.tfDB = tfDB;
     }
 
     public CheckBox getCbRemember() {
@@ -341,11 +354,11 @@ public class VLController implements Initializable {
     }
 
     public HBox getLayout() {
-        return layout;
+        return hbBottom;
     }
 
     public void setLayout(HBox layout) {
-        this.layout = layout;
+        this.hbBottom = layout;
     }
 
     public PopupAutoC getTfUserAC() {
@@ -356,20 +369,20 @@ public class VLController implements Initializable {
         this.tfUserAC = tfUserAC;
     }
 
-    public PopupAutoC getTfDBAC() {
-        return tfDBAC;
-    }
-
-    public void setTfDBAC(PopupAutoC tfDBAC) {
-        this.tfDBAC = tfDBAC;
-    }
-
     public MSQLP getMsRoot() {
         return msRoot;
     }
 
     public void setMsRoot(MSQLP msRoot) {
         this.msRoot = msRoot;
+    }
+
+    public boolean isUserOK() {
+        return userOK.getValue();
+    }
+
+    public void setUserOK(boolean userOK) {
+        this.userOK.setValue(userOK);
     }
 
 }

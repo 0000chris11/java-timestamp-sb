@@ -18,7 +18,7 @@ public class ShowDatabases implements IActions {
 
     @Override
     public void beforeQuery() {
-        vlc.getTfDBAC().clearItems();
+        //vlc.getTfDBAC().clearItems();
     }
 
     @Override
@@ -31,16 +31,16 @@ public class ShowDatabases implements IActions {
         //ADD TO CBDB
         if(!MList.isOnThisList(MSQL.BAND_DB, db, false)){
             //vlc.getTfDB().getItems().add(db);
-            vlc.getTfDBAC().addItem(db);
+            //vlc.getTfDBAC().addItem(db);
         }
     }
 
     @Override
     public void afterQuery(String query, boolean rsValue) {
         if(rsValue){
-            vlc.getTfDBAC().getLv().getSelectionModel().select(0);
+            //vlc.getTfDBAC().getLv().getSelectionModel().select(0);
             //MSQL.setDatabases(vlc.getTfDB().getItems().toArray(new String[vlc.getTfDB().getItems().size()]));
-            MSQL.setDatabases(vlc.getTfDBAC().getLv().getItems().toArray(new String[vlc.getTfDBAC().getLv().getItems().size()]));
+            //MSQL.setDatabases(vlc.getTfDBAC().getLv().getItems().toArray(new String[vlc.getTfDBAC().getLv().getItems().size()]));
         }
     }
 

@@ -54,9 +54,9 @@ public class SelectDistinct implements IActions {
     public void afterQuery(String query, boolean rsValue) {
         if (rsValue) {
             List<String> list2 = new ArrayList<>(new LinkedHashSet<>(list));
-            vf.getTfsAutoC().get(index).getLv().getItems().addAll(list2);
+            //vf.getTfsAutoC().get(index).getLv().getItems().addAll(list2);
             //vf.getTfsAutoC().set(index, TextFields.bindAutoCompletion(vf.getTfs()[index], list2));
-            vf.getTfsAutoC().get(index).setLvOriginalItems(list2.toArray(new String[list2.size()]));
+            vf.getTfsAutoC().get(index).addAllItems(list2);
         } else {
             vf.getTfsAutoC().get(index).getLv().getItems().add(NO_DISTINCT_ELEMENTS);
         }
