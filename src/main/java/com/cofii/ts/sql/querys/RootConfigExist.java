@@ -8,11 +8,11 @@ import com.cofii.ts.sql.MSQL;
 import com.cofii2.methods.MList;
 import com.cofii2.myInterfaces.IActions;
 
-public class ShowDatabases implements IActions {
+public class RootConfigExist implements IActions {
 
     private VLController vlc;
 
-    public ShowDatabases(VLController vlc){
+    public RootConfigExist(VLController vlc){
         this.vlc = vlc;
     }
 

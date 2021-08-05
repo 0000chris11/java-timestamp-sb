@@ -8,6 +8,7 @@ import com.cofii.ts.other.Dist;
 import com.cofii.ts.other.NonCSS;
 import com.cofii.ts.sql.MSQL;
 import com.cofii.ts.sql.querys.SelectData;
+import com.cofii.ts.sql.querys.SelectDatabases;
 import com.cofii.ts.sql.querys.SelectKeys;
 import com.cofii.ts.sql.querys.SelectTableDefault;
 import com.cofii.ts.sql.querys.ShowColumns;
@@ -31,17 +32,22 @@ public class VF {
     private Stage stage = new Stage();
     private static MSQLP ms;
 
+    //INSTANCES-------------------------------------
     private Database tables = Database.getInstance();
     private Menus menus;
     // private static ColumnS columns = ColumnS.getInstance();
     // private static ColumnDS columnsd = ColumnDS.getInstance();
     private Dist dist;
-
+    //ZOOM----------------------------------------
     private DoubleProperty scaleVF = new SimpleDoubleProperty(1.0);
 
-    private boolean start = true;
+    /**
+     * true if its start from the login (not from VC)
+     */
+    private boolean startFromLogin = true;
+    private boolean noDatabases = false;
 
-    // -----------------------------------------
+    // STAGE LISTENERS -----------------------------------------
     private void stageMaximizedPropertyChange(boolean newValue) {
         if (newValue) {
             /*
@@ -68,10 +74,13 @@ public class VF {
         }
     }
 
-    // -----------------------------------------
+    // INIT-----------------------------------------
     private void querysStart() {
         //SELECT DATABASES FOR CURRENT USER
+        ms.selectData(MSQL.TABLE_DATABASES, new SelectDatabases(this));
+        if(noDatabases){
 
+        }
         //ms.use(database);
 
         ms.selectTables(new ShowTableCurrentDB());
@@ -88,7 +97,7 @@ public class VF {
         // addMenuItems();
         menus.addMenuItemsReset();
 
-        if (start) {
+        if (startFromLogin) {
             ms.executeQuery(MSQL.SELECT_TABLE_ROW_DEFAULT, new SelectTableDefault());
         }
         if (MSQL.getCurrentTable() != null) {
@@ -122,7 +131,7 @@ public class VF {
                 stage.setScene(scene);
             } else {
                 vc.getVf().getStage().setScene(scene);
-                start = false;
+                startFromLogin = false;
             }
             // MENU START-------------------------------------
             Menus.clearInstance();
@@ -159,13 +168,21 @@ public class VF {
         init();
     }
 
-    // -------------------------------------------
+    // GETTER & SETTERS -------------------------------------------
     public Stage getStage() {
         return stage;
     }
 
     public void setStage(Stage stage) {
         this.stage = stage;
+    }
+
+    public boolean isNoDatabases() {
+        return noDatabases;
+    }
+
+    public void setNoDatabases(boolean noDatabases) {
+        this.noDatabases = noDatabases;
     }
 
 }

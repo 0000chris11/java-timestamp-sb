@@ -8,9 +8,11 @@ import com.cofii.ts.first.VF;
 import com.cofii.ts.other.NonCSS;
 import com.cofii.ts.sql.MSQL;
 import com.cofii.ts.sql.querys.SelectDefaultUser;
-import com.cofii.ts.sql.querys.ShowDatabases;
+import com.cofii.ts.sql.querys.RootConfigExist;
 import com.cofii.ts.sql.querys.ShowTablesRootConfig;
 import com.cofii.ts.sql.querys.ShowUsers;
+import com.cofii.ts.store.main.User;
+import com.cofii.ts.store.main.Users;
 import com.cofii2.components.javafx.popup.PopupAutoC;
 import com.cofii2.components.javafx.popup.PopupKV;
 import com.cofii2.components.javafx.popup.PopupMenu;
@@ -180,10 +182,18 @@ public class VLController implements Initializable {
         if (correctPassword) {
             MSQL.setUser(user);
             MSQL.setPassword(password);
-
+            //ADDING CURRENT USER--------------------------------------------
+            Object[] valueId = msRoot.selectValues(MSQL.TABLE_USERS, "id", "user_name", user);
+            if(valueId.length == 1 &&  valueId[0] instanceof Integer){
+            Users.getInstance().setCurrenUser(new User((int) valueId[0], user));
+            }else{
+                throw new IllegalArgumentException("C0FII: FATAL wrong value recived from User table (expected single id)");
+            }
+            //DEFAULT USER------------------------------------------
             if (cbRemember.isSelected()) {
                 msRoot.executeStringUpdate(MSQL.UPDATE_TABLE_DEFAULT_USER);
             }
+            //---------------------------------------------
             disableCenter(true);
             btnLogin.setText("Connect");
             //CREATE DATABASE FIELD
@@ -216,7 +226,7 @@ public class VLController implements Initializable {
 
     // INIT---------------------------------------------
     private void initQuery() {
-        msInit.selectDatabases(new ShowDatabases(this));// AND ADDING TO cbDB
+        msInit.selectDatabases(new RootConfigExist(this));// AND ADDING TO cbDB
         if (!MSQL.isDbRootconfigExist()) {
             msInit.executeStringUpdate(MSQL.CREATE_DB_ROOTCONFIG);// NOT TESTED
         }

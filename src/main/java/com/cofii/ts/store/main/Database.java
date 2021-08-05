@@ -5,6 +5,7 @@ import java.util.List;
 
 public class Database {
 
+    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! DELETE instance;
     private static Database instance;
     public static Database getInstance(){
         if(instance == null){

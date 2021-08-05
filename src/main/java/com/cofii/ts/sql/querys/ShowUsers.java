@@ -5,12 +5,15 @@ import java.sql.SQLException;
 
 import com.cofii.ts.login.VLController;
 import com.cofii.ts.sql.MSQL;
+import com.cofii.ts.store.main.User;
+import com.cofii.ts.store.main.Users;
 import com.cofii2.methods.MList;
 import com.cofii2.myInterfaces.IActions;
 
 public class ShowUsers implements IActions{
 
     private VLController vlc;
+    private Users users;
 
     public ShowUsers(VLController vlc){
         this.vlc = vlc;
@@ -18,16 +21,18 @@ public class ShowUsers implements IActions{
 
     @Override
     public void beforeQuery() {
-        //vlc.getTfUser().getItems().clear();
         vlc.getTfUserAC().clearItems();
+        users = Users.getInstance();
     }
 
     @Override
     public void setData(ResultSet rs, int row) throws SQLException {
+        int id = rs.getInt(1);
         String user = rs.getString(2);
-        System.out.println("TEST user: " + user);
+
         if(!MList.isOnThisList(MSQL.BAND_USERS, user, false)){
             vlc.getTfUserAC().addItem(user);
+            users.addUser(new User(id, user));
         }
         
     }
