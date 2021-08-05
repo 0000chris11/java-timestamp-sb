@@ -1,15 +1,12 @@
 package com.cofii.ts.first;
 
 import java.io.IOException;
-import java.util.Arrays;
 
 import com.cofii.ts.cu.VCController;
 import com.cofii.ts.login.VLController;
 import com.cofii.ts.other.Dist;
 import com.cofii.ts.other.NonCSS;
-import com.cofii.ts.sql.CurrenConnection;
 import com.cofii.ts.sql.MSQL;
-import com.cofii.ts.sql.WrongPassword;
 import com.cofii.ts.sql.querys.SelectData;
 import com.cofii.ts.sql.querys.SelectKeys;
 import com.cofii.ts.sql.querys.SelectTableDefault;
@@ -72,7 +69,11 @@ public class VF {
     }
 
     // -----------------------------------------
-    private void afterFirstQuerySucces() {
+    private void querysStart() {
+        //SELECT DATABASES FOR CURRENT USER
+
+        //ms.use(database);
+
         ms.selectTables(new ShowTableCurrentDB());
         if (!MSQL.isTableNamesExist()) {
             ms.executeStringUpdate(MSQL.CREATE_TABLE_NAMES);// NOT TESTED
@@ -109,41 +110,38 @@ public class VF {
     private void init() {
         try {
             FXMLLoader loader = new FXMLLoader(VF.class.getResource("/com/cofii/ts/first/VF.fxml"));
-
+            // ZOOMIMING PANE-----------------------
             SceneZoom sceneZoom = new SceneZoom(loader.load(), scaleVF);
             vf = (VFController) loader.getController();
             sceneZoom.setParent(vf.getBpMain());
-
+            // ------------------------------------
             Scene scene = sceneZoom.getScene();
             scene.getStylesheets().add(VF.class.getResource("/com/cofii/ts/first/VF.css").toExternalForm());
-
-            // START OR GO BACK-----------------------------
+            // START OR GO BACK OPTION-----------------------------
             if (vl != null) {// NEW WINDOW
                 stage.setScene(scene);
             } else {
                 vc.getVf().getStage().setScene(scene);
                 start = false;
             }
-            // -------------------------------------------------
-
+            // MENU START-------------------------------------
             Menus.clearInstance();
             menus = Menus.getInstance(vf);
             // STAGE LISTENER-------------------------------------------------
             stage.maximizedProperty().addListener((obs, oldValue, newValue) -> stageMaximizedPropertyChange(newValue));
             stage.heightProperty().addListener((obs, oldValue, newValue) -> heightPropertyChangeListener());
-            // -------------------------------------------------
+            // SOME SETTERS TO VFCONTROLLER-------------------------------------------------
             vf.setStage(vl != null ? stage : vc.getVf().getStage());
             vf.setScene(scene);
             vf.setVl(vl);
 
-            ms = new MSQLP(new CurrenConnection(), new WrongPassword(vl, vf));
-
+            ms = vl.getMsRoot();
             vf.setMs(ms);
+            // DIST START---------------------------------
             dist = Dist.getInstance(vf);
             // -------------------------------------------
-            if (!MSQL.isWrongPassword()) {
-                afterFirstQuerySucces();
-            }
+            querysStart();
+
         } catch (IOException e) {
             e.printStackTrace();
         }

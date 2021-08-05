@@ -188,7 +188,7 @@ public class VLController implements Initializable {
             btnLogin.setText("Connect");
             //CREATE DATABASE FIELD
 
-            msRoot.close();
+            //msRoot.close();
             new VF(this);
         }
     }
