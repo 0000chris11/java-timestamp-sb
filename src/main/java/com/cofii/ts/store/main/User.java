@@ -7,7 +7,9 @@ public class User {
     
     private int id;
     private String name;
+
     private List<Database> databases = new ArrayList<>();
+    private Database currentDatabase;
     //--------------------------------------------
     public void clearDatabases(){
         databases.clear();
@@ -38,6 +40,12 @@ public class User {
     }
     public void setDatabases(List<Database> databases) {
         this.databases = databases;
+    }
+    public Database getCurrentDatabase() {
+        return currentDatabase;
+    }
+    public void setCurrentDatabase(Database currentDatabase) {
+        this.currentDatabase = currentDatabase;
     }
     
 }

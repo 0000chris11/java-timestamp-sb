@@ -6,6 +6,7 @@ import java.sql.SQLException;
 import com.cofii.ts.sql.MSQL;
 import com.cofii.ts.store.main.Database;
 import com.cofii.ts.store.main.Table;
+import com.cofii.ts.store.main.Users;
 import com.cofii2.myInterfaces.IActions;
 
 /**
@@ -13,7 +14,7 @@ import com.cofii2.myInterfaces.IActions;
  */
 public class SelectTableNames implements IActions {
 
-    private Database tables = Database.getInstance();
+    private Database currentDatabase = Users.getInstance().getCurrenUser().getCurrentDatabase();
     private boolean selectTable;
 
     public SelectTableNames(boolean selectTable) {
@@ -22,16 +23,16 @@ public class SelectTableNames implements IActions {
 
     @Override
     public void beforeQuery() {
-        tables.clearTables();
+        currentDatabase.clearTables();
     }
 
     @Override
     public void setData(ResultSet rs, int row) throws SQLException {
         Table table = new Table(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5));
-        tables.addTable(table);
+        currentDatabase.addTable(table);
         
         if (selectTable) {
-            MSQL.setCurrentTable(table);
+            Users.getInstance().getCurrenUser().getCurrentDatabase().setCurrentTable(table);
         }
     }
 

@@ -19,6 +19,7 @@ import com.cofii.ts.other.NonCSS;
 import com.cofii.ts.sql.MSQL;
 import com.cofii.ts.sql.querys.SelectData;
 import com.cofii.ts.store.main.Table;
+import com.cofii.ts.store.main.Users;
 import com.cofii2.components.javafx.LabelStatus;
 import com.cofii2.components.javafx.popup.PopupAutoC;
 import com.cofii2.methods.MString;
@@ -68,8 +69,7 @@ public class VFController implements Initializable {
     private Stage stage;
     private Scene scene;
 
-    @FXML
-    private BorderPane bpMain;
+    // MENUBAR----------------------------------
     @FXML
     private MenuBar menuBar;
     @FXML
@@ -78,7 +78,9 @@ public class VFController implements Initializable {
     private Menu menuSelection;
     @FXML
     private Menu menuTable;
-
+    // CENTER---------------------------------------
+    @FXML
+    private BorderPane bpMain;
     @FXML
     private SplitPane splitLeft;
     @FXML
@@ -87,13 +89,20 @@ public class VFController implements Initializable {
     private HBox hbImages;
     @FXML
     private Label lbTable;
+    @FXML
+    private TextField tfDatabase;
+    private PopupAutoC tfDatabaseAutoC;
+    @FXML
+    private TextField tfTable;
+    private PopupAutoC tfTableAutoC;
 
     @FXML
     private GridPane gridPane;
     private TextFlow[] lbs = new TextFlow[MSQL.MAX_COLUMNS];
     private TextField[] tfs = new TextField[MSQL.MAX_COLUMNS];
     private final List<PopupAutoC> tfsAutoC = new ArrayList<>(MSQL.MAX_COLUMNS);
-    //private final List<AutoCompletionBinding<String>> tfsAutoC = new ArrayList<>(MSQL.MAX_COLUMNS);
+    // private final List<AutoCompletionBinding<String>> tfsAutoC = new
+    // ArrayList<>(MSQL.MAX_COLUMNS);
     private final List<ObservableList<String>> tfsFKList = new ArrayList<>();
     private final ChangeListener<String> tfsFKTextPropertyListener = this::tfsFKTextProperty;
 
@@ -102,11 +111,7 @@ public class VFController implements Initializable {
     // BOTTOM-----------------------------------
     @FXML
     private HBox hbStatus;
-    /*
-     * @FXML private Label lbStatus;
-     * 
-     * @FXML private Button btnCloseStatus;
-     */
+    
     private LabelStatus lbStatus = new LabelStatus();
     // private boolean autoClose = false;
 
@@ -123,19 +128,24 @@ public class VFController implements Initializable {
     private TableView<ObservableList<Object>> tableView;
     private ObservableList<ObservableList<Object>> tableData;
 
+    private Table currentTable = Users.getInstance().getCurrenUser().getCurrentDatabase().getCurrentTable();
+
     private ImageView[] ivImageC = new ImageView[MSQL.MAX_IMAGES];
     public static final String NO_IMAGE = "ImageC is set to NONE";
     private Label lbImageC = new Label(NO_IMAGE);
 
-    //private ColumnS columns = ColumnS.getInstance();
-    //private ColumnDS columnds = ColumnDS.getInstance();
+    // private ColumnS columns = ColumnS.getInstance();
+    // private ColumnDS columnds = ColumnDS.getInstance();
     private Object[] rowData;// DELETE
     private Object[] selectedRow;
     private MSQLP ms;
-    // ----------------------------------------------
+    // MESSAGES----------------------------------------------
     private static final String SUCCESS = "\tsuccess";
     private static final String FAILED = "\tfailed";
 
+    public static final String NO_DATABASES = "no databases found";
+    public static final String NO_TABLES = "no tables found";
+    //--------------------------------------------
     private static final int CB_STARTS_WITH = 0;
     private int cbSearchOption = CB_STARTS_WITH;
     // OTHER -------------------------------------------
@@ -205,8 +215,6 @@ public class VFController implements Initializable {
 
     // TABLE------------------------------------
     private <T> void tableRowSelected(ObservableValue<? extends T> observable, T oldValue, T newValue) {
-        Table table = MSQL.getCurrentTable();
-
         ObservableList<ObservableList<Object>> list = tableView.getSelectionModel().getSelectedItems();
         if (list.size() == 1) {// ONE ROW SELECTED
             rowData = new Object[list.get(0).size()];
@@ -214,10 +222,10 @@ public class VFController implements Initializable {
             GetRowSelectedImpl nr = new GetRowSelectedImpl(this, selectedRow);
             forEachAction(rowData.length, nr);
             // ImageC----------------------------------------
-            if (!MSQL.getCurrentTable().getImageC().equals("NONE")) {
-                String imageCPath = MSQL.getCurrentTable().getImageCPath();
+            if (!currentTable.getImageC().equals("NONE")) {
+                String imageCPath = currentTable.getImageCPath();
                 if (new File(imageCPath).exists()) {
-                    int imageCIndex = table.getColumnIndex(MSQL.getCurrentTable().getImageC());
+                    int imageCIndex = currentTable.getColumnIndex(currentTable.getImageC());
                     String itemSelected = list.get(0).get(imageCIndex).toString();
                     // System.out.println("itemSelected: " + itemSelected);
                     String formattedSelectedText = MString.getCustomFormattedString(itemSelected);
@@ -276,7 +284,7 @@ public class VFController implements Initializable {
             btnDelete.setDisable(false);
             btnUpdate.setDisable(false);
         } else if (list.size() > 1) {
-            forEachAction(table.getColumns().size(), new MultipleValuesSelectedImpl());
+            forEachAction(currentTable.getColumns().size(), new MultipleValuesSelectedImpl());
             btnDelete.setDisable(true);
             btnUpdate.setDisable(true);
 
@@ -298,16 +306,15 @@ public class VFController implements Initializable {
     }
 
     public void tableCellEdit(CellEditEvent<ObservableList<Object>, Object> t) {
-        Table table = MSQL.getCurrentTable();
         System.out.println("OLD Value: " + t.getOldValue().toString());
         System.out.println("NEW Value: " + t.getNewValue().toString());
 
         Object oldValue = t.getOldValue();
         Object newValue = t.getNewValue();
         if (!newValue.toString().equals(oldValue.toString())) {
-            String tableName = MSQL.getCurrentTable().getName().replace(" ", "_");
+            String tableName = currentTable.getName().replace(" ", "_");
             int colIndex = t.getTablePosition().getColumn();
-            String columnName = table.getColumns().get(colIndex).getName();
+            String columnName = currentTable.getColumns().get(colIndex).getName();
 
             boolean returnValue = ms.updateRow(tableName, selectedRow, columnName, newValue);
             if (returnValue) {
@@ -323,8 +330,9 @@ public class VFController implements Initializable {
     // MAIN SQL FUNC----------------------------------
     @FXML
     private void btnDeleteAction() {
+        currentTable = Users.getInstance().getCurrenUser().getCurrentDatabase().getCurrentTable();
         System.out.println(CC.CYAN + "\nDELETE ROW" + CC.RESET);
-        String tableName = MSQL.getCurrentTable().getName().replace(" ", "_");
+        String tableName = currentTable.getName().replace(" ", "_");
         System.out.println("\ttableName: " + tableName + " - rowData length" + rowData.length);
         boolean returnValue = ms.deleteRow(tableName, rowData);
         if (returnValue) {
@@ -338,8 +346,9 @@ public class VFController implements Initializable {
 
     @FXML
     private void btnUpdateAction() {
+        currentTable = Users.getInstance().getCurrenUser().getCurrentDatabase().getCurrentTable();
         System.out.println(CC.CYAN + "\nUPDATE ROW" + CC.RESET);
-        String tableName = MSQL.getCurrentTable().getName().replace(" ", "_");
+        String tableName = currentTable.getName().replace(" ", "_");
         int length = MSQL.getColumnsLength();
         Object[] newValues = new Object[length];
 
@@ -365,13 +374,15 @@ public class VFController implements Initializable {
 
     @FXML
     private void btnAddAction() {
+        currentTable = Users.getInstance().getCurrenUser().getCurrentDatabase().getCurrentTable();
+
         System.out.println(CC.CYAN + "\nINSERT ROW" + CC.RESET);
         int length = MSQL.getColumns().length;
         Object[] values = new Object[length];
         GetNodesValuesImpl gn = new GetNodesValuesImpl(values);
         forEachAction(length, gn);
 
-        String tableName = MSQL.getCurrentTable().getName().replace(" ", "_");
+        String tableName = currentTable.getName().replace(" ", "_");
 
         ms.setIDataToLong(e -> {
             System.out.println("\tData too long");
@@ -427,19 +438,15 @@ public class VFController implements Initializable {
             tfsAutoC.add(a, new PopupAutoC(tfs[a]));
             tfsFKList.add(FXCollections.observableArrayList()); // FK MATCH
             /*
-            tfsAutoC.add(a, TextFields.bindAutoCompletion(tfs[a]));
-            tfsAutoC.get(a).setDelay(0);
-            tfsAutoC.get(a).setOnAutoCompleted(this::tfsSetOnAutoCompleted);
-            tfs[a].addEventHandler(KeyEvent.KEY_RELEASED, e -> {
-                if (!e.getCode().isNavigationKey()) {
-                    int index = Integer.parseInt(((TextField) e.getSource()).getId());
-                    String[] split = tfs[index].getText().split("; ");
-                    if (split.length > 1) {
-                        tfsAutoC.get(index).setUserInput(split[split.length - 1]);
-                    }
-                }
-            });
-            */
+             * tfsAutoC.add(a, TextFields.bindAutoCompletion(tfs[a]));
+             * tfsAutoC.get(a).setDelay(0);
+             * tfsAutoC.get(a).setOnAutoCompleted(this::tfsSetOnAutoCompleted);
+             * tfs[a].addEventHandler(KeyEvent.KEY_RELEASED, e -> { if
+             * (!e.getCode().isNavigationKey()) { int index = Integer.parseInt(((TextField)
+             * e.getSource()).getId()); String[] split = tfs[index].getText().split("; ");
+             * if (split.length > 1) { tfsAutoC.get(index).setUserInput(split[split.length -
+             * 1]); } } });
+             */
             btns[a] = new ToggleButton();
 
             // tfas[a].setStyle(CSS.TFAS_DEFAULT_LOOK);
@@ -477,6 +484,11 @@ public class VFController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         // NODES-----------------------------------
         nonFXMLNodesInit();
+        tfDatabaseAutoC = new PopupAutoC(tfDatabase);
+        tfDatabaseAutoC.getNoSearchableItems().add(NO_DATABASES);
+        tfTableAutoC = new PopupAutoC(tfTable);
+        tfTableAutoC.getNoSearchableItems().add(NO_TABLES);
+
         tfsFKList.forEach(l -> l.addListener(this::tfsFKListChange));
         Arrays.asList(btns).forEach(btn -> btn.setOnAction(this::btnsOnAction));
         // IMAGE-VIEW-------------------------------------
@@ -718,6 +730,22 @@ public class VFController implements Initializable {
 
     public void setSelectedRow(Object[] selectedRow) {
         this.selectedRow = selectedRow;
+    }
+
+    public PopupAutoC getTfDatabaseAutoC() {
+        return tfDatabaseAutoC;
+    }
+
+    public void setTfDatabaseAutoC(PopupAutoC tfDatabaseAutoC) {
+        this.tfDatabaseAutoC = tfDatabaseAutoC;
+    }
+
+    public PopupAutoC getTfTableAutoC() {
+        return tfTableAutoC;
+    }
+
+    public void setTfTableAutoC(PopupAutoC tfTableAutoC) {
+        this.tfTableAutoC = tfTableAutoC;
     }
 
 }

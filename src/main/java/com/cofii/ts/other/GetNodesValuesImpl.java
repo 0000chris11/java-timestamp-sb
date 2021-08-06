@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.cofii.ts.sql.MSQL;
 import com.cofii.ts.store.main.Column;
+import com.cofii.ts.store.main.Users;
 import com.cofii2.components.javafx.TextFieldAutoC;
 
 import javafx.scene.control.ComboBox;
@@ -19,7 +20,7 @@ public class GetNodesValuesImpl implements ActionForEachNode {
 
     @Override
     public void forTFS(TextField tf, int c) {
-        List<Column> columns = MSQL.getCurrentTable().getColumns();
+        List<Column> columns = Users.getInstance().getCurrenUser().getCurrentDatabase().getCurrentTable().getColumns();
 
         if (columns.get(c).getType().contains("CHAR")) {
             if (!tf.getText().trim().isEmpty()) {
@@ -47,7 +48,7 @@ public class GetNodesValuesImpl implements ActionForEachNode {
 
     @Override
     public void forTFAS(TextFieldAutoC tfa, int c) {
-        List<Column> columns = MSQL.getCurrentTable().getColumns();
+        List<Column> columns = Users.getInstance().getCurrenUser().getCurrentDatabase().getCurrentTable().getColumns();
 
         if (columns.get(c).getType().contains("CHAR")) {
             values[c] = tfa.getTf().getText().trim();

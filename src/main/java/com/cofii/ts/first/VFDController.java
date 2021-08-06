@@ -7,6 +7,8 @@ import java.util.ResourceBundle;
 import com.cofii.ts.other.CSS;
 import com.cofii.ts.other.NonCSS;
 import com.cofii.ts.sql.MSQL;
+import com.cofii.ts.store.main.Table;
+import com.cofii.ts.store.main.Users;
 import com.cofii2.components.javafx.popup.PopupAutoC;
 
 import javafx.collections.ObservableList;
@@ -36,6 +38,7 @@ public class VFDController implements Initializable {
     private Label lbResult;
     // ------------------------------------------------------------
     private VFController vf;
+    private Table currenTable = Users.getInstance().getCurrenUser().getCurrentDatabase().getCurrentTable();
     // ------------------------------------------------------------
     private void resetResult(){
         lbSearch.setTextFill(NonCSS.TEXT_FILL);
@@ -45,7 +48,7 @@ public class VFDController implements Initializable {
     }
     // ------------------------------------------------------------
     private void btnFindAction(ActionEvent ev) {
-        String table = MSQL.getCurrentTable().getName();
+        String table = currenTable.getName();
         String text = tfText.getText();
         String column = tfColumn.getText();
 
@@ -55,7 +58,7 @@ public class VFDController implements Initializable {
         ObservableList<ObservableList<Object>> rows = vf.getTable().getItems();
         int colIndex = -1;
         if (!column.equals("Any")) {
-            colIndex = MSQL.getCurrentTable().getColumnIndex(column);
+            colIndex = currenTable.getColumnIndex(column);
         }
         int matchResult = 0;
         for (int a = 0; a < rows.size(); a++) {
@@ -85,7 +88,7 @@ public class VFDController implements Initializable {
     private void tfColumnTextProperty(String newValue) {
         resetResult();
 
-        if (MSQL.getCurrentTable().getColumns().stream().anyMatch(col -> newValue.equals(col.getName()))) {
+        if (currenTable.getColumns().stream().anyMatch(col -> newValue.equals(col.getName()))) {
             tfColumn.setStyle(CSS.TEXT_FILL);
             btnFind.setDisable(false);
         } else {
@@ -102,10 +105,10 @@ public class VFDController implements Initializable {
         // ---------------------------------------
         tfText.setOnKeyReleased(this::tfTextKeyReleased);
 
-        int columnSize = MSQL.getCurrentTable().getColumns().size();
+        int columnSize = currenTable.getColumns().size();
         String[] columnsArray = new String[columnSize + 1];// .................
         for (int a = 0; a < columnSize; a++) {// COULN'T FIGURE OUT OF A SIMPLE WAY TO DO IT
-            columnsArray[a] = MSQL.getCurrentTable().getColumns().get(a).getName();
+            columnsArray[a] = currenTable.getColumns().get(a).getName();
         }
         columnsArray[columnSize] = "Any";
         new PopupAutoC(tfColumn, columnsArray);// .................................

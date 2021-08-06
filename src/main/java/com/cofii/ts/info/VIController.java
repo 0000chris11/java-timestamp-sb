@@ -11,6 +11,7 @@ import com.cofii.ts.store.FKS;
 import com.cofii.ts.store.PK;
 import com.cofii.ts.store.PKS;
 import com.cofii.ts.store.main.Table;
+import com.cofii.ts.store.main.Users;
 
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -96,7 +97,7 @@ public class VIController implements Initializable {
     }
 
     private void nonFXMLNodeSet() {
-        Table table = MSQL.getCurrentTable();
+        Table table = Users.getInstance().getCurrenUser().getCurrentDatabase().getCurrentTable();
         int length = table.getColumns().size();
         for (int a = 0; a < length; a++) {
             String column = table.getColumns().get(a).getName();

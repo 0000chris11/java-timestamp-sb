@@ -11,6 +11,7 @@ import com.cofii.ts.sql.MSQL;
 import com.cofii.ts.store.SQLTypes;
 import com.cofii.ts.store.main.Column;
 import com.cofii.ts.store.main.Table;
+import com.cofii.ts.store.main.Users;
 import com.cofii2.myInterfaces.IActions;
 
 import javafx.beans.property.ReadOnlyObjectWrapper;
@@ -27,7 +28,7 @@ public class ShowColumns implements IActions {
 
     private int rows;
     private VFController vf;
-    private Table table = MSQL.getCurrentTable();
+    private Table currentTable = Users.getInstance().getCurrenUser().getCurrentDatabase().getCurrentTable();
     //private ColumnS columns = ColumnS.getInstance();
     private SQLTypes types = SQLTypes.getInstance();
 
@@ -41,7 +42,7 @@ public class ShowColumns implements IActions {
 
         vf.getTable().getColumns().clear();
         //columns.clearColumn();
-        table.getColumns().clear();
+        currentTable.getColumns().clear();
     }
 
     @Override
@@ -87,7 +88,7 @@ public class ShowColumns implements IActions {
         vf.getBtns()[row - 1].setVisible(true);
         //---------------------------------------------
         //columns.addColumn(new Column(columnName, type, typeLength, nullValue, defaultt, extra));
-        table.getColumns().add(new Column(columnName, type, typeLength, nullValue, defaultt, extra));
+        currentTable.getColumns().add(new Column(columnName, type, typeLength, nullValue, defaultt, extra));
         //---------------------------------------------
         rows = row;
         //ADDING COLUMNS-------------------------------

@@ -13,6 +13,7 @@ import com.cofii.ts.store.FKS;
 import com.cofii.ts.store.PKS;
 import com.cofii.ts.store.UpdateTable;
 import com.cofii.ts.store.main.Table;
+import com.cofii.ts.store.main.Users;
 import com.cofii2.components.javafx.SceneZoom;
 import com.cofii2.mysql.MSQLP;
 import com.cofii2.stores.CC;
@@ -29,7 +30,7 @@ public class VC {
 
     private VCController vcc;
     private MSQLP ms;
-    private Table table = MSQL.getCurrentTable();
+    private Table currentTable = Users.getInstance().getCurrenUser().getCurrentDatabase().getCurrentTable();
 
     private DoubleProperty zoomProperty = new SimpleDoubleProperty(1.0);
     // private UpdateTable updateTable;
@@ -105,25 +106,25 @@ public class VC {
         FKS fks = FKS.getInstance();
 
         //ColumnDS columnds = ColumnDS.getInstance();
-        int columnCount = MSQL.getCurrentTable().getColumns().size();
-        String tableName = MSQL.getCurrentTable().getName().replace("_", " ");
+        int columnCount = currentTable.getColumns().size();
+        String tableName = currentTable.getName().replace("_", " ");
 
-        List<String> columnsName = new ArrayList<>(table.getColumnNames());
-        List<String> types = new ArrayList<>(table.getColumnTypes());
-        List<Integer> typesLength = new ArrayList<>(table.getColumnTypeLengths());
-        List<Boolean> nulls = new ArrayList<>(table.getColumnNulls());
+        List<String> columnsName = new ArrayList<>(currentTable.getColumnNames());
+        List<String> types = new ArrayList<>(currentTable.getColumnTypes());
+        List<Integer> typesLength = new ArrayList<>(currentTable.getColumnTypeLengths());
+        List<Boolean> nulls = new ArrayList<>(currentTable.getColumnNulls());
 
         List<String> cpks = new ArrayList<>(Arrays.asList(pks.getYesAndNoPKS()));
 
         FK[] cfks = fks.getCurrentTableFKS();
         List<String> yfks = new ArrayList<>(Arrays.asList(fks.getYesAndNoFKS()));
-        String[] fksFormed = new String[table.getColumns().size()];
+        String[] fksFormed = new String[currentTable.getColumns().size()];
 
-        List<Object> defaults = new ArrayList<>(table.getColumnDefaults());
-        int extra = table.getExtra();
+        List<Object> defaults = new ArrayList<>(currentTable.getColumnDefaults());
+        int extra = currentTable.getExtra();
 
-        List<Boolean> dists = new ArrayList<>(table.getColumnDists());
-        List<Boolean> imageCS = new ArrayList<>(table.getColumnImageCS());
+        List<Boolean> dists = new ArrayList<>(currentTable.getColumnDists());
+        List<Boolean> imageCS = new ArrayList<>(currentTable.getColumnImageCS());
         //List<String> imageCPathList = Arrays.asList(columnds.getImageCPaths());
         //String imageCPath = "NONE";
 
@@ -181,8 +182,8 @@ public class VC {
             vcc.getBtnsImageC().get(a).setSelected(imageCS.get(a) != null);// ERROR IF THERE IS MORE THAN ONE
             
         }
-        if (!table.getImageCPath().equals("NONE")) {
-            vcc.getTfImageCPath().setText(table.getImageCPath());
+        if (!currentTable.getImageCPath().equals("NONE")) {
+            vcc.getTfImageCPath().setText(currentTable.getImageCPath());
         }
 
         // ----------------------------------------------------
@@ -201,12 +202,12 @@ public class VC {
         updateTable.setDefaults(defaults);
         updateTable.setExtra(extra);
 
-        updateTable.setDistHole(table.getDist());
+        updateTable.setDistHole(currentTable.getDist());
         updateTable.setDists(dists);
         //updateTable.setDistYN(dists);
-        updateTable.setImageCHole(table.getImageC());
+        updateTable.setImageCHole(currentTable.getImageC());
         updateTable.setImageCS(imageCS);
-        updateTable.setImageCPathHole(table.getImageCPath());
+        updateTable.setImageCPathHole(currentTable.getImageCPath());
 
         updateTable.setRowLength(columnCount);
         vcc.setUpdateTable(updateTable);
@@ -224,7 +225,7 @@ public class VC {
             }
         } else {
             vcc.getTfTable().setStyle(CSS.TEXT_FILL_HINT);
-            for (int a = 0; a < table.getColumns().size() ; a++) {
+            for (int a = 0; a < currentTable.getColumns().size() ; a++) {
                 vcc.getTfsColumn().get(a).setStyle(CSS.TEXT_FILL_HINT);
                 vcc.getTfasType().get(a).setStyle(CSS.TEXT_FILL_HINT);
                 vcc.getTfsTypeLength().get(a).setStyle(CSS.TEXT_FILL_HINT);
@@ -240,14 +241,14 @@ public class VC {
         setUpdateStore();
         setTextFill(false);
         vcc.createAddColumnHelpPopupReset();
-        vcc.pesetListInit(table.getColumns().size());
+        vcc.pesetListInit(currentTable.getColumns().size());
         // TOP-------------------------------------------------------
         vcc.getBtnRenameTable().setVisible(true);
         vcc.getBtnRenameTable().setOnAction(vcc::btnRenameTableAction);
         // LEFT------------------------------------------------------
-        rowDisplay(table.getColumns().size());
-        vcc.setCurrentRowLength(table.getColumns().size());
-        for (int a = 0; a < table.getColumns().size(); a++) {
+        rowDisplay(currentTable.getColumns().size());
+        vcc.setCurrentRowLength(currentTable.getColumns().size());
+        for (int a = 0; a < currentTable.getColumns().size(); a++) {
             vcc.getBtnsRemoveColumn().get(a).setOnAction(vcc::btnsRemoveUpdateAction);
             vcc.getBtnsAddColumn().get(a).setOnAction(vcc::btnsColumnSetVisibleAction);
 

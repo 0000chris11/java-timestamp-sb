@@ -4,17 +4,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Database {
-
-    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! DELETE instance;
-    private static Database instance;
-    public static Database getInstance(){
-        if(instance == null){
-            instance = new Database();
-        }
-        return instance;
-    }
     
+    private int id;
+    private String name;
+
     private List<Table> tables = new ArrayList<>();
+    private Table currentTable;
+    //------------------------------------------
+    public Database(int id, String name){
+        this.id = id;
+        this.name = name;
+    }
     //------------------------------------------
     public void addTable(Table table){
         tables.add(table);
@@ -39,8 +39,21 @@ public class Database {
         }
         return list.toArray(new String[list.size()]);
     }
-    //------------------------------------------
-    private Database(){
-
+    //GETTERS & SETTERS------------------------------------------
+    public String getName() {
+        return name;
     }
+    public void setName(String name) {
+        this.name = name;
+    }
+    public void setTables(List<Table> tables) {
+        this.tables = tables;
+    }
+    public Table getCurrentTable() {
+        return currentTable;
+    }
+    public void setCurrentTable(Table currentTable) {
+        this.currentTable = currentTable;
+    }
+    
 }

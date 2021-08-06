@@ -9,6 +9,7 @@ import com.cofii.ts.first.VFController;
 import com.cofii.ts.sql.MSQL;
 import com.cofii.ts.sql.querys.SelectDistinct;
 import com.cofii.ts.store.main.Table;
+import com.cofii.ts.store.main.Users;
 import com.cofii2.methods.MString;
 import com.cofii2.mysql.MSQLP;
 
@@ -27,9 +28,8 @@ public class Dist {
     private MSQLP ms;
 
     // -----------------------------------------------------
-    private void dist() {
-        Table table = MSQL.getCurrentTable();
-        String dist = MSQL.getCurrentTable().getDist();
+    private void dist(Table currentTable) {
+        String dist = currentTable.getDist();
         if (!dist.equals("NONE")) {
             String[] split = dist.split(",");
             if (split.length == 0) {
@@ -39,21 +39,21 @@ public class Dist {
 
             GridPane gp = vf.getGridPane();
             for (int a = 0; a < split.length; a++) {
-                int c = table.getColumnIndex(split[a].replace("_", " "));
+                int c = currentTable.getColumnIndex(split[a].replace("_", " "));
                 if (vf.getTfsFKList().get(c).isEmpty()) {// NOT IF THIS COLUMN HAS FK
                     vf.getTfsAutoC().get(c).setTfParent(vf.getTfs()[c]);
                     vf.getTfs()[c].setStyle(CSS.TFS_DIST_LOOK);
 
-                    if (table.getColumns().get(c).getExtra()) {
+                    if (currentTable.getColumns().get(c).getExtra()) {
                         vf.getTfs()[c].setPromptText("AUTO_INCREMENT");
                     }
 
                     //???????????????????????
                     //columnsd.getList().get(c).setDist("Yes");
-                    table.getColumns().get(c).setDist(true);
+                    currentTable.getColumns().get(c).setDist(true);
                     // QUERY --------------------------------------------------
-                    String tableName = MSQL.getCurrentTable().getName().replace(" ", "_");
-                    String column = table.getColumns().get(c).getName();
+                    String tableName = currentTable.getName().replace(" ", "_");
+                    String column = currentTable.getColumns().get(c).getName();
 
                     ms.setDistinctOrder(MSQLP.MOST_USE_ORDER);// WORK 50 50 WITH TAGS
                     ms.selectDistinctColumn(tableName, column.replace(" ", "_"), new SelectDistinct(vf, c));
@@ -64,16 +64,15 @@ public class Dist {
         }
     }
 
-    private void imageC() {
-        Table table = MSQL.getCurrentTable();
-        String imageC = table.getImageC();
-        String imageCPath = table.getImageCPath();
+    private void imageC(Table currentTable) {
+        String imageC = currentTable.getImageC();
+        String imageCPath = currentTable.getImageCPath();
 
         if (!imageCPath.equals("NONE")) {
-            int index = table.getColumnIndex(imageC);
+            int index = currentTable.getColumnIndex(imageC);
             //columnsd.getList().get(index).setImageC("Yes");
-            table.getColumns().get(index).setImageC(true);
-            table.setImageCPath(imageCPath);
+            currentTable.getColumns().get(index).setImageC(true);
+            currentTable.setImageCPath(imageCPath);
             //columnsd.getList().get(index).setImageCPath(imageCPath);
 
             vf.getSplitLeft().setDividerPositions(0.6);
@@ -103,23 +102,24 @@ public class Dist {
     }
 
     public void distStart() {
-        Table table = MSQL.getCurrentTable();
+        Table currentTable = Users.getInstance().getCurrenUser().getCurrentDatabase().getCurrentTable();
         //columnsd.clear();
-        for (int a = 0; a < table.getColumns().size(); a++) {
+        for (int a = 0; a < currentTable.getColumns().size(); a++) {
             //columnsd.addColumnD(new ColumnD());
         }
 
-        dist();
-        imageC();
+        dist(currentTable);
+        imageC(currentTable);
     }
 
     public void distAction() {
-        Table table = MSQL.getCurrentTable();
+        Table currentTable = Users.getInstance().getCurrenUser().getCurrentDatabase().getCurrentTable();
+
         
-        for (int a = 0; a < table.getColumns().size(); a++) {
-            if (table.getColumns().get(a).getDist()){
-                String tableName = MSQL.getCurrentTable().getName().replace(" ", "_");
-                String column = table.getColumns().get(a).getName();
+        for (int a = 0; a < currentTable.getColumns().size(); a++) {
+            if (currentTable.getColumns().get(a).getDist()){
+                String tableName = currentTable.getName().replace(" ", "_");
+                String column = currentTable.getColumns().get(a).getName();
                 ms.setDistinctOrder(MSQLP.MOST_USE_ORDER);// WORK 50 50 WITH TAGS
                 ms.selectDistinctColumn(tableName, column, new SelectDistinct(vf, a));
             }

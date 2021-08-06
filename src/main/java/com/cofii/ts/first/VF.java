@@ -13,7 +13,8 @@ import com.cofii.ts.sql.querys.SelectKeys;
 import com.cofii.ts.sql.querys.SelectTableDefault;
 import com.cofii.ts.sql.querys.ShowColumns;
 import com.cofii.ts.sql.querys.ShowTableCurrentDB;
-import com.cofii.ts.store.main.Database;
+import com.cofii.ts.store.main.Table;
+import com.cofii.ts.store.main.Users;
 import com.cofii2.components.javafx.SceneZoom;
 import com.cofii2.mysql.MSQLP;
 
@@ -25,7 +26,7 @@ import javafx.stage.Stage;
 
 public class VF {
 
-    private static VFController vf;
+    private static VFController vfc;
     private VLController vl;
     private VCController vc;
 
@@ -33,8 +34,8 @@ public class VF {
     private static MSQLP ms;
 
     //INSTANCES-------------------------------------
-    private Database tables = Database.getInstance();
     private Menus menus;
+    private Table currentTable = Users.getInstance().getCurrenUser().getCurrentDatabase().getCurrentTable();
     // private static ColumnS columns = ColumnS.getInstance();
     // private static ColumnDS columnsd = ColumnDS.getInstance();
     private Dist dist;
@@ -54,9 +55,9 @@ public class VF {
              * if (Arrays.asList(columnsd.getImageCS()).stream().allMatch(s ->
              * s.equals("No"))) { vf.getSplitLeft().setDividerPositions(1.0); }
              */
-            if (MSQL.getCurrentTable() != null) {
-                if (MSQL.getCurrentTable().getImageC().equals("NONE")) {
-                    vf.getSplitLeft().setDividerPositions(1.0);
+            if (currentTable != null) {
+                if (currentTable.getImageC().equals("NONE")) {
+                    vfc.getSplitLeft().setDividerPositions(1.0);
                 }
             }
         }
@@ -67,9 +68,9 @@ public class VF {
          * if (Arrays.asList(columnsd.getImageCS()).stream().allMatch(s ->
          * s.equals("No"))) { vf.getSplitLeft().setDividerPositions(1.0); }
          */
-        if (MSQL.getCurrentTable() != null) {
-            if (MSQL.getCurrentTable().getImageC().equals("NONE")) {
-                vf.getSplitLeft().setDividerPositions(1.0);
+        if (currentTable != null) {
+            if (currentTable.getImageC().equals("NONE")) {
+                vfc.getSplitLeft().setDividerPositions(1.0);
             }
         }
     }
@@ -77,11 +78,12 @@ public class VF {
     // INIT-----------------------------------------
     private void querysStart() {
         //SELECT DATABASES FOR CURRENT USER
-        ms.selectData(MSQL.TABLE_DATABASES, new SelectDatabases(this));
+        ms.selectData(MSQL.TABLE_DATABASES, new SelectDatabases(this, vfc));
         if(noDatabases){
-
+            vfc.getTfDatabaseAutoC().addItem(VFController.NO_DATABASES);
+        }else if(){
+            ms.use(database);
         }
-        //ms.use(database);
 
         ms.selectTables(new ShowTableCurrentDB());
         if (!MSQL.isTableNamesExist()) {
@@ -100,20 +102,20 @@ public class VF {
         if (startFromLogin) {
             ms.executeQuery(MSQL.SELECT_TABLE_ROW_DEFAULT, new SelectTableDefault());
         }
-        if (MSQL.getCurrentTable() != null) {
-            String table = MSQL.getCurrentTable().getName();
-            vf.getLbTable().setText(table);
+        if (currentTable != null) {
+            String table = currentTable.getName();
+            vfc.getLbTable().setText(table);
 
-            ms.selectColumns(table.replace(" ", "_"), new ShowColumns(vf));
-            ms.selectKeys(MSQL.getDatabases(), new SelectKeys(vf));
+            ms.selectColumns(table.replace(" ", "_"), new ShowColumns(vfc));
+            ms.selectKeys(MSQL.getDatabases(), new SelectKeys(vfc));
             dist.distStart();
 
-            ms.selectData(table.replace(" ", "_"), new SelectData(vf, null));
+            ms.selectData(table.replace(" ", "_"), new SelectData(vfc, null));
         } else {
-            vf.clearCurrentTableView();
+            vfc.clearCurrentTableView();
         }
         // OTHERS LISTENERS--------------------
-        ms.setSQLException((ex, s) -> vf.getLbStatus().setText(ex.getMessage(), NonCSS.TEXT_FILL_ERROR));
+        ms.setSQLException((ex, s) -> vfc.getLbStatus().setText(ex.getMessage(), NonCSS.TEXT_FILL_ERROR));
     }
 
     private void init() {
@@ -121,8 +123,8 @@ public class VF {
             FXMLLoader loader = new FXMLLoader(VF.class.getResource("/com/cofii/ts/first/VF.fxml"));
             // ZOOMIMING PANE-----------------------
             SceneZoom sceneZoom = new SceneZoom(loader.load(), scaleVF);
-            vf = (VFController) loader.getController();
-            sceneZoom.setParent(vf.getBpMain());
+            vfc = (VFController) loader.getController();
+            sceneZoom.setParent(vfc.getBpMain());
             // ------------------------------------
             Scene scene = sceneZoom.getScene();
             scene.getStylesheets().add(VF.class.getResource("/com/cofii/ts/first/VF.css").toExternalForm());
@@ -135,19 +137,19 @@ public class VF {
             }
             // MENU START-------------------------------------
             Menus.clearInstance();
-            menus = Menus.getInstance(vf);
+            menus = Menus.getInstance(vfc);
             // STAGE LISTENER-------------------------------------------------
             stage.maximizedProperty().addListener((obs, oldValue, newValue) -> stageMaximizedPropertyChange(newValue));
             stage.heightProperty().addListener((obs, oldValue, newValue) -> heightPropertyChangeListener());
             // SOME SETTERS TO VFCONTROLLER-------------------------------------------------
-            vf.setStage(vl != null ? stage : vc.getVf().getStage());
-            vf.setScene(scene);
-            vf.setVl(vl);
+            vfc.setStage(vl != null ? stage : vc.getVf().getStage());
+            vfc.setScene(scene);
+            vfc.setVl(vl);
 
             ms = vl.getMsRoot();
-            vf.setMs(ms);
+            vfc.setMs(ms);
             // DIST START---------------------------------
-            dist = Dist.getInstance(vf);
+            dist = Dist.getInstance(vfc);
             // -------------------------------------------
             querysStart();
 

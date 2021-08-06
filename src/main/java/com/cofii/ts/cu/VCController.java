@@ -32,6 +32,7 @@ import com.cofii.ts.store.UpdateTable;
 import com.cofii.ts.store.VCGridNodes;
 import com.cofii.ts.store.main.Database;
 import com.cofii.ts.store.main.Table;
+import com.cofii.ts.store.main.Users;
 import com.cofii2.components.javafx.LabelStatus;
 import com.cofii2.components.javafx.ToggleGroupD;
 import com.cofii2.components.javafx.TrueFalseWindow;
@@ -241,7 +242,9 @@ public class VCController implements Initializable {
     // ---------------------------------------------
     private VFController vf;
     private MSQLP ms;
-    private Database tables = Database.getInstance();
+
+    private Database currentDatabse = Users.getInstance().getCurrenUser().getCurrentDatabase();
+    private Table currentTable = currentDatabse.getCurrentTable();
     private SQLTypes types = SQLTypes.getInstance();
     // private Keys keys = Keys.getInstance();
     private PKS pks = PKS.getInstance();
@@ -301,7 +304,7 @@ public class VCController implements Initializable {
             index = Integer.parseInt(((TextField) e.getSource()).getId());
         }
 
-        tableName = MSQL.getCurrentTable().getName().replace(" ", "_");
+        tableName = currentTable.getName().replace(" ", "_");
         if (index >= 0 && !columnAdd && updateControl) {
             column = updateTable.getColumns().get(index).replace(" ", "_");
             type = tfsType.get(index).getText()
@@ -340,14 +343,13 @@ public class VCController implements Initializable {
     }
 
     private String getImageCBeforeUpdate() {
-        Table table = MSQL.getCurrentTable();
         int[] indexs = { -1 };
         boolean imageCIndexMatch = btnsImageC.stream().anyMatch(btn -> {
             indexs[0]++;
             return btn.isVisible() && btn.isSelected();
         });
-        
-        return imageCIndexMatch ? table.getColumns().get(indexs[0]).getName() : "NONE";
+
+        return imageCIndexMatch ? currentTable.getColumns().get(indexs[0]).getName() : "NONE";
     }
 
     // MASTER CONTROL---------------------------------------------
@@ -378,7 +380,7 @@ public class VCController implements Initializable {
     private void tfTableKeyReleased(KeyEvent e) {
         if (!e.getCode().isArrowKey() && !e.getCode().isFunctionKey() && !e.getCode().isMediaKey()
                 && !e.getCode().isModifierKey() && !e.getCode().isNavigationKey()) {
-            String[] tableList = tables.getTables();
+            String[] tableList = currentDatabse.getTables();
             String text = tfTable.getText().toLowerCase().trim().replace(" ", "_");
 
             matcher = patternBWTC.matcher(text);
@@ -426,7 +428,7 @@ public class VCController implements Initializable {
     void btnRenameTableAction(ActionEvent e) {
         System.out.println(CC.CYAN + "Rename Table" + CC.RESET);
         // NOT TESTED------------------------------------
-        String oldTable = MSQL.getCurrentTable().getName().toLowerCase().trim().replace(" ", "_");
+        String oldTable = currentTable.getName().toLowerCase().trim().replace(" ", "_");
         String newTable = tfTable.getText().toLowerCase().trim().replace(" ", "_");
         boolean renameTable = ms.renameTable(oldTable, newTable);
         if (renameTable) {
@@ -442,7 +444,8 @@ public class VCController implements Initializable {
                         ctable = new Table(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getString(4),
                                 rs.getString(5));
                     }
-                    MSQL.setCurrentTable(ctable);
+
+                    Users.getInstance().getCurrenUser().getCurrentDatabase().setCurrentTable(ctable);
                 } catch (SQLException e1) {
                     e1.printStackTrace();
                 }
@@ -834,8 +837,8 @@ public class VCController implements Initializable {
 
             exitColumnAddState(index);
 
-            lbStatus.setText("Added column '" + column + "' to '" + MSQL.getCurrentTable().getName() + "'",
-                    NonCSS.TEXT_FILL_OK, Duration.seconds(2));
+            lbStatus.setText("Added column '" + column + "' to '" + currentTable.getName() + "'", NonCSS.TEXT_FILL_OK,
+                    Duration.seconds(2));
             System.out.println("\tSUCCES");
         } else {
             lbStatus.setText("Couldn't add column '" + column + "'", NonCSS.TEXT_FILL_ERROR);
@@ -2228,12 +2231,13 @@ public class VCController implements Initializable {
                 if (imageCPathOk) {
 
                     /*
-                    String imageCO = Custom.getOldImageC(currentRowLength,
-                            updateTable.getImageCHole().toArray(new String[updateTable.getImageCHole().size()]));
-
-                            String imageC = Custom.getOldImageC(currentRowLength,
-                            btnsImageC.toArray(new ToggleButton[btnsImageC.size()]));
-                            */
+                     * String imageCO = Custom.getOldImageC(currentRowLength,
+                     * updateTable.getImageCHole().toArray(new
+                     * String[updateTable.getImageCHole().size()]));
+                     * 
+                     * String imageC = Custom.getOldImageC(currentRowLength, btnsImageC.toArray(new
+                     * ToggleButton[btnsImageC.size()]));
+                     */
                     String imageCO = updateTable.getImageCHole();
                     String imageC = getImageCBeforeUpdate();
 
@@ -2271,13 +2275,14 @@ public class VCController implements Initializable {
         String message = null;
         // IMAGEC UPDATE-------------------------------------
         if (!imageCO.equals(imageC)) {
-            boolean updateImageC = ms.updateRow(MSQL.TABLE_NAMES, "Name", tableName.replace("_", " "), "ImageC", imageC);
+            boolean updateImageC = ms.updateRow(MSQL.TABLE_NAMES, "Name", tableName.replace("_", " "), "ImageC",
+                    imageC);
             if (updateImageC) {
                 if (!imageC.equals("NONE")) {
                     int id = Character.getNumericValue(imageC.charAt(1)) - 1;
                     for (int a = 0; a < currentRowLength; a++) {
                         if (a == id) {
-                            
+
                             updateTable.getImageCS().set(id, true);
                         } else {
                             updateTable.getImageCS().set(a, false);
@@ -2302,8 +2307,8 @@ public class VCController implements Initializable {
         }
         // IMAGECPATH UPDATE--------------------------------------
         if (!imageCPathO.equals(imageCPath)) {
-            boolean updateImageCPath = ms.updateRow(MSQL.TABLE_NAMES, "Name", tableName.replace("_", " "), "ImageC_Path",
-                    imageCPath.replace("\\", "\\\\"));
+            boolean updateImageCPath = ms.updateRow(MSQL.TABLE_NAMES, "Name", tableName.replace("_", " "),
+                    "ImageC_Path", imageCPath.replace("\\", "\\\\"));
             if (updateImageCPath) {
                 updateTable.setImageCPathHole(imageCPath);
                 if (imageCPath.equals("NONE")) {
@@ -2360,7 +2365,7 @@ public class VCController implements Initializable {
         pksReferences = list.toArray(new String[list.size()]);
         tfsFKPs.forEach(e -> {
             e.addAllItems(pksReferences);
-            //e.getLv().getItems().addAll(pksReferences);
+            // e.getLv().getItems().addAll(pksReferences);
         });
         tfsFKPs.get(0).getLv().getSelectionModel().select(0);
     }
@@ -2506,12 +2511,11 @@ public class VCController implements Initializable {
     }
 
     private void initLeftNodes(int index) {
-        Table table = MSQL.getCurrentTable();
         // ADDING NEW INDEXS OR
         // ALL---------------------------------------------------------
         int forSize = MSQL.MAX_COLUMNS;
         if (updateControl) {
-            forSize = index == -1 ? table.getColumns().size() : currentRowLength;
+            forSize = index == -1 ? currentTable.getColumns().size() : currentRowLength;
         }
         int forSize2 = forSize;
         if (index >= 0) {
@@ -2673,11 +2677,10 @@ public class VCController implements Initializable {
     }
 
     private void initRightNodes(int index) {
-        Table table = MSQL.getCurrentTable();
         // ---------------------------------------------------------
         int forSize = MSQL.MAX_COLUMNS;
         if (updateControl) {
-            forSize = index == -1 ? table.getColumns().size() : currentRowLength;
+            forSize = index == -1 ? currentTable.getColumns().size() : currentRowLength;
         }
         int forSize2 = forSize;
         if (index >= 0) {

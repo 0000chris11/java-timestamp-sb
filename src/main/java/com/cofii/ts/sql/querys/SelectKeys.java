@@ -31,30 +31,6 @@ public class SelectKeys implements IActions {
     private String referencedColumnName;
 
     // -----------------------------------------------------------
-    private void keysImplement() {
-        String currentDatabase = MSQL.getDatabase().toLowerCase();
-        String currentTable = MSQL.getCurrentTable().getName().replace(" ", "_").toLowerCase();
-
-        if (databaseName.equals(currentDatabase) && tableName.equals(currentTable) && !constraintType.isEmpty()) {
-            vf.getLbs()[ordinalPosition - 1].getChildren().clear();
-            Text textColumnName = new Text(columnName);
-            textColumnName.setFill(NonCSS.TEXT_FILL);
-
-            if (constraintType.equals("PRIMARY")) {
-                Text textPk = new Text("(P) ");
-                textPk.setFill(NonCSS.TEXT_FILL_PK);
-
-                vf.getLbs()[ordinalPosition - 1].getChildren().addAll(textPk, textColumnName);
-            } else if(!constraintType.isEmpty()){ //FK CONSTRAINT NAME
-                Text textFk = new Text("(F) ");
-                textFk.setFill(NonCSS.TEXT_FILL_FK);
-
-                vf.getLbs()[ordinalPosition - 1].getChildren().addAll(textFk, textColumnName);
-            }
-        }
-    }
-
-    // -----------------------------------------------------------
     public SelectKeys(VFController vf) {
         this.vf = vf;
     }

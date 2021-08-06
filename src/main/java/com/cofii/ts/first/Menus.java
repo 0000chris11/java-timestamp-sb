@@ -20,6 +20,7 @@ import com.cofii.ts.store.PK;
 import com.cofii.ts.store.PKS;
 import com.cofii.ts.store.main.Database;
 import com.cofii.ts.store.main.Table;
+import com.cofii.ts.store.main.Users;
 import com.cofii2.components.javafx.TrueFalseWindow;
 import com.cofii2.mysql.MSQLP;
 import com.cofii2.stores.CC;
@@ -48,7 +49,8 @@ public class Menus {
     private MenuItem tableDeleteThis = new MenuItem("Delete this table");
     // ---------------------------------------------------
     private static VFController vf;
-    private Database tables = Database.getInstance();
+    private Database currentDatabase = Users.getInstance().getCurrenUser().getCurrentDatabase();
+    private Table currentTable = currentDatabase.getCurrentTable();
     //private ColumnDS columnds = ColumnDS.getInstance();
     private Dist dist = Dist.getInstance(vf);
     private PKS pks = PKS.getInstance();
@@ -71,7 +73,6 @@ public class Menus {
 
     public void selectionForEachTable(ActionEvent e) {
         System.out.println(CC.CYAN + "\nCHANGE TABLE" + CC.RESET);
-        Table table = MSQL.getCurrentTable();
 
         MenuItem mi = (MenuItem) e.getSource();
         String tableName = mi.getText();
@@ -83,7 +84,7 @@ public class Menus {
             if (vf.getLbs()[a].isVisible()) {
                 vf.getLbs()[a].setVisible(false);
 
-                if (Boolean.TRUE.equals(table.getColumnDists().get(a)) || fks.getYesAndNoFKS()[a].equals("Yes")) {// RESETING DIST
+                if (Boolean.TRUE.equals(currentTable.getColumnDists().get(a)) || fks.getYesAndNoFKS()[a].equals("Yes")) {// RESETING DIST
                     vf.getTfsAutoC().get(a).setTfParent(null);
                     vf.getTfs()[a].setStyle(CSS.TFS_DEFAULT_LOOK);
                 }
@@ -104,8 +105,8 @@ public class Menus {
         vf.getMs().selectDataWhere(MSQL.TABLE_NAMES, "name", tableName, new SelectTableNames(true));
         vf.getMs().selectColumns(tableA, new ShowColumns(vf));
         resetKeys();
-        System.out.println("\tMSQL's table: " + MSQL.getCurrentTable().getId() + " - "
-                + MSQL.getCurrentTable().getName() + " - " + MSQL.getCurrentTable().getDist());
+        System.out.println("\tMSQL's table: " + currentTable.getId() + " - "
+                + currentTable.getName() + " - " + currentTable.getDist());
 
         dist.distStart();
         vf.getMs().selectData(tableA, new SelectData(vf, SelectData.MESSGE_TABLE_CHANGE + tableName));
@@ -128,7 +129,7 @@ public class Menus {
 
     private void deleteThisTable(ActionEvent e) {
         System.out.println(CC.CYAN + "Delete This Table" + CC.RESET);
-        String table = MSQL.getCurrentTable().getName().replace(" ", "_");
+        String table = currentTable.getName().replace(" ", "_");
 
         TrueFalseWindow w = new TrueFalseWindow("Delete Table '" + table + "'?");
         w.getBtnFalse().setOnAction(ef -> w.hide());
@@ -167,7 +168,7 @@ public class Menus {
     // ------------------------------------------------------
     public void addMenuItemsReset() {
         vf.getMs().executeQuery(MSQL.SELECT_TABLE_NAMES, new SelectTableNames(false));
-        if (tables.size() == 0) {
+        if (currentDatabase.size() == 0) {
             vf.getMenuSelection().getItems().clear();
             tableDelete.getItems().clear();
             vf.getMenuSelection().getItems().add(new MenuItem("No tables added"));
@@ -175,9 +176,9 @@ public class Menus {
         } else {
             vf.getMenuSelection().getItems().clear();
             tableDelete.getItems().clear();
-            for (int a = 0; a < tables.size(); a++) {
-                vf.getMenuSelection().getItems().add(new MenuItem(tables.getTable(a)));
-                tableDelete.getItems().add(new MenuItem(tables.getTable(a)));
+            for (int a = 0; a < currentDatabase.size(); a++) {
+                vf.getMenuSelection().getItems().add(new MenuItem(currentDatabase.getTable(a)));
+                tableDelete.getItems().add(new MenuItem(currentDatabase.getTable(a)));
             }
         }
 

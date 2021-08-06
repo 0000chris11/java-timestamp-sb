@@ -5,6 +5,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.cofii.ts.sql.MSQL;
+import com.cofii.ts.store.main.Table;
+import com.cofii.ts.store.main.Users;
 import com.cofii2.stores.QString;
 
 public class FKS {
@@ -44,12 +46,15 @@ public class FKS {
     }
 
     public FK[] getCurrentTableFKS() {
+        Table currentTable = Users.getInstance().getCurrenUser().getCurrentDatabase().getCurrentTable();
         return fksList.stream().filter(e -> e.getDatabase().equals(MSQL.getDatabase())
-                && e.getTable().equals(MSQL.getCurrentTable().getName().replace(" ", "_"))).toArray(FK[]::new);
+                && e.getTable().equals(currentTable.getName().replace(" ", "_"))).toArray(FK[]::new);
     }
 
     public String[] getYesAndNoFKS() {
-        String[] fks = new String[MSQL.getCurrentTable().getColumns().size()];
+        Table currentTable = Users.getInstance().getCurrenUser().getCurrentDatabase().getCurrentTable();
+
+        String[] fks = new String[currentTable.getColumns().size()];
         Arrays.fill(fks, "No");
         FK[] cfks = getCurrentTableFKS();
         for (int a = 0; a < cfks.length; a++) {

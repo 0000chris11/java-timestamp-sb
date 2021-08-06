@@ -24,7 +24,6 @@ public class MSQL {
     private static String password;
     private static String[] databases;
     private static String database;
-    private static Table currentTable = null;
     private static String[] columns;
 
     private static int columnsLength;
@@ -148,14 +147,6 @@ public class MSQL {
 
     public static void setWrongPassword(boolean wrongPassword) {
         MSQL.wrongPassword = wrongPassword;
-    }
-
-    public static Table getCurrentTable() {
-        return currentTable;
-    }
-
-    public static void setCurrentTable(Table table) {
-        MSQL.currentTable = table;
     }
 
     public static int getColumnsLength() {
