@@ -128,7 +128,7 @@ public class VFController implements Initializable {
     private TableView<ObservableList<Object>> tableView;
     private ObservableList<ObservableList<Object>> tableData;
 
-    private Table currentTable = Users.getInstance().getCurrenUser().getCurrentDatabase().getCurrentTable();
+    private Table currentTable;
 
     private ImageView[] ivImageC = new ImageView[MSQL.MAX_IMAGES];
     public static final String NO_IMAGE = "ImageC is set to NONE";
@@ -215,6 +215,7 @@ public class VFController implements Initializable {
 
     // TABLE------------------------------------
     private <T> void tableRowSelected(ObservableValue<? extends T> observable, T oldValue, T newValue) {
+        currentTable = Users.getInstance().getCurrenUser().getCurrentDatabase().getCurrentTable();
         ObservableList<ObservableList<Object>> list = tableView.getSelectionModel().getSelectedItems();
         if (list.size() == 1) {// ONE ROW SELECTED
             rowData = new Object[list.get(0).size()];
@@ -306,8 +307,7 @@ public class VFController implements Initializable {
     }
 
     public void tableCellEdit(CellEditEvent<ObservableList<Object>, Object> t) {
-        System.out.println("OLD Value: " + t.getOldValue().toString());
-        System.out.println("NEW Value: " + t.getNewValue().toString());
+        currentTable = Users.getInstance().getCurrenUser().getCurrentDatabase().getCurrentTable();
 
         Object oldValue = t.getOldValue();
         Object newValue = t.getNewValue();

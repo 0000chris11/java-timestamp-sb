@@ -50,7 +50,7 @@ public class Menus {
     // ---------------------------------------------------
     private static VFController vf;
     private Database currentDatabase = Users.getInstance().getCurrenUser().getCurrentDatabase();
-    private Table currentTable = currentDatabase.getCurrentTable();
+    private Table currentTable;
     //private ColumnDS columnds = ColumnDS.getInstance();
     private Dist dist = Dist.getInstance(vf);
     private PKS pks = PKS.getInstance();
@@ -73,6 +73,7 @@ public class Menus {
 
     public void selectionForEachTable(ActionEvent e) {
         System.out.println(CC.CYAN + "\nCHANGE TABLE" + CC.RESET);
+        currentTable = Users.getInstance().getCurrenUser().getCurrentDatabase().getCurrentTable();
 
         MenuItem mi = (MenuItem) e.getSource();
         String tableName = mi.getText();
@@ -129,6 +130,7 @@ public class Menus {
 
     private void deleteThisTable(ActionEvent e) {
         System.out.println(CC.CYAN + "Delete This Table" + CC.RESET);
+        currentTable = Users.getInstance().getCurrenUser().getCurrentDatabase().getCurrentTable();
         String table = currentTable.getName().replace(" ", "_");
 
         TrueFalseWindow w = new TrueFalseWindow("Delete Table '" + table + "'?");

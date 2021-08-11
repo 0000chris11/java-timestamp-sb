@@ -1,6 +1,8 @@
 package com.cofii.ts.first;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collector;
 
 import com.cofii.ts.cu.VCController;
 import com.cofii.ts.login.VLController;
@@ -13,10 +15,12 @@ import com.cofii.ts.sql.querys.SelectKeys;
 import com.cofii.ts.sql.querys.SelectTableDefault;
 import com.cofii.ts.sql.querys.ShowColumns;
 import com.cofii.ts.sql.querys.ShowTableCurrentDB;
+import com.cofii.ts.store.main.Database;
 import com.cofii.ts.store.main.Table;
 import com.cofii.ts.store.main.Users;
 import com.cofii2.components.javafx.SceneZoom;
 import com.cofii2.mysql.MSQLP;
+import com.cofii2.xml.ResourceXML;
 
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
@@ -33,13 +37,13 @@ public class VF {
     private Stage stage = new Stage();
     private static MSQLP ms;
 
-    //INSTANCES-------------------------------------
+    // INSTANCES-------------------------------------
     private Menus menus;
-    private Table currentTable = Users.getInstance().getCurrenUser().getCurrentDatabase().getCurrentTable();
+    private Table currentTable;
     // private static ColumnS columns = ColumnS.getInstance();
     // private static ColumnDS columnsd = ColumnDS.getInstance();
     private Dist dist;
-    //ZOOM----------------------------------------
+    // ZOOM----------------------------------------
     private DoubleProperty scaleVF = new SimpleDoubleProperty(1.0);
 
     /**
@@ -77,14 +81,30 @@ public class VF {
 
     // INIT-----------------------------------------
     private void querysStart() {
-        //SELECT DATABASES FOR CURRENT USER
+        // SELECT DATABASES FOR CURRENT USER
         ms.selectData(MSQL.TABLE_DATABASES, new SelectDatabases(this, vfc));
-        if(noDatabases){
+        if (noDatabases) {
             vfc.getTfDatabaseAutoC().addItem(VFController.NO_DATABASES);
-        }else if(){
-            ms.use(database);
+        } else {
+            // GET DEFAULT DATABASE
+            String resource = Users.getInstance().getDefaultResource();
+            new ResourceXML(resource, ResourceXML.READ_XML, doc -> {
+                final String databaseId = doc.getDocumentElement().getElementsByTagName("database").item(0)
+                        .getAttributes().item(0).getTextContent();
+                System.out.println("TEST VF database; " + databaseId);
+
+                int id = Integer.parseInt(databaseId);
+                if (id > 0) {
+                    String database = Users.getInstance().getCurrenUser().getDatabaseName(id);
+                    ms.use(database);
+                }
+                return null;
+            });
+            //------------------------------------------
+            //SELECT TABLES 
         }
 
+        currentTable = Users.getInstance().getCurrenUser().getCurrentDatabase().getCurrentTable();
         ms.selectTables(new ShowTableCurrentDB());
         if (!MSQL.isTableNamesExist()) {
             ms.executeStringUpdate(MSQL.CREATE_TABLE_NAMES);// NOT TESTED

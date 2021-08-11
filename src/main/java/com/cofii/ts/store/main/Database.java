@@ -55,5 +55,11 @@ public class Database {
     public void setCurrentTable(Table currentTable) {
         this.currentTable = currentTable;
     }
+    public int getId() {
+        return id;
+    }
+    public void setId(int id) {
+        this.id = id;
+    }
     
 }

@@ -7,6 +7,7 @@ public class Users {
 
     private List<User> usersList = new ArrayList<>();
     private User currenUser;
+    private final String defaultResource = "/com/cofii/ts/login/defaults.xml";
     //---------------------------------------
     public void clearUsers(){
         usersList.clear();
@@ -34,6 +35,9 @@ public class Users {
     }
     public void setCurrenUser(User currenUser) {
         this.currenUser = currenUser;
+    }
+    public String getDefaultResource() {
+        return defaultResource;
     }
     
 }
