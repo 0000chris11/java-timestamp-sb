@@ -10,6 +10,7 @@ public class User {
 
     private List<Database> databases = new ArrayList<>();
     private Database currentDatabase;
+    private Database defaultDatabase;
 
     // --------------------------------------------
     public void clearDatabases() {
@@ -22,6 +23,16 @@ public class User {
 
     public String getDatabaseName(int id) {
         return databases.stream().filter(d -> d.getId() == id).toArray(size -> new Database[size])[0].getName();
+    }
+    public String[] getDatabasesNames(){
+        List<String> databasesNames = new ArrayList<>();
+        for(Database database : databases){
+            databasesNames.add(database.getName());
+        }
+        return databasesNames.toArray(new String[databasesNames.size()]);
+    }
+    public Database getDatabase(int id){
+        return databases.stream().filter(d -> d.getId() == id).toArray(size -> new Database[size])[0];
     }
 
     // --------------------------------------------
@@ -61,6 +72,14 @@ public class User {
 
     public void setCurrentDatabase(Database currentDatabase) {
         this.currentDatabase = currentDatabase;
+    }
+
+    public Database getDefaultDatabase() {
+        return defaultDatabase;
+    }
+
+    public void setDefaultDatabase(Database defaultDatabase) {
+        this.defaultDatabase = defaultDatabase;
     }
 
 }

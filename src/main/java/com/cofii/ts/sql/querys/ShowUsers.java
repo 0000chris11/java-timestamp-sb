@@ -10,12 +10,12 @@ import com.cofii.ts.store.main.Users;
 import com.cofii2.methods.MList;
 import com.cofii2.myInterfaces.IActions;
 
-public class ShowUsers implements IActions{
+public class ShowUsers implements IActions {
 
     private VLController vlc;
     private Users users;
 
-    public ShowUsers(VLController vlc){
+    public ShowUsers(VLController vlc) {
         this.vlc = vlc;
     }
 
@@ -30,20 +30,18 @@ public class ShowUsers implements IActions{
         int id = rs.getInt(1);
         String user = rs.getString(2);
 
-        if(!MList.isOnThisList(MSQL.BAND_USERS, user, false)){
-            vlc.getTfUserAC().addItem(user);
-            users.addUser(new User(id, user));
-        }
-        
+        vlc.getTfUserAC().addItem(user);
+        users.addUser(new User(id, user));
+
     }
 
     @Override
     public void afterQuery(String query, boolean rsValue) {
-        if(rsValue){
+        if (rsValue) {
             vlc.setUserOK(true);
             vlc.getTfUserAC().getLv().getSelectionModel().select(0);
         }
-        
+
     }
-    
+
 }

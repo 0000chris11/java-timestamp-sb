@@ -32,8 +32,7 @@ public class SelectDistinct implements IActions {
 
     @Override
     public void beforeQuery() {
-        vf.getTfsAutoC().get(index).setLvOriginalItems(null);
-        vf.getTfsAutoC().get(index).getLv().getItems().clear();
+        vf.getTfsAutoC().get(index).clearItems();
     }
 
     @Override
@@ -58,7 +57,8 @@ public class SelectDistinct implements IActions {
             //vf.getTfsAutoC().set(index, TextFields.bindAutoCompletion(vf.getTfs()[index], list2));
             vf.getTfsAutoC().get(index).addAllItems(list2);
         } else {
-            vf.getTfsAutoC().get(index).getLv().getItems().add(NO_DISTINCT_ELEMENTS);
+            vf.getTfsAutoC().get(index).addItem(NO_DISTINCT_ELEMENTS);
+            vf.getTfsAutoC().get(index).getNoSearchableItems().add(NO_DISTINCT_ELEMENTS);
         }
     }
 

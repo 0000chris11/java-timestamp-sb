@@ -49,7 +49,7 @@ public class Menus {
     private MenuItem tableDeleteThis = new MenuItem("Delete this table");
     // ---------------------------------------------------
     private static VFController vf;
-    private Database currentDatabase = Users.getInstance().getCurrenUser().getCurrentDatabase();
+    private Database currentDatabase;
     private Table currentTable;
     //private ColumnDS columnds = ColumnDS.getInstance();
     private Dist dist = Dist.getInstance(vf);
@@ -169,6 +169,7 @@ public class Menus {
 
     // ------------------------------------------------------
     public void addMenuItemsReset() {
+        currentDatabase = Users.getInstance().getCurrenUser().getCurrentDatabase();
         vf.getMs().executeQuery(MSQL.SELECT_TABLE_NAMES, new SelectTableNames(false));
         if (currentDatabase.size() == 0) {
             vf.getMenuSelection().getItems().clear();
@@ -179,8 +180,8 @@ public class Menus {
             vf.getMenuSelection().getItems().clear();
             tableDelete.getItems().clear();
             for (int a = 0; a < currentDatabase.size(); a++) {
-                vf.getMenuSelection().getItems().add(new MenuItem(currentDatabase.getTable(a)));
-                tableDelete.getItems().add(new MenuItem(currentDatabase.getTable(a)));
+                vf.getMenuSelection().getItems().add(new MenuItem(currentDatabase.getTableName(a)));
+                tableDelete.getItems().add(new MenuItem(currentDatabase.getTableName(a)));
             }
         }
 

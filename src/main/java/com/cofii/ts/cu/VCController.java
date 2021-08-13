@@ -380,7 +380,7 @@ public class VCController implements Initializable {
     private void tfTableKeyReleased(KeyEvent e) {
         if (!e.getCode().isArrowKey() && !e.getCode().isFunctionKey() && !e.getCode().isMediaKey()
                 && !e.getCode().isModifierKey() && !e.getCode().isNavigationKey()) {
-            String[] tableList = currentDatabse.getTables();
+            String[] tableList = currentDatabse.getTablesNames();
             String text = tfTable.getText().toLowerCase().trim().replace(" ", "_");
 
             matcher = patternBWTC.matcher(text);

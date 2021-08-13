@@ -10,6 +10,7 @@ public class Database {
 
     private List<Table> tables = new ArrayList<>();
     private Table currentTable;
+    private Table defaultTable;
     //------------------------------------------
     public Database(int id, String name){
         this.id = id;
@@ -28,11 +29,15 @@ public class Database {
         return tables.size();
     }
     //------------------------------------------
-    public String getTable(int index){
+    public String getTableName(int index){
         return tables.get(index).getName();
     }
+
+    public Table getTable(int id){
+        return tables.stream().filter(t -> t.getId() == id).toArray(size -> new Table[size])[0];
+    }
     
-    public String[] getTables(){
+    public String[] getTablesNames(){
         List<String> list = new ArrayList<>();
         for(Table table : tables){
             list.add(table.getName());
@@ -60,6 +65,15 @@ public class Database {
     }
     public void setId(int id) {
         this.id = id;
+    }
+    public Table getDefaultTable() {
+        return defaultTable;
+    }
+    public void setDefaultTable(Table defaultTable) {
+        this.defaultTable = defaultTable;
+    }
+    public List<Table> getTables() {
+        return tables;
     }
     
 }

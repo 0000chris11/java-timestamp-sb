@@ -14,9 +14,10 @@ import com.cofii.ts.sql.querys.SelectDatabases;
 import com.cofii.ts.sql.querys.SelectKeys;
 import com.cofii.ts.sql.querys.SelectTableDefault;
 import com.cofii.ts.sql.querys.ShowColumns;
-import com.cofii.ts.sql.querys.ShowTableCurrentDB;
+import com.cofii.ts.sql.querys.CurrentDatabaseTablesExist;
 import com.cofii.ts.store.main.Database;
 import com.cofii.ts.store.main.Table;
+import com.cofii.ts.store.main.User;
 import com.cofii.ts.store.main.Users;
 import com.cofii2.components.javafx.SceneZoom;
 import com.cofii2.mysql.MSQLP;
@@ -31,7 +32,7 @@ import javafx.stage.Stage;
 public class VF {
 
     private static VFController vfc;
-    private VLController vl;
+    private VLController vlc;
     private VCController vc;
 
     private Stage stage = new Stage();
@@ -51,6 +52,9 @@ public class VF {
      */
     private boolean startFromLogin = true;
     private boolean noDatabases = false;
+
+    private int defaultDatabaseId = 0;
+    private int defaultTableId = 0;
 
     // STAGE LISTENERS -----------------------------------------
     private void stageMaximizedPropertyChange(boolean newValue) {
@@ -81,61 +85,84 @@ public class VF {
 
     // INIT-----------------------------------------
     private void querysStart() {
-        // SELECT DATABASES FOR CURRENT USER
+        // SELECT DATABASES FOR CURRENT USER-----
         ms.selectData(MSQL.TABLE_DATABASES, new SelectDatabases(this, vfc));
+        // ----------------------------------------
         if (noDatabases) {
             vfc.getTfDatabaseAutoC().addItem(VFController.NO_DATABASES);
         } else {
-            // GET DEFAULT DATABASE
+            // DATABASES FOUND-----------------------------
             String resource = Users.getInstance().getDefaultResource();
+            // READING XML
             new ResourceXML(resource, ResourceXML.READ_XML, doc -> {
-                final String databaseId = doc.getDocumentElement().getElementsByTagName("database").item(0)
-                        .getAttributes().item(0).getTextContent();
-                System.out.println("TEST VF database; " + databaseId);
+                User currentUser = Users.getInstance().getCurrenUser();
 
-                int id = Integer.parseInt(databaseId);
-                if (id > 0) {
-                    String database = Users.getInstance().getCurrenUser().getDatabaseName(id);
-                    ms.use(database);
+                defaultDatabaseId = Integer.parseInt(doc.getDocumentElement().getElementsByTagName("database").item(0)
+                        .getAttributes().item(0).getTextContent());
+                defaultTableId = Integer.parseInt(doc.getDocumentElement().getElementsByTagName("table").item(0)
+                        .getAttributes().item(0).getTextContent());
+
+                Database database;
+                if (defaultDatabaseId > 0) {
+                    // DEFAULT DATABASE
+                    database = currentUser.getDatabase(defaultDatabaseId);
+                    currentUser.setDefaultDatabase(database);
+                } else {
+                    // FIRST ADDED DATABASE
+                    database = currentUser.getDatabases().get(0);
                 }
-                return null;
+
+                ms.use(database.getName());
+                currentUser.setCurrentDatabase(database);
+                return null;// JUST READING
             });
-            //------------------------------------------
-            //SELECT TABLES 
-        }
+            // TABLES ------------------------------------------
+            // EXIST---------------------
+            ms.selectTables(new CurrentDatabaseTablesExist());
+            if (!MSQL.isTableNamesExist()) {
+                ms.executeStringUpdate(MSQL.CREATE_TABLE_NAMES);// NOT TESTED
+            }
+            if (!MSQL.isTableConfigExist()) {
+                ms.executeStringUpdate(MSQL.CREATE_TABLE_CONFIG);// NOT TESTED
+            }
 
-        currentTable = Users.getInstance().getCurrenUser().getCurrentDatabase().getCurrentTable();
-        ms.selectTables(new ShowTableCurrentDB());
-        if (!MSQL.isTableNamesExist()) {
-            ms.executeStringUpdate(MSQL.CREATE_TABLE_NAMES);// NOT TESTED
-        }
-        if (!MSQL.isTableDefaultExist()) {
-            ms.executeStringUpdate(MSQL.CREATE_TABLE_DEFAUT);// NOT TESTED
-        }
-        if (!MSQL.isTableConfigExist()) {
-            ms.executeStringUpdate(MSQL.CREATE_TABLE_CONFIG);// NOT TESTED
-        }
-        // TABLE LIST
-        // addMenuItems();
-        menus.addMenuItemsReset();
+            // SELECT TABLES FROM CURRENT DATABASE
+            menus.addMenuItemsReset();
+            // DEFAULT & CURRENT TABLE
+            Database currentDatabase = Users.getInstance().getCurrenUser().getCurrentDatabase();
+            if (defaultTableId > 0) {
+                currentTable = currentDatabase.getTable(defaultTableId);
+                currentDatabase.setDefaultTable(currentTable);
+            } else {
+                currentTable = currentDatabase.getTables().get(0);
+            }
 
-        if (startFromLogin) {
-            ms.executeQuery(MSQL.SELECT_TABLE_ROW_DEFAULT, new SelectTableDefault());
-        }
-        if (currentTable != null) {
-            String table = currentTable.getName();
-            vfc.getLbTable().setText(table);
+            currentDatabase.setCurrentTable(currentTable);
 
-            ms.selectColumns(table.replace(" ", "_"), new ShowColumns(vfc));
-            ms.selectKeys(MSQL.getDatabases(), new SelectKeys(vfc));
-            dist.distStart();
+            // TABLE SELECT-----------------------------------
+            if (currentTable != null) {
+                String table = currentTable.getName();
+                vfc.getLbTable().setText(table);
 
-            ms.selectData(table.replace(" ", "_"), new SelectData(vfc, null));
-        } else {
-            vfc.clearCurrentTableView();
+                ms.selectColumns(table.replace(" ", "_"), new ShowColumns(vfc));
+                ms.selectKeys(Users.getInstance().getCurrenUser().getDatabasesNames(), new SelectKeys(vfc));
+                dist.distStart();
+
+                ms.selectData(table.replace(" ", "_"), new SelectData(vfc, null));
+            } else {
+                vfc.clearCurrentTableView();
+            }
         }
+        /*
+         * if (startFromLogin) { //ms.executeQuery(MSQL.SELECT_TABLE_ROW_DEFAULT, new
+         * SelectTableDefault()); }
+         */
+
         // OTHERS LISTENERS--------------------
         ms.setSQLException((ex, s) -> vfc.getLbStatus().setText(ex.getMessage(), NonCSS.TEXT_FILL_ERROR));
+        //SHOW------------------------
+        vlc.getStage().close();
+        stage.show();
     }
 
     private void init() {
@@ -149,7 +176,7 @@ public class VF {
             Scene scene = sceneZoom.getScene();
             scene.getStylesheets().add(VF.class.getResource("/com/cofii/ts/first/VF.css").toExternalForm());
             // START OR GO BACK OPTION-----------------------------
-            if (vl != null) {// NEW WINDOW
+            if (vlc != null) {// NEW WINDOW
                 stage.setScene(scene);
             } else {
                 vc.getVf().getStage().setScene(scene);
@@ -162,11 +189,11 @@ public class VF {
             stage.maximizedProperty().addListener((obs, oldValue, newValue) -> stageMaximizedPropertyChange(newValue));
             stage.heightProperty().addListener((obs, oldValue, newValue) -> heightPropertyChangeListener());
             // SOME SETTERS TO VFCONTROLLER-------------------------------------------------
-            vfc.setStage(vl != null ? stage : vc.getVf().getStage());
+            vfc.setStage(vlc != null ? stage : vc.getVf().getStage());
             vfc.setScene(scene);
-            vfc.setVl(vl);
+            vfc.setVl(vlc);
 
-            ms = vl.getMsRoot();
+            ms = vlc.getMsRoot();
             vfc.setMs(ms);
             // DIST START---------------------------------
             dist = Dist.getInstance(vfc);
@@ -178,15 +205,15 @@ public class VF {
         }
     }
 
-    public VF(VLController vl) {
-        this.vl = vl;
+    public VF(VLController vlc) {
+        this.vlc = vlc;
         vc = null;
         init();
     }
 
     public VF(VCController vc) {
         this.vc = vc;
-        vl = null;
+        vlc = null;
         init();
     }
 
@@ -206,5 +233,4 @@ public class VF {
     public void setNoDatabases(boolean noDatabases) {
         this.noDatabases = noDatabases;
     }
-
 }

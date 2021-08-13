@@ -252,13 +252,14 @@ public class VLController implements Initializable {
     // ---------------------------------------------
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        // DO QUERYS
         if (initOption.equalsIgnoreCase("Login")) {
             // -----------------------
-            lbUser.setTextFill(NonCSS.TEXT_FILL);
+            lbUser.setTextFill(NonCSS.TEXT_FILL);            
             tfUserAC = new PopupAutoC(tfUser);
             tfUserAC.setShowOption(PopupAutoC.WHEN_FOCUS);
-
+            tfUserAC.getNoSearchableItems().add("NO USERS FOUND");
+            tfUserAC.addItem("NO USERS FOUND");
+            
             lbPassword.setTextFill(NonCSS.TEXT_FILL_ERROR);
             // tfDBAC = new PopupAutoC(tfDB);
             // tfDBAC.setShowOption(PopupAutoC.WHEN_FOCUS);

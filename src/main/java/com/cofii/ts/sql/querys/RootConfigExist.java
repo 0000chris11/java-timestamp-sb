@@ -28,11 +28,6 @@ public class RootConfigExist implements IActions {
         if (db.equalsIgnoreCase(MSQL.ROOT_DB)) {
             MSQL.setDbRootconfigExist(true);
         }
-        //ADD TO CBDB
-        if(!MList.isOnThisList(MSQL.BAND_DB, db, false)){
-            //vlc.getTfDB().getItems().add(db);
-            //vlc.getTfDBAC().addItem(db);
-        }
     }
 
     @Override

@@ -7,6 +7,8 @@ public class Users {
 
     private List<User> usersList = new ArrayList<>();
     private User currenUser;
+    private User defaultUser;
+
     private final String defaultResource = "/com/cofii/ts/login/defaults.xml";
     //---------------------------------------
     public void clearUsers(){
@@ -14,6 +16,9 @@ public class Users {
     }
     public void addUser(User user){
         usersList.add(user);
+    }
+    public User getUser(final int id){
+        return usersList.stream().filter(u -> u.getId() == id).toArray(size -> new User[size])[0];
     }
     //INSTANCE------------------------------
     private static Users instance;
@@ -38,6 +43,12 @@ public class Users {
     }
     public String getDefaultResource() {
         return defaultResource;
+    }
+    public User getDefaultUser() {
+        return defaultUser;
+    }
+    public void setDefaultUser(User defaultUser) {
+        this.defaultUser = defaultUser;
     }
     
 }
