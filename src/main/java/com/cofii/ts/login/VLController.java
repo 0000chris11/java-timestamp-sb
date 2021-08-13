@@ -3,6 +3,8 @@ package com.cofii.ts.login;
 import java.awt.Toolkit;
 import java.net.URL;
 import java.util.ResourceBundle;
+import java.util.regex.Pattern;
+
 import javafx.animation.KeyFrame;
 import com.cofii.ts.first.VF;
 import com.cofii.ts.other.NonCSS;
@@ -42,6 +44,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.util.Duration;
@@ -50,6 +53,9 @@ public class VLController implements Initializable {
 
     private Stage stage;
     private Scene scene;
+
+    @FXML
+    private VBox vboxMain;
     // TOP----------------------------------
     @FXML
     private Label lbTitle;
@@ -71,62 +77,92 @@ public class VLController implements Initializable {
     private CheckBox cbRemember;
     @FXML
     private Button btnLogin;
-    private Timeline tlHelp;
     @FXML
     private Button btnLoginHelp;
+    private Timeline timelineLoginHelp;
     private PopupKV btnLoginHelpPopup;
     private ObservableMap<String, Boolean> btnLoginHelpMap = FXCollections.observableHashMap();
     @FXML
-    private Button btnCreate;
-    private PopupMenu btnCreatePM = new PopupMenu("User", "Database");
+    private Button btnCreateUser;
+    @FXML
+    private Button btnCreateUserHelp;
+    private Timeline timeLineUserHelp;
+    private PopupKV btnCreateUserHelpPopup;
+    private ObservableMap<String, Boolean> btnCreateUserHelpMap = FXCollections.observableHashMap();
+    // private PopupMenu btnCreatePM = new PopupMenu("User", "Database");
+
     // ---------------------------------------------
     private MSQLP msInit = new MSQLP(new DefaultConnection());
     private MSQLP msRoot;
     private String initOption = "Login";
 
     private boolean showStage = false;
+    private BooleanProperty createUserState = new SimpleBooleanProperty(false);
+
+    private Pattern patternNewUser = Pattern.compile("[\\w\\s]+");
     // -----------------------------------------------
-    private BooleanProperty userOK = new SimpleBooleanProperty(false);
-    private BooleanProperty passOK = new SimpleBooleanProperty(false);
+    private BooleanProperty loginUserOK = new SimpleBooleanProperty(false);
+    private BooleanProperty loginPassOK = new SimpleBooleanProperty(false);
+
+    private BooleanProperty createUserUserOk = new SimpleBooleanProperty(false);
+    private BooleanProperty createUserPassOk = new SimpleBooleanProperty(false);
+    private BooleanProperty createUserConfirmPassOk = new SimpleBooleanProperty(false);
 
     private boolean noUser = false;
 
     // CONTROL---------------------------------------
     private void btnLoginControl() {
-        userOK.setValue(lbUser.getTextFill().equals(NonCSS.TEXT_FILL));
-        passOK.setValue(lbPassword.getTextFill().equals(NonCSS.TEXT_FILL));
+        loginUserOK.setValue(lbUser.getTextFill().equals(NonCSS.TEXT_FILL));
+        loginPassOK.setValue(lbPassword.getTextFill().equals(NonCSS.TEXT_FILL));
         // boolean dbOK = lbDB.getTextFill().equals(NonCSS.TEXT_FILL);
 
-        if (!noUser && userOK.getValue() && passOK.getValue() /* && dbOK */) {
+        if (loginUserOK.getValue() && loginPassOK.getValue() /* && dbOK */) {
             btnLogin.setDisable(false);
         } else {
             btnLogin.setDisable(true);
         }
     }
 
-    private void disableCenter(boolean disable){
+    private void btnCreateUserControl() {
+        boolean allOk = createUserUserOk.getValue() && createUserPassOk.getValue()
+                && createUserConfirmPassOk.getValue();
+        btnCreateUser.setDisable(!allOk);
+    }
+
+    private void disableCenter(boolean disable) {
         lbUser.setDisable(disable);
         tfUser.setDisable(disable);
 
         lbPassword.setDisable(disable);
         tfPassword.setDisable(disable);
     }
+
     // LISTENERS=========================================
     // CENTER------------------------------------------------
     private void tfUserKeyReleased(KeyEvent e) {
         String text = tfUser.getText();
-        if (text.isEmpty()) {
-            lbUser.setTextFill(NonCSS.TEXT_FILL_ERROR);
-        } else {
-            if (MList.isOnThisList(tfUserAC.getLv().getItems(), text, true)) {
-                lbUser.setTextFill(NonCSS.TEXT_FILL);
-            } else {
+        boolean userMatch = tfUserAC.getLv().getItems().stream()
+                .anyMatch(s -> s.equalsIgnoreCase(text.trim().replace(" ", "_")));
+
+        if (Boolean.FALSE.equals(createUserState.getValue())) {
+            if (text.isEmpty()) {
                 lbUser.setTextFill(NonCSS.TEXT_FILL_ERROR);
+            } else {
+
+                if (userMatch) {
+                    lbUser.setTextFill(NonCSS.TEXT_FILL);
+                } else {
+                    lbUser.setTextFill(NonCSS.TEXT_FILL_ERROR);
+                }
             }
+
+            btnLoginControl();
+        } else {
+            boolean patternOK = patternNewUser.matcher(text).matches();
+            createUserUserOk.setValue(!userMatch && patternOK);
+
+            btnCreateUserControl();
         }
-
-        btnLoginControl();
-
     }
 
     private void tfUserSelectionChangeListener(ObservableValue<? extends String> object, String oldValue,
@@ -136,18 +172,42 @@ public class VLController implements Initializable {
     }
 
     private void tfPasswordKeyReleased(KeyEvent e) {
-        e.consume();
-        if (!lbPassword.getText().equals("Password")) {
-            lbPassword.setText("Password");
+        PasswordField pf = (PasswordField) e.getSource();
+        int index = vboxMain.getChildren().indexOf(e.getSource()) - 1;
+        Label lbPass = (Label) vboxMain.getChildren().get(index);
+
+        if (!lbPass.getText().equals("Password")) {
+            lbPass.setText("Password");
         }
 
-        if (tfPassword.getText().isEmpty()) {
-            lbPassword.setTextFill(NonCSS.TEXT_FILL_ERROR);
+        if (pf.getText().isEmpty()) {
+            lbPass.setTextFill(NonCSS.TEXT_FILL_ERROR);
+
+            if (Boolean.TRUE.equals(createUserState.getValue())) {
+                if (pf.getId().equals("pass")) {
+                    createUserPassOk.setValue(false);
+                } else {
+                    createUserConfirmPassOk.setValue(false);
+                }
+            }
         } else {
-            lbPassword.setTextFill(NonCSS.TEXT_FILL);
+            lbPass.setTextFill(NonCSS.TEXT_FILL);
+
+            if (Boolean.TRUE.equals(createUserState.getValue())) {
+                if (pf.getId().equals("pass")) {
+                    createUserPassOk.setValue(true);
+                } else {
+                    createUserConfirmPassOk.setValue(true);
+                }
+            }
         }
 
-        btnLoginControl();
+        if (Boolean.FALSE.equals(createUserState.getValue())) {
+            btnLoginControl();
+        } else {
+
+            btnCreateUserControl();
+        }
     }
 
     private void tfDBKeyReleased(KeyEvent e) {
@@ -173,8 +233,8 @@ public class VLController implements Initializable {
     }
 
     // BOTTOM----------------------------------------------
-    private void btnLoginAction(ActionEvent e) {
-        e.consume();
+
+    private void loginAction() {
         String user = tfUser.getText();
         String password = tfPassword.getText();
 
@@ -182,24 +242,34 @@ public class VLController implements Initializable {
         if (correctPassword) {
             MSQL.setUser(user);
             MSQL.setPassword(password);
-            //ADDING CURRENT USER--------------------------------------------
+            // ADDING CURRENT USER--------------------------------------------
             Object[] valueId = msRoot.selectValues(MSQL.TABLE_USERS, "id", "user_name", user);
-            if(valueId.length == 1 &&  valueId[0] instanceof Integer){
-            Users.getInstance().setCurrenUser(new User((int) valueId[0], user));
-            }else{
-                throw new IllegalArgumentException("C0FII: FATAL wrong value recived from User table (expected single id)");
+            if (valueId.length == 1 && valueId[0] instanceof Integer) {
+                Users.getInstance().setCurrenUser(new User((int) valueId[0], user));
+            } else {
+                throw new IllegalArgumentException(
+                        "C0FII: FATAL wrong value recived from User table (expected single id)");
             }
-            //DEFAULT USER------------------------------------------
+            // DEFAULT USER------------------------------------------
             if (cbRemember.isSelected()) {
                 msRoot.executeStringUpdate(MSQL.UPDATE_TABLE_DEFAULT_USER);
             }
-            //---------------------------------------------
+            // ---------------------------------------------
             disableCenter(true);
             btnLogin.setText("Connect");
-            //CREATE DATABASE FIELD
+            // CREATE DATABASE FIELD
 
-            //msRoot.close();
+            // msRoot.close();
             new VF(this);
+        }
+    }
+
+    private void btnLoginAction(ActionEvent e) {
+        e.consume();
+        if (Boolean.FALSE.equals(createUserState.getValue())) {
+            loginAction();
+        } else {
+            createUserState.setValue(false);
         }
     }
 
@@ -208,70 +278,108 @@ public class VLController implements Initializable {
     }
 
     private void btnLoginHelpMapReset() {
-        btnLoginHelpMap.put("User", userOK.getValue());
-        btnLoginHelpMap.put("Password", passOK.getValue());
+        btnLoginHelpMap.put("User", loginUserOK.getValue());
+        btnLoginHelpMap.put("Password", loginPassOK.getValue());
+    }
+
+    private void btnCreateUserHelpMapReset() {
+        btnCreateUserHelpMap.put("User", createUserUserOk.getValue());
+        btnCreateUserHelpMap.put("Password", createUserPassOk.getValue());
+        btnCreateUserHelpMap.put("Confirm Password", createUserConfirmPassOk.getValue());
     }
 
     private void btnLoginDisablePropertyChangeListener(boolean newValue) {
         if (newValue) {
-            tlHelp.play();
+            timelineLoginHelp.play();
         } else {
-            tlHelp.stop();
+            timelineLoginHelp.stop();
         }
     }
 
-    private void btnCreateAction(ActionEvent e) {
-        btnCreatePM.showPopup((Button) e.getSource());
-    }
-
-    // INIT---------------------------------------------
-    private void initQuery() {
-        msInit.selectDatabases(new RootConfigExist(this));// AND ADDING TO cbDB
-        if (!MSQL.isDbRootconfigExist()) {
-            msInit.executeStringUpdate(MSQL.CREATE_DB_ROOTCONFIG);// NOT TESTED
-        }
-        msInit.close();
-    }
-
-    private void rootQuerys() {
-        msRoot = new MSQLP(new RootConfigConnection());
-        msRoot.selectTables(new ShowTablesRootConfig());
-        if (!MSQL.isTableUsersExist()) {
-            msRoot.executeStringUpdate(MSQL.CREATE_TABLE_USERS);
-            noUser = true;
-        }
-        if (!MSQL.isTableDatabasesExist()) {
-            msRoot.executeStringUpdate(MSQL.CREATE_TABLE_DATABASES);
-        }
-        if (!MSQL.isTableDefaultUserExist()) {
-            msRoot.executeStringUpdate(MSQL.CREATE_TABLE_DEFAULT_USER);
-            msRoot.executeStringUpdate(MSQL.INSERT_TABLE_DEFAULT_USER);
+    private void btnCreateUserDisablePropertyChangeListener(boolean newValue) {
+        if (newValue) {
+            timeLineUserHelp.play();
+        } else {
+            timeLineUserHelp.stop();
         }
     }
 
-    // ---------------------------------------------
+    private void btnCreateUserAction(ActionEvent e) {
+        if (Boolean.TRUE.equals(createUserState.getValue())) {
+            //QUERY!!!!!!!!!!!!!
+        } else {
+            createUserState.setValue(true);
+        }
+    }
+
+    private void createUserStateChanged(boolean createUser) {
+        if (createUser) {
+            btnCreateUserHelpMapReset();
+            btnCreateUserHelpPopup = new PopupKV(btnLoginHelp, btnLoginHelpMap);
+            // LOGIN CHANGE----------------------------
+            lbTitle.setText("Create User");
+            tfUserAC.setTfParent(null);
+            btnLogin.setDisable(false);// GO BACK TO LOGIN
+            btnLoginHelp.setDisable(true);
+            btnCreateUserHelp.setDisable(false);
+            timelineLoginHelp.stop();
+            // NEW FIELDS ------------------------------------------
+            Label lbConfirmPassword = new Label("Confirm Password");
+            PasswordField tfConfirmPassword = new PasswordField();
+            lbConfirmPassword.setId("lb-confirm-pass");
+            tfConfirmPassword.setId("confirm-pass");
+            vboxMain.getChildren().add(6, lbConfirmPassword);
+            vboxMain.getChildren().add(7, tfConfirmPassword);
+        } else {
+            // LOGIN CHANGE----------------------------
+            lbTitle.setText("Login");
+            tfUserAC.setTfParent(tfUser);
+            btnCreateUserHelp.setDisable(true);
+            btnLogin.setDisable(true);
+            btnLoginHelp.setDisable(false);
+            timeLineUserHelp.stop();
+            // DELETE FIELD IF EXIST--------------------
+            vboxMain.getChildren().removeIf(n -> n.getId().contains("confirm-pass"));
+        }
+
+        tfUser.setText("");
+        lbPassword.setTextFill(NonCSS.TEXT_FILL);
+        tfPassword.setText("");
+    }
+
+    // INIT ---------------------------------------------
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         if (initOption.equalsIgnoreCase("Login")) {
             // -----------------------
-            lbUser.setTextFill(NonCSS.TEXT_FILL);            
+            lbUser.setTextFill(NonCSS.TEXT_FILL);
+
+            tfPassword.setId("pass");
+
             tfUserAC = new PopupAutoC(tfUser);
             tfUserAC.setShowOption(PopupAutoC.WHEN_FOCUS);
             tfUserAC.getNoSearchableItems().add("NO USERS FOUND");
             tfUserAC.addItem("NO USERS FOUND");
-            
+
             lbPassword.setTextFill(NonCSS.TEXT_FILL_ERROR);
-            // tfDBAC = new PopupAutoC(tfDB);
-            // tfDBAC.setShowOption(PopupAutoC.WHEN_FOCUS);
+
             btnLoginHelpMapReset();
             btnLoginHelpPopup = new PopupKV(btnLoginHelp, btnLoginHelpMap);
-            // -----------------------
-            initQuery();
-            // -----------------------
-            rootQuerys();
-            // -----------------------
-            userOK.addListener((obs, oldValue, newValue) -> btnLoginHelpMapReset());
-            passOK.addListener((obs, oldValue, newValue) -> btnLoginHelpMapReset());
+            // CREATE ROOTCONFIG-----------------------
+            msInit.selectDatabases(new RootConfigExist(this));// AND ADDING TO cbDB
+            if (!MSQL.isDbRootconfigExist()) {
+                msInit.executeStringUpdate(MSQL.CREATE_DB_ROOTCONFIG);// NOT TESTED
+            }
+            msInit.close();
+
+            msRoot = new MSQLP(new RootConfigConnection());
+            // LISTENERS ----------------------------------
+            loginUserOK.addListener((obs, oldValue, newValue) -> btnLoginHelpMapReset());
+            loginPassOK.addListener((obs, oldValue, newValue) -> btnLoginHelpMapReset());
+
+            createUserUserOk.addListener((obs, oldValue, newValue) -> btnCreateUserHelpMapReset());
+            createUserPassOk.addListener((obs, oldValue, newValue) -> btnCreateUserHelpMapReset());
+            createUserConfirmPassOk.addListener((obs, oldValue, newValue) -> btnCreateUserHelpMapReset());
 
             tfUserAC.getLv().getSelectionModel().selectedItemProperty()
                     .addListener(this::tfUserSelectionChangeListener);
@@ -283,18 +391,24 @@ public class VLController implements Initializable {
             btnLogin.disableProperty()
                     .addListener((obs, oldValue, newValue) -> btnLoginDisablePropertyChangeListener(newValue));
             btnLogin.setOnAction(this::btnLoginAction);
-
             btnLoginHelp.setOnAction(this::btnLoginHelpAction);
 
-            btnCreate.setContextMenu(btnCreatePM);
-            btnCreate.setOnAction(this::btnCreateAction);
+            btnCreateUser.disableProperty()
+                    .addListener((obs, oldValue, newValue) -> btnCreateUserDisablePropertyChangeListener(newValue));
+            btnCreateUser.setOnAction(this::btnCreateUserAction);
+            btnCreateUserHelp.setOnAction(e -> btnCreateUserHelpPopup.showPopup());
+
+            createUserState.addListener((obs, oldValue, newValue) -> createUserStateChanged(newValue));
             // AFTER LISTENERS--------------------------
             btnLogin.setDisable(true);
             // ------------------------
-            tlHelp = new Timeline(
+            timelineLoginHelp = new Timeline(
                     new KeyFrame(Duration.seconds(2), new KeyValue(btnLoginHelp.textFillProperty(), Color.RED)));
+            timeLineUserHelp = new Timeline(
+                    new KeyFrame(Duration.seconds(2), new KeyValue(btnCreateUserHelp.textFillProperty(), Color.RED)));
             // timeline.setAutoReverse(true);
-            tlHelp.setCycleCount(Animation.INDEFINITE);
+            timelineLoginHelp.setCycleCount(Animation.INDEFINITE);
+            timeLineUserHelp.setCycleCount(Animation.INDEFINITE);
 
         }
     }
@@ -389,11 +503,11 @@ public class VLController implements Initializable {
     }
 
     public boolean isUserOK() {
-        return userOK.getValue();
+        return loginUserOK.getValue();
     }
 
     public void setUserOK(boolean userOK) {
-        this.userOK.setValue(userOK);
+        this.loginUserOK.setValue(userOK);
     }
 
 }
