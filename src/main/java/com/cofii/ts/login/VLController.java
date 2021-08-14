@@ -15,6 +15,7 @@ import com.cofii.ts.sql.querys.ShowTablesRootConfig;
 import com.cofii.ts.sql.querys.ShowUsers;
 import com.cofii.ts.store.main.User;
 import com.cofii.ts.store.main.Users;
+import com.cofii2.components.javafx.LabelStatus;
 import com.cofii2.components.javafx.popup.PopupAutoC;
 import com.cofii2.components.javafx.popup.PopupKV;
 import com.cofii2.components.javafx.popup.PopupMenu;
@@ -22,6 +23,8 @@ import com.cofii2.methods.MList;
 import com.cofii2.mysql.DefaultConnection;
 import com.cofii2.mysql.MSQLP;
 import com.cofii2.mysql.RootConfigConnection;
+import com.cofii2.mysql.store.KeyPassword;
+
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
 import javafx.animation.Animation;
@@ -70,7 +73,10 @@ public class VLController implements Initializable {
     private Label lbPassword;
     @FXML
     private PasswordField tfPassword;
+    private Label lbConfirmPassword;
+    private PasswordField tfConfirmPassword;
     // BOTTOM-------------------------------
+    private LabelStatus lbStatus;
     @FXML
     private HBox hbBottom;
     @FXML
@@ -306,7 +312,26 @@ public class VLController implements Initializable {
 
     private void btnCreateUserAction(ActionEvent e) {
         if (Boolean.TRUE.equals(createUserState.getValue())) {
-            //QUERY!!!!!!!!!!!!!
+            String user = tfUser.getText().trim().toLowerCase().replace(" ", "_");
+            String password = tfPassword.getText().trim();
+            String confirmPassword = tfConfirmPassword.getText().trim();
+
+            if(password.equals(confirmPassword)){
+                msRoot.setKeyPassword(new KeyPassword(3, user, password));
+                boolean insert = msRoot.insert(MSQL.TABLE_USERS, new Object[]{null, user, password});
+                if(insert){
+                    lbStatus.setText("User created!", Color.GREEN, Duration.seconds(3));
+                    int id = (int) msRoot.selectValues(MSQL.TABLE_USERS, "id", "user_name", user)[0];
+
+                    Users.getInstance().addUser(new User(id, user));
+                    if(tfUserAC.getLvOriginalItems().contains("NO USERS FOUND")){
+                        tfUserAC.clearItems();
+                    }
+                    tfUserAC.addItem(user);
+                }else{
+                    lbStatus.setText("User failed to be created.", Color.RED);
+                }
+            }
         } else {
             createUserState.setValue(true);
         }
@@ -324,8 +349,8 @@ public class VLController implements Initializable {
             btnCreateUserHelp.setDisable(false);
             timelineLoginHelp.stop();
             // NEW FIELDS ------------------------------------------
-            Label lbConfirmPassword = new Label("Confirm Password");
-            PasswordField tfConfirmPassword = new PasswordField();
+            lbConfirmPassword = new Label("Confirm Password");
+            tfConfirmPassword = new PasswordField();
             lbConfirmPassword.setId("lb-confirm-pass");
             tfConfirmPassword.setId("confirm-pass");
             vboxMain.getChildren().add(6, lbConfirmPassword);
@@ -365,6 +390,9 @@ public class VLController implements Initializable {
 
             btnLoginHelpMapReset();
             btnLoginHelpPopup = new PopupKV(btnLoginHelp, btnLoginHelpMap);
+
+            lbStatus = new LabelStatus("Waiting for action...", LabelStatus.RIGHT);
+            vboxMain.getChildren().add(vboxMain.getChildren().indexOf(hbBottom), lbStatus);
             // CREATE ROOTCONFIG-----------------------
             msInit.selectDatabases(new RootConfigExist(this));// AND ADDING TO cbDB
             if (!MSQL.isDbRootconfigExist()) {
