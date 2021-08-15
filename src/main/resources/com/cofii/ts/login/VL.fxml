@@ -15,6 +15,8 @@
                   <Font size="16.0" />
                </font>
             </Label>
+            <Region HBox.hgrow="ALWAYS" />
+            <Button fx:id="btnGoBack" visible="false" mnemonicParsing="false" text="&lt;-" />
          </children>
       </HBox>
       <Region maxHeight="100.0" prefHeight="100.0" />
@@ -31,7 +33,7 @@
             <Button fx:id="btnLoginHelp" mnemonicParsing="false" text="?" />
             <Region prefWidth="10.0" />
             <Button fx:id="btnCreateUser" mnemonicParsing="false" text="Create User" />
-            <Button fx:id="btnCreateUserHelp" disable="false" mnemonicParsing="false" text="?" />
+            <Button fx:id="btnCreateUserHelp" visible="false" managed="false" mnemonicParsing="false" text="?" />
          </children>
       </HBox>
    </children>

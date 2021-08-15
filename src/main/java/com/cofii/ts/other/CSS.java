@@ -16,6 +16,8 @@ public class CSS {
     public static final String TFS_DEFAULT_LOOK = "-fx-background-color: #090631; -fx-text-fill: white";
     public static final String TFS_DIST_LOOK = "-fx-background-color: #035850; -fx-text-fill: white";
     public static final String TFS_FK_LOOK = "-fx-background-color: #08376e";
+    // VL----------------------------
+    public static final String BTN_QUERY_ACTION = "fx-background-color: #26d113;";
     // VC----------------------------
     public static final String ROW = "-fx-background-color: #100c49";
     public static final String ROW_DIST_BUTTONS = "-fx-border-style: none";

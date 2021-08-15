@@ -306,6 +306,19 @@
     background-color: #9c2f27;
     -fx-text-fill: white;
 }
+/*VL ID*/
+.buttonQueryAction{
+    -fx-background-color: #26d113bc;
+    background-color:#26d113bc;
+}
+.buttonQueryAction:pressed{
+    -fx-background-color: #26d113;
+    background-color:#26d113;
+}
+.headerBarPopupKV{
+    -fx-background-color: #160f72;
+    background-color: #160f72;
+}
 /*VC ID---------------------------*/
 #hbTop{
     -fx-background-color: -fx-root-background-color;
