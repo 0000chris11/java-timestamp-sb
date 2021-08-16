@@ -18,7 +18,11 @@ import com.cofii.ts.other.MultipleValuesSelectedImpl;
 import com.cofii.ts.other.NonCSS;
 import com.cofii.ts.sql.MSQL;
 import com.cofii.ts.sql.querys.SelectData;
+import com.cofii.ts.sql.querys.SelectTableNames;
+import com.cofii.ts.sql.querys.ShowColumns;
+import com.cofii.ts.store.main.Database;
 import com.cofii.ts.store.main.Table;
+import com.cofii.ts.store.main.User;
 import com.cofii.ts.store.main.Users;
 import com.cofii2.components.javafx.LabelStatus;
 import com.cofii2.components.javafx.popup.PopupAutoC;
@@ -60,10 +64,12 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import com.cofii.ts.store.FKS;
 
 public class VFController implements Initializable {
 
     private VLController vl;
+    private VF vf;
     private Dist dist = Dist.getInstance(this);
     // ----------------------------------------
     private Stage stage;
@@ -75,9 +81,7 @@ public class VFController implements Initializable {
     @FXML
     private Menu menuOpen;
     @FXML
-    private Menu menuSelection;
-    @FXML
-    private Menu menuTable;
+    private Menu menuOptions;
     // CENTER---------------------------------------
     @FXML
     private BorderPane bpMain;
@@ -88,7 +92,7 @@ public class VFController implements Initializable {
     @FXML
     private HBox hbImages;
     @FXML
-    private Label lbTable;
+    private Label lbDatabaseTable;
     @FXML
     private TextField tfDatabase;
     private PopupAutoC tfDatabaseAutoC;
@@ -111,7 +115,7 @@ public class VFController implements Initializable {
     // BOTTOM-----------------------------------
     @FXML
     private HBox hbStatus;
-    
+
     private LabelStatus lbStatus = new LabelStatus();
     // private boolean autoClose = false;
 
@@ -144,8 +148,8 @@ public class VFController implements Initializable {
     private static final String FAILED = "\tfailed";
 
     public static final String NO_DATABASES = "no databases found";
-    public static final String NO_TABLES = "no tables found";
-    //--------------------------------------------
+    public static final String NO_DATABASE_SELECTED = "no database selected";
+    // --------------------------------------------
     private static final int CB_STARTS_WITH = 0;
     private int cbSearchOption = CB_STARTS_WITH;
     // OTHER -------------------------------------------
@@ -214,6 +218,75 @@ public class VFController implements Initializable {
     }
 
     // TABLE------------------------------------
+    private void selectionForEachDatabase(String newValue) {
+        System.out.println(CC.CYAN + "\nCHANGE DATABASE" + CC.RESET);
+        User user = Users.getInstance().getCurrenUser();
+        boolean databaseMatch = user.getDatabases().stream().anyMatch(d -> d.getName().equals(newValue));
+        if (databaseMatch) {
+            ms.use(newValue);
+            lbDatabaseTable.setText(newValue);
+            // SELECT ALL TABLES
+            vf.mainTablesCreation();
+            Menus.getInstance(this).addTablesToTfTableReset();
+
+            /*
+             * if(user.getCurrentDatabase().getDefaultTable() != null){
+             * user.getCurrentDatabase().setCurrentTable(user.getCurrentDatabase().
+             * getDefaultTable()); }else{ user.getCurrentDatabase().setCurrentTable( }
+             * 
+             * ms.selectColumns(table, ac);
+             */
+        }
+    }
+
+    private void selectionForEachTable(String newValue) {
+        System.out.println(CC.CYAN + "\nCHANGE TABLE" + CC.RESET);
+        Database currenDatabase = Users.getInstance().getCurrenUser().getCurrentDatabase();
+        boolean tableMatch = currenDatabase.getTables().stream()
+                .anyMatch(t -> t.getName().equals(newValue));
+        if (tableMatch) {
+            currenDatabase.setCurrentTable(currenDatabase.getTable(newValue));
+            currentTable = currenDatabase.getCurrentTable();
+
+            String tableName = newValue;
+            System.out.println("\ttable: " + tableName);
+
+            lbDatabaseTable.setText(tableName);
+            // RESET NODES ---------------------------------
+            for (int a = 0; a < MSQL.MAX_COLUMNS; a++) {
+                if (lbs[a].isVisible()) {
+                    lbs[a].setVisible(false);
+
+                    if (Boolean.TRUE.equals(currentTable.getColumnDists().get(a))
+                            || FKS.getInstance().getYesAndNoFKS()[a].equals("Yes")) {// RESETING DIST
+                        tfsAutoC.get(a).setTfParent(null);
+                        tfs[a].setStyle(CSS.TFS_DEFAULT_LOOK);
+                    }
+                    tfs[a].setVisible(false);
+                    btns[a].setVisible(false);
+
+                    tfs[a].setText("");
+                }
+            }
+            tfsFKList.forEach(List::clear);
+            Arrays.asList(btns).forEach(btn -> btn.setSelected(true));
+            selectedRow = null;
+
+            btnFind.setDisable(false);
+            btnAdd.setDisable(false);
+            // SELECT -------------------------------------
+            String tableA = tableName.replace(" ", "_");
+            ms.selectDataWhere(MSQL.TABLE_NAMES, "name", tableName, new SelectTableNames(true));
+            ms.selectColumns(tableA, new ShowColumns(this));
+            Menus.getInstance(this).resetKeys();
+            System.out.println("\tMSQL's table: " + currentTable.getId() + " - " + currentTable.getName() + " - "
+                    + currentTable.getDist());
+
+            dist.distStart();
+            ms.selectData(tableA, new SelectData(this, SelectData.MESSGE_TABLE_CHANGE + tableName));
+        }
+    }
+
     private <T> void tableRowSelected(ObservableValue<? extends T> observable, T oldValue, T newValue) {
         currentTable = Users.getInstance().getCurrenUser().getCurrentDatabase().getCurrentTable();
         ObservableList<ObservableList<Object>> list = tableView.getSelectionModel().getSelectedItems();
@@ -411,7 +484,7 @@ public class VFController implements Initializable {
 
     // RESET ----------------------------------------------
     public void clearCurrentTableView() {
-        lbTable.setText("No Table Selected");
+        lbDatabaseTable.setText("No Table Selected");
 
         Arrays.asList(lbs).forEach(e -> e.setVisible(false));
         Arrays.asList(tfs).forEach(e -> e.setVisible(false));
@@ -485,9 +558,12 @@ public class VFController implements Initializable {
         // NODES-----------------------------------
         nonFXMLNodesInit();
         tfDatabaseAutoC = new PopupAutoC(tfDatabase);
+        tfDatabaseAutoC.setShowOption(PopupAutoC.WHEN_FOCUS);
         tfDatabaseAutoC.getNoSearchableItems().add(NO_DATABASES);
+
         tfTableAutoC = new PopupAutoC(tfTable);
-        tfTableAutoC.getNoSearchableItems().add(NO_TABLES);
+        tfTableAutoC.setShowOption(PopupAutoC.WHEN_FOCUS);
+        tfTableAutoC.getNoSearchableItems().add(NO_DATABASE_SELECTED);
 
         tfsFKList.forEach(l -> l.addListener(this::tfsFKListChange));
         Arrays.asList(btns).forEach(btn -> btn.setOnAction(this::btnsOnAction));
@@ -505,7 +581,10 @@ public class VFController implements Initializable {
         for (int a = 0; a < MSQL.MAX_COLUMNS; a++) {
             cbElements.add(new ArrayList<>());
         }
-        // LISTENERS
+        // LISTENERS------------------------------------
+        tfDatabase.textProperty().addListener((obs, oldValue, newValue) -> selectionForEachDatabase(newValue));
+        tfTable.textProperty().addListener((obs, oldValue, newValue) -> selectionForEachTable(newValue));
+
         tableView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         tableView.getSelectionModel().selectedItemProperty().addListener(this::tableRowSelected);
 
@@ -550,20 +629,12 @@ public class VFController implements Initializable {
         this.menuOpen = menuOptions;
     }
 
-    public Menu getMenuSelection() {
-        return menuSelection;
+    public Menu getMenuOptions() {
+        return menuOptions;
     }
 
-    public void setMenuSelection(Menu menuSelection) {
-        this.menuSelection = menuSelection;
-    }
-
-    public Menu getMenuTable() {
-        return menuTable;
-    }
-
-    public void setMenuTable(Menu menuTable) {
-        this.menuTable = menuTable;
+    public void setMenuOptions(Menu menuOptions) {
+        this.menuOptions = menuOptions;
     }
 
     public GridPane getGridPane() {
@@ -594,12 +665,12 @@ public class VFController implements Initializable {
         return btns;
     }
 
-    public Label getLbTable() {
-        return lbTable;
+    public Label getLbDatabaseTable() {
+        return lbDatabaseTable;
     }
 
-    public void setLbTable(Label lbTable) {
-        this.lbTable = lbTable;
+    public void setLbDatabaseTable(Label lbDatabaseTable) {
+        this.lbDatabaseTable = lbDatabaseTable;
     }
 
     public TableView<ObservableList<Object>> getTable() {
@@ -746,6 +817,30 @@ public class VFController implements Initializable {
 
     public void setTfTableAutoC(PopupAutoC tfTableAutoC) {
         this.tfTableAutoC = tfTableAutoC;
+    }
+
+    public TextField getTfDatabase() {
+        return tfDatabase;
+    }
+
+    public void setTfDatabase(TextField tfDatabase) {
+        this.tfDatabase = tfDatabase;
+    }
+
+    public TextField getTfTable() {
+        return tfTable;
+    }
+
+    public void setTfTable(TextField tfTable) {
+        this.tfTable = tfTable;
+    }
+
+    public VF getVf() {
+        return vf;
+    }
+
+    public void setVf(VF vf) {
+        this.vf = vf;
     }
 
 }

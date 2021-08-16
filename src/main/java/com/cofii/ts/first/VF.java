@@ -20,6 +20,7 @@ import com.cofii.ts.store.main.Table;
 import com.cofii.ts.store.main.User;
 import com.cofii.ts.store.main.Users;
 import com.cofii2.components.javafx.SceneZoom;
+import com.cofii2.components.javafx.popup.PopupAutoC;
 import com.cofii2.mysql.MSQLP;
 import com.cofii2.xml.ResourceXML;
 
@@ -51,7 +52,7 @@ public class VF {
      * true if its start from the login (not from VC)
      */
     private boolean startFromLogin = true;
-    private boolean noDatabases = false;
+    private boolean noDatabasesForCurrentUser = false;
 
     private int defaultDatabaseId = 0;
     private int defaultTableId = 0;
@@ -84,13 +85,24 @@ public class VF {
     }
 
     // INIT-----------------------------------------
+    /**
+     * Does main tables exist (at selected Database level)
+     */
+    void mainTablesCreation(){
+        ms.selectTables(new CurrentDatabaseTablesExist());
+        if (!MSQL.isTableNamesExist()) {
+            ms.executeStringUpdate(MSQL.CREATE_TABLE_NAMES);// NOT TESTED
+        }
+        if (!MSQL.isTableConfigExist()) {
+            ms.executeStringUpdate(MSQL.CREATE_TABLE_CONFIG);// NOT TESTED
+        }
+    }
+
     private void querysStart() {
         // SELECT DATABASES FOR CURRENT USER-----
-        ms.selectData(MSQL.TABLE_DATABASES, new SelectDatabases(this, vfc));
+        ms.selectData(MSQL.TABLE_DATABASES, new SelectDatabases(vfc));
         // ----------------------------------------
-        if (noDatabases) {
-            vfc.getTfDatabaseAutoC().addItem(VFController.NO_DATABASES);
-        } else {
+        if (!noDatabasesForCurrentUser) {
             // DATABASES FOUND-----------------------------
             String resource = Users.getInstance().getDefaultResource();
             // READING XML
@@ -103,7 +115,7 @@ public class VF {
                         .getAttributes().item(0).getTextContent());
 
                 Database database;
-                if (defaultDatabaseId > 0) {
+                if (defaultDatabaseId > 0) {//XML NEEDS TO BE UPDATE FOR EACH USER & DATABASE SIZE IS 0
                     // DEFAULT DATABASE
                     database = currentUser.getDatabase(defaultDatabaseId);
                     currentUser.setDefaultDatabase(database);
@@ -118,16 +130,10 @@ public class VF {
             });
             // TABLES ------------------------------------------
             // EXIST---------------------
-            ms.selectTables(new CurrentDatabaseTablesExist());
-            if (!MSQL.isTableNamesExist()) {
-                ms.executeStringUpdate(MSQL.CREATE_TABLE_NAMES);// NOT TESTED
-            }
-            if (!MSQL.isTableConfigExist()) {
-                ms.executeStringUpdate(MSQL.CREATE_TABLE_CONFIG);// NOT TESTED
-            }
-
+            mainTablesCreation();
             // SELECT TABLES FROM CURRENT DATABASE
-            menus.addMenuItemsReset();
+            menus.addTablesToTfTableReset();
+
             // DEFAULT & CURRENT TABLE
             Database currentDatabase = Users.getInstance().getCurrenUser().getCurrentDatabase();
             if (defaultTableId > 0) {
@@ -142,7 +148,7 @@ public class VF {
             // TABLE SELECT-----------------------------------
             if (currentTable != null) {
                 String table = currentTable.getName();
-                vfc.getLbTable().setText(table);
+                vfc.getLbDatabaseTable().setText(table);
 
                 ms.selectColumns(table.replace(" ", "_"), new ShowColumns(vfc));
                 ms.selectKeys(Users.getInstance().getCurrenUser().getDatabasesNames(), new SelectKeys(vfc));
@@ -152,6 +158,9 @@ public class VF {
             } else {
                 vfc.clearCurrentTableView();
             }
+        } else {
+            vfc.getTfDatabase().setPromptText(VFController.NO_DATABASES);
+            vfc.getTfTable().setPromptText(VFController.NO_DATABASE_SELECTED);
         }
         /*
          * if (startFromLogin) { //ms.executeQuery(MSQL.SELECT_TABLE_ROW_DEFAULT, new
@@ -160,7 +169,7 @@ public class VF {
 
         // OTHERS LISTENERS--------------------
         ms.setSQLException((ex, s) -> vfc.getLbStatus().setText(ex.getMessage(), NonCSS.TEXT_FILL_ERROR));
-        //SHOW------------------------
+        // SHOW------------------------
         vlc.getStage().close();
         stage.show();
     }
@@ -192,6 +201,7 @@ public class VF {
             vfc.setStage(vlc != null ? stage : vc.getVf().getStage());
             vfc.setScene(scene);
             vfc.setVl(vlc);
+            vfc.setVf(this);
 
             ms = vlc.getMsRoot();
             vfc.setMs(ms);
@@ -226,11 +236,11 @@ public class VF {
         this.stage = stage;
     }
 
-    public boolean isNoDatabases() {
-        return noDatabases;
+    public boolean isNoDatabasesForCurrentUser() {
+        return noDatabasesForCurrentUser;
     }
 
-    public void setNoDatabases(boolean noDatabases) {
-        this.noDatabases = noDatabases;
+    public void setnoDatabasesForCurrentUser(boolean noDatabasesForCurrentUser) {
+        this.noDatabasesForCurrentUser = noDatabasesForCurrentUser;
     }
 }

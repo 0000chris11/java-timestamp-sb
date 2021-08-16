@@ -16,18 +16,22 @@ import com.cofii2.myInterfaces.IActions;
  */
 public class SelectDatabases implements IActions{
 
-    private VF vf;
     private VFController vfc;
+    
+    private boolean urrentUserRsValues = false;
 
     private Users users;
-    public SelectDatabases(VF vf, VFController vfc){
-        this.vf = vf;
+    public SelectDatabases(VFController vfc){
         this.vfc = vfc;
     }
     //-------------------------------
     @Override
     public void beforeQuery() {
         users = Users.getInstance();
+
+        users.clearDatabases();
+        users.getCurrenUser().clearDatabases();
+        vfc.getTfDatabaseAutoC().clearItems();
     }
 
     @Override
@@ -37,7 +41,10 @@ public class SelectDatabases implements IActions{
         int currentUserId = users.getCurrenUser().getId();
         String database = rs.getString(3);
         
+        users.addDatabase(new Database(id, database));
+
         if(idUsers == currentUserId){
+            urrentUserRsValues = true;
             users.getCurrenUser().addDatabase(new Database(id, database));
             vfc.getTfDatabaseAutoC().addItem(database);
         }
@@ -45,8 +52,11 @@ public class SelectDatabases implements IActions{
 
     @Override
     public void afterQuery(String query, boolean rsValue) {
-        if(!rsValue){
-            vf.setNoDatabases(true);
+        if(!urrentUserRsValues){
+            vfc.getVf().setnoDatabasesForCurrentUser(true);
+            vfc.getTfDatabase().setPromptText(VFController.NO_DATABASES);
+        }else{
+            vfc.getTfDatabase().setPromptText("Databases");
         }
         
     }

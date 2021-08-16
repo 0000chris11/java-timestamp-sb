@@ -3,6 +3,8 @@ package com.cofii.ts.sql.querys;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import com.cofii.ts.first.VF;
+import com.cofii.ts.first.VFController;
 import com.cofii.ts.sql.MSQL;
 import com.cofii.ts.store.main.Database;
 import com.cofii.ts.store.main.Table;
@@ -16,9 +18,14 @@ public class SelectTableNames implements IActions {
 
     private Database currentDatabase = Users.getInstance().getCurrenUser().getCurrentDatabase();
     private boolean selectTable;
+    private VFController vfc;
 
     public SelectTableNames(boolean selectTable) {
         this.selectTable = selectTable;
+    }
+    public SelectTableNames(boolean selectTable, VFController vfc) {
+        this.selectTable = selectTable;
+        this.vfc = vfc;
     }
 
     @Override
@@ -39,7 +46,10 @@ public class SelectTableNames implements IActions {
     @Override
     public void afterQuery(String query, boolean rsValue) {
         if (rsValue) {
-            MSQL.setTablesOnTableNames(true);
+            MSQL.setTablesOnTableNames(true);//DELETE
+            vfc.getTfTable().setPromptText("select a table");
+        }else{
+            vfc.getTfTable().setPromptText("no tables found");
         }
 
     }

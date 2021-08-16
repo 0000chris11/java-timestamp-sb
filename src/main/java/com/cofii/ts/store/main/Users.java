@@ -9,6 +9,8 @@ public class Users {
     private User currenUser;
     private User defaultUser;
 
+    private List<Database> allDatabasesList = new ArrayList<>();
+
     private final String defaultResource = "/com/cofii/ts/login/defaults.xml";
     //---------------------------------------
     public void clearUsers(){
@@ -19,6 +21,13 @@ public class Users {
     }
     public User getUser(final int id){
         return usersList.stream().filter(u -> u.getId() == id).toArray(size -> new User[size])[0];
+    }
+
+    public void clearDatabases(){
+        allDatabasesList.clear();
+    }
+    public void addDatabase(Database database){
+        allDatabasesList.add(database);
     }
     //INSTANCE------------------------------
     private static Users instance;
@@ -49,6 +58,12 @@ public class Users {
     }
     public void setDefaultUser(User defaultUser) {
         this.defaultUser = defaultUser;
+    }
+    public List<Database> getAllDatabasesList() {
+        return allDatabasesList;
+    }
+    public void setAllDatabasesList(List<Database> allDatabasesList) {
+        this.allDatabasesList = allDatabasesList;
     }
     
 }

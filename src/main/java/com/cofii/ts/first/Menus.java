@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.cofii.ts.cu.VC;
+import com.cofii.ts.cu.VCD;
 import com.cofii.ts.info.VI;
 import com.cofii.ts.other.CSS;
 import com.cofii.ts.other.Dist;
@@ -35,82 +36,49 @@ import javafx.util.Duration;
 
 public class Menus {
     // Open
-    private MenuItem openChangeUserDB = new MenuItem("Change User or DB");
-    private MenuItem openTableMain = new MenuItem("Open Tables Info");
-    // Table
-    private MenuItem tableInfo = new MenuItem("Current Table Info");
-    private Menu tableOp = new Menu("Options");
-    private CheckMenuItem tableOpClearValues = new CheckMenuItem("Clear nodes values when a row is deleted");
-    private CheckMenuItem tableOpReloacImage = new CheckMenuItem("Reload ImageC");
-    private Menu tableChangeDTable = new Menu("Change Default Table");
-    private MenuItem tableCreate = new MenuItem("Create new table");
-    private MenuItem tableUpdate = new MenuItem("Update table");
-    private Menu tableDelete = new Menu("Delete table");
-    private MenuItem tableDeleteThis = new MenuItem("Delete this table");
+    private final MenuItem openChangeUserDB = new MenuItem("Change User or DB");
+    private final MenuItem openTableMain = new MenuItem("Open Tables Info");
+    // Options
+    private final MenuItem optionsCreateDatabase = new MenuItem("Create Database");
+    private final MenuItem optionsTableInfo = new MenuItem("Current Table Info");
+    private final Menu optionsTableOp = new Menu("Options");
+    private final CheckMenuItem optionsTableOpClearValues = new CheckMenuItem("Clear nodes values when a row is deleted");
+    private final CheckMenuItem optionsTableOpReloacImage = new CheckMenuItem("Reload ImageC");
+    private final Menu optionsTableChangeDTable = new Menu("Change Default Table");
+    private final MenuItem optionsTableCreate = new MenuItem("Create new table");
+    private final MenuItem optionsTableUpdate = new MenuItem("Update table");
+    private final Menu optionsTableDelete = new Menu("Delete table");
+    private final MenuItem optionsTableDeleteThis = new MenuItem("Delete this table");
     // ---------------------------------------------------
-    private static VFController vf;
+    private static VFController vfc;
     private Database currentDatabase;
     private Table currentTable;
-    //private ColumnDS columnds = ColumnDS.getInstance();
-    private Dist dist = Dist.getInstance(vf);
+    // private ColumnDS columnds = ColumnDS.getInstance();
+    private Dist dist = Dist.getInstance(vfc);
     private PKS pks = PKS.getInstance();
     private FKS fks = FKS.getInstance();
 
-    private Timers timers = Timers.getInstance(vf);
+    private Timers timers = Timers.getInstance(vfc);
 
     // LISTENERS ---------------------------------------------------
     private void openChangeUserDBAction(ActionEvent e) {
-        vf.getVl().getStage().show();
+        vfc.getVl().getStage().show();
+    }
+
+    private void optionsCreateDatabaseAction(ActionEvent e){
+        new VCD(vfc);
     }
 
     private void tableCreateAction(ActionEvent e) {
-        new VC(vf, true);
+        new VC(vfc, true);
     }
 
     private void tableUpdateAction(ActionEvent e) {
-        new VC(vf, false);
+        new VC(vfc, false);
     }
 
     public void selectionForEachTable(ActionEvent e) {
-        System.out.println(CC.CYAN + "\nCHANGE TABLE" + CC.RESET);
-        currentTable = Users.getInstance().getCurrenUser().getCurrentDatabase().getCurrentTable();
-
-        MenuItem mi = (MenuItem) e.getSource();
-        String tableName = mi.getText();
-        System.out.println("\ttable: " + tableName);
-
-        vf.getLbTable().setText(tableName);
-        // RESET NODES ---------------------------------
-        for (int a = 0; a < MSQL.MAX_COLUMNS; a++) {
-            if (vf.getLbs()[a].isVisible()) {
-                vf.getLbs()[a].setVisible(false);
-
-                if (Boolean.TRUE.equals(currentTable.getColumnDists().get(a)) || fks.getYesAndNoFKS()[a].equals("Yes")) {// RESETING DIST
-                    vf.getTfsAutoC().get(a).setTfParent(null);
-                    vf.getTfs()[a].setStyle(CSS.TFS_DEFAULT_LOOK);
-                }
-                vf.getTfs()[a].setVisible(false);
-                vf.getBtns()[a].setVisible(false);
-
-                vf.getTfs()[a].setText("");
-            }
-        }
-        vf.getTfsFKList().forEach(List::clear);
-        Arrays.asList(vf.getBtns()).forEach(btn -> btn.setSelected(true));
-        vf.setSelectedRow(null);
-
-        vf.getBtnFind().setDisable(false);
-        vf.getBtnAdd().setDisable(false);
-        // SELECT -------------------------------------
-        String tableA = tableName.replace(" ", "_");
-        vf.getMs().selectDataWhere(MSQL.TABLE_NAMES, "name", tableName, new SelectTableNames(true));
-        vf.getMs().selectColumns(tableA, new ShowColumns(vf));
-        resetKeys();
-        System.out.println("\tMSQL's table: " + currentTable.getId() + " - "
-                + currentTable.getName() + " - " + currentTable.getDist());
-
-        dist.distStart();
-        vf.getMs().selectData(tableA, new SelectData(vf, SelectData.MESSGE_TABLE_CHANGE + tableName));
+        
     }
 
     // DELETE---------------------------------------------------
@@ -143,51 +111,55 @@ public class Menus {
     }
 
     private void deleteTablesYes(String table) {
-        boolean deleteTable = vf.getMs().deleteTable(table);
+        boolean deleteTable = vfc.getMs().deleteTable(table);
         if (deleteTable) {
-            boolean removeFromTableNames = vf.getMs().deleteRow(MSQL.TABLE_NAMES, "Name", table.replace("_", " "));
+            boolean removeFromTableNames = vfc.getMs().deleteRow(MSQL.TABLE_NAMES, "Name", table.replace("_", " "));
             if (removeFromTableNames) {
-                vf.getLbStatus().setText("Table '" + table + "' has been deleted", NonCSS.TEXT_FILL_OK,
+                vfc.getLbStatus().setText("Table '" + table + "' has been deleted", NonCSS.TEXT_FILL_OK,
                         Duration.seconds(2));
 
-                addMenuItemsReset();
-                vf.clearCurrentTableView();
+                addTablesToTfTableReset();
+                vfc.clearCurrentTableView();
             } else {
-                vf.getLbStatus().setText(
+                vfc.getLbStatus().setText(
                         "FATAL: Table '" + table + "' has been deleted but not removed from " + MSQL.TABLE_NAMES,
                         NonCSS.TEXT_FILL_ERROR);
             }
         } else {
-            vf.getLbStatus().setText("Table '" + table + "' fail to be deleted", NonCSS.TEXT_FILL_ERROR);
+            vfc.getLbStatus().setText("Table '" + table + "' fail to be deleted", NonCSS.TEXT_FILL_ERROR);
         }
     }
 
     // ------------------------------------------------------
     private void tableInfoAction(ActionEvent e) {
-        new VI(vf);
+        new VI(vfc);
     }
 
     // ------------------------------------------------------
-    public void addMenuItemsReset() {
+    public void addTablesToTfTableReset() {
         currentDatabase = Users.getInstance().getCurrenUser().getCurrentDatabase();
-        vf.getMs().executeQuery(MSQL.SELECT_TABLE_NAMES, new SelectTableNames(false));
+        vfc.getMs().executeQuery(MSQL.SELECT_TABLE_NAMES, new SelectTableNames(false));
+        
+        vfc.getTfTableAutoC().clearItems();
         if (currentDatabase.size() == 0) {
-            vf.getMenuSelection().getItems().clear();
-            tableDelete.getItems().clear();
-            vf.getMenuSelection().getItems().add(new MenuItem("No tables added"));
-            tableDelete.getItems().add(new MenuItem("No tables added"));
+            //vfc.getMenuSelection().getItems().clear();
+            optionsTableDelete.getItems().clear();
+            //vfc.getMenuSelection().getItems().add(new MenuItem("No tables added"));
+            vfc.getTfTable().setPromptText(VFController.NO_DATABASE_SELECTED);
+            optionsTableDelete.getItems().add(new MenuItem("No tables added"));
         } else {
-            vf.getMenuSelection().getItems().clear();
-            tableDelete.getItems().clear();
-            for (int a = 0; a < currentDatabase.size(); a++) {
-                vf.getMenuSelection().getItems().add(new MenuItem(currentDatabase.getTableName(a)));
-                tableDelete.getItems().add(new MenuItem(currentDatabase.getTableName(a)));
+            //vfc.getMenuSelection().getItems().clear();
+            optionsTableDelete.getItems().clear();
+            for (int a = 0; a < currentDatabase.size(); a++) {//TABLES SIZE
+                //vfc.getMenuSelection().getItems().add(new MenuItem(currentDatabase.getTableName(a)));
+                vfc.getTfTableAutoC().addItem(currentDatabase.getTableName(a));
+                optionsTableDelete.getItems().add(new MenuItem(currentDatabase.getTableName(a)));
             }
         }
 
-        vf.getMenuSelection().getItems().forEach(e -> e.setOnAction(this::selectionForEachTable));
-        tableDelete.getItems().forEach(e -> e.setOnAction(this::deleteTables));
-        tableDeleteThis.setOnAction(this::deleteThisTable);
+        //vfc.getMenuSelection().getItems().forEach(e -> e.setOnAction(this::selectionForEachTable));
+        optionsTableDelete.getItems().forEach(e -> e.setOnAction(this::deleteTables));
+        optionsTableDeleteThis.setOnAction(this::deleteThisTable);
     }
 
     public void resetKeys() {
@@ -204,8 +176,8 @@ public class Menus {
                 Text textColumnName = new Text(columnName);
                 textColumnName.setFill(NonCSS.TEXT_FILL);
 
-                vf.getLbs()[ordinalPosition].getChildren().clear();
-                vf.getLbs()[ordinalPosition].getChildren().addAll(textPk, textColumnName);
+                vfc.getLbs()[ordinalPosition].getChildren().clear();
+                vfc.getLbs()[ordinalPosition].getChildren().addAll(textPk, textColumnName);
             });
         }
         // FOREIGN KEYS---------------------------------------------
@@ -226,25 +198,25 @@ public class Menus {
                 Text textColumnName = new Text(columnName);
                 textColumnName.setFill(NonCSS.TEXT_FILL);
 
-                vf.getLbs()[ordinalPosition].getChildren().clear();
-                vf.getLbs()[ordinalPosition].getChildren().addAll(textFk, textColumnName);
+                vfc.getLbs()[ordinalPosition].getChildren().clear();
+                vfc.getLbs()[ordinalPosition].getChildren().addAll(textFk, textColumnName);
 
-                //vf.getTfsAutoC()[ordinalPosition].setTfParent(vf.getTfs()[ordinalPosition]);
-                vf.getTfs()[ordinalPosition].setStyle(CSS.TFS_FK_LOOK);
+                // vf.getTfsAutoC()[ordinalPosition].setTfParent(vf.getTfs()[ordinalPosition]);
+                vfc.getTfs()[ordinalPosition].setStyle(CSS.TFS_FK_LOOK);
                 // QUERY---------------------------
                 String column = cfks[aa].getReferencedColumns().get(indexs[0]++);
 
-                vf.getMs().setDistinctOrder(MSQLP.MOST_USE_ORDER);// WORK 50 50 WITH TAGS
-                vf.getMs().selectDistinctColumn(referencedDatabase + "." + referencedTable, column.replace(" ", "_"),
+                vfc.getMs().setDistinctOrder(MSQLP.MOST_USE_ORDER);// WORK 50 50 WITH TAGS
+                vfc.getMs().selectDistinctColumn(referencedDatabase + "." + referencedTable, column.replace(" ", "_"),
                         rs -> {
                             try {
                                 boolean rsValues = false;
                                 while (rs.next()) {
                                     rsValues = true;
-                                    vf.getTfsFKList().get(ordinalPosition).add(rs.getString(1));
+                                    vfc.getTfsFKList().get(ordinalPosition).add(rs.getString(1));
                                 }
                                 if (!rsValues) {
-                                    vf.addTfsFKTextProperty(ordinalPosition);
+                                    vfc.addTfsFKTextProperty(ordinalPosition);
                                 }
                             } catch (SQLException e) {
                                 e.printStackTrace();
@@ -277,7 +249,7 @@ public class Menus {
     private static Menus instance;
 
     public static Menus getInstance(VFController vf) {
-        Menus.vf = vf;
+        Menus.vfc = vf;
         if (instance == null) {
             instance = new Menus();
         }
@@ -289,28 +261,21 @@ public class Menus {
     }
 
     private Menus() {
-        vf.getMenuOpen().getItems().addAll(openChangeUserDB, openTableMain);
-        vf.getMenuTable().getItems().addAll(tableInfo, tableOp, new SeparatorMenuItem(), tableChangeDTable,
-                new SeparatorMenuItem(), tableCreate, tableUpdate, tableDelete, tableDeleteThis);
+        vfc.getMenuOpen().getItems().addAll(openChangeUserDB, openTableMain);
+        vfc.getMenuOptions().getItems().addAll(optionsCreateDatabase, new SeparatorMenuItem(), optionsTableInfo, optionsTableOp,
+                new SeparatorMenuItem(), optionsTableChangeDTable, new SeparatorMenuItem(), optionsTableCreate, optionsTableUpdate,
+                optionsTableDelete, optionsTableDeleteThis);
         // LISTENERS----------------------------------------------
         openChangeUserDB.setOnAction(this::openChangeUserDBAction);
-        /*
-         * ObservableList<MenuItem> menuItems = vf.getMenuSelection().getItems(); for
-         * (MenuItem menuItem : menuItems) {
-         * menuItem.setOnAction(this::selectionForEachTable); }
-         */
-        tableInfo.setOnAction(this::tableInfoAction);
-        tableCreate.setOnAction(this::tableCreateAction);
-        tableUpdate.setOnAction(this::tableUpdateAction);
+
+        optionsCreateDatabase.setOnAction(this::optionsCreateDatabaseAction);
+        optionsTableInfo.setOnAction(this::tableInfoAction);
+        optionsTableCreate.setOnAction(this::tableCreateAction);
+        optionsTableUpdate.setOnAction(this::tableUpdateAction);
     }
 
     // GET & SETTERS----------------------------------------------------
-    public Menu getTableDelete() {
-        return tableDelete;
+    public Menu getOptionsTableDelete() {
+        return optionsTableDelete;
     }
-
-    public void setTableDelete(Menu tableDelete) {
-        this.tableDelete = tableDelete;
-    }
-
 }

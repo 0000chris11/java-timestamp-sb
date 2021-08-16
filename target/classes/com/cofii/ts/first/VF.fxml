@@ -11,8 +11,7 @@
       <MenuBar fx:id="menuBar" BorderPane.alignment="CENTER">
          <menus>
             <Menu fx:id="menuOpen" mnemonicParsing="false" text="Open" />
-            <Menu fx:id="menuSelection" mnemonicParsing="false" text="Selection" />
-            <Menu fx:id="menuTable" mnemonicParsing="false" text="Table" />
+            <Menu fx:id="menuOptions" mnemonicParsing="false" text="Options" />
          </menus>
       </MenuBar>
    </top>
@@ -36,7 +35,7 @@
                <children>
                   <HBox fx:id="leftSplitHBox" spacing="6.0" VBox.vgrow="NEVER">
                      <children>
-                        <Label fx:id="lbTable" text="No Table Selected" />
+                        <Label fx:id="lbDatabaseTable" text="No Database/Table Selected" />
                         <Region HBox.hgrow="ALWAYS" />
                         <TextField fx:id="tfDatabase" prefWidth="120.0" promptText="Database" />
                         <TextField fx:id="tfTable" prefWidth="120.0" promptText="Table" />

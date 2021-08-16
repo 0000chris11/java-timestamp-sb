@@ -7,7 +7,7 @@ public class MSQL {
     public static final String ROOT_DB = "RootConfig";
     public static final String TABLE_USERS = "users";
     public static final String TABLE_DEFAULT_USER = "defaultuser";
-    public static final String TABLE_DATABASES = "users_databases";
+    public static final String TABLE_DATABASES = "rootconfig.users_databases";
     public static final String TABLE_DEFAULT = "default_table";
     public static final String TABLE_CONFIG = "table_config";
     public static final String TABLE_NAMES = "table_names";

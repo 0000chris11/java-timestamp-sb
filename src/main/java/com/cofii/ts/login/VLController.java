@@ -144,7 +144,7 @@ public class VLController implements Initializable {
 
     // LISTENERS=========================================
     // CENTER------------------------------------------------
-    private void tfUserKeyReleased(KeyEvent e) {
+    private void tfUserTextPropertyChange() {
         String text = tfUser.getText();
         boolean userMatch = tfUserAC.getLv().getItems().stream()
                 .anyMatch(s -> s.equalsIgnoreCase(text.trim().replace(" ", "_")));
@@ -443,7 +443,8 @@ public class VLController implements Initializable {
 
             tfUserAC.getLv().getSelectionModel().selectedItemProperty()
                     .addListener(this::tfUserSelectionChangeListener);
-            tfUser.setOnKeyReleased(this::tfUserKeyReleased);
+            //tfUser.setOnKeyReleased(this::tfUserKeyReleased);
+            tfUser.textProperty().addListener((obs, oldValue, newValue) -> tfUserTextPropertyChange());
             tfPassword.setOnKeyReleased(this::tfPasswordKeyReleased);
             // BOTTOM-----------------------------------
             btnLogin.disableProperty()

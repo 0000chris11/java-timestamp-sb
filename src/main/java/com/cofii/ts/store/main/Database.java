@@ -36,6 +36,9 @@ public class Database {
     public Table getTable(int id){
         return tables.stream().filter(t -> t.getId() == id).toArray(size -> new Table[size])[0];
     }
+    public Table getTable(String name){
+        return tables.stream().filter(t -> t.getName().equals(name)).toArray(size -> new Table[size])[0];
+    }
     
     public String[] getTablesNames(){
         List<String> list = new ArrayList<>();
