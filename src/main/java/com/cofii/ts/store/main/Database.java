@@ -29,6 +29,16 @@ public class Database {
         return tables.size();
     }
     //------------------------------------------
+    public boolean setCurrentTableByName(String name){
+        Table[] tablesResult = tables.stream().filter(t -> t.getName().equals(name)).toArray(size -> new Table[size]);
+        if(tablesResult.length > 0){
+            this.currentTable = tablesResult[0];
+            return true;
+        }else{
+            return false;
+        }
+    }
+
     public String getTableName(int index){
         return tables.get(index).getName();
     }

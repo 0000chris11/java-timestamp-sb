@@ -1,5 +1,6 @@
 <default>
-    <user id="0" />
-    <database id="1" />
-    <table id="51" />
+    <currentUser id="0" default="0">
+        <database id="0" />
+        <table name="null" />
+    </currentUser>
 </default>

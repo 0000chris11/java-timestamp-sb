@@ -1,35 +1,27 @@
 package com.cofii.ts.login;
 
-import java.awt.Toolkit;
 import java.net.URL;
 import java.util.ResourceBundle;
 import java.util.regex.Pattern;
 
-import javafx.animation.KeyFrame;
 import com.cofii.ts.first.VF;
-import com.cofii.ts.other.CSS;
 import com.cofii.ts.other.NonCSS;
 import com.cofii.ts.sql.MSQL;
-import com.cofii.ts.sql.querys.SelectDefaultUser;
 import com.cofii.ts.sql.querys.RootConfigExist;
-import com.cofii.ts.sql.querys.ShowTablesRootConfig;
-import com.cofii.ts.sql.querys.ShowUsers;
 import com.cofii.ts.store.main.User;
 import com.cofii.ts.store.main.Users;
 import com.cofii2.components.javafx.LabelStatus;
 import com.cofii2.components.javafx.popup.PopupAutoC;
 import com.cofii2.components.javafx.popup.PopupKV;
-import com.cofii2.components.javafx.popup.PopupMenu;
-import com.cofii2.methods.MList;
 import com.cofii2.mysql.DefaultConnection;
 import com.cofii2.mysql.MSQLP;
 import com.cofii2.mysql.RootConfigConnection;
 import com.cofii2.mysql.store.KeyPassword;
 
+import javafx.animation.Animation;
+import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
-import javafx.animation.Animation;
-import javafx.animation.FillTransition;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ObservableValue;
@@ -41,11 +33,9 @@ import javafx.fxml.Initializable;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
-import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
-import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -196,7 +186,7 @@ public class VLController implements Initializable {
                 } else {
                     createUserConfirmPassOk.setValue(false);
                 }
-            }else{
+            } else {
                 loginPassOK.setValue(false);
             }
         } else {
@@ -208,7 +198,7 @@ public class VLController implements Initializable {
                 } else {
                     createUserConfirmPassOk.setValue(true);
                 }
-            }else{
+            } else {
                 loginPassOK.setValue(true);
             }
         }
@@ -255,7 +245,7 @@ public class VLController implements Initializable {
             // ADDING CURRENT USER--------------------------------------------
             Object[] valueId = msRoot.selectValues(MSQL.TABLE_USERS, "id", "user_name", user);
             if (valueId.length == 1 && valueId[0] instanceof Integer) {
-                Users.getInstance().setCurrenUser(new User((int) valueId[0], user));
+                Users.getInstance().setCurrentUser(new User((int) valueId[0], user));
             } else {
                 throw new IllegalArgumentException(
                         "C0FII: FATAL wrong value recived from User table (expected single id)");
@@ -323,7 +313,7 @@ public class VLController implements Initializable {
 
             if (password.equals(confirmPassword)) {
                 msRoot.setKeyPassword(new KeyPassword(3, user, password));
-                //TEST NEW USER AT MYSQL-WORKSPACE
+                // TEST NEW USER AT MYSQL-WORKSPACE
                 boolean insert = msRoot.insert(MSQL.TABLE_USERS, new Object[] { null, user, password });
                 if (insert) {
                     lbStatus.setText("User created!", Color.GREEN, Duration.seconds(3));
@@ -337,7 +327,7 @@ public class VLController implements Initializable {
                 } else {
                     lbStatus.setText("User failed to be created.", Color.RED);
                 }
-            }else{
+            } else {
                 lbStatus.setText("Confirm Password must be the same as the original", Color.RED);
             }
         } else {
@@ -396,6 +386,17 @@ public class VLController implements Initializable {
     }
 
     // INIT ---------------------------------------------
+    private void initQuerys() {
+        msInit.selectDatabases(new RootConfigExist(this));// AND ADDING TO cbDB
+        if (!MSQL.isDbRootconfigExist()) {
+            msInit.executeStringUpdate(MSQL.CREATE_DB_ROOTCONFIG);
+        }
+        //CREATE ROOT TABLES
+
+        msInit.close();
+        msRoot = new MSQLP(new RootConfigConnection());
+    }
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         if (initOption.equalsIgnoreCase("Login")) {
@@ -413,7 +414,8 @@ public class VLController implements Initializable {
             // BOTTOM--------------------------------------------
             btnCreateUserHelp.managedProperty().bind(btnCreateUserHelp.visibleProperty());
 
-            //btnLogin.getStyleClass().removeAll("buttonQueryAction", "buttonQueryAction:pressed");
+            // btnLogin.getStyleClass().removeAll("buttonQueryAction",
+            // "buttonQueryAction:pressed");
             btnLogin.getStyleClass().addAll("buttonQueryAction", "buttonQueryAction:pressed");
 
             btnLoginHelpMapReset();
@@ -423,13 +425,8 @@ public class VLController implements Initializable {
             lbStatus = new LabelStatus("Waiting for action...", LabelStatus.RIGHT);
             vboxMain.getChildren().add(vboxMain.getChildren().indexOf(hbBottom), lbStatus);
             // CREATE ROOTCONFIG-----------------------
-            msInit.selectDatabases(new RootConfigExist(this));// AND ADDING TO cbDB
-            if (!MSQL.isDbRootconfigExist()) {
-                msInit.executeStringUpdate(MSQL.CREATE_DB_ROOTCONFIG);// NOT TESTED
-            }
-            msInit.close();
 
-            msRoot = new MSQLP(new RootConfigConnection());
+            initQuerys();
             // LISTENERS ---------------------------------------------
             // TOP--------------------------------------
             btnGoBack.setOnAction(e -> createUserState.setValue(false));
@@ -443,7 +440,7 @@ public class VLController implements Initializable {
 
             tfUserAC.getLv().getSelectionModel().selectedItemProperty()
                     .addListener(this::tfUserSelectionChangeListener);
-            //tfUser.setOnKeyReleased(this::tfUserKeyReleased);
+            // tfUser.setOnKeyReleased(this::tfUserKeyReleased);
             tfUser.textProperty().addListener((obs, oldValue, newValue) -> tfUserTextPropertyChange());
             tfPassword.setOnKeyReleased(this::tfPasswordKeyReleased);
             // BOTTOM-----------------------------------

@@ -34,7 +34,9 @@ public class User {
     public Database getDatabase(int id){
         return databases.stream().filter(d -> d.getId() == id).toArray(size -> new Database[size])[0];
     }
-
+    public void setCurrentDatabaseById(int id){
+        this.currentDatabase = databases.stream().filter(d -> d.getId() == id).toArray(size -> new Database[size])[0];
+    }
     // --------------------------------------------
     public User(int id, String name) {
         this.id = id;

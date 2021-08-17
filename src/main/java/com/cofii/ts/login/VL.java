@@ -69,21 +69,8 @@ public class VL extends Application {
         //SELECT USER-----------------------------------
         vlc.getMsRoot().selectData(MSQL.TABLE_USERS, this::selectUsers);
         // XML DEFAULTS READ --------------------------------
-        String resource = Users.getInstance().getDefaultResource();
-        new ResourceXML(resource, ResourceXML.READ_XML, doc -> {
-            int defaultUserId = Integer.parseInt(doc.getDocumentElement().getElementsByTagName("user").item(0)
-                    .getAttributes().item(0).getTextContent());
-
-            if (defaultUserId > 0) {
-                User user = Users.getInstance().getUser(defaultUserId);
-                Users.getInstance().setDefaultUser(user);
-                Users.getInstance().setCurrenUser(user);
-            } 
-            return null;
-        });
+        Users.getInstance().updateUser();
         // DEFAULT USER------------------------
-        // vlc.getMsRoot().executeQuery(MSQL.SELECT_TABLE_ROW_DEFAULT_USER, new
-        // SelectDefaultUser());
         if (Users.getInstance().getCurrenUser() != null/* || option.equals("login") */) {
             // vlc.getMsRoot().selectUsers(new ShowUsers(vlc));
             vlc.getMsRoot().selectData(MSQL.TABLE_USERS, new ShowUsers(vlc));

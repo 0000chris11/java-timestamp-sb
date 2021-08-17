@@ -8,7 +8,8 @@ public class MSQL {
     public static final String TABLE_USERS = "users";
     public static final String TABLE_DEFAULT_USER = "defaultuser";
     public static final String TABLE_DATABASES = "rootconfig.users_databases";
-    public static final String TABLE_DEFAULT = "default_table";
+    public static final String TABLE_USER_DEFAULTS = "rootconfig.user_defaults";
+    public static final String TABLE_DEFAULT = "default_table";//DELETE AFTER MERGE
     public static final String TABLE_CONFIG = "table_config";
     public static final String TABLE_NAMES = "table_names";
 
