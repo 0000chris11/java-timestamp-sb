@@ -3,6 +3,14 @@ package com.cofii.ts.store.main;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.cofii2.xml.ResourceXML;
+
+import org.w3c.dom.Element;
+
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ObservableValue;
+
 public class User {
 
     private int id;
@@ -10,7 +18,8 @@ public class User {
 
     private List<Database> databases = new ArrayList<>();
     private Database currentDatabase;
-    private Database defaultDatabase;
+
+    private ObjectProperty<Database> defaultDatabaseProperty = new SimpleObjectProperty<>(null);
 
     // --------------------------------------------
     public void clearDatabases() {
@@ -34,13 +43,30 @@ public class User {
     public Database getDatabase(int id){
         return databases.stream().filter(d -> d.getId() == id).toArray(size -> new Database[size])[0];
     }
+
+    public void setDefaultDatabaseById(int id){
+        this.defaultDatabaseProperty.setValue(databases.stream().filter(d -> d.getId() == id).toArray(size -> new Database[size])[0]);
+    }
     public void setCurrentDatabaseById(int id){
         this.currentDatabase = databases.stream().filter(d -> d.getId() == id).toArray(size -> new Database[size])[0];
     }
-    // --------------------------------------------
+    // INIT --------------------------------------------
+    public void defaultDatabaseChange(ObservableValue<? extends Database> obs, Database oldValue, Database newValue) {
+        new ResourceXML(Users.getInstance().getDefaultResource(), ResourceXML.UPDATE_XML, doc -> {
+            Element currentUserElement = (Element) doc.getDocumentElement().getElementsByTagName("currentUser").item(0);
+
+            int defaultDatabaseId = newValue.getId();
+            currentUserElement.getElementsByTagName("database").item(0).getAttributes().item(0)
+                    .setTextContent(Integer.toString(defaultDatabaseId));
+
+            return doc;
+        });
+    }
     public User(int id, String name) {
         this.id = id;
         this.name = name;
+
+        defaultDatabaseProperty.addListener(this::defaultDatabaseChange);
     }
 
     // GETTERS && SETTERS-----------------------------------------------
@@ -77,11 +103,11 @@ public class User {
     }
 
     public Database getDefaultDatabase() {
-        return defaultDatabase;
+        return defaultDatabaseProperty.getValue();
     }
 
     public void setDefaultDatabase(Database defaultDatabase) {
-        this.defaultDatabase = defaultDatabase;
+        this.defaultDatabaseProperty.setValue(defaultDatabase);
     }
 
 }

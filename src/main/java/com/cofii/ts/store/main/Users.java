@@ -1,27 +1,25 @@
 package com.cofii.ts.store.main;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.cofii.ts.sql.MSQL;
 import com.cofii2.mysql.MSQLP;
-import com.cofii2.mysql.enums.QueryResult;
 import com.cofii2.xml.ResourceXML;
 
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 
 public class Users {
 
     private List<User> usersList = new ArrayList<>();
     private User currentUser;
-    private User defaultUser;
+    private ObjectProperty<User> defaultUserProperty = new SimpleObjectProperty<>(null);
 
     private List<Database> allDatabasesList = new ArrayList<>();
 
@@ -65,29 +63,38 @@ public class Users {
     }
 
     // INIT----------------------------------------
-    public void updateUser() {
-        new ResourceXML(Users.getInstance().getDefaultResource(), ResourceXML.UPDATE_XML, doc -> {
+    public void updateDefaultUser(boolean setCurrents) {
+        new ResourceXML(getDefaultResource(), ResourceXML.UPDATE_XML, doc -> {
             Element currentUserElement = (Element) doc.getDocumentElement().getElementsByTagName("currentUser").item(0);
-            int defaultUserId = Integer.parseInt(currentUserElement.getAttributes().item(1).getTextContent());// DEFAULT
-            currentUserElement.getAttributes().item(0).setTextContent(Integer.toString(defaultUserId));// CURRENT ID
+
+            int defaultUserId = Integer.parseInt(currentUserElement.getAttributes().item(0).getTextContent());// DEFAULT
+            // currentUserElement.getAttributes().item(0).setTextContent(Integer.toString(defaultUserId));//
+            // CURRENT ID
 
             if (defaultUserId > 0) {
-                currentUser = new User(defaultUserId, getUser(defaultUserId).getName());
+                defaultUserProperty.setValue(new User(defaultUserId, getUser(defaultUserId).getName()));
+                if (setCurrents) {
+                    currentUser = defaultUserProperty.getValue();
+                }
 
                 ms.selectDataWhere(MSQL.TABLE_USER_DEFAULTS, "user_id", defaultUserId > 0 ? defaultUserId : null,
                         (rs, v, ex) -> {
                             if (v) {
-                                int databaseId = rs.getInt(2);
-                                String tableName = rs.getString(3);
+                                int defaultDatabaseId = rs.getInt(2);
+                                String defaultTableName = rs.getString(3);
 
-                                if (databaseId > 0) {
-                                    getCurrenUser().setCurrentDatabaseById(databaseId);
-                                    getCurrenUser().getCurrentDatabase().setCurrentTableByName(tableName);
+                                if (defaultDatabaseId > 0 && setCurrents) {
+                                    getCurrenUser().setDefaultDatabaseById(defaultDatabaseId);
+                                    getCurrenUser().setCurrentDatabase(getCurrenUser().getCurrentDatabase());
+
+                                    getCurrenUser().getCurrentDatabase().setDefaultTableByName(defaultTableName);
+                                    getCurrenUser().getCurrentDatabase()
+                                            .setCurrentTable(getCurrenUser().getCurrentDatabase().getDefaultTable());
                                 }
                                 currentUserElement.getElementsByTagName("database").item(0).getAttributes().item(0)
-                                            .setTextContent(Integer.toString(databaseId));
+                                        .setTextContent(Integer.toString(defaultDatabaseId));
                                 currentUserElement.getElementsByTagName("table").item(0).getAttributes().item(0)
-                                        .setTextContent(tableName);
+                                        .setTextContent(defaultTableName);
                             }
                         });
             } else {
@@ -99,8 +106,46 @@ public class Users {
         });
     }
 
+    public void defaultUserChange(ObservableValue<? extends User> obs, User oldValue, User newValue) {
+        new ResourceXML(Users.getInstance().getDefaultResource(), ResourceXML.UPDATE_XML, doc -> {
+            Element currentUserElement = (Element) doc.getDocumentElement().getElementsByTagName("currentUser").item(0);
+
+            int defaultUserId = newValue != null ? newValue.getId() : 0;
+            // currentUserElement.getAttributes().item(0).setTextContent(Integer.toString(defaultUserId));//
+            // CURRENT ID
+
+            if (defaultUserId > 0) {
+                ms.selectDataWhere(MSQL.TABLE_USER_DEFAULTS, "user_id", defaultUserId > 0 ? defaultUserId : null,
+                        (rs, v, ex) -> {
+                            if (v) {
+                                int defaultDatabaseId = rs.getInt(2);
+                                String defaultTableName = rs.getString(3);
+
+                                if (defaultDatabaseId > 0) {
+                                    getCurrenUser().setDefaultDatabaseById(defaultDatabaseId);
+                                    if (defaultTableName != null) {
+                                        getCurrenUser().getCurrentDatabase().setDefaultTableByName(defaultTableName);
+                                    }
+                                }
+
+                            }
+                        });
+            } else {
+                currentUserElement.getElementsByTagName("database").item(0).getAttributes().item(0)
+                        .setTextContent(Integer.toString(0));
+                currentUserElement.getElementsByTagName("table").item(0).getAttributes().item(0).setTextContent("null");
+            }
+            return doc;
+        });
+    }
+
+    //CREATE DIFFERENT METHOD TO STAR THIS PROPERTIES
     private Users() {
-        updateUser();
+        //FXCollections.observableArrayList().
+
+        updateDefaultUser(true);
+        // LISTENERS--------------
+        defaultUserProperty.addListener(this::defaultUserChange);
     }
 
     // GETTER & SETTERS----------------------------
@@ -124,20 +169,20 @@ public class Users {
         return defaultResource;
     }
 
-    public User getDefaultUser() {
-        return defaultUser;
-    }
-
-    public void setDefaultUser(User defaultUser) {
-        this.defaultUser = defaultUser;
-    }
-
     public List<Database> getAllDatabasesList() {
         return allDatabasesList;
     }
 
     public void setAllDatabasesList(List<Database> allDatabasesList) {
         this.allDatabasesList = allDatabasesList;
+    }
+
+    public User getDefaultUser() {
+        return defaultUserProperty.getValue();
+    }
+
+    public void setDefaultUser(User user) {
+        this.defaultUserProperty.setValue(user);
     }
 
 }

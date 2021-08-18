@@ -5,7 +5,7 @@ import com.cofii.ts.store.main.Table;
 public class MSQL {
     // DBS AND TABLES
     public static final String ROOT_DB = "RootConfig";
-    public static final String TABLE_USERS = "users";
+    public static final String TABLE_USERS = "rootconfig.users";
     public static final String TABLE_DEFAULT_USER = "defaultuser";
     public static final String TABLE_DATABASES = "rootconfig.users_databases";
     public static final String TABLE_USER_DEFAULTS = "rootconfig.user_defaults";
@@ -27,17 +27,20 @@ public class MSQL {
     // QUERYS
     public static final String CREATE_DB_ROOTCONFIG = "CREATE DATABASE ROOTCONFIG";
 
-    public static final String CREATE_TABLE_USERS = "CREATE TABLE " + TABLE_USERS 
+    public static final String CREATE_TABLE_USERS = "CREATE TABLE IF NOT EXISTS " + TABLE_USERS 
             + "(id INT NOT NULL AUTO_INCREMENT, user_name VARCHAR(200) NOT NULL, user_password VARBINARY(200) NOT NULL, PRIMARY KEY(id))";
-    public static final String CREATE_TABLE_DATABASES = "CREATE TABLE " + TABLE_DATABASES 
-            + "(id_user INT, user_database CHAR(255) NOT NULL, FOREIGN KEY(id_user) REFERENCES users(id))";
-    public static final String CREATE_TABLE_DEFAULT_USER = "CREATE TABLE " + TABLE_DEFAULT_USER
+    public static final String CREATE_TABLE_USERS_DEFAULTS = "CREATE TABLE IF NOT EXISTS " + TABLE_USER_DEFAULTS
+            + "(user_id INT NOT NULL, database_id INT NULL, table_name CHAR(200) NULL, "
+            + "PRIMARY KEY(user_id), FOREIGN KEY(database_id) REFERENCES " + TABLE_DATABASES + "(id))";
+    public static final String CREATE_TABLE_DATABASES = "CREATE TABLE IF NOT EXISTS " + TABLE_DATABASES 
+            + "(id INT NOT NULL AUTO_INCREMENT, id_user INT, user_database CHAR(255) NOT NULL, PRIMARY KEY(id) ,FOREIGN KEY(id_user) REFERENCES users(id))";
+    public static final String CREATE_TABLE_DEFAULT_USER = "CREATE TABLE IF NOT EXISTS " + TABLE_DEFAULT_USER
             + "(User CHAR(100) NOT NULL, Password CHAR(50) NOT NULL, Database CHAR(100) NOT NULL)";
-    public static final String CREATE_TABLE_NAMES = "CREATE TABLE " + TABLE_NAMES
+    public static final String CREATE_TABLE_NAMES = "CREATE TABLE IF NOT EXISTS " + TABLE_NAMES
             + "(id INT NOT NULL AUTO_INCREMENT, Name CHAR(100) NOT NULL, Dist CHAR(100) NOT NULL, PRIMARY KEY (id, name))";
-    public static final String CREATE_TABLE_DEFAUT = "CREATE TABLE " + TABLE_DEFAULT
+    public static final String CREATE_TABLE_DEFAUT = "CREATE TABLE IF NOT EXISTS " + TABLE_DEFAULT
             + "(id INT, name CHAR(100), FOREIGN KEY(id, name) REFERENCES table_names(id, name))";
-    public static final String CREATE_TABLE_CONFIG = "CREATE TABLE " + TABLE_CONFIG
+    public static final String CREATE_TABLE_CONFIG = "CREATE TABLE IF NOT EXISTS " + TABLE_CONFIG
             + "(id INT NOT NULL, Name CHAR(100) NOT NULL, Value BOOLEAN NOT NULL, PRIMARY KEY(id))";
 
     public static final String INSERT_TABLE_DEFAULT_USER = "INSERT INTO " + TABLE_DEFAULT_USER

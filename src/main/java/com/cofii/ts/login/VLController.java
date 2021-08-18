@@ -7,15 +7,12 @@ import java.util.regex.Pattern;
 import com.cofii.ts.first.VF;
 import com.cofii.ts.other.NonCSS;
 import com.cofii.ts.sql.MSQL;
-import com.cofii.ts.sql.querys.RootConfigExist;
 import com.cofii.ts.store.main.User;
 import com.cofii.ts.store.main.Users;
 import com.cofii2.components.javafx.LabelStatus;
 import com.cofii2.components.javafx.popup.PopupAutoC;
 import com.cofii2.components.javafx.popup.PopupKV;
-import com.cofii2.mysql.DefaultConnection;
 import com.cofii2.mysql.MSQLP;
-import com.cofii2.mysql.RootConfigConnection;
 import com.cofii2.mysql.store.KeyPassword;
 
 import javafx.animation.Animation;
@@ -91,9 +88,7 @@ public class VLController implements Initializable {
     // private PopupMenu btnCreatePM = new PopupMenu("User", "Database");
 
     // ---------------------------------------------
-    private MSQLP msInit = new MSQLP(new DefaultConnection());
     private MSQLP msRoot;
-    private String initOption = "Login";
 
     private boolean showStage = false;
     private BooleanProperty createUserState = new SimpleBooleanProperty(false);
@@ -386,87 +381,74 @@ public class VLController implements Initializable {
     }
 
     // INIT ---------------------------------------------
-    private void initQuerys() {
-        msInit.selectDatabases(new RootConfigExist(this));// AND ADDING TO cbDB
-        if (!MSQL.isDbRootconfigExist()) {
-            msInit.executeStringUpdate(MSQL.CREATE_DB_ROOTCONFIG);
-        }
-        //CREATE ROOT TABLES
+    private void initNodesConfig(){
+        // CENTER ----------------------------
+        lbUser.setTextFill(NonCSS.TEXT_FILL);
 
-        msInit.close();
-        msRoot = new MSQLP(new RootConfigConnection());
+        tfPassword.setId("pass");
+
+        tfUserAC = new PopupAutoC(tfUser);
+        tfUserAC.setShowOption(PopupAutoC.WHEN_FOCUS);
+        tfUserAC.getNoSearchableItems().add("NO USERS FOUND");
+        tfUserAC.addItem("NO USERS FOUND");
+
+        lbPassword.setTextFill(NonCSS.TEXT_FILL_ERROR);
+        // BOTTOM--------------------------------------------
+        btnCreateUserHelp.managedProperty().bind(btnCreateUserHelp.visibleProperty());
+
+        // btnLogin.getStyleClass().removeAll("buttonQueryAction",
+        // "buttonQueryAction:pressed");
+        btnLogin.getStyleClass().addAll("buttonQueryAction", "buttonQueryAction:pressed");
+
+        btnLoginHelpMapReset();
+        btnLoginHelpPopup = new PopupKV(btnLoginHelp, btnLoginHelpMap);
+        btnLoginHelpPopup.getHeaderBar().getStyleClass().add("headerBarPopupKV");
+
+        lbStatus = new LabelStatus("Waiting for action...", LabelStatus.RIGHT);
+        vboxMain.getChildren().add(vboxMain.getChildren().indexOf(hbBottom), lbStatus);
     }
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        if (initOption.equalsIgnoreCase("Login")) {
-            // CENTER ----------------------------
-            lbUser.setTextFill(NonCSS.TEXT_FILL);
+        initNodesConfig();
+        // LISTENERS ---------------------------------------------
+        // TOP--------------------------------------
+        btnGoBack.setOnAction(e -> createUserState.setValue(false));
+        // CENTER-----------------------------------
+        loginUserOK.addListener((obs, oldValue, newValue) -> btnLoginHelpMapReset());
+        loginPassOK.addListener((obs, oldValue, newValue) -> btnLoginHelpMapReset());
 
-            tfPassword.setId("pass");
+        createUserUserOk.addListener((obs, oldValue, newValue) -> btnCreateUserHelpMapReset());
+        createUserPassOk.addListener((obs, oldValue, newValue) -> btnCreateUserHelpMapReset());
+        createUserConfirmPassOk.addListener((obs, oldValue, newValue) -> btnCreateUserHelpMapReset());
 
-            tfUserAC = new PopupAutoC(tfUser);
-            tfUserAC.setShowOption(PopupAutoC.WHEN_FOCUS);
-            tfUserAC.getNoSearchableItems().add("NO USERS FOUND");
-            tfUserAC.addItem("NO USERS FOUND");
+        tfUserAC.getLv().getSelectionModel().selectedItemProperty().addListener(this::tfUserSelectionChangeListener);
+        // tfUser.setOnKeyReleased(this::tfUserKeyReleased);
+        tfUser.textProperty().addListener((obs, oldValue, newValue) -> tfUserTextPropertyChange());
+        tfPassword.setOnKeyReleased(this::tfPasswordKeyReleased);
+        // BOTTOM-----------------------------------
+        btnLogin.disableProperty()
+                .addListener((obs, oldValue, newValue) -> btnLoginDisablePropertyChangeListener(newValue));
+        btnLogin.setOnAction(this::btnLoginAction);
+        btnLoginHelp.setOnAction(this::btnLoginHelpAction);
 
-            lbPassword.setTextFill(NonCSS.TEXT_FILL_ERROR);
-            // BOTTOM--------------------------------------------
-            btnCreateUserHelp.managedProperty().bind(btnCreateUserHelp.visibleProperty());
+        btnCreateUser.disableProperty()
+                .addListener((obs, oldValue, newValue) -> btnCreateUserDisablePropertyChangeListener(newValue));
+        btnCreateUser.setOnAction(this::btnCreateUserAction);
+        btnCreateUserHelp.setOnAction(e -> btnCreateUserHelpPopup.showPopup());
 
-            // btnLogin.getStyleClass().removeAll("buttonQueryAction",
-            // "buttonQueryAction:pressed");
-            btnLogin.getStyleClass().addAll("buttonQueryAction", "buttonQueryAction:pressed");
+        createUserState.addListener((obs, oldValue, newValue) -> createUserStateChanged(newValue));
+        // AFTER LISTENERS--------------------------
+        btnLogin.setDisable(true);
+        // SOME THREADS-----------------------------
+        timelineLoginHelp = new Timeline(
+                new KeyFrame(Duration.seconds(2), new KeyValue(btnLoginHelp.textFillProperty(), Color.RED)));
+        timeLineUserHelp = new Timeline(
+                new KeyFrame(Duration.seconds(2), new KeyValue(btnCreateUserHelp.textFillProperty(), Color.RED)));
+        // timeline.setAutoReverse(true);
+        timelineLoginHelp.setCycleCount(Animation.INDEFINITE);
+        timeLineUserHelp.setCycleCount(Animation.INDEFINITE);
 
-            btnLoginHelpMapReset();
-            btnLoginHelpPopup = new PopupKV(btnLoginHelp, btnLoginHelpMap);
-            btnLoginHelpPopup.getHeaderBar().getStyleClass().add("headerBarPopupKV");
-
-            lbStatus = new LabelStatus("Waiting for action...", LabelStatus.RIGHT);
-            vboxMain.getChildren().add(vboxMain.getChildren().indexOf(hbBottom), lbStatus);
-            // CREATE ROOTCONFIG-----------------------
-
-            initQuerys();
-            // LISTENERS ---------------------------------------------
-            // TOP--------------------------------------
-            btnGoBack.setOnAction(e -> createUserState.setValue(false));
-            // CENTER-----------------------------------
-            loginUserOK.addListener((obs, oldValue, newValue) -> btnLoginHelpMapReset());
-            loginPassOK.addListener((obs, oldValue, newValue) -> btnLoginHelpMapReset());
-
-            createUserUserOk.addListener((obs, oldValue, newValue) -> btnCreateUserHelpMapReset());
-            createUserPassOk.addListener((obs, oldValue, newValue) -> btnCreateUserHelpMapReset());
-            createUserConfirmPassOk.addListener((obs, oldValue, newValue) -> btnCreateUserHelpMapReset());
-
-            tfUserAC.getLv().getSelectionModel().selectedItemProperty()
-                    .addListener(this::tfUserSelectionChangeListener);
-            // tfUser.setOnKeyReleased(this::tfUserKeyReleased);
-            tfUser.textProperty().addListener((obs, oldValue, newValue) -> tfUserTextPropertyChange());
-            tfPassword.setOnKeyReleased(this::tfPasswordKeyReleased);
-            // BOTTOM-----------------------------------
-            btnLogin.disableProperty()
-                    .addListener((obs, oldValue, newValue) -> btnLoginDisablePropertyChangeListener(newValue));
-            btnLogin.setOnAction(this::btnLoginAction);
-            btnLoginHelp.setOnAction(this::btnLoginHelpAction);
-
-            btnCreateUser.disableProperty()
-                    .addListener((obs, oldValue, newValue) -> btnCreateUserDisablePropertyChangeListener(newValue));
-            btnCreateUser.setOnAction(this::btnCreateUserAction);
-            btnCreateUserHelp.setOnAction(e -> btnCreateUserHelpPopup.showPopup());
-
-            createUserState.addListener((obs, oldValue, newValue) -> createUserStateChanged(newValue));
-            // AFTER LISTENERS--------------------------
-            btnLogin.setDisable(true);
-            // ------------------------
-            timelineLoginHelp = new Timeline(
-                    new KeyFrame(Duration.seconds(2), new KeyValue(btnLoginHelp.textFillProperty(), Color.RED)));
-            timeLineUserHelp = new Timeline(
-                    new KeyFrame(Duration.seconds(2), new KeyValue(btnCreateUserHelp.textFillProperty(), Color.RED)));
-            // timeline.setAutoReverse(true);
-            timelineLoginHelp.setCycleCount(Animation.INDEFINITE);
-            timeLineUserHelp.setCycleCount(Animation.INDEFINITE);
-
-        }
     }
     // ---------------------------------------------
 

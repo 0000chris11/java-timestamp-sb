@@ -89,13 +89,9 @@ public class VF {
      * Does main tables exist (at selected Database level)
      */
     void mainTablesCreation(){
-        ms.selectTables(new CurrentDatabaseTablesExist());
-        if (!MSQL.isTableNamesExist()) {
-            ms.executeStringUpdate(MSQL.CREATE_TABLE_NAMES);// NOT TESTED
-        }
-        if (!MSQL.isTableConfigExist()) {
-            ms.executeStringUpdate(MSQL.CREATE_TABLE_CONFIG);// NOT TESTED
-        }
+        //ms.selectTables(new CurrentDatabaseTablesExist());
+        ms.executeStringUpdate(MSQL.CREATE_TABLE_NAMES);
+        ms.executeStringUpdate(MSQL.CREATE_TABLE_CONFIG);
     }
 
     private void querysStart() {
@@ -104,6 +100,7 @@ public class VF {
         // ----------------------------------------
         if (!noDatabasesForCurrentUser) {
             // DATABASES FOUND-----------------------------
+            /*
             String resource = Users.getInstance().getDefaultResource();
             // READING XML
             new ResourceXML(resource, ResourceXML.READ_XML, doc -> {
@@ -128,6 +125,7 @@ public class VF {
                 currentUser.setCurrentDatabase(database);
                 return null;// JUST READING
             });
+            */
             // TABLES ------------------------------------------
             // EXIST---------------------
             mainTablesCreation();

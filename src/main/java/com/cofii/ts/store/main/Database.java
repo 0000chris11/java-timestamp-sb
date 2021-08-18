@@ -3,6 +3,14 @@ package com.cofii.ts.store.main;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.cofii2.xml.ResourceXML;
+
+import org.w3c.dom.Element;
+
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ObservableValue;
+
 public class Database {
     
     private int id;
@@ -10,11 +18,25 @@ public class Database {
 
     private List<Table> tables = new ArrayList<>();
     private Table currentTable;
-    private Table defaultTable;
-    //------------------------------------------
+
+    private ObjectProperty<Table> defaultTableProperty = new SimpleObjectProperty<>(null);
+    //INIT------------------------------------------
+    public void defaultTableChange(ObservableValue<? extends Table> obs, Table oldValue, Table newValue) {
+        new ResourceXML(Users.getInstance().getDefaultResource(), ResourceXML.UPDATE_XML, doc -> {
+            Element currentUserElement = (Element) doc.getDocumentElement().getElementsByTagName("currentUser").item(0);
+
+            String defaultTableName = newValue.getName();
+            currentUserElement.getElementsByTagName("table").item(0).getAttributes().item(0)
+                    .setTextContent(defaultTableName);
+            return doc;
+        });
+    }
+
     public Database(int id, String name){
         this.id = id;
         this.name = name;
+
+        defaultTableProperty.addListener(this::defaultTableChange);
     }
     //------------------------------------------
     public void addTable(Table table){
@@ -29,6 +51,15 @@ public class Database {
         return tables.size();
     }
     //------------------------------------------
+    public boolean setDefaultTableByName(String name){
+        Table[] tablesResult = tables.stream().filter(t -> t.getName().equals(name)).toArray(size -> new Table[size]);
+        if(tablesResult.length > 0){
+            this.defaultTableProperty.setValue(tablesResult[0]);
+            return true;
+        }else{
+            return false;
+        }
+    }
     public boolean setCurrentTableByName(String name){
         Table[] tablesResult = tables.stream().filter(t -> t.getName().equals(name)).toArray(size -> new Table[size]);
         if(tablesResult.length > 0){
@@ -80,10 +111,10 @@ public class Database {
         this.id = id;
     }
     public Table getDefaultTable() {
-        return defaultTable;
+        return defaultTableProperty.getValue();
     }
     public void setDefaultTable(Table defaultTable) {
-        this.defaultTable = defaultTable;
+        this.defaultTableProperty.setValue(defaultTable);
     }
     public List<Table> getTables() {
         return tables;
