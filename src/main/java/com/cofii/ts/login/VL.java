@@ -110,6 +110,7 @@ public class VL extends Application {
         // SELECT USER-----------------------------------
         msRoot.selectData(MSQL.TABLE_USERS, this::selectUsers);
         // XML DEFAULTS READ --------------------------------
+        Users.getInstance().startDefaultProperty(msRoot);
         // DEFAULT USER------------------------
         boolean showStage = false;
         if (Users.getInstance().getCurrenUser() != null/* || option.equals("login") */) {

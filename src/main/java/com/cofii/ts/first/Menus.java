@@ -118,7 +118,7 @@ public class Menus {
                 vfc.getLbStatus().setText("Table '" + table + "' has been deleted", NonCSS.TEXT_FILL_OK,
                         Duration.seconds(2));
 
-                addTablesToTfTableReset();
+                addTablesToTfTableReset(vfc);
                 vfc.clearCurrentTableView();
             } else {
                 vfc.getLbStatus().setText(
@@ -136,9 +136,9 @@ public class Menus {
     }
 
     // ------------------------------------------------------
-    public void addTablesToTfTableReset() {
+    public void addTablesToTfTableReset(VFController vfc) {
         currentDatabase = Users.getInstance().getCurrenUser().getCurrentDatabase();
-        vfc.getMs().executeQuery(MSQL.SELECT_TABLE_NAMES, new SelectTableNames(false));
+        vfc.getMs().executeQuery(MSQL.SELECT_TABLE_NAMES, new SelectTableNames(false, vfc));
         
         vfc.getTfTableAutoC().clearItems();
         if (currentDatabase.size() == 0) {

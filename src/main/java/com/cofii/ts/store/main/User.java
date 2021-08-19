@@ -16,10 +16,10 @@ public class User {
     private int id;
     private String name;
 
-    private List<Database> databases = new ArrayList<>();
+    private static final List<Database> databases = new ArrayList<>();
     private Database currentDatabase;
 
-    private ObjectProperty<Database> defaultDatabaseProperty = new SimpleObjectProperty<>(null);
+    private static ObjectProperty<Database> defaultDatabaseProperty = new SimpleObjectProperty<>(null);
 
     // --------------------------------------------
     public void clearDatabases() {
@@ -44,15 +44,26 @@ public class User {
         return databases.stream().filter(d -> d.getId() == id).toArray(size -> new Database[size])[0];
     }
 
-    public void setDefaultDatabaseById(int id){
-        this.defaultDatabaseProperty.setValue(databases.stream().filter(d -> d.getId() == id).toArray(size -> new Database[size])[0]);
+    public static void setDefaultDatabaseById(int id){
+        User.defaultDatabaseProperty.setValue(databases.stream().filter(d -> d.getId() == id).toArray(size -> new Database[size])[0]);
     }
     public void setCurrentDatabaseById(int id){
         this.currentDatabase = databases.stream().filter(d -> d.getId() == id).toArray(size -> new Database[size])[0];
     }
     // INIT --------------------------------------------
-    public void defaultDatabaseChange(ObservableValue<? extends Database> obs, Database oldValue, Database newValue) {
-        new ResourceXML(Users.getInstance().getDefaultResource(), ResourceXML.UPDATE_XML, doc -> {
+    public static void readDefaultDatabase() {
+        new ResourceXML(Users.DEFAULT_RESOURCE, ResourceXML.UPDATE_XML, doc -> {
+            Element currentUserElement = (Element) doc.getDocumentElement().getElementsByTagName("currentUser").item(0);
+
+            int defaultDatabaseId = Integer.parseInt(currentUserElement.getElementsByTagName("database").item(0).getAttributes().item(0).getTextContent());
+            setDefaultDatabaseById(defaultDatabaseId);
+
+            return doc;
+        });
+    }
+
+    private static void defaultDatabaseChange(ObservableValue<? extends Database> obs, Database oldValue, Database newValue) {
+        new ResourceXML(Users.DEFAULT_RESOURCE, ResourceXML.UPDATE_XML, doc -> {
             Element currentUserElement = (Element) doc.getDocumentElement().getElementsByTagName("currentUser").item(0);
 
             int defaultDatabaseId = newValue.getId();
@@ -66,9 +77,14 @@ public class User {
         this.id = id;
         this.name = name;
 
-        defaultDatabaseProperty.addListener(this::defaultDatabaseChange);
+        
     }
+    /*
+    public static void startDefaultDatabaseProperty(){
 
+       // defaultDatabaseProperty.addListener(User::readDefaultDatabase);
+    }
+    */
     // GETTERS && SETTERS-----------------------------------------------
     public int getId() {
         return id;
@@ -86,12 +102,8 @@ public class User {
         this.name = name;
     }
 
-    public List<Database> getDatabases() {
+    public static List<Database> getDatabases() {
         return databases;
-    }
-
-    public void setDatabases(List<Database> databases) {
-        this.databases = databases;
     }
 
     public Database getCurrentDatabase() {
@@ -102,12 +114,12 @@ public class User {
         this.currentDatabase = currentDatabase;
     }
 
-    public Database getDefaultDatabase() {
+    public static Database getDefaultDatabase() {
         return defaultDatabaseProperty.getValue();
     }
 
-    public void setDefaultDatabase(Database defaultDatabase) {
-        this.defaultDatabaseProperty.setValue(defaultDatabase);
+    public static void setDefaultDatabase(Database defaultDatabase) {
+        User.defaultDatabaseProperty.setValue(defaultDatabase);
     }
 
 }

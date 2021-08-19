@@ -23,7 +23,7 @@ public class Users {
 
     private List<Database> allDatabasesList = new ArrayList<>();
 
-    private final String defaultResource = "/com/cofii/ts/login/defaults.xml";
+    public static final String DEFAULT_RESOURCE = "/com/cofii/ts/login/defaults.xml";
 
     private MSQLP ms;
 
@@ -64,9 +64,14 @@ public class Users {
 
     // INIT----------------------------------------
     public void updateDefaultUser(boolean setCurrents) {
-        new ResourceXML(getDefaultResource(), ResourceXML.UPDATE_XML, doc -> {
+        new ResourceXML(DEFAULT_RESOURCE, ResourceXML.UPDATE_XML, doc -> {
             Element currentUserElement = (Element) doc.getDocumentElement().getElementsByTagName("currentUser").item(0);
-
+            if (Users.getInstance().getCurrenUser() != null) {
+                System.out.println(
+                        "\tcurrent Database 1: " + Users.getInstance().getCurrenUser().getCurrentDatabase() != null
+                                ? "YES"
+                                : "NO");
+            }
             int defaultUserId = Integer.parseInt(currentUserElement.getAttributes().item(0).getTextContent());// DEFAULT
             // currentUserElement.getAttributes().item(0).setTextContent(Integer.toString(defaultUserId));//
             // CURRENT ID
@@ -76,6 +81,12 @@ public class Users {
                 if (setCurrents) {
                     currentUser = defaultUserProperty.getValue();
                 }
+                if (Users.getInstance().getCurrenUser() != null) {
+                    System.out.println(
+                            "\tcurrent Database 2: " + Users.getInstance().getCurrenUser().getCurrentDatabase() != null
+                                    ? "YES"
+                                    : "NO");
+                }
 
                 ms.selectDataWhere(MSQL.TABLE_USER_DEFAULTS, "user_id", defaultUserId > 0 ? defaultUserId : null,
                         (rs, v, ex) -> {
@@ -83,13 +94,12 @@ public class Users {
                                 int defaultDatabaseId = rs.getInt(2);
                                 String defaultTableName = rs.getString(3);
 
-                                if (defaultDatabaseId > 0 && setCurrents) {
-                                    getCurrenUser().setDefaultDatabaseById(defaultDatabaseId);
-                                    getCurrenUser().setCurrentDatabase(getCurrenUser().getCurrentDatabase());
+                                if (defaultDatabaseId > 0 && setCurrents && !User.getDatabases().isEmpty()
+                                        && !Database.getTables().isEmpty()) {
+                                    User.setDefaultDatabaseById(defaultDatabaseId);
 
-                                    getCurrenUser().getCurrentDatabase().setDefaultTableByName(defaultTableName);
-                                    getCurrenUser().getCurrentDatabase()
-                                            .setCurrentTable(getCurrenUser().getCurrentDatabase().getDefaultTable());
+                                    Database.setDefaultTableByName(defaultTableName);
+                                    getCurrenUser().getCurrentDatabase().setCurrentTable(Database.getDefaultTable());
                                 }
                                 currentUserElement.getElementsByTagName("database").item(0).getAttributes().item(0)
                                         .setTextContent(Integer.toString(defaultDatabaseId));
@@ -107,7 +117,7 @@ public class Users {
     }
 
     public void defaultUserChange(ObservableValue<? extends User> obs, User oldValue, User newValue) {
-        new ResourceXML(Users.getInstance().getDefaultResource(), ResourceXML.UPDATE_XML, doc -> {
+        new ResourceXML(DEFAULT_RESOURCE, ResourceXML.UPDATE_XML, doc -> {
             Element currentUserElement = (Element) doc.getDocumentElement().getElementsByTagName("currentUser").item(0);
 
             int defaultUserId = newValue != null ? newValue.getId() : 0;
@@ -122,9 +132,9 @@ public class Users {
                                 String defaultTableName = rs.getString(3);
 
                                 if (defaultDatabaseId > 0) {
-                                    getCurrenUser().setDefaultDatabaseById(defaultDatabaseId);
+                                    User.setDefaultDatabaseById(defaultDatabaseId);
                                     if (defaultTableName != null) {
-                                        getCurrenUser().getCurrentDatabase().setDefaultTableByName(defaultTableName);
+                                        Database.setDefaultTableByName(defaultTableName);
                                     }
                                 }
 
@@ -139,10 +149,9 @@ public class Users {
         });
     }
 
-    //CREATE DIFFERENT METHOD TO STAR THIS PROPERTIES
-    private Users() {
-        //FXCollections.observableArrayList().
-
+    // CREATE DIFFERENT METHOD TO STAR THIS PROPERTIES
+    public void startDefaultProperty(MSQLP ms) {
+        this.ms = ms;
         updateDefaultUser(true);
         // LISTENERS--------------
         defaultUserProperty.addListener(this::defaultUserChange);
@@ -163,10 +172,6 @@ public class Users {
 
     public void setCurrentUser(User currentUser) {
         this.currentUser = currentUser;
-    }
-
-    public String getDefaultResource() {
-        return defaultResource;
     }
 
     public List<Database> getAllDatabasesList() {

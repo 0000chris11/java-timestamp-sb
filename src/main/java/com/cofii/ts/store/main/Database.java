@@ -16,13 +16,25 @@ public class Database {
     private int id;
     private String name;
 
-    private List<Table> tables = new ArrayList<>();
+    private static final List<Table> tables = new ArrayList<>();
     private Table currentTable;
 
-    private ObjectProperty<Table> defaultTableProperty = new SimpleObjectProperty<>(null);
+    private static ObjectProperty<Table> defaultTableProperty = new SimpleObjectProperty<>(null);
     //INIT------------------------------------------
-    public void defaultTableChange(ObservableValue<? extends Table> obs, Table oldValue, Table newValue) {
-        new ResourceXML(Users.getInstance().getDefaultResource(), ResourceXML.UPDATE_XML, doc -> {
+    public static void readDefaultTable() {
+        new ResourceXML(Users.DEFAULT_RESOURCE, ResourceXML.UPDATE_XML, doc -> {
+            Element currentUserElement = (Element) doc.getDocumentElement().getElementsByTagName("currentUser").item(0);
+
+            String defaultTableName = currentUserElement.getElementsByTagName("table").item(0).getAttributes().item(0)
+            .getTextContent();
+            setDefaultTableByName(defaultTableName);
+            
+            return doc;
+        });
+    }
+
+    private static void defaultTableChange(ObservableValue<? extends Table> obs, Table oldValue, Table newValue) {
+        new ResourceXML(Users.DEFAULT_RESOURCE, ResourceXML.UPDATE_XML, doc -> {
             Element currentUserElement = (Element) doc.getDocumentElement().getElementsByTagName("currentUser").item(0);
 
             String defaultTableName = newValue.getName();
@@ -36,8 +48,8 @@ public class Database {
         this.id = id;
         this.name = name;
 
-        defaultTableProperty.addListener(this::defaultTableChange);
     }
+
     //------------------------------------------
     public void addTable(Table table){
         tables.add(table);
@@ -51,10 +63,10 @@ public class Database {
         return tables.size();
     }
     //------------------------------------------
-    public boolean setDefaultTableByName(String name){
+    public static boolean setDefaultTableByName(String name){
         Table[] tablesResult = tables.stream().filter(t -> t.getName().equals(name)).toArray(size -> new Table[size]);
         if(tablesResult.length > 0){
-            this.defaultTableProperty.setValue(tablesResult[0]);
+            Database.defaultTableProperty.setValue(tablesResult[0]);
             return true;
         }else{
             return false;
@@ -95,9 +107,6 @@ public class Database {
     public void setName(String name) {
         this.name = name;
     }
-    public void setTables(List<Table> tables) {
-        this.tables = tables;
-    }
     public Table getCurrentTable() {
         return currentTable;
     }
@@ -110,13 +119,13 @@ public class Database {
     public void setId(int id) {
         this.id = id;
     }
-    public Table getDefaultTable() {
+    public static Table getDefaultTable() {
         return defaultTableProperty.getValue();
     }
-    public void setDefaultTable(Table defaultTable) {
-        this.defaultTableProperty.setValue(defaultTable);
+    public static void setDefaultTable(Table defaultTable) {
+        Database.defaultTableProperty.setValue(defaultTable);
     }
-    public List<Table> getTables() {
+    public static List<Table> getTables() {
         return tables;
     }
     

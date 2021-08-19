@@ -41,7 +41,6 @@ public class VF {
 
     // INSTANCES-------------------------------------
     private Menus menus;
-    private Table currentTable;
     // private static ColumnS columns = ColumnS.getInstance();
     // private static ColumnDS columnsd = ColumnDS.getInstance();
     private Dist dist;
@@ -52,13 +51,13 @@ public class VF {
      * true if its start from the login (not from VC)
      */
     private boolean startFromLogin = true;
-    private boolean noDatabasesForCurrentUser = false;
 
-    private int defaultDatabaseId = 0;
-    private int defaultTableId = 0;
+    private boolean noDatabasesForCurrentUser = false;
+    private boolean noTablesForCurrentDatabase = false;
 
     // STAGE LISTENERS -----------------------------------------
     private void stageMaximizedPropertyChange(boolean newValue) {
+        Table currentTable = Users.getInstance().getCurrenUser().getCurrentDatabase().getCurrentTable();
         if (newValue) {
             /*
              * if (Arrays.asList(columnsd.getImageCS()).stream().allMatch(s ->
@@ -73,6 +72,7 @@ public class VF {
     }
 
     private void heightPropertyChangeListener() {
+        Table currentTable = Users.getInstance().getCurrenUser().getCurrentDatabase().getCurrentTable();
         /*
          * if (Arrays.asList(columnsd.getImageCS()).stream().allMatch(s ->
          * s.equals("No"))) { vf.getSplitLeft().setDividerPositions(1.0); }
@@ -99,6 +99,12 @@ public class VF {
         ms.selectData(MSQL.TABLE_DATABASES, new SelectDatabases(vfc));
         // ----------------------------------------
         if (!noDatabasesForCurrentUser) {
+            //User.startDefaultDatabaseProperty();
+            Users users = Users.getInstance();
+
+            User.readDefaultDatabase();
+            users.getCurrenUser().setCurrentDatabase(User.getDefaultDatabase());
+            ms.use(users.getCurrenUser().getCurrentDatabase().getName());
             // DATABASES FOUND-----------------------------
             /*
             String resource = Users.getInstance().getDefaultResource();
@@ -129,23 +135,24 @@ public class VF {
             // TABLES ------------------------------------------
             // EXIST---------------------
             mainTablesCreation();
+
             // SELECT TABLES FROM CURRENT DATABASE
-            menus.addTablesToTfTableReset();
+            menus.addTablesToTfTableReset(vfc);
+
 
             // DEFAULT & CURRENT TABLE
-            Database currentDatabase = Users.getInstance().getCurrenUser().getCurrentDatabase();
-            if (defaultTableId > 0) {
-                currentTable = currentDatabase.getTable(defaultTableId);
-                currentDatabase.setDefaultTable(currentTable);
-            } else {
-                currentTable = currentDatabase.getTables().get(0);
-            }
-
-            currentDatabase.setCurrentTable(currentTable);
-
+            Database currentDatabase = users.getCurrenUser().getCurrentDatabase();
+            Database.readDefaultTable();
+            if (!noTablesForCurrentDatabase) {
+                if(Database.getDefaultTable() != null){
+                    currentDatabase.setCurrentTable(Database.getDefaultTable());
+                }else{
+                    currentDatabase.setCurrentTable(Database.getTables().get(0));
+                }
+            } 
             // TABLE SELECT-----------------------------------
-            if (currentTable != null) {
-                String table = currentTable.getName();
+            if (currentDatabase.getCurrentTable() != null) {
+                String table = currentDatabase.getCurrentTable().getName();
                 vfc.getLbDatabaseTable().setText(table);
 
                 ms.selectColumns(table.replace(" ", "_"), new ShowColumns(vfc));
@@ -241,4 +248,14 @@ public class VF {
     public void setnoDatabasesForCurrentUser(boolean noDatabasesForCurrentUser) {
         this.noDatabasesForCurrentUser = noDatabasesForCurrentUser;
     }
+
+    public boolean isNoTablesForCurrentDatabase() {
+        return noTablesForCurrentDatabase;
+    }
+
+    public void setNoTablesForCurrentDatabase(boolean noTablesForCurrentDatabase) {
+        this.noTablesForCurrentDatabase = noTablesForCurrentDatabase;
+    }
+
+    
 }

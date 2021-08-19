@@ -227,7 +227,7 @@ public class VFController implements Initializable {
             lbDatabaseTable.setText(newValue);
             // SELECT ALL TABLES
             vf.mainTablesCreation();
-            Menus.getInstance(this).addTablesToTfTableReset();
+            Menus.getInstance(this).addTablesToTfTableReset(this);
 
             /*
              * if(user.getCurrentDatabase().getDefaultTable() != null){

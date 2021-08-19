@@ -1,6 +1,6 @@
-<default>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><default>
     <currentUser id="1">
-        <database id="1" />
-        <table name="dragon_ball_super" />
+        <database id="1"/>
+        <table name="dragon_ball_super"/>
     </currentUser>
 </default>

@@ -23,6 +23,7 @@ public class SelectTableNames implements IActions {
     public SelectTableNames(boolean selectTable) {
         this.selectTable = selectTable;
     }
+
     public SelectTableNames(boolean selectTable, VFController vfc) {
         this.selectTable = selectTable;
         this.vfc = vfc;
@@ -35,9 +36,9 @@ public class SelectTableNames implements IActions {
 
     @Override
     public void setData(ResultSet rs, int row) throws SQLException {
-        Table table = new Table(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5));
+        Table table = new Table(rs.getInt(1), rs.getString(2).replace(" ", "_"), rs.getString(3), rs.getString(4), rs.getString(5));
         currentDatabase.addTable(table);
-        
+
         if (selectTable) {
             Users.getInstance().getCurrenUser().getCurrentDatabase().setCurrentTable(table);
         }
@@ -46,10 +47,11 @@ public class SelectTableNames implements IActions {
     @Override
     public void afterQuery(String query, boolean rsValue) {
         if (rsValue) {
-            MSQL.setTablesOnTableNames(true);//DELETE
+            MSQL.setTablesOnTableNames(true);// DELETE
             vfc.getTfTable().setPromptText("select a table");
-        }else{
+        } else {
             vfc.getTfTable().setPromptText("no tables found");
+            vfc.getVf().setNoTablesForCurrentDatabase(true);
         }
 
     }
