@@ -106,6 +106,8 @@ public class Dist {
         //columnsd.clear();
         for (int a = 0; a < currentTable.getColumns().size(); a++) {
             //columnsd.addColumnD(new ColumnD());
+            currentTable.getColumns().get(a).setDist(false);
+            currentTable.getColumns().get(a).setImageC(false);
         }
 
         dist(currentTable);

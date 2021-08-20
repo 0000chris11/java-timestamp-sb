@@ -28,7 +28,9 @@ import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.control.Tooltip;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 public class VF {
 
@@ -104,34 +106,13 @@ public class VF {
 
             User.readDefaultDatabase();
             users.getCurrenUser().setCurrentDatabase(User.getDefaultDatabase());
+
+            String databaseName = users.getCurrenUser().getCurrentDatabase().getName();
+            vfc.getTfDatabase().setText(databaseName);
+            vfc.getTfDatabaseAutoC().getDisableItems().add(databaseName);
+
             ms.use(users.getCurrenUser().getCurrentDatabase().getName());
-            // DATABASES FOUND-----------------------------
-            /*
-            String resource = Users.getInstance().getDefaultResource();
-            // READING XML
-            new ResourceXML(resource, ResourceXML.READ_XML, doc -> {
-                User currentUser = Users.getInstance().getCurrenUser();
 
-                defaultDatabaseId = Integer.parseInt(doc.getDocumentElement().getElementsByTagName("database").item(0)
-                        .getAttributes().item(0).getTextContent());
-                defaultTableId = Integer.parseInt(doc.getDocumentElement().getElementsByTagName("table").item(0)
-                        .getAttributes().item(0).getTextContent());
-
-                Database database;
-                if (defaultDatabaseId > 0) {//XML NEEDS TO BE UPDATE FOR EACH USER & DATABASE SIZE IS 0
-                    // DEFAULT DATABASE
-                    database = currentUser.getDatabase(defaultDatabaseId);
-                    currentUser.setDefaultDatabase(database);
-                } else {
-                    // FIRST ADDED DATABASE
-                    database = currentUser.getDatabases().get(0);
-                }
-
-                ms.use(database.getName());
-                currentUser.setCurrentDatabase(database);
-                return null;// JUST READING
-            });
-            */
             // TABLES ------------------------------------------
             // EXIST---------------------
             mainTablesCreation();
@@ -149,17 +130,23 @@ public class VF {
                 }else{
                     currentDatabase.setCurrentTable(Database.getTables().get(0));
                 }
+                String tableName = currentDatabase.getCurrentTable().getName();
+                vfc.getTfTableAutoC().getDisableItems().add(tableName);
+                vfc.getTfTable().setText(tableName);
             } 
             // TABLE SELECT-----------------------------------
             if (currentDatabase.getCurrentTable() != null) {
-                String table = currentDatabase.getCurrentTable().getName();
-                vfc.getLbDatabaseTable().setText(table);
+                databaseName = currentDatabase.getName();
+                String tableName = currentDatabase.getCurrentTable().getName();
 
-                ms.selectColumns(table.replace(" ", "_"), new ShowColumns(vfc));
+                vfc.getLbDatabaseTable().setText(databaseName + "." + tableName);
+                vfc.getLbDatabaseTable().setTooltip(new Tooltip(vfc.getLbDatabaseTable().getText()));
+                vfc.getLbDatabaseTable().getTooltip().setShowDelay(Duration.ZERO);
+
+                ms.selectColumns(tableName.replace(" ", "_"), new ShowColumns(vfc));
                 ms.selectKeys(Users.getInstance().getCurrenUser().getDatabasesNames(), new SelectKeys(vfc));
                 dist.distStart();
-
-                ms.selectData(table.replace(" ", "_"), new SelectData(vfc, null));
+                ms.selectData(tableName.replace(" ", "_"), new SelectData(vfc, null));
             } else {
                 vfc.clearCurrentTableView();
             }
@@ -177,6 +164,7 @@ public class VF {
         // SHOW------------------------
         vlc.getStage().close();
         stage.show();
+
     }
 
     private void init() {

@@ -25,7 +25,7 @@ public class MSQL {
     public static final int MAX_IMAGES = 4;
 
     // QUERYS
-    public static final String CREATE_DB_ROOTCONFIG = "CREATE DATABASE ROOTCONFIG";
+    public static final String CREATE_DB_ROOTCONFIG = "CREATE DATABASE IF NOT EXISTS ROOTCONFIG";
 
     public static final String CREATE_TABLE_USERS = "CREATE TABLE IF NOT EXISTS " + TABLE_USERS 
             + "(id INT NOT NULL AUTO_INCREMENT, user_name VARCHAR(200) NOT NULL, user_password VARBINARY(200) NOT NULL, PRIMARY KEY(id))";

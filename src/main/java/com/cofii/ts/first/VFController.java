@@ -54,6 +54,7 @@ import javafx.scene.control.TableColumn.CellEditEvent;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
+import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
@@ -152,6 +153,9 @@ public class VFController implements Initializable {
     // --------------------------------------------
     private static final int CB_STARTS_WITH = 0;
     private int cbSearchOption = CB_STARTS_WITH;
+
+    private ChangeListener<String> selectionForEachDatabaseListener = (obs, oldValue, newValue) -> selectionForEachDatabase(newValue);
+    private ChangeListener<String> selectionForEachTableListener = (obs, oldValue, newValue) -> selectionForEachTable(newValue);
     // OTHER -------------------------------------------
 
     private void forEachAction(int length, ActionForEachNode en) {
@@ -242,16 +246,11 @@ public class VFController implements Initializable {
     private void selectionForEachTable(String newValue) {
         System.out.println(CC.CYAN + "\nCHANGE TABLE" + CC.RESET);
         Database currenDatabase = Users.getInstance().getCurrenUser().getCurrentDatabase();
-        boolean tableMatch = currenDatabase.getTables().stream()
+        currentTable = currenDatabase.getCurrentTable();
+        boolean tableMatch = Database.getTables().stream()
                 .anyMatch(t -> t.getName().equals(newValue));
+
         if (tableMatch) {
-            currenDatabase.setCurrentTable(currenDatabase.getTable(newValue));
-            currentTable = currenDatabase.getCurrentTable();
-
-            String tableName = newValue;
-            System.out.println("\ttable: " + tableName);
-
-            lbDatabaseTable.setText(tableName);
             // RESET NODES ---------------------------------
             for (int a = 0; a < MSQL.MAX_COLUMNS; a++) {
                 if (lbs[a].isVisible()) {
@@ -274,6 +273,20 @@ public class VFController implements Initializable {
 
             btnFind.setDisable(false);
             btnAdd.setDisable(false);
+
+            tfTableAutoC.getDisableItems().clear();
+            //---------------------------------------
+            currenDatabase.setCurrentTable(currenDatabase.getTable(newValue));
+
+            String databaseName = currenDatabase.getName();
+            String tableName = newValue;
+            System.out.println("\ttable: " + tableName);
+
+            lbDatabaseTable.setText(databaseName + "." + tableName);
+            lbDatabaseTable.setTooltip(new Tooltip(lbDatabaseTable.getText()));
+            
+            tfTableAutoC.getDisableItems().add(tableName);
+            //tfTableAutoC.getLv().getSelectionModel().clearSelection();
             // SELECT -------------------------------------
             String tableA = tableName.replace(" ", "_");
             ms.selectDataWhere(MSQL.TABLE_NAMES, "name", tableName, new SelectTableNames(true));
@@ -283,6 +296,10 @@ public class VFController implements Initializable {
                     + currentTable.getDist());
 
             dist.distStart();
+            //IDK HOW TF-TABLE-AUTOC IS LOOSING IT'S SELECTION-FOR-EACH-TABLE LISTENER
+            //tfTableAutoC.getLv().getSelectionModel().selectedItemProperty().removeListener(selectionForEachTableListener);
+            //tfTableAutoC.getLv().getSelectionModel().selectedItemProperty().addListener(selectionForEachTableListener);
+
             ms.selectData(tableA, new SelectData(this, SelectData.MESSGE_TABLE_CHANGE + tableName));
         }
     }
@@ -582,8 +599,11 @@ public class VFController implements Initializable {
             cbElements.add(new ArrayList<>());
         }
         // LISTENERS------------------------------------
-        tfDatabase.textProperty().addListener((obs, oldValue, newValue) -> selectionForEachDatabase(newValue));
-        tfTable.textProperty().addListener((obs, oldValue, newValue) -> selectionForEachTable(newValue));
+        //tfDatabase.textProperty().addListener((obs, oldValue, newValue) -> selectionForEachDatabase(newValue));
+        //tfTable.textProperty().addListener((obs, oldValue, newValue) -> selectionForEachTable(newValue));
+
+        tfDatabaseAutoC.getLv().getSelectionModel().selectedItemProperty().addListener(selectionForEachDatabaseListener);
+        tfTableAutoC.getLv().getSelectionModel().selectedItemProperty().addListener(selectionForEachTableListener);
 
         tableView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         tableView.getSelectionModel().selectedItemProperty().addListener(this::tableRowSelected);

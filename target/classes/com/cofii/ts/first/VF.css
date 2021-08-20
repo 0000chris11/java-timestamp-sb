@@ -155,21 +155,45 @@
     background-color: -fx-table-row-cell-selected-background-color;
     -fx-text-fill: white;
 }
+.disableItem:filled:selected:focused, .disableItem:filled:selected {
+    -fx-background-color: -fx-table-row-cell-selected-background-color;
+    background-color: -fx-table-row-cell-selected-background-color;
+    -fx-text-fill: rgba(128, 128, 128, 0.507);
+}
+
 .list-cell:even {
     -fx-background-color: -fx-table-row-cell-background-color;
     background-color: -fx-table-row-cell-background-color;
     -fx-text-fill: white;
 }
+.disableItem:even {
+    -fx-background-color: -fx-table-row-cell-background-color;
+    background-color: -fx-table-row-cell-background-color;
+    -fx-text-fill: rgba(128, 128, 128, 0.507);
+}
+
 .list-cell:odd {
     -fx-background-color: -fx-table-row-cell-odd-background-color;
     background-color: -fx-table-row-cell-odd-background-color;
     -fx-text-fill: white;
 }
+.disableItem:odd {
+    -fx-background-color: -fx-table-row-cell-odd-background-color;
+    background-color: -fx-table-row-cell-odd-background-color;
+    -fx-text-fill: rgba(128, 128, 128, 0.507);
+}
+
 .list-cell:filled:hover {
     -fx-background-color: -fx-table-row-cell-selected-background-color;
     background-color: -fx-table-row-cell-selected-background-color;
     -fx-text-fill: white;
 }
+.disableItem:filled:hover {
+    -fx-background-color: -fx-table-row-cell-selected-background-color;
+    background-color: -fx-table-row-cell-selected-background-color;
+    -fx-text-fill: rgba(128, 128, 128, 0.507);
+}
+
 .combo-box-base {
     /*
     -fx-background-color: transparent;
@@ -305,6 +329,9 @@
     -fx-background-color: #9c2f27;
     background-color: #9c2f27;
     -fx-text-fill: white;
+}
+#disableCell{
+    -fx-text-fill: rgba(128, 128, 128, 0.418);
 }
 /*VL ID*/
 .buttonQueryAction{

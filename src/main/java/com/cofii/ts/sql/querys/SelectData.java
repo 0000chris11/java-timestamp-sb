@@ -26,21 +26,21 @@ public class SelectData implements IActions {
     public static final String MESSAGE_DELETE_ROW = "Row deleted in ";
     public static final String MESSAGE_UPDATED_ROW = "Row updated in ";
     // --------------------------------------------------
-    private VFController vf;
+    private VFController vfc;
     private Table currentTable = Users.getInstance().getCurrenUser().getCurrentDatabase().getCurrentTable();
     private String message;
 
     private int columnCount;
     private ObservableList<ObservableList<Object>> data = FXCollections.observableArrayList();
 
-    public SelectData(VFController vf, String message) {
-        this.vf = vf;
+    public SelectData(VFController vfc, String message) {
+        this.vfc = vfc;
         this.message = message;
     }
 
     @Override
     public void beforeQuery() {
-        vf.getTable().getItems().clear();
+        vfc.getTable().getItems().clear();
         columnCount = MSQL.getColumns().length;
     }
 
@@ -62,9 +62,9 @@ public class SelectData implements IActions {
     @Override
     public void afterQuery(String query, boolean rsValue) {
         if (rsValue) {
-            vf.getTable().setItems(data);
+            vfc.getTable().setItems(data);
             if (message != null) {
-                vf.getLbStatus().setText(message, NonCSS.TEXT_FILL_OK, Duration.seconds(2));
+                vfc.getLbStatus().setText(message, NonCSS.TEXT_FILL_OK, Duration.seconds(2));
 
                 Media media;
                 MediaPlayer mediaPlayer;

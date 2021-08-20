@@ -71,17 +71,11 @@ public class VL extends Application {
 
     private void mainRootConfigTables() {
         MSQLP msInit = new MSQLP(new DefaultConnection());
-        msInit.selectDatabases(new RootConfigExist(vlc));// AND ADDING TO cbDB
-        if (!MSQL.isDbRootconfigExist()) {
-            msInit.executeStringUpdate(MSQL.CREATE_DB_ROOTCONFIG);
-        }
+        msInit.executeStringUpdate(MSQL.CREATE_DB_ROOTCONFIG);
 
-        // msInit.selectTables(this::selectTablesOnRootConfig);
-        // CREATE ROOT TABLES
         msInit.executeStringUpdate(MSQL.CREATE_TABLE_USERS);
         msInit.executeStringUpdate(MSQL.CREATE_TABLE_USERS_DEFAULTS);
         msInit.executeStringUpdate(MSQL.CREATE_TABLE_DATABASES);
-        // msInit.executeStringUpdate(MSQL.CREATE_TABLE_USERS);
 
         msInit.close();
     }
@@ -110,7 +104,11 @@ public class VL extends Application {
         // SELECT USER-----------------------------------
         msRoot.selectData(MSQL.TABLE_USERS, this::selectUsers);
         // XML DEFAULTS READ --------------------------------
-        Users.getInstance().startDefaultProperty(msRoot);
+        // Users.getInstance().startDefaultProperty(msRoot);
+        Users.readDefaultUser();
+        if (Users.getDefaultUser() != null) {
+            Users.getInstance().setCurrentUser(Users.getDefaultUser());
+        }
         // DEFAULT USER------------------------
         boolean showStage = false;
         if (Users.getInstance().getCurrenUser() != null/* || option.equals("login") */) {
