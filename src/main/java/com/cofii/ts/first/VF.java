@@ -90,8 +90,8 @@ public class VF {
     /**
      * Does main tables exist (at selected Database level)
      */
-    void mainTablesCreation(){
-        //ms.selectTables(new CurrentDatabaseTablesExist());
+    void mainTablesCreation() {
+        // ms.selectTables(new CurrentDatabaseTablesExist());
         ms.executeStringUpdate(MSQL.CREATE_TABLE_NAMES);
         ms.executeStringUpdate(MSQL.CREATE_TABLE_CONFIG);
     }
@@ -101,39 +101,43 @@ public class VF {
         ms.selectData(MSQL.TABLE_DATABASES, new SelectDatabases(vfc));
         // ----------------------------------------
         if (!noDatabasesForCurrentUser) {
-            //User.startDefaultDatabaseProperty();
+            // User.startDefaultDatabaseProperty();
             Users users = Users.getInstance();
+            if (startFromLogin) {
+                User.readDefaultDatabase();
+                users.getCurrenUser().setCurrentDatabase(User.getDefaultDatabase());
 
-            User.readDefaultDatabase();
-            users.getCurrenUser().setCurrentDatabase(User.getDefaultDatabase());
+                ms.use(users.getCurrenUser().getCurrentDatabase().getName());
+            }
 
             String databaseName = users.getCurrenUser().getCurrentDatabase().getName();
             vfc.getTfDatabase().setText(databaseName);
             vfc.getTfDatabaseAutoC().getDisableItems().add(databaseName);
 
-            ms.use(users.getCurrenUser().getCurrentDatabase().getName());
-
             // TABLES ------------------------------------------
             // EXIST---------------------
-            mainTablesCreation();
+            if (startFromLogin) {
+                mainTablesCreation();
+            }
 
             // SELECT TABLES FROM CURRENT DATABASE
             menus.addTablesToTfTableReset(vfc);
-
 
             // DEFAULT & CURRENT TABLE
             Database currentDatabase = users.getCurrenUser().getCurrentDatabase();
             Database.readDefaultTable();
             if (!noTablesForCurrentDatabase) {
-                if(Database.getDefaultTable() != null){
-                    currentDatabase.setCurrentTable(Database.getDefaultTable());
-                }else{
-                    currentDatabase.setCurrentTable(Database.getTables().get(0));
+                if (startFromLogin) {
+                    if (Database.getDefaultTable() != null) {
+                        currentDatabase.setCurrentTable(Database.getDefaultTable());
+                    } else {
+                        currentDatabase.setCurrentTable(Database.getTables().get(0));
+                    }
                 }
                 String tableName = currentDatabase.getCurrentTable().getName();
                 vfc.getTfTableAutoC().getDisableItems().add(tableName);
                 vfc.getTfTable().setText(tableName);
-            } 
+            }
             // TABLE SELECT-----------------------------------
             if (currentDatabase.getCurrentTable() != null) {
                 databaseName = currentDatabase.getName();
@@ -162,9 +166,11 @@ public class VF {
         // OTHERS LISTENERS--------------------
         ms.setSQLException((ex, s) -> vfc.getLbStatus().setText(ex.getMessage(), NonCSS.TEXT_FILL_ERROR));
         // SHOW------------------------
-        vlc.getStage().close();
-        stage.show();
+        if (startFromLogin) {
+            vlc.getStage().close();
+            stage.show();
 
+        }
     }
 
     private void init() {
@@ -193,10 +199,14 @@ public class VF {
             // SOME SETTERS TO VFCONTROLLER-------------------------------------------------
             vfc.setStage(vlc != null ? stage : vc.getVf().getStage());
             vfc.setScene(scene);
-            vfc.setVl(vlc);
+            if (startFromLogin) {
+                vfc.setVl(vlc);
+            }
             vfc.setVf(this);
 
-            ms = vlc.getMsRoot();
+            if (startFromLogin) {
+                ms = vlc.getMsRoot();
+            }
             vfc.setMs(ms);
             // DIST START---------------------------------
             dist = Dist.getInstance(vfc);
@@ -245,5 +255,4 @@ public class VF {
         this.noTablesForCurrentDatabase = noTablesForCurrentDatabase;
     }
 
-    
 }

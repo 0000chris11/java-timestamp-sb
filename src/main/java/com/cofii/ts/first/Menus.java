@@ -7,6 +7,7 @@ import java.util.List;
 import com.cofii.ts.cu.VC;
 import com.cofii.ts.cu.VCD;
 import com.cofii.ts.info.VI;
+import com.cofii.ts.options.VO;
 import com.cofii.ts.other.CSS;
 import com.cofii.ts.other.Dist;
 import com.cofii.ts.other.NonCSS;
@@ -39,6 +40,7 @@ public class Menus {
     private final MenuItem openChangeUserDB = new MenuItem("Change User or DB");
     private final MenuItem openTableMain = new MenuItem("Open Tables Info");
     // Options
+    private final MenuItem optionsGeneralOptions = new MenuItem("General Options");
     private final MenuItem optionsCreateDatabase = new MenuItem("Create Database");
     private final MenuItem optionsTableInfo = new MenuItem("Current Table Info");
     private final Menu optionsTableOp = new Menu("Options");
@@ -262,10 +264,11 @@ public class Menus {
 
     private Menus() {
         vfc.getMenuOpen().getItems().addAll(openChangeUserDB, openTableMain);
-        vfc.getMenuOptions().getItems().addAll(optionsCreateDatabase, new SeparatorMenuItem(), optionsTableInfo, optionsTableOp,
+        vfc.getMenuOptions().getItems().addAll(optionsGeneralOptions, new SeparatorMenuItem(), optionsCreateDatabase, new SeparatorMenuItem(), optionsTableInfo, optionsTableOp,
                 new SeparatorMenuItem(), optionsTableChangeDTable, new SeparatorMenuItem(), optionsTableCreate, optionsTableUpdate,
                 optionsTableDelete, optionsTableDeleteThis);
         // LISTENERS----------------------------------------------
+        optionsGeneralOptions.setOnAction(e -> new VO(vfc));
         openChangeUserDB.setOnAction(this::openChangeUserDBAction);
 
         optionsCreateDatabase.setOnAction(this::optionsCreateDatabaseAction);

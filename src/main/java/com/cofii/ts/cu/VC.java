@@ -123,8 +123,8 @@ public class VC {
         List<Object> defaults = new ArrayList<>(currentTable.getColumnDefaults());
         int extra = currentTable.getExtra();
 
-        List<Boolean> dists = new ArrayList<>(currentTable.getColumnDists());
-        List<Boolean> imageCS = new ArrayList<>(currentTable.getColumnImageCS());
+        List<Boolean> dists = new ArrayList<>(currentTable.getDistList());
+        List<Boolean> imageCS = new ArrayList<>(currentTable.getImageCList());
         //List<String> imageCPathList = Arrays.asList(columnds.getImageCPaths());
         //String imageCPath = "NONE";
 
@@ -179,7 +179,7 @@ public class VC {
             vcc.getRbsExtra().get(a).setSelected(extra == a);
             // DISTS---------------------------------------------
             vcc.getBtnsDist().get(a).setSelected(dists.get(a));
-            vcc.getBtnsImageC().get(a).setSelected(imageCS.get(a) != null);// ERROR IF THERE IS MORE THAN ONE
+            vcc.getBtnsImageC().get(a).setSelected(imageCS.get(a));// ERROR IF THERE IS MORE THAN ONE
             
         }
         if (!currentTable.getImageCPath().equals("NONE")) {

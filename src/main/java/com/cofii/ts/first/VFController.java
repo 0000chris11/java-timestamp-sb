@@ -256,7 +256,7 @@ public class VFController implements Initializable {
                 if (lbs[a].isVisible()) {
                     lbs[a].setVisible(false);
 
-                    if (Boolean.TRUE.equals(currentTable.getColumnDists().get(a))
+                    if (Boolean.TRUE.equals(currentTable.getDistList().get(a))
                             || FKS.getInstance().getYesAndNoFKS()[a].equals("Yes")) {// RESETING DIST
                         tfsAutoC.get(a).setTfParent(null);
                         tfs[a].setStyle(CSS.TFS_DEFAULT_LOOK);
@@ -284,6 +284,7 @@ public class VFController implements Initializable {
 
             lbDatabaseTable.setText(databaseName + "." + tableName);
             lbDatabaseTable.setTooltip(new Tooltip(lbDatabaseTable.getText()));
+            
             
             tfTableAutoC.getDisableItems().add(tableName);
             //tfTableAutoC.getLv().getSelectionModel().clearSelection();

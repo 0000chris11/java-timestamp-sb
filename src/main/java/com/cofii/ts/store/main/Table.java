@@ -66,14 +66,14 @@ public class Table {
         }
         return columnDefaults;
     }
-    public List<Boolean> getColumnDists(){
+    public List<Boolean> getDistList(){
         List<Boolean> columnDists = new ArrayList<>(max);
         for(Column col : columns){
             columnDists.add(col.getDist());
         }
         return columnDists;
     }
-    public List<Boolean> getColumnImageCS(){
+    public List<Boolean> getImageCList(){
         List<Boolean> columnImageCS = new ArrayList<>(max);
         for(Column col : columns){
             columnImageCS.add(col.getImageC());
