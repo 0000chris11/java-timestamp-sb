@@ -1,13 +1,11 @@
-package com.cofii.ts.other;
+package com.cofii.ts.first.nodes;
 
 import java.util.List;
 
-import com.cofii.ts.sql.MSQL;
 import com.cofii.ts.store.main.Column;
 import com.cofii.ts.store.main.Users;
-import com.cofii2.components.javafx.TextFieldAutoC;
 
-import javafx.scene.control.ComboBox;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 
 public class GetNodesValuesImpl implements ActionForEachNode {
@@ -47,14 +45,14 @@ public class GetNodesValuesImpl implements ActionForEachNode {
     }
 
     @Override
-    public void forTFAS(TextFieldAutoC tfa, int c) {
+    public void forTAS(TextArea tfa, int c) {
         List<Column> columns = Users.getInstance().getCurrenUser().getCurrentDatabase().getCurrentTable().getColumns();
 
         if (columns.get(c).getType().contains("CHAR")) {
-            values[c] = tfa.getTf().getText().trim();
+            values[c] = tfa.getText().trim();
         } else if (columns.get(c).getType().contains("INT")) {
             try {
-                values[c] = Integer.parseInt(tfa.getTf().getText().trim());
+                values[c] = Integer.parseInt(tfa.getText().trim());
             } catch (NumberFormatException e) {
                 throw new IllegalArgumentException("C0FII: Only integer are accepted in this column");
             }

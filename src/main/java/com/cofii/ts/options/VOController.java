@@ -4,6 +4,11 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 import com.cofii.ts.first.VFController;
+import com.cofii.ts.store.main.Users;
+import com.cofii2.xml.ResourceXML;
+
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -56,6 +61,24 @@ public class VOController implements Initializable{
 
     private void btnSaveChangesAction(ActionEvent e){
         //SET VARIABLES vfc;
+        new ResourceXML(Users.DEFAULT_RESOURCE, ResourceXML.UPDATE_XML, doc -> {
+            Element defaultUser = (Element) doc.getDocumentElement().getElementsByTagName("defaultUser").item(0);
+            Element options = (Element) defaultUser.getElementsByTagName("options").item(0);
+            
+            Node insertClearValue = options.getElementsByTagName("insertClear").item(0).getAttributes().item(0);
+            boolean insertClear = Boolean.getBoolean(insertClearValue.getTextContent());
+            if(ckInsertClearValue != insertClear){
+                insertClearValue.setTextContent(Boolean.toString(ckInsertClearValue));
+            }
+
+            Node updateClearValue = options.getElementsByTagName("updateClear").item(0).getAttributes().item(0);
+            boolean updateClear = Boolean.getBoolean(updateClearValue.getTextContent());
+            if(ckUpdateClearValue != updateClear){
+                updateClearValue.setTextContent(Boolean.toString(ckUpdateClearValue));
+            }
+            
+            return doc;
+        });
     }
     //INIT------------------------------------------
     private void initListeners(){

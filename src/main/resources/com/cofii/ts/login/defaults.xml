@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?><default>
-    <currentUser id="1">
+    <defaultUser id="1">
         <database id="1"/>
         <table name="dragon_ball_super"/>
-    </currentUser>
+        <options>
+            <insertClear value="false"/>
+            <updateClear value="false"/>
+        </options>
+    </defaultUser>
 </default>

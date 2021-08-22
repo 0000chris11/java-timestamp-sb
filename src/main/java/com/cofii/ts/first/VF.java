@@ -108,6 +108,8 @@ public class VF {
                 users.getCurrenUser().setCurrentDatabase(User.getDefaultDatabase());
 
                 ms.use(users.getCurrenUser().getCurrentDatabase().getName());
+
+                User.readDefaultOptions();
             }
 
             String databaseName = users.getCurrenUser().getCurrentDatabase().getName();

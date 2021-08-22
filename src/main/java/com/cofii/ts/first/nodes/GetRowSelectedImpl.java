@@ -1,8 +1,8 @@
-package com.cofii.ts.other;
+package com.cofii.ts.first.nodes;
 
 import com.cofii.ts.first.VFController;
-import com.cofii2.components.javafx.TextFieldAutoC;
 
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 
 public class GetRowSelectedImpl implements ActionForEachNode {
@@ -24,9 +24,9 @@ public class GetRowSelectedImpl implements ActionForEachNode {
     }
 
     @Override
-    public void forTFAS(TextFieldAutoC tfa, int c) {
+    public void forTAS(TextArea tfa, int c) {
         if (vf.getBtns()[c].isSelected()) {
-            tfa.getTf().setText(values[c].toString());
+            tfa.setText(values[c].toString());
         }
     }
 

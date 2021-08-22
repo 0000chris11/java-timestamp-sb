@@ -21,6 +21,9 @@ public class User {
 
     private static ObjectProperty<Database> defaultDatabaseProperty = new SimpleObjectProperty<>(null);
 
+    private static boolean insertClear = false;
+    private static boolean updateClear = false;
+
     // --------------------------------------------
     public void clearDatabases() {
         databases.clear();
@@ -33,58 +36,67 @@ public class User {
     public String getDatabaseName(int id) {
         return databases.stream().filter(d -> d.getId() == id).toArray(size -> new Database[size])[0].getName();
     }
-    public String[] getDatabasesNames(){
+
+    public String[] getDatabasesNames() {
         List<String> databasesNames = new ArrayList<>();
-        for(Database database : databases){
+        for (Database database : databases) {
             databasesNames.add(database.getName());
         }
         return databasesNames.toArray(new String[databasesNames.size()]);
     }
-    public Database getDatabase(int id){
+
+    public Database getDatabase(int id) {
         return databases.stream().filter(d -> d.getId() == id).toArray(size -> new Database[size])[0];
     }
 
-    public static void setDefaultDatabaseById(int id){
-        User.defaultDatabaseProperty.setValue(databases.stream().filter(d -> d.getId() == id).toArray(size -> new Database[size])[0]);
+    public static void setDefaultDatabaseById(int id) {
+        User.defaultDatabaseProperty
+                .setValue(databases.stream().filter(d -> d.getId() == id).toArray(size -> new Database[size])[0]);
     }
-    public void setCurrentDatabaseById(int id){
+
+    public void setCurrentDatabaseById(int id) {
         this.currentDatabase = databases.stream().filter(d -> d.getId() == id).toArray(size -> new Database[size])[0];
     }
+
     // INIT --------------------------------------------
     public static void readDefaultDatabase() {
-        new ResourceXML(Users.DEFAULT_RESOURCE, ResourceXML.UPDATE_XML, doc -> {
-            Element currentUserElement = (Element) doc.getDocumentElement().getElementsByTagName("currentUser").item(0);
+        new ResourceXML(Users.DEFAULT_RESOURCE, ResourceXML.READ_XML, doc -> {
+            Element currentUserElement = (Element) doc.getDocumentElement().getElementsByTagName("defaultUser").item(0);
 
-            int defaultDatabaseId = Integer.parseInt(currentUserElement.getElementsByTagName("database").item(0).getAttributes().item(0).getTextContent());
+            int defaultDatabaseId = Integer.parseInt(currentUserElement.getElementsByTagName("database").item(0)
+                    .getAttributes().item(0).getTextContent());
             setDefaultDatabaseById(defaultDatabaseId);
 
             return doc;
         });
     }
 
-    private static void defaultDatabaseChange(ObservableValue<? extends Database> obs, Database oldValue, Database newValue) {
-        new ResourceXML(Users.DEFAULT_RESOURCE, ResourceXML.UPDATE_XML, doc -> {
-            Element currentUserElement = (Element) doc.getDocumentElement().getElementsByTagName("currentUser").item(0);
+    public static void readDefaultOptions() {
+        new ResourceXML(Users.DEFAULT_RESOURCE, ResourceXML.READ_XML, doc -> {
+            Element currentUserElement = (Element) doc.getDocumentElement().getElementsByTagName("defaultUser").item(0);
+            Element options = (Element) currentUserElement.getElementsByTagName("options").item(0);
 
-            int defaultDatabaseId = newValue.getId();
-            currentUserElement.getElementsByTagName("database").item(0).getAttributes().item(0)
-                    .setTextContent(Integer.toString(defaultDatabaseId));
+            insertClear = Boolean.getBoolean(
+                    options.getElementsByTagName("insertClear").item(0).getAttributes().item(0).getTextContent());
+            updateClear = Boolean.getBoolean(
+                    options.getElementsByTagName("updateClear").item(0).getAttributes().item(0).getTextContent());
 
             return doc;
         });
     }
+
+    // CONSTRUCTORS----------------------------------------
     public User(int id, String name) {
         this.id = id;
         this.name = name;
 
-        
     }
-    /*
-    public static void startDefaultDatabaseProperty(){
 
-       // defaultDatabaseProperty.addListener(User::readDefaultDatabase);
-    }
-    */
+    /*
+     * public static void startDefaultDatabaseProperty(){
+     * 
+     * // defaultDatabaseProperty.addListener(User::readDefaultDatabase); }
+     */
     // GETTERS && SETTERS-----------------------------------------------
     public int getId() {
         return id;
@@ -122,4 +134,22 @@ public class User {
         User.defaultDatabaseProperty.setValue(defaultDatabase);
     }
 
+    public static boolean getInsertClear() {
+        return insertClear;
+    }
+
+    public static void setInsertClear(boolean insertClear) {
+        User.insertClear = insertClear;
+    }
+
+    public static boolean getUpdateClear() {
+        return updateClear;
+    }
+
+    public static void setUpdateClear(boolean updateClear) {
+        User.updateClear = updateClear;
+    }
+
+
+    
 }

@@ -101,6 +101,7 @@ public class VL extends Application {
 
         MSQLP msRoot = new MSQLP(new RootConfigConnection());
         vlc.setMsRoot(msRoot);
+        Users.getInstance().setMs(msRoot);
         // SELECT USER-----------------------------------
         msRoot.selectData(MSQL.TABLE_USERS, this::selectUsers);
         // XML DEFAULTS READ --------------------------------

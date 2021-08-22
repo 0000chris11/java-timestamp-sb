@@ -23,7 +23,7 @@ public class Database {
     //INIT------------------------------------------
     public static void readDefaultTable() {
         new ResourceXML(Users.DEFAULT_RESOURCE, ResourceXML.UPDATE_XML, doc -> {
-            Element currentUserElement = (Element) doc.getDocumentElement().getElementsByTagName("currentUser").item(0);
+            Element currentUserElement = (Element) doc.getDocumentElement().getElementsByTagName("defaultUser").item(0);
 
             String defaultTableName = currentUserElement.getElementsByTagName("table").item(0).getAttributes().item(0)
             .getTextContent();
@@ -35,7 +35,7 @@ public class Database {
 
     private static void defaultTableChange(ObservableValue<? extends Table> obs, Table oldValue, Table newValue) {
         new ResourceXML(Users.DEFAULT_RESOURCE, ResourceXML.UPDATE_XML, doc -> {
-            Element currentUserElement = (Element) doc.getDocumentElement().getElementsByTagName("currentUser").item(0);
+            Element currentUserElement = (Element) doc.getDocumentElement().getElementsByTagName("defaultUser").item(0);
 
             String defaultTableName = newValue.getName();
             currentUserElement.getElementsByTagName("table").item(0).getAttributes().item(0)

@@ -144,6 +144,10 @@
 .label{
     -fx-text-fill: -fx-label-text-fill-color;
 }
+
+.check-box{
+    -fx-text-fill: -fx-label-text-fill-color;
+}
 .text-field{
     -fx-background-color: -fx-textfield-background-color;
     background-color: -fx-textfield-background-color;

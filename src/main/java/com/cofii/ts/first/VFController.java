@@ -8,13 +8,14 @@ import java.util.List;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
+import com.cofii.ts.first.nodes.ActionForEachNode;
+import com.cofii.ts.first.nodes.ClearNodesDisplayed;
+import com.cofii.ts.first.nodes.GetNodesValuesImpl;
+import com.cofii.ts.first.nodes.GetRowSelectedImpl;
+import com.cofii.ts.first.nodes.MultipleValuesSelectedImpl;
 import com.cofii.ts.login.VLController;
-import com.cofii.ts.other.ActionForEachNode;
 import com.cofii.ts.other.CSS;
 import com.cofii.ts.other.Dist;
-import com.cofii.ts.other.GetNodesValuesImpl;
-import com.cofii.ts.other.GetRowSelectedImpl;
-import com.cofii.ts.other.MultipleValuesSelectedImpl;
 import com.cofii.ts.other.NonCSS;
 import com.cofii.ts.sql.MSQL;
 import com.cofii.ts.sql.querys.SelectData;
@@ -154,14 +155,32 @@ public class VFController implements Initializable {
     private static final int CB_STARTS_WITH = 0;
     private int cbSearchOption = CB_STARTS_WITH;
 
-    private ChangeListener<String> selectionForEachDatabaseListener = (obs, oldValue, newValue) -> selectionForEachDatabase(newValue);
-    private ChangeListener<String> selectionForEachTableListener = (obs, oldValue, newValue) -> selectionForEachTable(newValue);
+    private ChangeListener<String> selectionForEachDatabaseListener = (obs, oldValue,
+            newValue) -> selectionForEachDatabase(newValue);
+    private ChangeListener<String> selectionForEachTableListener = (obs, oldValue,
+            newValue) -> selectionForEachTable(newValue);
     // OTHER -------------------------------------------
 
     private void forEachAction(int length, ActionForEachNode en) {
         for (int a = 0; a < length; a++) {
             // MISING FOR PRIMARY KEY
             en.forTFS(tfs[a], a);
+            //WHEN TEXTAREAS ARE IMPLEMENTED
+            //en.forTAS(tfa, a);
+
+            en.either(a);
+        }
+    }
+
+    //NOT FINISH
+    private void forEachAction2(ActionForEachNode en) {
+        currentTable = Users.getInstance().getCurrenUser().getCurrentDatabase().getCurrentTable();
+        for (int a = 0; a < currentTable.getColumns().size(); a++) {
+            
+            en.forTFS(tfs[a], a);
+            //WHEN TEXTAREAS ARE IMPLEMENTED
+            //en.forTAS(tfa, a);
+
             en.either(a);
         }
     }
@@ -247,8 +266,7 @@ public class VFController implements Initializable {
         System.out.println(CC.CYAN + "\nCHANGE TABLE" + CC.RESET);
         Database currenDatabase = Users.getInstance().getCurrenUser().getCurrentDatabase();
         currentTable = currenDatabase.getCurrentTable();
-        boolean tableMatch = Database.getTables().stream()
-                .anyMatch(t -> t.getName().equals(newValue));
+        boolean tableMatch = Database.getTables().stream().anyMatch(t -> t.getName().equals(newValue));
 
         if (tableMatch) {
             // RESET NODES ---------------------------------
@@ -256,11 +274,11 @@ public class VFController implements Initializable {
                 if (lbs[a].isVisible()) {
                     lbs[a].setVisible(false);
 
-                    if (Boolean.TRUE.equals(currentTable.getDistList().get(a))
-                            || FKS.getInstance().getYesAndNoFKS()[a].equals("Yes")) {// RESETING DIST
-                        tfsAutoC.get(a).setTfParent(null);
-                        tfs[a].setStyle(CSS.TFS_DEFAULT_LOOK);
-                    }
+                    // if (Boolean.TRUE.equals(currentTable.getDistList().get(a))
+                    // || FKS.getInstance().getYesAndNoFKS()[a].equals("Yes")) {// RESETING DIST
+                    tfsAutoC.get(a).setTfParent(null);
+                    tfs[a].setStyle(CSS.TFS_DEFAULT_LOOK);
+                    // }
                     tfs[a].setVisible(false);
                     btns[a].setVisible(false);
 
@@ -275,7 +293,7 @@ public class VFController implements Initializable {
             btnAdd.setDisable(false);
 
             tfTableAutoC.getDisableItems().clear();
-            //---------------------------------------
+            // ---------------------------------------
             currenDatabase.setCurrentTable(currenDatabase.getTable(newValue));
 
             String databaseName = currenDatabase.getName();
@@ -284,10 +302,9 @@ public class VFController implements Initializable {
 
             lbDatabaseTable.setText(databaseName + "." + tableName);
             lbDatabaseTable.setTooltip(new Tooltip(lbDatabaseTable.getText()));
-            
-            
+
             tfTableAutoC.getDisableItems().add(tableName);
-            //tfTableAutoC.getLv().getSelectionModel().clearSelection();
+            // tfTableAutoC.getLv().getSelectionModel().clearSelection();
             // SELECT -------------------------------------
             String tableA = tableName.replace(" ", "_");
             ms.selectDataWhere(MSQL.TABLE_NAMES, "name", tableName, new SelectTableNames(true));
@@ -297,9 +314,9 @@ public class VFController implements Initializable {
                     + currentTable.getDist());
 
             dist.distStart();
-            //IDK HOW TF-TABLE-AUTOC IS LOOSING IT'S SELECTION-FOR-EACH-TABLE LISTENER
-            //tfTableAutoC.getLv().getSelectionModel().selectedItemProperty().removeListener(selectionForEachTableListener);
-            //tfTableAutoC.getLv().getSelectionModel().selectedItemProperty().addListener(selectionForEachTableListener);
+            // IDK HOW TF-TABLE-AUTOC IS LOOSING IT'S SELECTION-FOR-EACH-TABLE LISTENER
+            // tfTableAutoC.getLv().getSelectionModel().selectedItemProperty().removeListener(selectionForEachTableListener);
+            // tfTableAutoC.getLv().getSelectionModel().selectedItemProperty().addListener(selectionForEachTableListener);
 
             ms.selectData(tableA, new SelectData(this, SelectData.MESSGE_TABLE_CHANGE + tableName));
         }
@@ -446,12 +463,16 @@ public class VFController implements Initializable {
         GetNodesValuesImpl gn = new GetNodesValuesImpl(newValues);
         forEachAction(length, gn);
 
-        System.out.println("\nUPDATE TEST");
-        Arrays.asList(gn.getValues()).forEach(v -> System.out.println(v != null ? v.toString() : "null"));
+        //UPDATE QUERY-------------------------------------
         boolean returnValue = ms.updateRow(tableName, selectedRow, gn.getValues());
         if (returnValue) {
             ms.selectData(tableName, new SelectData(this, SelectData.MESSAGE_UPDATED_ROW + tableName));
             dist.distAction();
+
+            if(User.getUpdateClear()){
+                ClearNodesDisplayed clearNodes = new ClearNodesDisplayed();
+                forEachAction(length, clearNodes);
+            }
             System.out.println(SUCCESS);
         } else {
             System.out.println(FAILED);
@@ -468,25 +489,30 @@ public class VFController implements Initializable {
         currentTable = Users.getInstance().getCurrenUser().getCurrentDatabase().getCurrentTable();
 
         System.out.println(CC.CYAN + "\nINSERT ROW" + CC.RESET);
-        int length = MSQL.getColumns().length;
+        int length = currentTable.getColumns().size();
         Object[] values = new Object[length];
         GetNodesValuesImpl gn = new GetNodesValuesImpl(values);
         forEachAction(length, gn);
 
         String tableName = currentTable.getName().replace(" ", "_");
 
+        // EXCEPTION---------------------------
         ms.setIDataToLong(e -> {
             System.out.println("\tData too long");
             lbStatus.setText(e.getMessage(), NonCSS.TEXT_FILL_ERROR, Duration.seconds(2));
         });
-
-        System.out.println("\nADD TEST");
-        Arrays.asList(gn.getValues()).forEach(v -> System.out.println(v != null ? v.toString() : "null"));
+        //UPDATE QUERY-------------------------
         boolean update = ms.insert(tableName, gn.getValues());
         if (update) {
             ms.selectData(tableName, new SelectData(this, SelectData.MESSAGE_INSERT + tableName));
-            System.out.println(SUCCESS);
             dist.distAction();
+
+            if (User.getInsertClear()) {
+                ClearNodesDisplayed clearNodes = new ClearNodesDisplayed();
+                forEachAction(length, clearNodes);
+
+            }
+            System.out.println(SUCCESS);
         } else {
             System.out.println(FAILED);
         }
@@ -600,10 +626,13 @@ public class VFController implements Initializable {
             cbElements.add(new ArrayList<>());
         }
         // LISTENERS------------------------------------
-        //tfDatabase.textProperty().addListener((obs, oldValue, newValue) -> selectionForEachDatabase(newValue));
-        //tfTable.textProperty().addListener((obs, oldValue, newValue) -> selectionForEachTable(newValue));
+        // tfDatabase.textProperty().addListener((obs, oldValue, newValue) ->
+        // selectionForEachDatabase(newValue));
+        // tfTable.textProperty().addListener((obs, oldValue, newValue) ->
+        // selectionForEachTable(newValue));
 
-        tfDatabaseAutoC.getLv().getSelectionModel().selectedItemProperty().addListener(selectionForEachDatabaseListener);
+        tfDatabaseAutoC.getLv().getSelectionModel().selectedItemProperty()
+                .addListener(selectionForEachDatabaseListener);
         tfTableAutoC.getLv().getSelectionModel().selectedItemProperty().addListener(selectionForEachTableListener);
 
         tableView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);

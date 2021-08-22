@@ -16,10 +16,10 @@ import javafx.beans.value.ObservableValue;
 public class Users {
 
     private static List<User> usersList = new ArrayList<>();
-    private User currentUser;
-    private static final ObjectProperty<User> defaultUserProperty = new SimpleObjectProperty<>(null);
-
     private List<Database> allDatabasesList = new ArrayList<>();
+
+    private ObjectProperty<User> currentUser = new SimpleObjectProperty<>(null); 
+    private static User defaultUser;
 
     public static final String DEFAULT_RESOURCE = "/com/cofii/ts/login/defaults.xml";
 
@@ -63,84 +63,58 @@ public class Users {
     // INIT----------------------------------------
     public static void readDefaultUser() {
         new ResourceXML(DEFAULT_RESOURCE, ResourceXML.UPDATE_XML, doc -> {
-            Element currentUserElement = (Element) doc.getDocumentElement().getElementsByTagName("currentUser").item(0);
+            Element currentUserElement = (Element) doc.getDocumentElement().getElementsByTagName("defaultUser").item(0);
 
             int defaultUserId = Integer.parseInt(currentUserElement.getAttributes().item(0).getTextContent());// DEFAULT
-            // currentUserElement.getAttributes().item(0).setTextContent(Integer.toString(defaultUserId));//
-            // CURRENT ID
 
             if (defaultUserId > 0) {
-                defaultUserProperty.setValue(new User(defaultUserId, getUser(defaultUserId).getName()));
-                /*
-                ms.selectDataWhere(MSQL.TABLE_USER_DEFAULTS, "user_id", defaultUserId > 0 ? defaultUserId : null,
-                        (rs, v, ex) -> {
-                            if (v) {
-                                int defaultDatabaseId = rs.getInt(2);
-                                String defaultTableName = rs.getString(3);
-
-                                if (defaultDatabaseId > 0 && setCurrents && !User.getDatabases().isEmpty()
-                                        && !Database.getTables().isEmpty()) {
-                                    User.setDefaultDatabaseById(defaultDatabaseId);
-
-                                    Database.setDefaultTableByName(defaultTableName);
-                                    getCurrenUser().getCurrentDatabase().setCurrentTable(Database.getDefaultTable());
-                                }
-                                currentUserElement.getElementsByTagName("database").item(0).getAttributes().item(0)
-                                        .setTextContent(Integer.toString(defaultDatabaseId));
-                                currentUserElement.getElementsByTagName("table").item(0).getAttributes().item(0)
-                                        .setTextContent(defaultTableName);
-                            }
-                        });
-                        */
-            }/* else {
-                currentUserElement.getElementsByTagName("database").item(0).getAttributes().item(0)
-                        .setTextContent(Integer.toString(0));
-                currentUserElement.getElementsByTagName("table").item(0).getAttributes().item(0).setTextContent("null");
-            }*/
-            
-            return doc;
-        });
-    }
-
-    public void defaultUserChange(ObservableValue<? extends User> obs, User oldValue, User newValue) {
-        new ResourceXML(DEFAULT_RESOURCE, ResourceXML.UPDATE_XML, doc -> {
-            Element currentUserElement = (Element) doc.getDocumentElement().getElementsByTagName("currentUser").item(0);
-
-            int defaultUserId = newValue != null ? newValue.getId() : 0;
-            // currentUserElement.getAttributes().item(0).setTextContent(Integer.toString(defaultUserId));//
-            // CURRENT ID
-
-            if (defaultUserId > 0) {
-                ms.selectDataWhere(MSQL.TABLE_USER_DEFAULTS, "user_id", defaultUserId > 0 ? defaultUserId : null,
-                        (rs, v, ex) -> {
-                            if (v) {
-                                int defaultDatabaseId = rs.getInt(2);
-                                String defaultTableName = rs.getString(3);
-
-                                if (defaultDatabaseId > 0) {
-                                    User.setDefaultDatabaseById(defaultDatabaseId);
-                                    if (defaultTableName != null) {
-                                        Database.setDefaultTableByName(defaultTableName);
-                                    }
-                                }
-
-                            }
-                        });
-            } else {
-                currentUserElement.getElementsByTagName("database").item(0).getAttributes().item(0)
-                        .setTextContent(Integer.toString(0));
-                currentUserElement.getElementsByTagName("table").item(0).getAttributes().item(0).setTextContent("null");
+                defaultUser = new User(defaultUserId, getUser(defaultUserId).getName());
             }
+
             return doc;
         });
     }
 
-    // CREATE DIFFERENT METHOD TO STAR THIS PROPERTIES
-    public void startDefaultProperty(MSQLP ms) {
-        this.ms = ms;
-        //readDefaultUser();
-        // LISTENERS--------------
-        //defaultUserProperty.addListener(this::defaultUserChange);
+    private void userChangeSetDefaults(final int id) {
+        new ResourceXML(DEFAULT_RESOURCE, ResourceXML.UPDATE_XML, doc -> {
+            Element currentUserElement = (Element) doc.getDocumentElement().getElementsByTagName("defaultUser").item(0);
+
+            ms.selectDataWhere(MSQL.TABLE_USER_DEFAULTS, "user_id", id, (rs, rsValues, ex) -> {
+                if (rsValues) {
+                    int defaultDatabaseId = rs.getInt(2);
+                    String defaultTableId = rs.getString(3);
+
+                    currentUserElement.getElementsByTagName("database").item(0).getAttributes().item(0)
+                            .setTextContent(Integer.toString(defaultDatabaseId));
+                    currentUserElement.getElementsByTagName("table").item(0).getAttributes().item(0)
+                            .setTextContent(defaultTableId);
+                }
+            });
+
+            Element options = (Element) currentUserElement.getElementsByTagName("options").item(0);
+            ms.selectDataWhere(MSQL.TABLE_USER_DEFAULTS_OPTIONS, "id_user", id, (rs, rsValues, ex) -> {
+                if (rsValues) {
+                    boolean insertClear = rs.getBoolean(2);
+                    boolean updateClear = rs.getBoolean(3);
+
+                    options.getElementsByTagName("insertClear").item(0).getAttributes().item(0)
+                            .setTextContent(Boolean.toString(insertClear));
+                            options.getElementsByTagName("updateClear").item(0).getAttributes().item(0)
+                            .setTextContent(Boolean.toString(updateClear));
+                }
+            });
+            // currentUserElement.getAttributes().item(0).setTextContent(Integer.toString(defaultUserId));//
+
+            return doc;
+        });
+    }
+
+    private Users(){
+        currentUser.addListener((obs, oldValue, newValue) -> {
+            if(newValue != null && !usersList.isEmpty()){
+                userChangeSetDefaults(newValue.getId());
+            }
+        });
     }
 
     // GETTER & SETTERS----------------------------
@@ -153,11 +127,11 @@ public class Users {
     }
 
     public User getCurrenUser() {
-        return currentUser;
+        return currentUser.getValue();
     }
 
     public void setCurrentUser(User currentUser) {
-        this.currentUser = currentUser;
+        this.currentUser.setValue(currentUser);
     }
 
     public List<Database> getAllDatabasesList() {
@@ -169,11 +143,18 @@ public class Users {
     }
 
     public static User getDefaultUser() {
-        return defaultUserProperty.getValue();
+        return defaultUser;
     }
 
-    public static void setDefaultUser(User user) {
-        Users.defaultUserProperty.setValue(user);
+    public static void setDefaultUser(User defaultUser) {
+        Users.defaultUser = defaultUser;
     }
 
+    public MSQLP getMs() {
+        return ms;
+    }
+
+    public void setMs(MSQLP ms) {
+        this.ms = ms;
+    }
 }
