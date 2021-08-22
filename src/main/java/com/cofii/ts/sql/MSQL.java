@@ -5,24 +5,22 @@ import com.cofii.ts.store.main.Table;
 public class MSQL {
     // DBS AND TABLES
     public static final String ROOT_DB = "RootConfig";
+    public static final String TABLE_USERS = "rootconfig.users";
     public static final String TABLE_DEFAULT_USER = "defaultuser";
-    public static final String TABLE_DEFAULT = "default_table";
+    public static final String TABLE_DATABASES = "rootconfig.users_databases";
+
+    public static final String TABLE_USER_DEFAULTS = "rootconfig.user_defaults";
+    public static final String TABLE_USER_DEFAULTS_OPTIONS = "rootconfig.user_defaults_options";
+
+    public static final String TABLE_DEFAULT = "default_table";//DELETE AFTER MERGE
     public static final String TABLE_CONFIG = "table_config";
     public static final String TABLE_NAMES = "table_names";
-
-    // BAND DBS AND TABLES
-    public static final String[] BAND_USERS = { "mysql.infoschema", "mysql.session", "mysql.sys" };
-    public static final String[] BAND_DB = { "information_schema", "mysql", "performance_schema", "sys", "time_stam"};
-    // TYPES
-    public static final String[] TYPES = { "INT", "TINYINT", "SMALLINT", "MEDIUMINT", "BIGINT", "FLOAT", "DOUBLE",
-            "CHAR", "VARCHAR", "BOOLEAN/TINYINT(1)", "TIME", "DATE", "DATETIME", "TIMESTAMP", "BINARY", "VARBINARY" };
 
     // MAIN VARIABLES
     private static String user;
     private static String password;
     private static String[] databases;
     private static String database;
-    private static Table currentTable = null;
     private static String[] columns;
 
     private static int columnsLength;
@@ -30,15 +28,22 @@ public class MSQL {
     public static final int MAX_IMAGES = 4;
 
     // QUERYS
-    public static final String CREATE_DB_ROOTCONFIG = "CREATE DATABASE ROOTCONFIG";
+    public static final String CREATE_DB_ROOTCONFIG = "CREATE DATABASE IF NOT EXISTS ROOTCONFIG";
 
-    public static final String CREATE_TABLE_DEFAULT_USER = "CREATE TABLE " + TABLE_DEFAULT_USER
+    public static final String CREATE_TABLE_USERS = "CREATE TABLE IF NOT EXISTS " + TABLE_USERS 
+            + "(id INT NOT NULL AUTO_INCREMENT, user_name VARCHAR(200) NOT NULL, user_password VARBINARY(200) NOT NULL, PRIMARY KEY(id))";
+    public static final String CREATE_TABLE_USERS_DEFAULTS = "CREATE TABLE IF NOT EXISTS " + TABLE_USER_DEFAULTS
+            + "(user_id INT NOT NULL, database_id INT NULL, table_name CHAR(200) NULL, "
+            + "PRIMARY KEY(user_id), FOREIGN KEY(database_id) REFERENCES " + TABLE_DATABASES + "(id))";
+    public static final String CREATE_TABLE_DATABASES = "CREATE TABLE IF NOT EXISTS " + TABLE_DATABASES 
+            + "(id INT NOT NULL AUTO_INCREMENT, id_user INT, user_database CHAR(255) NOT NULL, PRIMARY KEY(id) ,FOREIGN KEY(id_user) REFERENCES users(id))";
+    public static final String CREATE_TABLE_DEFAULT_USER = "CREATE TABLE IF NOT EXISTS " + TABLE_DEFAULT_USER
             + "(User CHAR(100) NOT NULL, Password CHAR(50) NOT NULL, Database CHAR(100) NOT NULL)";
-    public static final String CREATE_TABLE_NAMES = "CREATE TABLE " + TABLE_NAMES
+    public static final String CREATE_TABLE_NAMES = "CREATE TABLE IF NOT EXISTS " + TABLE_NAMES
             + "(id INT NOT NULL AUTO_INCREMENT, Name CHAR(100) NOT NULL, Dist CHAR(100) NOT NULL, PRIMARY KEY (id, name))";
-    public static final String CREATE_TABLE_DEFAUT = "CREATE TABLE " + TABLE_DEFAULT
+    public static final String CREATE_TABLE_DEFAUT = "CREATE TABLE IF NOT EXISTS " + TABLE_DEFAULT
             + "(id INT, name CHAR(100), FOREIGN KEY(id, name) REFERENCES table_names(id, name))";
-    public static final String CREATE_TABLE_CONFIG = "CREATE TABLE " + TABLE_CONFIG
+    public static final String CREATE_TABLE_CONFIG = "CREATE TABLE IF NOT EXISTS " + TABLE_CONFIG
             + "(id INT NOT NULL, Name CHAR(100) NOT NULL, Value BOOLEAN NOT NULL, PRIMARY KEY(id))";
 
     public static final String INSERT_TABLE_DEFAULT_USER = "INSERT INTO " + TABLE_DEFAULT_USER
@@ -53,6 +58,8 @@ public class MSQL {
 
     // BOOLEANS
     private static boolean dbRootconfigExist = false;
+    private static boolean tableUsersExist = false;
+    private static boolean tableDatabasesExist = false;
     private static boolean tableDefaultUserExist = false;
     private static boolean tableDefaultExist = false;
     private static boolean tableConfigExist = false;
@@ -142,14 +149,6 @@ public class MSQL {
         MSQL.wrongPassword = wrongPassword;
     }
 
-    public static Table getCurrentTable() {
-        return currentTable;
-    }
-
-    public static void setCurrentTable(Table table) {
-        MSQL.currentTable = table;
-    }
-
     public static int getColumnsLength() {
         return columnsLength;
     }
@@ -178,4 +177,21 @@ public class MSQL {
     public static void setDatabases(String[] databases) {
         MSQL.databases = databases;
     }
+
+    public static boolean isTableUsersExist() {
+        return tableUsersExist;
+    }
+
+    public static void setTableUsersExist(boolean tableUsersExist) {
+        MSQL.tableUsersExist = tableUsersExist;
+    }
+
+    public static boolean isTableDatabasesExist() {
+        return tableDatabasesExist;
+    }
+
+    public static void setTableDatabasesExist(boolean tableDatabasesExist) {
+        MSQL.tableDatabasesExist = tableDatabasesExist;
+    }
+    
 }

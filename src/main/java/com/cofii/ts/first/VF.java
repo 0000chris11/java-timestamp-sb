@@ -1,173 +1,260 @@
 package com.cofii.ts.first;
 
 import java.io.IOException;
-import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collector;
 
 import com.cofii.ts.cu.VCController;
 import com.cofii.ts.login.VLController;
 import com.cofii.ts.other.Dist;
 import com.cofii.ts.other.NonCSS;
-import com.cofii.ts.sql.CurrenConnection;
 import com.cofii.ts.sql.MSQL;
-import com.cofii.ts.sql.WrongPassword;
 import com.cofii.ts.sql.querys.SelectData;
+import com.cofii.ts.sql.querys.SelectDatabases;
 import com.cofii.ts.sql.querys.SelectKeys;
 import com.cofii.ts.sql.querys.SelectTableDefault;
 import com.cofii.ts.sql.querys.ShowColumns;
-import com.cofii.ts.sql.querys.ShowTableCurrentDB;
+import com.cofii.ts.sql.querys.CurrentDatabaseTablesExist;
 import com.cofii.ts.store.main.Database;
+import com.cofii.ts.store.main.Table;
+import com.cofii.ts.store.main.User;
+import com.cofii.ts.store.main.Users;
 import com.cofii2.components.javafx.SceneZoom;
+import com.cofii2.components.javafx.popup.PopupAutoC;
 import com.cofii2.mysql.MSQLP;
+import com.cofii2.xml.ResourceXML;
 
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.control.Tooltip;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 public class VF {
 
-    private static VFController vf;
-    private VLController vl;
+    private static VFController vfc;
+    private VLController vlc;
     private VCController vc;
 
     private Stage stage = new Stage();
     private static MSQLP ms;
 
-    private Database tables = Database.getInstance();
+    // INSTANCES-------------------------------------
     private Menus menus;
     // private static ColumnS columns = ColumnS.getInstance();
     // private static ColumnDS columnsd = ColumnDS.getInstance();
     private Dist dist;
-
+    // ZOOM----------------------------------------
     private DoubleProperty scaleVF = new SimpleDoubleProperty(1.0);
 
-    private boolean start = true;
+    /**
+     * true if its start from the login (not from VC)
+     */
+    private boolean startFromLogin = true;
 
-    // -----------------------------------------
+    private boolean noDatabasesForCurrentUser = false;
+    private boolean noTablesForCurrentDatabase = false;
+
+    // STAGE LISTENERS -----------------------------------------
     private void stageMaximizedPropertyChange(boolean newValue) {
+        Table currentTable = Users.getInstance().getCurrenUser().getCurrentDatabase().getCurrentTable();
         if (newValue) {
             /*
              * if (Arrays.asList(columnsd.getImageCS()).stream().allMatch(s ->
              * s.equals("No"))) { vf.getSplitLeft().setDividerPositions(1.0); }
              */
-            if (MSQL.getCurrentTable() != null) {
-                if (MSQL.getCurrentTable().getImageC().equals("NONE")) {
-                    vf.getSplitLeft().setDividerPositions(1.0);
+            if (currentTable != null) {
+                if (currentTable.getImageC().equals("NONE")) {
+                    vfc.getSplitLeft().setDividerPositions(1.0);
                 }
             }
         }
     }
 
     private void heightPropertyChangeListener() {
+        Table currentTable = Users.getInstance().getCurrenUser().getCurrentDatabase().getCurrentTable();
         /*
          * if (Arrays.asList(columnsd.getImageCS()).stream().allMatch(s ->
          * s.equals("No"))) { vf.getSplitLeft().setDividerPositions(1.0); }
          */
-        if (MSQL.getCurrentTable() != null) {
-            if (MSQL.getCurrentTable().getImageC().equals("NONE")) {
-                vf.getSplitLeft().setDividerPositions(1.0);
+        if (currentTable != null) {
+            if (currentTable.getImageC().equals("NONE")) {
+                vfc.getSplitLeft().setDividerPositions(1.0);
             }
         }
     }
 
-    // -----------------------------------------
-    private void afterFirstQuerySucces() {
-        ms.selectTables(new ShowTableCurrentDB());
-        if (!MSQL.isTableNamesExist()) {
-            ms.executeStringUpdate(MSQL.CREATE_TABLE_NAMES);// NOT TESTED
-        }
-        if (!MSQL.isTableDefaultExist()) {
-            ms.executeStringUpdate(MSQL.CREATE_TABLE_DEFAUT);// NOT TESTED
-        }
-        if (!MSQL.isTableConfigExist()) {
-            ms.executeStringUpdate(MSQL.CREATE_TABLE_CONFIG);// NOT TESTED
-        }
-        // TABLE LIST
-        // addMenuItems();
-        menus.addMenuItemsReset();
+    // INIT-----------------------------------------
+    /**
+     * Does main tables exist (at selected Database level)
+     */
+    void mainTablesCreation() {
+        // ms.selectTables(new CurrentDatabaseTablesExist());
+        ms.executeStringUpdate(MSQL.CREATE_TABLE_NAMES);
+        ms.executeStringUpdate(MSQL.CREATE_TABLE_CONFIG);
+    }
 
-        if (start) {
-            ms.executeQuery(MSQL.SELECT_TABLE_ROW_DEFAULT, new SelectTableDefault());
-        }
-        if (MSQL.getCurrentTable() != null) {
-            String table = MSQL.getCurrentTable().getName();
-            vf.getLbTable().setText(table);
+    private void querysStart() {
+        // SELECT DATABASES FOR CURRENT USER-----
+        ms.selectData(MSQL.TABLE_DATABASES, new SelectDatabases(vfc));
+        // ----------------------------------------
+        if (!noDatabasesForCurrentUser) {
+            // User.startDefaultDatabaseProperty();
+            Users users = Users.getInstance();
+            if (startFromLogin) {
+                User.readDefaultDatabase();
+                users.getCurrenUser().setCurrentDatabase(User.getDefaultDatabase());
 
-            ms.selectColumns(table.replace(" ", "_"), new ShowColumns(vf));
-            ms.selectKeys(MSQL.getDatabases(), new SelectKeys(vf));
-            dist.distStart();
+                ms.use(users.getCurrenUser().getCurrentDatabase().getName());
 
-            ms.selectData(table.replace(" ", "_"), new SelectData(vf, null));
+                User.readDefaultOptions();
+            }
+
+            String databaseName = users.getCurrenUser().getCurrentDatabase().getName();
+            vfc.getTfDatabase().setText(databaseName);
+            vfc.getTfDatabaseAutoC().getDisableItems().add(databaseName);
+
+            // TABLES ------------------------------------------
+            // EXIST---------------------
+            if (startFromLogin) {
+                mainTablesCreation();
+            }
+
+            // SELECT TABLES FROM CURRENT DATABASE
+            menus.addTablesToTfTableReset(vfc);
+
+            // DEFAULT & CURRENT TABLE
+            Database currentDatabase = users.getCurrenUser().getCurrentDatabase();
+            Database.readDefaultTable();
+            if (!noTablesForCurrentDatabase) {
+                if (startFromLogin) {
+                    if (Database.getDefaultTable() != null) {
+                        currentDatabase.setCurrentTable(Database.getDefaultTable());
+                    } else {
+                        currentDatabase.setCurrentTable(Database.getTables().get(0));
+                    }
+                }
+                String tableName = currentDatabase.getCurrentTable().getName();
+                vfc.getTfTableAutoC().getDisableItems().add(tableName);
+                vfc.getTfTable().setText(tableName);
+            }
+            // TABLE SELECT-----------------------------------
+            if (currentDatabase.getCurrentTable() != null) {
+                databaseName = currentDatabase.getName();
+                String tableName = currentDatabase.getCurrentTable().getName();
+
+                vfc.getLbDatabaseTable().setText(databaseName + "." + tableName);
+                vfc.getLbDatabaseTable().setTooltip(new Tooltip(vfc.getLbDatabaseTable().getText()));
+                vfc.getLbDatabaseTable().getTooltip().setShowDelay(Duration.ZERO);
+
+                ms.selectColumns(tableName.replace(" ", "_"), new ShowColumns(vfc));
+                ms.selectKeys(Users.getInstance().getCurrenUser().getDatabasesNames(), new SelectKeys(vfc));
+                dist.distStart();
+                ms.selectData(tableName.replace(" ", "_"), new SelectData(vfc, null));
+            } else {
+                vfc.clearCurrentTableView();
+            }
         } else {
-            vf.clearCurrentTableView();
+            vfc.getTfDatabase().setPromptText(VFController.NO_DATABASES);
+            vfc.getTfTable().setPromptText(VFController.NO_DATABASE_SELECTED);
         }
+        /*
+         * if (startFromLogin) { //ms.executeQuery(MSQL.SELECT_TABLE_ROW_DEFAULT, new
+         * SelectTableDefault()); }
+         */
+
         // OTHERS LISTENERS--------------------
-        ms.setSQLException((ex, s) -> vf.getLbStatus().setText(ex.getMessage(), NonCSS.TEXT_FILL_ERROR));
+        ms.setSQLException((ex, s) -> vfc.getLbStatus().setText(ex.getMessage(), NonCSS.TEXT_FILL_ERROR));
+        // SHOW------------------------
+        if (startFromLogin) {
+            vlc.getStage().close();
+            stage.show();
+
+        }
     }
 
     private void init() {
         try {
             FXMLLoader loader = new FXMLLoader(VF.class.getResource("/com/cofii/ts/first/VF.fxml"));
-
+            // ZOOMIMING PANE-----------------------
             SceneZoom sceneZoom = new SceneZoom(loader.load(), scaleVF);
-            vf = (VFController) loader.getController();
-            sceneZoom.setParent(vf.getBpMain());
-
+            vfc = (VFController) loader.getController();
+            sceneZoom.setParent(vfc.getBpMain());
+            // ------------------------------------
             Scene scene = sceneZoom.getScene();
             scene.getStylesheets().add(VF.class.getResource("/com/cofii/ts/first/VF.css").toExternalForm());
-
-            // START OR GO BACK-----------------------------
-            if (vl != null) {// NEW WINDOW
+            // START OR GO BACK OPTION-----------------------------
+            if (vlc != null) {// NEW WINDOW
                 stage.setScene(scene);
             } else {
                 vc.getVf().getStage().setScene(scene);
-                start = false;
+                startFromLogin = false;
             }
-            // -------------------------------------------------
-
+            // MENU START-------------------------------------
             Menus.clearInstance();
-            menus = Menus.getInstance(vf);
+            menus = Menus.getInstance(vfc);
             // STAGE LISTENER-------------------------------------------------
             stage.maximizedProperty().addListener((obs, oldValue, newValue) -> stageMaximizedPropertyChange(newValue));
             stage.heightProperty().addListener((obs, oldValue, newValue) -> heightPropertyChangeListener());
-            // -------------------------------------------------
-            vf.setStage(vl != null ? stage : vc.getVf().getStage());
-            vf.setScene(scene);
-            vf.setVl(vl);
-
-            ms = new MSQLP(new CurrenConnection(), new WrongPassword(vl, vf));
-
-            vf.setMs(ms);
-            dist = Dist.getInstance(vf);
-            // -------------------------------------------
-            if (!MSQL.isWrongPassword()) {
-                afterFirstQuerySucces();
+            // SOME SETTERS TO VFCONTROLLER-------------------------------------------------
+            vfc.setStage(vlc != null ? stage : vc.getVf().getStage());
+            vfc.setScene(scene);
+            if (startFromLogin) {
+                vfc.setVl(vlc);
             }
+            vfc.setVf(this);
+
+            if (startFromLogin) {
+                ms = vlc.getMsRoot();
+            }
+            vfc.setMs(ms);
+            // DIST START---------------------------------
+            dist = Dist.getInstance(vfc);
+            // -------------------------------------------
+            querysStart();
+
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public VF(VLController vl) {
-        this.vl = vl;
+    public VF(VLController vlc) {
+        this.vlc = vlc;
         vc = null;
         init();
     }
 
     public VF(VCController vc) {
         this.vc = vc;
-        vl = null;
+        vlc = null;
         init();
     }
 
-    // -------------------------------------------
+    // GETTER & SETTERS -------------------------------------------
     public Stage getStage() {
         return stage;
     }
 
     public void setStage(Stage stage) {
         this.stage = stage;
+    }
+
+    public boolean isNoDatabasesForCurrentUser() {
+        return noDatabasesForCurrentUser;
+    }
+
+    public void setnoDatabasesForCurrentUser(boolean noDatabasesForCurrentUser) {
+        this.noDatabasesForCurrentUser = noDatabasesForCurrentUser;
+    }
+
+    public boolean isNoTablesForCurrentDatabase() {
+        return noTablesForCurrentDatabase;
+    }
+
+    public void setNoTablesForCurrentDatabase(boolean noTablesForCurrentDatabase) {
+        this.noTablesForCurrentDatabase = noTablesForCurrentDatabase;
     }
 
 }

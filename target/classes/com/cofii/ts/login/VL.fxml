@@ -1,28 +1,43 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.text.*?>
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="347.0" prefWidth="340.0" spacing="5.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cofii.ts.login.VLController">
+<VBox fx:id="vboxMain" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="347.0" prefWidth="360.0" spacing="5.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cofii.ts.login.VLController">
    <children>
+      <HBox prefHeight="100.0" prefWidth="200.0">
+         <children>
+            <Label fx:id="lbTitle" text="Login">
+               <font>
+                  <Font size="16.0" />
+               </font>
+            </Label>
+            <Region HBox.hgrow="ALWAYS" />
+            <Button fx:id="btnGoBack" visible="false" mnemonicParsing="false" text="&lt;-" />
+         </children>
+      </HBox>
+      <Region maxHeight="100.0" prefHeight="100.0" />
       <Label fx:id="lbUser" text="User" />
-      <ComboBox fx:id="cbUser" editable="true" maxWidth="1.7976931348623157E308" />
+      <TextField fx:id="tfUser" />
       <Label fx:id="lbPassword" text="Password" />
-      <PasswordField fx:id="tfPassword" onKeyReleased="#tfPasswordKR" />
-      <Label fx:id="lbDB" text="Database" />
-      <ComboBox fx:id="cbDB" editable="true" maxWidth="1.7976931348623157E308" prefWidth="150.0" />
+      <PasswordField fx:id="tfPassword" />
       <Region prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS" />
-      <HBox fx:id="layout">
+      <HBox fx:id="hbBottom">
          <children>
             <CheckBox fx:id="cbRemember" mnemonicParsing="false" prefHeight="17.0" prefWidth="139.0" text="Remeber Login" />
             <Region HBox.hgrow="ALWAYS" />
-            <Button fx:id="btnLogin" disable="true" mnemonicParsing="false" onAction="#btnLoginAction" prefHeight="25.0" prefWidth="90.0" text="Login" />
+            <Button fx:id="btnLogin" disable="true" mnemonicParsing="false" text="Login" />
+            <Button fx:id="btnLoginHelp" mnemonicParsing="false" text="?" />
+            <Region prefWidth="10.0" />
+            <Button fx:id="btnCreateUser" mnemonicParsing="false" text="Create User" />
+            <Button fx:id="btnCreateUserHelp" visible="false" managed="false" mnemonicParsing="false" text="?" />
          </children>
       </HBox>
    </children>
    <padding>
-      <Insets bottom="20.0" left="20.0" right="20.0" top="30.0" />
+      <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
    </padding>
 </VBox>

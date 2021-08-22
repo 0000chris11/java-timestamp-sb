@@ -10,7 +10,7 @@ import com.cofii2.myInterfaces.IActions;
  * Determine if the necessary tables exist in the current Database
  * 
  */
-public class ShowTableCurrentDB implements IActions{
+public class CurrentDatabaseTablesExist implements IActions{
 
     @Override
     public void beforeQuery() {

@@ -1,8 +1,6 @@
-package com.cofii.ts.other;
+package com.cofii.ts.first.nodes;
 
-import com.cofii2.components.javafx.TextFieldAutoC;
-
-import javafx.scene.control.ComboBox;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 
 public class MultipleValuesSelectedImpl implements ActionForEachNode{
@@ -16,8 +14,8 @@ public class MultipleValuesSelectedImpl implements ActionForEachNode{
     }
 
     @Override
-    public void forTFAS(TextFieldAutoC tfa, int a) {
-        tfa.getTf().setText(MULTIPLE_VALUES_SELECTED);
+    public void forTAS(TextArea tfa, int a) {
+        tfa.setText(MULTIPLE_VALUES_SELECTED);
         
     }
 

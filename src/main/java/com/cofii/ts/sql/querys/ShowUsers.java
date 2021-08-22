@@ -5,38 +5,43 @@ import java.sql.SQLException;
 
 import com.cofii.ts.login.VLController;
 import com.cofii.ts.sql.MSQL;
+import com.cofii.ts.store.main.User;
+import com.cofii.ts.store.main.Users;
 import com.cofii2.methods.MList;
 import com.cofii2.myInterfaces.IActions;
 
-public class ShowUsers implements IActions{
+public class ShowUsers implements IActions {
 
-    private VLController c;
+    private VLController vlc;
+    private Users users;
 
-    public ShowUsers(VLController c){
-        this.c = c;
+    public ShowUsers(VLController vlc) {
+        this.vlc = vlc;
     }
 
     @Override
     public void beforeQuery() {
-        c.getCbUser().getItems().clear();
-        
+        vlc.getTfUserAC().clearItems();
+        users = Users.getInstance();
     }
 
     @Override
     public void setData(ResultSet rs, int row) throws SQLException {
-        String user = rs.getString(1);
-        if(!MList.isOnThisList(MSQL.BAND_USERS, user, false)){
-            c.getCbUser().getItems().add(user);
-        }
-        
+        int id = rs.getInt(1);
+        String user = rs.getString(2);
+
+        vlc.getTfUserAC().addItem(user);
+        users.addUser(new User(id, user));
+
     }
 
     @Override
     public void afterQuery(String query, boolean rsValue) {
-        if(rsValue){
-            c.getCbUser().getSelectionModel().select(0);
+        if (rsValue) {
+            vlc.setUserOK(true);
+            vlc.getTfUserAC().getLv().getSelectionModel().select(0);
         }
-        
+
     }
-    
+
 }

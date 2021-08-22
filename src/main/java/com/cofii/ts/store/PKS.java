@@ -5,6 +5,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.cofii.ts.sql.MSQL;
+import com.cofii.ts.store.main.Table;
+import com.cofii.ts.store.main.Users;
 
 public class PKS {
 
@@ -32,12 +34,14 @@ public class PKS {
     }
 
     public PK[] getCurrentTablePKS() {
+        Table currentTable = Users.getInstance().getCurrenUser().getCurrentDatabase().getCurrentTable();
         return pksList.stream().filter(e -> e.getDatabase().equalsIgnoreCase(MSQL.getDatabase())
-                && e.getTable().equalsIgnoreCase(MSQL.getCurrentTable().getName().replace(" ", "_"))).toArray(PK[]::new);
+                && e.getTable().equalsIgnoreCase(currentTable.getName().replace(" ", "_"))).toArray(PK[]::new);
     }
 
     public String[] getYesAndNoPKS() {
-        String[] pks = new String[MSQL.getCurrentTable().getColumns().size()];
+        Table currentTable = Users.getInstance().getCurrenUser().getCurrentDatabase().getCurrentTable();
+        String[] pks = new String[currentTable.getColumns().size()];
         Arrays.fill(pks, "No");
         PK[] cpks = getCurrentTablePKS();
         for (int a = 0; a < cpks.length; a++) {

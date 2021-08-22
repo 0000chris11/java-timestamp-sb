@@ -8,6 +8,7 @@ import com.cofii.ts.other.NonCSS;
 import com.cofii.ts.other.Timers;
 import com.cofii.ts.sql.MSQL;
 import com.cofii.ts.store.main.Table;
+import com.cofii.ts.store.main.Users;
 import com.cofii2.myInterfaces.IActions;
 
 import javafx.collections.FXCollections;
@@ -25,21 +26,21 @@ public class SelectData implements IActions {
     public static final String MESSAGE_DELETE_ROW = "Row deleted in ";
     public static final String MESSAGE_UPDATED_ROW = "Row updated in ";
     // --------------------------------------------------
-    private VFController vf;
-    private Table table = MSQL.getCurrentTable();
+    private VFController vfc;
+    private Table currentTable = Users.getInstance().getCurrenUser().getCurrentDatabase().getCurrentTable();
     private String message;
 
     private int columnCount;
     private ObservableList<ObservableList<Object>> data = FXCollections.observableArrayList();
 
-    public SelectData(VFController vf, String message) {
-        this.vf = vf;
+    public SelectData(VFController vfc, String message) {
+        this.vfc = vfc;
         this.message = message;
     }
 
     @Override
     public void beforeQuery() {
-        vf.getTable().getItems().clear();
+        vfc.getTable().getItems().clear();
         columnCount = MSQL.getColumns().length;
     }
 
@@ -47,9 +48,9 @@ public class SelectData implements IActions {
     public void setData(ResultSet rs, int rowN) throws SQLException {
         ObservableList<Object> row = FXCollections.observableArrayList();
         for (int a = 0; a < columnCount; a++) {
-            if (table.getColumns().get(a).getType().contains("CHAR")) {
+            if (currentTable.getColumns().get(a).getType().contains("CHAR")) {
                 row.add(rs.getString((a + 1)));
-            } else if (table.getColumns().get(a).getType().contains("INT")) {
+            } else if (currentTable.getColumns().get(a).getType().contains("INT")) {
                 row.add(rs.getInt((a + 1)));
             }
 
@@ -61,9 +62,9 @@ public class SelectData implements IActions {
     @Override
     public void afterQuery(String query, boolean rsValue) {
         if (rsValue) {
-            vf.getTable().setItems(data);
+            vfc.getTable().setItems(data);
             if (message != null) {
-                vf.getLbStatus().setText(message, NonCSS.TEXT_FILL_OK, Duration.seconds(2));
+                vfc.getLbStatus().setText(message, NonCSS.TEXT_FILL_OK, Duration.seconds(2));
 
                 Media media;
                 MediaPlayer mediaPlayer;

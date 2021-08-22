@@ -20,13 +20,18 @@ public class ShowTablesRootConfig implements IActions{
         if(table.equalsIgnoreCase(MSQL.TABLE_DEFAULT_USER)){
             MSQL.setTableDefaultUserExist(true);
         }
-        
+        if(table.equalsIgnoreCase(MSQL.TABLE_USERS)){
+            MSQL.setTableUsersExist(true);
+        }
+        if(table.equalsIgnoreCase(MSQL.TABLE_DATABASES)){
+            MSQL.setTableDatabasesExist(true);
+        }
     }
 
     @Override
     public void afterQuery(String query, boolean rsValue) {
         if(!rsValue){
-            MSQL.setTableDefaultUserExist(false);
+            MSQL.setTableDefaultUserExist(false);//UNNECESSARY?
         }
         
     }

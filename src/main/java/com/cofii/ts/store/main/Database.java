@@ -3,17 +3,53 @@ package com.cofii.ts.store.main;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Database {
+import com.cofii2.xml.ResourceXML;
 
-    private static Database instance;
-    public static Database getInstance(){
-        if(instance == null){
-            instance = new Database();
-        }
-        return instance;
-    }
+import org.w3c.dom.Element;
+
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ObservableValue;
+
+public class Database {
     
-    private List<Table> tables = new ArrayList<>();
+    private int id;
+    private String name;
+
+    private static final List<Table> tables = new ArrayList<>();
+    private Table currentTable;
+
+    private static ObjectProperty<Table> defaultTableProperty = new SimpleObjectProperty<>(null);
+    //INIT------------------------------------------
+    public static void readDefaultTable() {
+        new ResourceXML(Users.DEFAULT_RESOURCE, ResourceXML.UPDATE_XML, doc -> {
+            Element currentUserElement = (Element) doc.getDocumentElement().getElementsByTagName("defaultUser").item(0);
+
+            String defaultTableName = currentUserElement.getElementsByTagName("table").item(0).getAttributes().item(0)
+            .getTextContent();
+            setDefaultTableByName(defaultTableName);
+            
+            return doc;
+        });
+    }
+
+    private static void defaultTableChange(ObservableValue<? extends Table> obs, Table oldValue, Table newValue) {
+        new ResourceXML(Users.DEFAULT_RESOURCE, ResourceXML.UPDATE_XML, doc -> {
+            Element currentUserElement = (Element) doc.getDocumentElement().getElementsByTagName("defaultUser").item(0);
+
+            String defaultTableName = newValue.getName();
+            currentUserElement.getElementsByTagName("table").item(0).getAttributes().item(0)
+                    .setTextContent(defaultTableName);
+            return doc;
+        });
+    }
+
+    public Database(int id, String name){
+        this.id = id;
+        this.name = name;
+
+    }
+
     //------------------------------------------
     public void addTable(Table table){
         tables.add(table);
@@ -27,19 +63,70 @@ public class Database {
         return tables.size();
     }
     //------------------------------------------
-    public String getTable(int index){
+    public static boolean setDefaultTableByName(String name){
+        Table[] tablesResult = tables.stream().filter(t -> t.getName().equals(name)).toArray(size -> new Table[size]);
+        if(tablesResult.length > 0){
+            Database.defaultTableProperty.setValue(tablesResult[0]);
+            return true;
+        }else{
+            return false;
+        }
+    }
+    public boolean setCurrentTableByName(String name){
+        Table[] tablesResult = tables.stream().filter(t -> t.getName().equals(name)).toArray(size -> new Table[size]);
+        if(tablesResult.length > 0){
+            this.currentTable = tablesResult[0];
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+    public String getTableName(int index){
         return tables.get(index).getName();
     }
+
+    public Table getTable(int id){
+        return tables.stream().filter(t -> t.getId() == id).toArray(size -> new Table[size])[0];
+    }
+    public Table getTable(String name){
+        return tables.stream().filter(t -> t.getName().equals(name)).toArray(size -> new Table[size])[0];
+    }
     
-    public String[] getTables(){
+    public String[] getTablesNames(){
         List<String> list = new ArrayList<>();
         for(Table table : tables){
             list.add(table.getName());
         }
         return list.toArray(new String[list.size()]);
     }
-    //------------------------------------------
-    private Database(){
-
+    //GETTERS & SETTERS------------------------------------------
+    public String getName() {
+        return name;
     }
+    public void setName(String name) {
+        this.name = name;
+    }
+    public Table getCurrentTable() {
+        return currentTable;
+    }
+    public void setCurrentTable(Table currentTable) {
+        this.currentTable = currentTable;
+    }
+    public int getId() {
+        return id;
+    }
+    public void setId(int id) {
+        this.id = id;
+    }
+    public static Table getDefaultTable() {
+        return defaultTableProperty.getValue();
+    }
+    public static void setDefaultTable(Table defaultTable) {
+        Database.defaultTableProperty.setValue(defaultTable);
+    }
+    public static List<Table> getTables() {
+        return tables;
+    }
+    
 }

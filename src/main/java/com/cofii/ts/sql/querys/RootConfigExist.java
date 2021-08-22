@@ -8,17 +8,17 @@ import com.cofii.ts.sql.MSQL;
 import com.cofii2.methods.MList;
 import com.cofii2.myInterfaces.IActions;
 
-public class ShowDatabases implements IActions {
+public class RootConfigExist implements IActions {
 
-    private VLController c;
+    private VLController vlc;
 
-    public ShowDatabases(VLController c){
-        this.c = c;
+    public RootConfigExist(VLController vlc){
+        this.vlc = vlc;
     }
 
     @Override
     public void beforeQuery() {
-        c.getCbDB().getItems().clear();
+        //vlc.getTfDBAC().clearItems();
     }
 
     @Override
@@ -28,18 +28,14 @@ public class ShowDatabases implements IActions {
         if (db.equalsIgnoreCase(MSQL.ROOT_DB)) {
             MSQL.setDbRootconfigExist(true);
         }
-        //ADD TO CBDB
-        if(!MList.isOnThisList(MSQL.BAND_DB, db, false)){
-
-            c.getCbDB().getItems().add(db);
-        }
     }
 
     @Override
     public void afterQuery(String query, boolean rsValue) {
         if(rsValue){
-            c.getCbDB().getSelectionModel().select(0);
-            MSQL.setDatabases(c.getCbDB().getItems().toArray(new String[c.getCbDB().getItems().size()]));
+            //vlc.getTfDBAC().getLv().getSelectionModel().select(0);
+            //MSQL.setDatabases(vlc.getTfDB().getItems().toArray(new String[vlc.getTfDB().getItems().size()]));
+            //MSQL.setDatabases(vlc.getTfDBAC().getLv().getItems().toArray(new String[vlc.getTfDBAC().getLv().getItems().size()]));
         }
     }
 

@@ -144,6 +144,10 @@
 .label{
     -fx-text-fill: -fx-label-text-fill-color;
 }
+
+.check-box{
+    -fx-text-fill: -fx-label-text-fill-color;
+}
 .text-field{
     -fx-background-color: -fx-textfield-background-color;
     background-color: -fx-textfield-background-color;
@@ -155,21 +159,45 @@
     background-color: -fx-table-row-cell-selected-background-color;
     -fx-text-fill: white;
 }
+.disableItem:filled:selected:focused, .disableItem:filled:selected {
+    -fx-background-color: -fx-table-row-cell-selected-background-color;
+    background-color: -fx-table-row-cell-selected-background-color;
+    -fx-text-fill: rgba(128, 128, 128, 0.507);
+}
+
 .list-cell:even {
     -fx-background-color: -fx-table-row-cell-background-color;
     background-color: -fx-table-row-cell-background-color;
     -fx-text-fill: white;
 }
+.disableItem:even {
+    -fx-background-color: -fx-table-row-cell-background-color;
+    background-color: -fx-table-row-cell-background-color;
+    -fx-text-fill: rgba(128, 128, 128, 0.507);
+}
+
 .list-cell:odd {
     -fx-background-color: -fx-table-row-cell-odd-background-color;
     background-color: -fx-table-row-cell-odd-background-color;
     -fx-text-fill: white;
 }
+.disableItem:odd {
+    -fx-background-color: -fx-table-row-cell-odd-background-color;
+    background-color: -fx-table-row-cell-odd-background-color;
+    -fx-text-fill: rgba(128, 128, 128, 0.507);
+}
+
 .list-cell:filled:hover {
     -fx-background-color: -fx-table-row-cell-selected-background-color;
     background-color: -fx-table-row-cell-selected-background-color;
     -fx-text-fill: white;
 }
+.disableItem:filled:hover {
+    -fx-background-color: -fx-table-row-cell-selected-background-color;
+    background-color: -fx-table-row-cell-selected-background-color;
+    -fx-text-fill: rgba(128, 128, 128, 0.507);
+}
+
 .combo-box-base {
     /*
     -fx-background-color: transparent;
@@ -305,6 +333,22 @@
     -fx-background-color: #9c2f27;
     background-color: #9c2f27;
     -fx-text-fill: white;
+}
+#disableCell{
+    -fx-text-fill: rgba(128, 128, 128, 0.418);
+}
+/*VL ID*/
+.buttonQueryAction{
+    -fx-background-color: #26d113bc;
+    background-color:#26d113bc;
+}
+.buttonQueryAction:pressed{
+    -fx-background-color: #26d113;
+    background-color:#26d113;
+}
+.headerBarPopupKV{
+    -fx-background-color: #160f72;
+    background-color: #160f72;
 }
 /*VC ID---------------------------*/
 #hbTop{

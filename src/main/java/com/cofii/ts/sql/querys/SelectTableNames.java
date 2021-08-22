@@ -3,9 +3,12 @@ package com.cofii.ts.sql.querys;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import com.cofii.ts.first.VF;
+import com.cofii.ts.first.VFController;
 import com.cofii.ts.sql.MSQL;
 import com.cofii.ts.store.main.Database;
 import com.cofii.ts.store.main.Table;
+import com.cofii.ts.store.main.Users;
 import com.cofii2.myInterfaces.IActions;
 
 /**
@@ -13,34 +16,49 @@ import com.cofii2.myInterfaces.IActions;
  */
 public class SelectTableNames implements IActions {
 
-    private Database tables = Database.getInstance();
+    private Database currentDatabase = Users.getInstance().getCurrenUser().getCurrentDatabase();
     private boolean selectTable;
+    private VFController vfc;
 
     public SelectTableNames(boolean selectTable) {
         this.selectTable = selectTable;
     }
 
+    public SelectTableNames(boolean selectTable, VFController vfc) {
+        this.selectTable = selectTable;
+        this.vfc = vfc;
+    }
+
     @Override
     public void beforeQuery() {
-        tables.clearTables();
+        if (!selectTable) {
+            currentDatabase.clearTables();
+        }
     }
 
     @Override
     public void setData(ResultSet rs, int row) throws SQLException {
-        Table table = new Table(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5));
-        tables.addTable(table);
-        
+        Table table = new Table(rs.getInt(1), rs.getString(2).replace(" ", "_"), rs.getString(3), rs.getString(4),
+                rs.getString(5));
+
         if (selectTable) {
-            MSQL.setCurrentTable(table);
+            Users.getInstance().getCurrenUser().getCurrentDatabase().setCurrentTable(table);
+        } else {
+            currentDatabase.addTable(table);
         }
     }
 
     @Override
     public void afterQuery(String query, boolean rsValue) {
-        if (rsValue) {
-            MSQL.setTablesOnTableNames(true);
+        if (vfc != null) {
+            if (rsValue) {
+                MSQL.setTablesOnTableNames(true);// DELETE
+                vfc.getTfTable().setPromptText("select a table");
+            } else {
+                vfc.getTfTable().setPromptText("no tables found");
+                vfc.getVf().setNoTablesForCurrentDatabase(true);
+            }
         }
-
     }
 
 }
