@@ -142,9 +142,9 @@ public class VF {
             }
             // TABLE SELECT-----------------------------------
             if (currentDatabase.getCurrentTable() != null) {
-                databaseName = currentDatabase.getName();
                 String tableName = currentDatabase.getCurrentTable().getName();
-
+                vfc.selectionForEachTable(tableName);
+                /*
                 vfc.getLbDatabaseTable().setText(databaseName + "." + tableName);
                 vfc.getLbDatabaseTable().setTooltip(new Tooltip(vfc.getLbDatabaseTable().getText()));
                 vfc.getLbDatabaseTable().getTooltip().setShowDelay(Duration.ZERO);
@@ -153,6 +153,7 @@ public class VF {
                 ms.selectKeys(Users.getInstance().getCurrenUser().getDatabasesNames(), new SelectKeys(vfc));
                 dist.distStart();
                 ms.selectData(tableName.replace(" ", "_"), new SelectData(vfc, null));
+                */
             } else {
                 vfc.clearCurrentTableView();
             }

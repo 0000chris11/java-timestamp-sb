@@ -328,13 +328,18 @@ public class VCController implements Initializable {
         return sb.length() == 0 ? "NONE" : sb.deleteCharAt(sb.length() - 1).toString();
     }
 
-    private String getDistFromUpdateTable() {
+    private String getDistFromUpdateTable(int newColumnIndex, String newColumnName) {
+        System.out.println("TEST updateTable.getColumns().size(): " + updateTable.getColumns().size());
         StringBuilder sb = new StringBuilder();
         int[] indexs = { 0 };
         updateTable.getDists().forEach(s -> {
             boolean dist = s == null ? false : s;
             if (dist) {
-                sb.append(updateTable.getColumns().get(indexs[0]).replace(" ", "_")).append(",");
+                if (indexs[0] != newColumnIndex) {
+                    sb.append(updateTable.getColumns().get(indexs[0]).replace(" ", "_")).append(",");
+                }else{
+                    sb.append(newColumnName.replace(" ", "_")).append(",");
+                }
             }
             indexs[0]++;
         });
@@ -818,9 +823,10 @@ public class VCController implements Initializable {
         }
         // ADD DIST---------------------
         boolean addDist = true;
-        String dist = getDistFromUpdateTable();
+        String dist = getDistFromUpdateTable(index, column);
         if (btnsDist.get(index).isSelected()) {
             updateTable.getDists().set(index, true);
+            dist = getDistFromUpdateTable(index, column);
             addDist = ms.updateRow(MSQL.TABLE_NAMES, "Name", tableName.replace("_", " "), "Dist1", dist);
         }
 
@@ -838,7 +844,7 @@ public class VCController implements Initializable {
             exitColumnAddState(index);
 
             lbStatus.setText("Added column '" + column + "' to '" + currentTable.getName() + "'", NonCSS.TEXT_FILL_OK,
-                    Duration.seconds(2));
+                    Duration.seconds(4));
             System.out.println("\tSUCCES");
         } else {
             lbStatus.setText("Couldn't add column '" + column + "'", NonCSS.TEXT_FILL_ERROR);

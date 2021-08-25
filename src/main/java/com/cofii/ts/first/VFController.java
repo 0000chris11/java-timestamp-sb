@@ -165,21 +165,21 @@ public class VFController implements Initializable {
         for (int a = 0; a < length; a++) {
             // MISING FOR PRIMARY KEY
             en.forTFS(tfs[a], a);
-            //WHEN TEXTAREAS ARE IMPLEMENTED
-            //en.forTAS(tfa, a);
+            // WHEN TEXTAREAS ARE IMPLEMENTED
+            // en.forTAS(tfa, a);
 
             en.either(a);
         }
     }
 
-    //NOT FINISH
+    // NOT FINISH
     private void forEachAction2(ActionForEachNode en) {
         currentTable = Users.getInstance().getCurrenUser().getCurrentDatabase().getCurrentTable();
         for (int a = 0; a < currentTable.getColumns().size(); a++) {
-            
+
             en.forTFS(tfs[a], a);
-            //WHEN TEXTAREAS ARE IMPLEMENTED
-            //en.forTAS(tfa, a);
+            // WHEN TEXTAREAS ARE IMPLEMENTED
+            // en.forTAS(tfa, a);
 
             en.either(a);
         }
@@ -262,7 +262,7 @@ public class VFController implements Initializable {
         }
     }
 
-    private void selectionForEachTable(String newValue) {
+    public void selectionForEachTable(String newValue) {
         System.out.println(CC.CYAN + "\nCHANGE TABLE" + CC.RESET);
         Database currenDatabase = Users.getInstance().getCurrenUser().getCurrentDatabase();
         currentTable = currenDatabase.getCurrentTable();
@@ -270,22 +270,23 @@ public class VFController implements Initializable {
 
         if (tableMatch) {
             // RESET NODES ---------------------------------
-            for (int a = 0; a < MSQL.MAX_COLUMNS; a++) {
-                if (lbs[a].isVisible()) {
-                    lbs[a].setVisible(false);
-
-                    // if (Boolean.TRUE.equals(currentTable.getDistList().get(a))
-                    // || FKS.getInstance().getYesAndNoFKS()[a].equals("Yes")) {// RESETING DIST
-                    tfsAutoC.get(a).setTfParent(null);
-                    tfs[a].setStyle(CSS.TFS_DEFAULT_LOOK);
-                    // }
-                    tfs[a].setVisible(false);
-                    btns[a].setVisible(false);
-
-                    tfs[a].setText("");
-                }
-            }
             tfsFKList.forEach(List::clear);
+
+            for (int a = 0; a < MSQL.MAX_COLUMNS; a++) {
+                lbs[a].setVisible(false);
+
+                // if (Boolean.TRUE.equals(currentTable.getDistList().get(a))
+                // || FKS.getInstance().getYesAndNoFKS()[a].equals("Yes")) {// RESETING DIST
+                tfsAutoC.get(a).setTfParent(null);
+                tfs[a].setStyle(CSS.TFS_DEFAULT_LOOK);
+                // }
+                tfs[a].setVisible(false);
+                btns[a].setVisible(false);
+
+                tfs[a].setText("");
+
+            }
+
             Arrays.asList(btns).forEach(btn -> btn.setSelected(true));
             selectedRow = null;
 
@@ -293,6 +294,7 @@ public class VFController implements Initializable {
             btnAdd.setDisable(false);
 
             tfTableAutoC.getDisableItems().clear();
+
             // ---------------------------------------
             currenDatabase.setCurrentTable(currenDatabase.getTable(newValue));
 
@@ -302,14 +304,18 @@ public class VFController implements Initializable {
 
             lbDatabaseTable.setText(databaseName + "." + tableName);
             lbDatabaseTable.setTooltip(new Tooltip(lbDatabaseTable.getText()));
+            lbDatabaseTable.getTooltip().setShowDelay(Duration.ZERO);
 
             tfTableAutoC.getDisableItems().add(tableName);
             // tfTableAutoC.getLv().getSelectionModel().clearSelection();
             // SELECT -------------------------------------
+
             String tableA = tableName.replace(" ", "_");
             ms.selectDataWhere(MSQL.TABLE_NAMES, "name", tableName, new SelectTableNames(true));
             ms.selectColumns(tableA, new ShowColumns(this));
+
             Menus.getInstance(this).resetKeys();
+
             System.out.println("\tMSQL's table: " + currentTable.getId() + " - " + currentTable.getName() + " - "
                     + currentTable.getDist());
 
@@ -463,13 +469,13 @@ public class VFController implements Initializable {
         GetNodesValuesImpl gn = new GetNodesValuesImpl(newValues);
         forEachAction(length, gn);
 
-        //UPDATE QUERY-------------------------------------
+        // UPDATE QUERY-------------------------------------
         boolean returnValue = ms.updateRow(tableName, selectedRow, gn.getValues());
         if (returnValue) {
             ms.selectData(tableName, new SelectData(this, SelectData.MESSAGE_UPDATED_ROW + tableName));
             dist.distAction();
 
-            if(User.getUpdateClear()){
+            if (User.getUpdateClear()) {
                 ClearNodesDisplayed clearNodes = new ClearNodesDisplayed();
                 forEachAction(length, clearNodes);
             }
@@ -501,7 +507,7 @@ public class VFController implements Initializable {
             System.out.println("\tData too long");
             lbStatus.setText(e.getMessage(), NonCSS.TEXT_FILL_ERROR, Duration.seconds(2));
         });
-        //UPDATE QUERY-------------------------
+        // UPDATE QUERY-------------------------
         boolean update = ms.insert(tableName, gn.getValues());
         if (update) {
             ms.selectData(tableName, new SelectData(this, SelectData.MESSAGE_INSERT + tableName));
