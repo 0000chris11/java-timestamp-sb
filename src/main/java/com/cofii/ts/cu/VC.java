@@ -84,7 +84,10 @@ public class VC {
         }
         vcc.btnAddRemoveColumnInit();
         // LEFT-BOTTOM------------------------------------------------
-        vcc.getHbLeftUpdate().setDisable(true);
+        vcc.getBtnUpdatePK().setDisable(true);
+        vcc.getBtnUpdateFK().setDisable(true);
+        vcc.getBtnUpdateExtra().setDisable(true);
+        vcc.getBtnUpdateDist().setDisable(true);
         /*
         vcc.getBtnUpdatePK().setDisable(true);
         vcc.getBtnUpdateFK().setDisable(true);

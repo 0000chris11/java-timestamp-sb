@@ -22,7 +22,6 @@ import com.cofii.ts.other.NonCSS;
 import com.cofii.ts.other.Timers;
 import com.cofii.ts.sql.CurrenConnection;
 import com.cofii.ts.sql.MSQL;
-import com.cofii.ts.store.FK;
 import com.cofii.ts.store.FKS;
 import com.cofii.ts.store.PK;
 import com.cofii.ts.store.PKS;
@@ -116,7 +115,7 @@ public class VCController implements Initializable {
     @FXML
     private Label lbhDist;
     @FXML
-    private Label lbhImageC;
+    private Label lbhTextArea;
     // TOP--------------------------------------------------
     @FXML
     private HBox hbTop;
@@ -128,15 +127,12 @@ public class VCController implements Initializable {
     private Button btnRenameTable;
     // LEFT---------------------------------------------
     @FXML
-    private ScrollPane spGridPaneLeft;
+    private ScrollPane scGridPane;
     @FXML
-    private GridPane gridPaneLeft;
-    // LEFT-BOTTOM----------------------------------------
+    private GridPane gridPane;
+    // BOTTOM----------------------------------------
     @FXML
-    private HBox hbLeftUpdate;
-
-    @FXML
-    private Label lbUpdateLeft;
+    private Label lbUpdate;
     @FXML
     private Button btnUpdatePK;
     @FXML
@@ -145,19 +141,16 @@ public class VCController implements Initializable {
     private Button btnUpdateExtra;
     @FXML
     private Button btnUpdateDist;
+
+    @FXML
+    private Button btnSelectImageC;
     // RIGHT---------------------------------------------
     @FXML
     private ScrollPane spGridPaneRight;
     @FXML
     private GridPane gridPaneRight;
     // RIGHT-BOTTOM-------------------------------------
-    @FXML
-    private HBox hbRightUpdate;
-
-    @FXML
-    private TextField tfImageCPath;
-    @FXML
-    private Button btnSelectImageC;
+    
     @FXML
     private Button btnUpdateImageC;
     // BOTTOM------------------------------------------
@@ -337,7 +330,7 @@ public class VCController implements Initializable {
             if (dist) {
                 if (indexs[0] != newColumnIndex) {
                     sb.append(updateTable.getColumns().get(indexs[0]).replace(" ", "_")).append(",");
-                }else{
+                } else {
                     sb.append(newColumnName.replace(" ", "_")).append(",");
                 }
             }
@@ -604,14 +597,14 @@ public class VCController implements Initializable {
         btnsAddColumn.get(index).setVisible(true);
         btnsRemoveColumn.get(index).setVisible(true);
         // --------------------------------------------------
-        gridPaneLeft.add(hbsN.get(index), 0, row);
-        gridPaneLeft.add(hbsName.get(index), 1, row);
-        gridPaneLeft.add(hbsType.get(index), 2, row);
-        gridPaneLeft.add(hbsNull.get(index), 3, row);
-        gridPaneLeft.add(hbsPK.get(index), 4, row);
-        gridPaneLeft.add(hbsFK.get(index), 5, row);
-        gridPaneLeft.add(hbsDefault.get(index), 6, row);
-        gridPaneLeft.add(hbsExtra.get(index), 7, row);
+        gridPane.add(hbsN.get(index), 0, row);
+        gridPane.add(hbsName.get(index), 1, row);
+        gridPane.add(hbsType.get(index), 2, row);
+        gridPane.add(hbsNull.get(index), 3, row);
+        gridPane.add(hbsPK.get(index), 4, row);
+        gridPane.add(hbsFK.get(index), 5, row);
+        gridPane.add(hbsDefault.get(index), 6, row);
+        gridPane.add(hbsExtra.get(index), 7, row);
 
         // NO IDEA WHY CKS ARE NOT VISIBLE
         cksNull.get(index).setVisible(true);
@@ -638,8 +631,8 @@ public class VCController implements Initializable {
         btnsAddColumn.get(index - 1).setVisible(true);
         btnsRemoveColumn.get(index - 1).setVisible(true);
         // ---------------------------------------------------------
-        gridPaneLeft.getChildren().removeAll(hbsN.get(index), hbsName.get(index), hbsType.get(index),
-                hbsNull.get(index), hbsPK.get(index), hbsFK.get(index), hbsDefault.get(index), hbsExtra.get(index));
+        gridPane.getChildren().removeAll(hbsN.get(index), hbsName.get(index), hbsType.get(index), hbsNull.get(index),
+                hbsPK.get(index), hbsFK.get(index), hbsDefault.get(index), hbsExtra.get(index));
 
         gridPaneRight.getChildren().removeAll(btnsDist.get(index), btnsImageC.get(index));
         // ---------------------------------------------------------
@@ -666,7 +659,7 @@ public class VCController implements Initializable {
         // REMOVING-------------------------
         for (int a = 0; a < currentRowLength; a++) {// SKIP THE ONE ADDED
             if (index + 1 != a) {
-                gridPaneLeft.getChildren().removeAll(hbsN.get(a), hbsName.get(a), hbsType.get(a), hbsNull.get(a),
+                gridPane.getChildren().removeAll(hbsN.get(a), hbsName.get(a), hbsType.get(a), hbsNull.get(a),
                         hbsPK.get(a), hbsFK.get(a), hbsDefault.get(a), hbsExtra.get(a));
 
                 gridPaneRight.getChildren().removeAll(btnsDist.get(a), btnsImageC.get(a));
@@ -675,14 +668,14 @@ public class VCController implements Initializable {
         // ADDING-------------------------
         for (int a = 0; a < currentRowLength; a++) {
             int row = a + 1;
-            gridPaneLeft.add(hbsN.get(a), 0, row);
-            gridPaneLeft.add(hbsName.get(a), 1, row);
-            gridPaneLeft.add(hbsType.get(a), 2, row);
-            gridPaneLeft.add(hbsNull.get(a), 3, row);
-            gridPaneLeft.add(hbsPK.get(a), 4, row);
-            gridPaneLeft.add(hbsFK.get(a), 5, row);
-            gridPaneLeft.add(hbsDefault.get(a), 6, row);
-            gridPaneLeft.add(hbsExtra.get(a), 7, row);
+            gridPane.add(hbsN.get(a), 0, row);
+            gridPane.add(hbsName.get(a), 1, row);
+            gridPane.add(hbsType.get(a), 2, row);
+            gridPane.add(hbsNull.get(a), 3, row);
+            gridPane.add(hbsPK.get(a), 4, row);
+            gridPane.add(hbsFK.get(a), 5, row);
+            gridPane.add(hbsDefault.get(a), 6, row);
+            gridPane.add(hbsExtra.get(a), 7, row);
 
             gridPaneRight.add(btnsDist.get(a), 0, row);
             gridPaneRight.add(btnsImageC.get(a), 1, row);
@@ -693,8 +686,8 @@ public class VCController implements Initializable {
     private void updateRemoveVisible(int index) {
         // REMOVING ROWS-------------------------
         for (int a = 0; a < currentRowLength; a++) {// SKIP THE ONE ADDED
-            gridPaneLeft.getChildren().removeAll(hbsN.get(a), hbsName.get(a), hbsType.get(a), hbsNull.get(a),
-                    hbsPK.get(a), hbsFK.get(a), hbsDefault.get(a), hbsExtra.get(a));
+            gridPane.getChildren().removeAll(hbsN.get(a), hbsName.get(a), hbsType.get(a), hbsNull.get(a), hbsPK.get(a),
+                    hbsFK.get(a), hbsDefault.get(a), hbsExtra.get(a));
 
             gridPaneRight.getChildren().removeAll(btnsDist.get(a), btnsImageC.get(a));
         }
@@ -751,14 +744,14 @@ public class VCController implements Initializable {
         // ADDING-------------------------
         for (int a = 0; a < currentRowLength; a++) {
             int row = a + 1;
-            gridPaneLeft.add(hbsN.get(a), 0, row);
-            gridPaneLeft.add(hbsName.get(a), 1, row);
-            gridPaneLeft.add(hbsType.get(a), 2, row);
-            gridPaneLeft.add(hbsNull.get(a), 3, row);
-            gridPaneLeft.add(hbsPK.get(a), 4, row);
-            gridPaneLeft.add(hbsFK.get(a), 5, row);
-            gridPaneLeft.add(hbsDefault.get(a), 6, row);
-            gridPaneLeft.add(hbsExtra.get(a), 7, row);
+            gridPane.add(hbsN.get(a), 0, row);
+            gridPane.add(hbsName.get(a), 1, row);
+            gridPane.add(hbsType.get(a), 2, row);
+            gridPane.add(hbsNull.get(a), 3, row);
+            gridPane.add(hbsPK.get(a), 4, row);
+            gridPane.add(hbsFK.get(a), 5, row);
+            gridPane.add(hbsDefault.get(a), 6, row);
+            gridPane.add(hbsExtra.get(a), 7, row);
 
             gridPaneRight.add(btnsDist.get(a), 0, row);
             gridPaneRight.add(btnsImageC.get(a), 1, row);
@@ -965,8 +958,10 @@ public class VCController implements Initializable {
             btnsDist.get(a).setDisable(false);
             btnsImageC.get(a).setDisable(false);
         }
-        hbLeftUpdate.setDisable(false);
-        hbRightUpdate.setDisable(false);
+        btnUpdatePK.setDisable(false);
+        btnUpdateFK.setDisable(false);
+        btnUpdateExtra.setDisable(false);
+        btnUpdateDist.setDisable(false);
     }
 
     private void removeIndexUpdateTable(int index) {
@@ -2423,7 +2418,10 @@ public class VCController implements Initializable {
             cksDefault.get(index).setStyle(CSS.CKS_BG);
 
             hbTop.setDisable(true);
-            hbLeftUpdate.setDisable(true);
+            btnUpdatePK.setDisable(true);
+            btnUpdateFK.setDisable(true);
+            btnUpdateExtra.setDisable(true);
+            btnUpdateDist.setDisable(true);
             // LEFT LISTENERS--------------------------------
             tfsColumn.get(index).setOnKeyReleased(this::tfsColumnsKeyReleased);
             // listColumns.addListener(this::listColumnsChange);
@@ -2448,7 +2446,6 @@ public class VCController implements Initializable {
 
             btnsImageC.get(index).setDisable(true);
 
-            hbRightUpdate.setDisable(true);
             // RIGHT LISTENERS------------------------------
             btnsDist.get(index).setOnAction(this::btnsDistAction);
             btnsImageC.get(index).addEventHandler(ActionEvent.ACTION, this::btnsImageCAction);
@@ -2804,10 +2801,10 @@ public class VCController implements Initializable {
         beforeAfterOptionMenu.addAction(1, e -> updateAddVisible(0));
         beforeAfterOptionTooltip.setShowDelay(Duration.millis(100));
 
-        spGridPaneLeft.setHbarPolicy(ScrollBarPolicy.ALWAYS);
+        scGridPane.setHbarPolicy(ScrollBarPolicy.ALWAYS);
         spGridPaneRight.setHbarPolicy(ScrollBarPolicy.ALWAYS);
         tfImageCPathPopup = new PopupMessage(tfImageCPath);
-        lbUpdateLeft.setDisable(true);
+        lbUpdate.setDisable(true);
         directoryChooser.setTitle("Select Image for a column");
         // TOP-----------------------------------------------
         tfTable.setPromptText("Table name required");
@@ -2837,11 +2834,11 @@ public class VCController implements Initializable {
 
     // -------------------------------------------------------------
     public GridPane getGridPaneLeft() {
-        return gridPaneLeft;
+        return gridPane;
     }
 
     public void setGridPaneLeft(GridPane gridPaneLeft) {
-        this.gridPaneLeft = gridPaneLeft;
+        this.gridPane = gridPaneLeft;
     }
 
     public GridPane getGridPaneRight() {
@@ -3165,11 +3162,11 @@ public class VCController implements Initializable {
     }
 
     public Label getLbUpdateLeft() {
-        return lbUpdateLeft;
+        return lbUpdate;
     }
 
     public void setLbUpdateLeft(Label lbUpdateLeft) {
-        this.lbUpdateLeft = lbUpdateLeft;
+        this.lbUpdate = lbUpdateLeft;
     }
 
     public List<HBox> getHbsN() {
@@ -3210,22 +3207,6 @@ public class VCController implements Initializable {
 
     public Tooltip getBeforeAfterOptionTooltip() {
         return beforeAfterOptionTooltip;
-    }
-
-    public HBox getHbLeftUpdate() {
-        return hbLeftUpdate;
-    }
-
-    public void setHbLeftUpdate(HBox hbLeftUpdate) {
-        this.hbLeftUpdate = hbLeftUpdate;
-    }
-
-    public HBox getHbRightUpdate() {
-        return hbRightUpdate;
-    }
-
-    public void setHbRightUpdate(HBox hbRightUpdate) {
-        this.hbRightUpdate = hbRightUpdate;
     }
 
     public BorderPane getBpMain() {
