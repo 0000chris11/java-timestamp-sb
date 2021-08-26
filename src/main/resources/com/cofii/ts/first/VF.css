@@ -359,3 +359,11 @@
     -fx-background-color: -fx-region-left-background-color;
     background-color: -fx-region-left-background-color;
 }
+/*VG ID-------------------------*/
+#lbGuess{
+    -fx-font-size: 18;
+    font-size: 18;
+
+    -fx-font-style: bold;
+    font-style: bold;
+}

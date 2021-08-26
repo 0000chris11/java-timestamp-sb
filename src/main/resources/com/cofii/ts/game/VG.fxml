@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.text.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+
+
+<VBox fx:id="vboxMain" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="319.0" prefWidth="480.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cofii.ts.game.VGController">
+   <children>
+      <HBox alignment="CENTER">
+         <children>
+            <Label fx:id="lbDatabaseTable" text="Database.Table">
+               <font>
+                  <Font size="21.0" />
+               </font>
+            </Label>
+         </children>
+         <padding>
+            <Insets bottom="4.0" left="10.0" right="10.0" top="20.0" />
+         </padding>
+      </HBox>
+      <HBox spacing="10.0" VBox.vgrow="NEVER">
+         <children>
+            <Region HBox.hgrow="ALWAYS" />
+            <VBox HBox.hgrow="NEVER">
+               <children>
+                  <Label fx:id="lbGuessColumn" text="Guess this Column" />
+                  <TextField fx:id="tfGuessColumn" prefWidth="160.0" />
+               </children>
+            </VBox>
+            <Region />
+            <VBox HBox.hgrow="NEVER">
+               <children>
+                  <Label fx:id="lbAnswerColumn" text="Answer Column" />
+                  <TextField fx:id="tfAnswerColumn" prefWidth="160.0" />
+               </children>
+            </VBox>
+            <Region HBox.hgrow="ALWAYS" />
+         </children>
+         <padding>
+            <Insets bottom="16.0" left="10.0" right="10.0" top="10.0" />
+         </padding>
+         <VBox.margin>
+            <Insets />
+         </VBox.margin>
+      </HBox>
+      <TabPane fx:id="tabPane" prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE">
+        <tabs>
+          <Tab fx:id="tabStart" text="Start">
+               <content>
+                  <VBox fx:id="vboxStart" alignment="CENTER" prefHeight="200.0" prefWidth="100.0">
+                     <children>
+                        <Button fx:id="btnStart" disable="true" mnemonicParsing="false" text="Start Game">
+                           <font>
+                              <Font size="20.0" />
+                           </font>
+                        </Button>
+                     </children>
+                  </VBox>
+               </content>
+            </Tab>
+          <Tab fx:id="tabOptions" text="Options">
+               <content>
+                  <VBox prefHeight="200.0" prefWidth="100.0">
+                     <children>
+                        <HBox fx:id="hbMatch" spacing="10.0">
+                           <children>
+                              <Label fx:id="lbMatch" text="Match" />
+                           </children>
+                           <padding>
+                              <Insets bottom="2.0" left="10.0" right="10.0" top="10.0" />
+                           </padding>
+                        </HBox>
+                        <HBox>
+                           <children>
+                              <ToggleButton fx:id="btnEquals" mnemonicParsing="false" selected="true" text="Equals" />
+                              <ToggleButton fx:id="btnIgnoreCase" mnemonicParsing="false" text="Ignore Case" />
+                              <ToggleButton fx:id="btnContains" mnemonicParsing="false" text="Contains" />
+                           </children>
+                           <padding>
+                              <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                           </padding>
+                        </HBox>
+                     </children>
+                  </VBox>
+               </content>
+            </Tab>
+        </tabs>
+      </TabPane>
+   </children>
+</VBox>

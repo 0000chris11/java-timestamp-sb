@@ -15,6 +15,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
+import com.cofii.ts.cu.store.ICStore;
 import com.cofii.ts.first.VF;
 import com.cofii.ts.first.VFController;
 import com.cofii.ts.other.CSS;
@@ -239,9 +240,9 @@ public class VCController implements Initializable {
     private Database currentDatabse = Users.getInstance().getCurrenUser().getCurrentDatabase();
     private Table currentTable = currentDatabse.getCurrentTable();
     private SQLTypes types = SQLTypes.getInstance();
-    // private Keys keys = Keys.getInstance();
     private PKS pks = PKS.getInstance();
     private FKS fks = FKS.getInstance();
+    private ICStore icStore;
 
     private Timers timers = Timers.getInstance(vf);
     private UpdateTable updateTable;
@@ -1976,6 +1977,7 @@ public class VCController implements Initializable {
         // RIGHT-------------------
         String dist = Custom.getOldDist(currentRowLength, btnsDist.toArray(new ToggleButton[btnsDist.size()]));
         String imageC = getImageCBeforeUpdate();
+
         String imageCPath = Custom.getImageCPath(currentRowLength, tfImageCPath.getText(),
                 btnsImageC.toArray(new ToggleButton[btnsImageC.size()]));
         // ADDING VALUES -------------------------------------------------
@@ -2791,6 +2793,7 @@ public class VCController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        icStore = ICStore.getInstance();
         // NODES------------------------
         presetSomeInit();
         restartNodes(-1);

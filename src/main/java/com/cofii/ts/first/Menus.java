@@ -1,21 +1,17 @@
 package com.cofii.ts.first;
 
 import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.List;
 
 import com.cofii.ts.cu.VC;
 import com.cofii.ts.cu.VCD;
+import com.cofii.ts.cu.VImageC;
+import com.cofii.ts.game.VG;
 import com.cofii.ts.info.VI;
 import com.cofii.ts.options.VO;
 import com.cofii.ts.other.CSS;
-import com.cofii.ts.other.Dist;
 import com.cofii.ts.other.NonCSS;
-import com.cofii.ts.other.Timers;
 import com.cofii.ts.sql.MSQL;
-import com.cofii.ts.sql.querys.SelectData;
 import com.cofii.ts.sql.querys.SelectTableNames;
-import com.cofii.ts.sql.querys.ShowColumns;
 import com.cofii.ts.store.FK;
 import com.cofii.ts.store.FKS;
 import com.cofii.ts.store.PK;
@@ -28,7 +24,6 @@ import com.cofii2.mysql.MSQLP;
 import com.cofii2.stores.CC;
 
 import javafx.event.ActionEvent;
-import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
@@ -39,13 +34,12 @@ public class Menus {
     // Open
     private final MenuItem openChangeUserDB = new MenuItem("Change User or DB");
     private final MenuItem openTableMain = new MenuItem("Open Tables Info");
+    private final MenuItem openGame = new MenuItem("Start game for this table");
     // Options
     private final MenuItem optionsGeneralOptions = new MenuItem("General Options");
     private final MenuItem optionsCreateDatabase = new MenuItem("Create Database");
     private final MenuItem optionsTableInfo = new MenuItem("Current Table Info");
     private final Menu optionsTableOp = new Menu("Options");
-    private final CheckMenuItem optionsTableOpClearValues = new CheckMenuItem("Clear nodes values when a row is deleted");
-    private final CheckMenuItem optionsTableOpReloacImage = new CheckMenuItem("Reload ImageC");
     private final Menu optionsTableChangeDTable = new Menu("Change Default Table");
     private final MenuItem optionsTableCreate = new MenuItem("Create new table");
     private final MenuItem optionsTableUpdate = new MenuItem("Update table");
@@ -56,11 +50,8 @@ public class Menus {
     private Database currentDatabase;
     private Table currentTable;
     // private ColumnDS columnds = ColumnDS.getInstance();
-    private Dist dist = Dist.getInstance(vfc);
     private PKS pks = PKS.getInstance();
     private FKS fks = FKS.getInstance();
-
-    private Timers timers = Timers.getInstance(vfc);
 
     // LISTENERS ---------------------------------------------------
     private void openChangeUserDBAction(ActionEvent e) {
@@ -73,14 +64,12 @@ public class Menus {
 
     private void tableCreateAction(ActionEvent e) {
         new VC(vfc, true);
+        new VImageC();
     }
 
     private void tableUpdateAction(ActionEvent e) {
         new VC(vfc, false);
-    }
-
-    public void selectionForEachTable(ActionEvent e) {
-        
+        new VImageC();
     }
 
     // DELETE---------------------------------------------------
@@ -263,13 +252,14 @@ public class Menus {
     }
 
     private Menus() {
-        vfc.getMenuOpen().getItems().addAll(openChangeUserDB, openTableMain);
+        vfc.getMenuOpen().getItems().addAll(openChangeUserDB, openTableMain, new SeparatorMenuItem(), openGame);
         vfc.getMenuOptions().getItems().addAll(optionsGeneralOptions, new SeparatorMenuItem(), optionsCreateDatabase, new SeparatorMenuItem(), optionsTableInfo, optionsTableOp,
                 new SeparatorMenuItem(), optionsTableChangeDTable, new SeparatorMenuItem(), optionsTableCreate, optionsTableUpdate,
                 optionsTableDelete, optionsTableDeleteThis);
         // LISTENERS----------------------------------------------
         optionsGeneralOptions.setOnAction(e -> new VO(vfc));
         openChangeUserDB.setOnAction(this::openChangeUserDBAction);
+        openGame.setOnAction(e -> new VG());
 
         optionsCreateDatabase.setOnAction(this::optionsCreateDatabaseAction);
         optionsTableInfo.setOnAction(this::tableInfoAction);
