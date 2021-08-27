@@ -1,6 +1,8 @@
 package com.cofii.ts.game;
 
+import java.io.IOException;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.ResourceBundle;
 
 import com.cofii.ts.store.main.Database;
@@ -10,14 +12,21 @@ import com.cofii2.components.javafx.CustomTransitions;
 import com.cofii2.components.javafx.LabelStatus;
 import com.cofii2.components.javafx.TimeLabel;
 import com.cofii2.components.javafx.popup.PopupAutoC;
+import com.cofii2.methods.MOthers;
+
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
+import javafx.scene.control.SelectionMode;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextField;
@@ -36,7 +45,7 @@ public class VGController implements Initializable {
     @FXML
     private Label lbGuessColumn;
     @FXML
-    private TextField tfGuessColumn;
+    private ListView<ToggleButton> lvGuessColumns;
     private PopupAutoC tfGuessColumnAutoC;
     @FXML
     private Label lbAnswerColumn;
@@ -53,13 +62,22 @@ public class VGController implements Initializable {
     private VBox vboxStart;
     @FXML
     private Button btnStart;
-    //GAME-------------------
+
+    // GAME-------------------
     private TimeLabel lbTimer = new TimeLabel();
+
     private Label lbGuess = new Label();
+    private CustomTransitions lbGuessTransition = new CustomTransitions(lbGuess);
+    private ObservableList<ObservableList<Object>> data;
+
+    private Label lbMessage = new Label();
+    private CustomTransitions lbMessageTransition = new CustomTransitions(lbMessage);
 
     private HBox hboxAnswer;
     private TextField tfAnswer = new TextField();
-    private Button btnAnswer = new Button();
+    private Button btnAnswer = new Button("Submit");
+
+    private Button btnStop = new Button("Stop");
     // OPTIONS----------------------
     @FXML
     private Tab tabOptions;
@@ -78,80 +96,168 @@ public class VGController implements Initializable {
     private LabelStatus lbMainStatus;
     private LabelStatus lbMatchOptionsStatus;
 
-    //CONTROL-------------------------------------------
+    // CONTROL-------------------------------------------
+    private Database currentDatabase;
+    private Table currentTable;
+
     private boolean guessMatch = false;
     private boolean answerMatch = false;
     private boolean matchOptions = true;
 
-    private void btnStartControl(){
-        if(guessMatch && answerMatch && matchOptions){
-            String guessText = tfGuessColumn.getText();
+    private String answer;
+
+    private void btnStartControl() {
+        if (guessMatch && answerMatch && matchOptions) {
             String answerText = tfAnswerColumn.getText();
-            if(!guessText.equals(answerText)){
+            boolean noneMatch = lvGuessColumns.getItems().stream().noneMatch(btn -> btn.getText().equals(answerText));
+            if (noneMatch) {
                 btnStart.setDisable(false);
                 lbMainStatus.reset();
-            }else{
+            } else {
                 btnStart.setDisable(true);
                 lbMainStatus.setText("Column Guess and Answer have to be diferent", Color.RED);
             }
-        }else{
+        } else {
             btnStart.setDisable(true);
             lbMainStatus.setText("Column Guess or Answer are incorrect", Color.RED);
         }
     }
-    //LISTENERS-----------------------------------------
-    private void tfGuessColumnTextProperty(String newValue){
-        guessMatch = tfGuessColumnAutoC.getLvOriginalItems().stream().anyMatch(s -> s.equals(newValue));
-        btnStartControl();
+
+    private void randomStart() {
+        int randomIndex = MOthers.getRandomNumber(1, data.size());
+        ObservableList<Object> randomRow = data.get(randomIndex - 1);
+        String randomGuess = randomRow.get(currentTable.getColumnIndex(lvGuessColumns.getItems().get(0).getText()))
+                .toString();
+        answer = randomRow.get(currentTable.getColumnIndex(tfAnswerColumn.getText())).toString();
+
+        lbGuess.setText(randomGuess);
+        lbGuessTransition.play();
     }
-    private void tfAnswerColumnTextProperty(String newValue){
-        answerMatch = tfGuessColumnAutoC.getLvOriginalItems().stream().anyMatch(s -> s.equals(newValue));
+
+    // LISTENERS-----------------------------------------
+    private void lvSelectedItemsListener() {
+        guessMatch = !lvGuessColumns.getSelectionModel().getSelectedItems().isEmpty();
         btnStartControl();
     }
 
-    private void btnsMatchOptionsAction(ActionEvent e){
+    private void tfAnswerColumnTextProperty(String newValue) {
+        answerMatch = tfAnswerColumnAutoC.getLvOriginalItems().stream().anyMatch(s -> s.equals(newValue));
+        btnStartControl();
+    }
+
+    private void btnsMatchOptionsAction(ActionEvent e) {
         boolean equalsSelected = btnEquals.isSelected();
         boolean ignoreCaseSelected = btnIgnoreCase.isSelected();
         boolean containsSelected = btnContains.isSelected();
 
-        if(!equalsSelected && !ignoreCaseSelected && !containsSelected){
+        if (!equalsSelected && !ignoreCaseSelected && !containsSelected) {
             lbMatchOptionsStatus.setText("At least one option has to be selected", Color.RED);
             matchOptions = false;
-        }else{
+        } else {
             lbMatchOptionsStatus.reset();
             matchOptions = true;
         }
 
         btnStartControl();
     }
-    
-    private void btnStartAction(ActionEvent e){
+
+    private void btnStartAction(ActionEvent e) {
         vboxStart.getChildren().clear();
 
-        vboxStart.getChildren().addAll(lbTimer, lbGuess, hboxAnswer);
+        vboxStart.getChildren().addAll(lbTimer, lbGuess, lbMessage, hboxAnswer, btnStop);
+
+        randomStart();
+
+        lbTimer.start();
     }
 
-    private void btnAnswerAction(ActionEvent e){
-        
+    private void btnAnswerAction(ActionEvent e) {
+        String text = tfAnswer.getText();
+        StringBuilder sb = new StringBuilder();
+
+        boolean correct = false;
+        if (btnEquals.isSelected()) {
+            if (btnIgnoreCase.isSelected()) {
+                if (text.equalsIgnoreCase(answer)) {
+                    sb.append("Equals: Correct!");
+                    correct = true;
+                } else {
+                    sb.append("Equals: Wrong!");
+                }
+            } else {
+                if (text.equals(answer)) {
+                    sb.append("Equals: Correct");
+                    correct = true;
+                } else {
+                    sb.append("Equals: Wrong!");
+                }
+            }
+        }
+
+        if (btnContains.isSelected()) {
+            if (btnIgnoreCase.isSelected()) {
+                answer = answer.toLowerCase();
+                text = text.toLowerCase();
+                if (answer.contains(text)) {
+                    sb.append(" - Contains: Correct!");
+                    correct = true;
+                } else {
+                    sb.append(" - Contains: Wrong!");
+                }
+            } else {
+                if (answer.contains(text)) {
+                    sb.append(" - Contains: Correct");
+                    correct = true;
+                } else {
+                    sb.append(" - Contains: Wrong!");
+                }
+            }
+        }
+
+        String message = sb.toString();
+        if (message.startsWith(" - ")) {
+            message = message.replaceFirst(" - ", "");
+        }
+        lbMessage.setText(message);
+        lbMessageTransition.play();
+
+        if (correct) {
+            randomStart();
+        }
     }
+
+    private void btnStopAction(ActionEvent e) {
+        lbTimer.resetTimer();
+
+        vboxStart.getChildren().clear();
+        vboxStart.getChildren().add(btnStart);
+    }
+
     // INIT----------------------------------------------
-    private void initGameNodes(){
-        CustomTransitions.translateToRightAndFadeIn(lbGuess, Duration.millis(400));
-        CustomTransitions.getFadeTransition().play();
-        CustomTransitions.getTranslateTransition().play();
+    private void initGameNodes() {
+        lbGuess.getStyleClass().add("lbGuess");
+
+        Duration duration = Duration.millis(400);
+        lbGuessTransition.addFadeIn(duration);
+        lbGuessTransition.addTranslateToRight(duration);
+        lbMessageTransition.addFadeIn(duration);
 
         tfAnswer.setPromptText("Type Answer");
 
         btnAnswer.setOnAction(this::btnAnswerAction);
+        btnStop.setOnAction(this::btnStopAction);
 
         hboxAnswer = new HBox(tfAnswer, btnAnswer);
-        hboxAnswer.setPadding(new Insets(6, 10, 10, 10));
+        hboxAnswer.setPrefWidth(-1);
+        hboxAnswer.setPrefHeight(-1);
+        hboxAnswer.setAlignment(Pos.CENTER);
+        hboxAnswer.setPadding(new Insets(10, 0, 10, 0));
         hboxAnswer.setSpacing(6);
     }
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        //NODES---------------------------------
+        // NODES---------------------------------
         lbMainStatus = new LabelStatus(null, LabelStatus.LEFT);
         vboxMain.getChildren().add(2, lbMainStatus);
 
@@ -159,16 +265,24 @@ public class VGController implements Initializable {
         hbMatch.getChildren().add(lbMatchOptionsStatus);
 
         initGameNodes();
-        //-----------------------------------------
-        Database currentDatabase = Users.getInstance().getCurrenUser().getCurrentDatabase();
-        Table currenTable = currentDatabase.getCurrentTable();
-        lbDatabaseTable.setText(currentDatabase.getName() + "." + currenTable.getName());
+        // -----------------------------------------
+        currentDatabase = Users.getInstance().getCurrenUser().getCurrentDatabase();
+        currentTable = currentDatabase.getCurrentTable();
+        lbDatabaseTable.setText(currentDatabase.getName() + "." + currentTable.getName());
 
-        String[] columns = currenTable.getColumnNames().toArray(new String[currenTable.getColumns().size()]);
-        tfGuessColumnAutoC = new PopupAutoC(tfGuessColumn, columns);
+        String[] columns = currentTable.getColumnNames().toArray(new String[currentTable.getColumns().size()]);
+        ToggleButton[] btns = Arrays.asList(columns).stream().map(s -> {
+            ToggleButton toggleButton = new ToggleButton(s);
+            toggleButton.minWidthProperty().bind(lvGuessColumns.widthProperty().subtract(18));
+            return toggleButton;
+        }).toArray(size -> new ToggleButton[size]);
+
+        lvGuessColumns.getItems().addAll(btns);
         tfAnswerColumnAutoC = new PopupAutoC(tfAnswerColumn, columns);
-        //LISTENERS----------------------------------
-        tfGuessColumn.textProperty().addListener((obs, oldValue, newValue) -> tfGuessColumnTextProperty(newValue));
+        // LISTENERS----------------------------------
+        lvGuessColumns.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+        lvGuessColumns.getSelectionModel().selectedItemProperty()
+                .addListener((obs, oldValue, newValue) -> lvSelectedItemsListener());
         tfAnswerColumn.textProperty().addListener((obs, oldValue, newValue) -> tfAnswerColumnTextProperty(newValue));
 
         btnEquals.setOnAction(this::btnsMatchOptionsAction);
@@ -176,6 +290,15 @@ public class VGController implements Initializable {
         btnContains.setOnAction(this::btnsMatchOptionsAction);
 
         btnStart.setOnAction(this::btnStartAction);
+    }
+
+    // --------------------------------------------------
+    public ObservableList<ObservableList<Object>> getData() {
+        return data;
+    }
+
+    public void setData(ObservableList<ObservableList<Object>> data) {
+        this.data = data;
     }
 
 }

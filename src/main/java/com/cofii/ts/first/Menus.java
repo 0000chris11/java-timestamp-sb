@@ -259,7 +259,7 @@ public class Menus {
         // LISTENERS----------------------------------------------
         optionsGeneralOptions.setOnAction(e -> new VO(vfc));
         openChangeUserDB.setOnAction(this::openChangeUserDBAction);
-        openGame.setOnAction(e -> new VG());
+        openGame.setOnAction(e -> new VG(vfc.getTable().getItems()));
 
         optionsCreateDatabase.setOnAction(this::optionsCreateDatabaseAction);
         optionsTableInfo.setOnAction(this::tableInfoAction);
