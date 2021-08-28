@@ -463,7 +463,7 @@ public class VFController implements Initializable {
         currentTable = Users.getInstance().getCurrenUser().getCurrentDatabase().getCurrentTable();
         System.out.println(CC.CYAN + "\nUPDATE ROW" + CC.RESET);
         String tableName = currentTable.getName().replace(" ", "_");
-        int length = MSQL.getColumnsLength();
+        int length = currentTable.getColumns().size();
         Object[] newValues = new Object[length];
 
         GetNodesValuesImpl gn = new GetNodesValuesImpl(newValues);

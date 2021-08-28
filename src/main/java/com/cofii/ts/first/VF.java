@@ -1,36 +1,29 @@
 package com.cofii.ts.first;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.stream.Collector;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 import com.cofii.ts.cu.VCController;
 import com.cofii.ts.login.VLController;
 import com.cofii.ts.other.Dist;
 import com.cofii.ts.other.NonCSS;
 import com.cofii.ts.sql.MSQL;
-import com.cofii.ts.sql.querys.SelectData;
 import com.cofii.ts.sql.querys.SelectDatabases;
-import com.cofii.ts.sql.querys.SelectKeys;
-import com.cofii.ts.sql.querys.SelectTableDefault;
-import com.cofii.ts.sql.querys.ShowColumns;
-import com.cofii.ts.sql.querys.CurrentDatabaseTablesExist;
 import com.cofii.ts.store.main.Database;
+import com.cofii.ts.store.main.Option;
+import com.cofii.ts.store.main.Options;
 import com.cofii.ts.store.main.Table;
 import com.cofii.ts.store.main.User;
 import com.cofii.ts.store.main.Users;
 import com.cofii2.components.javafx.SceneZoom;
-import com.cofii2.components.javafx.popup.PopupAutoC;
 import com.cofii2.mysql.MSQLP;
-import com.cofii2.xml.ResourceXML;
 
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
-import javafx.scene.control.Tooltip;
 import javafx.stage.Stage;
-import javafx.util.Duration;
 
 public class VF {
 
@@ -86,6 +79,35 @@ public class VF {
         }
     }
 
+    // QUERYS-------------------------------------------------
+    private void selectDefaultDatabaseAndTable(ResultSet rs, boolean rsValues, SQLException ex) throws SQLException {
+        if (rsValues) {
+            Users users = Users.getInstance();
+
+            int defaultDatabaseId = rs.getInt(2);
+            String defaultTable = rs.getString(3);
+
+            User.setDefaultDatabaseById(defaultDatabaseId);
+            users.getCurrenUser().setCurrentDatabase(User.getDefaultDatabase());
+
+            ms.use(users.getCurrenUser().getCurrentDatabase().getName());
+
+            Database.setDefaultTableByName(defaultTable);
+            users.getCurrenUser().getCurrentDatabase().setCurrentTable(Database.getDefaultTable());
+        }
+    }
+
+    private void selectCurrentUserDefaultOptions(ResultSet rs, boolean rsValues, SQLException ex) throws SQLException {
+        if(rsValues){
+            int idOption = rs.getInt(2);
+            String userValue = rs.getString(3);
+
+            String optionName = Options.getInstance().getOptionById(idOption).getOptionName();
+            Users.getInstance().getCurrenUser().getOptions().add(new Option(idOption, optionName, userValue));
+            //REPLACE User static options field for this
+        }
+    }
+
     // INIT-----------------------------------------
     /**
      * Does main tables exist (at selected Database level)
@@ -101,15 +123,15 @@ public class VF {
         ms.selectData(MSQL.TABLE_DATABASES, new SelectDatabases(vfc));
         // ----------------------------------------
         if (!noDatabasesForCurrentUser) {
-            // User.startDefaultDatabaseProperty();
             Users users = Users.getInstance();
             if (startFromLogin) {
-                User.readDefaultDatabase();
-                users.getCurrenUser().setCurrentDatabase(User.getDefaultDatabase());
+                // SELECT DEFAULT DATABASE & TABLE--------------------------------
+                int currentUserId = users.getCurrenUser().getId();
+                ms.selectDataWhere(MSQL.TABLE_USER_DEFAULTS, "user_id", currentUserId,
+                        this::selectDefaultDatabaseAndTable);
 
-                ms.use(users.getCurrenUser().getCurrentDatabase().getName());
-
-                User.readDefaultOptions();
+                ms.selectDataWhere(MSQL.TABLE_USER_DEFAULTS_OPTIONS, "user_id", currentUserId,
+                        this::selectCurrentUserDefaultOptions);
             }
 
             String databaseName = users.getCurrenUser().getCurrentDatabase().getName();
@@ -145,15 +167,16 @@ public class VF {
                 String tableName = currentDatabase.getCurrentTable().getName();
                 vfc.selectionForEachTable(tableName);
                 /*
-                vfc.getLbDatabaseTable().setText(databaseName + "." + tableName);
-                vfc.getLbDatabaseTable().setTooltip(new Tooltip(vfc.getLbDatabaseTable().getText()));
-                vfc.getLbDatabaseTable().getTooltip().setShowDelay(Duration.ZERO);
-
-                ms.selectColumns(tableName.replace(" ", "_"), new ShowColumns(vfc));
-                ms.selectKeys(Users.getInstance().getCurrenUser().getDatabasesNames(), new SelectKeys(vfc));
-                dist.distStart();
-                ms.selectData(tableName.replace(" ", "_"), new SelectData(vfc, null));
-                */
+                 * vfc.getLbDatabaseTable().setText(databaseName + "." + tableName);
+                 * vfc.getLbDatabaseTable().setTooltip(new
+                 * Tooltip(vfc.getLbDatabaseTable().getText()));
+                 * vfc.getLbDatabaseTable().getTooltip().setShowDelay(Duration.ZERO);
+                 * 
+                 * ms.selectColumns(tableName.replace(" ", "_"), new ShowColumns(vfc));
+                 * ms.selectKeys(Users.getInstance().getCurrenUser().getDatabasesNames(), new
+                 * SelectKeys(vfc)); dist.distStart(); ms.selectData(tableName.replace(" ",
+                 * "_"), new SelectData(vfc, null));
+                 */
             } else {
                 vfc.clearCurrentTableView();
             }

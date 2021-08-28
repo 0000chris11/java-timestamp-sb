@@ -5,15 +5,15 @@ import java.sql.SQLException;
 
 import com.cofii.ts.first.VF;
 import com.cofii.ts.sql.MSQL;
-import com.cofii.ts.sql.querys.RootConfigExist;
 import com.cofii.ts.sql.querys.ShowUsers;
+import com.cofii.ts.store.main.Option;
+import com.cofii.ts.store.main.Options;
 import com.cofii.ts.store.main.User;
 import com.cofii.ts.store.main.Users;
 import com.cofii2.mysql.DefaultConnection;
 import com.cofii2.mysql.MSQLP;
 import com.cofii2.mysql.RootConfigConnection;
 import com.cofii2.mysql.enums.QueryResult;
-import com.cofii2.xml.ResourceXML;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -25,57 +25,46 @@ public class VL extends Application {
     private VLController vlc;
     private String option = "";
 
-    private boolean tableUsersExist = false;
-    private boolean tableUserDefaultsExist = false;
-    private boolean tableDatabasesExist = false;
-
-    // OLD QUERY REPLACE------------------------------------------
-    private void selectUsers(QueryResult qr) {
-        if (qr.getValue() == QueryResult.VALUES) {
-            vlc.getTfUserAC().clearItems();
-            ResultSet rs = qr.getResultSet();
-            try {
-                while (rs.next()) {
-                    int id = rs.getInt(1);
-                    String user = rs.getString(2);
-
-                    Users.getInstance().addUser(new User(id, user));
-                    vlc.getTfUserAC().addItem(user);
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-
-        } else if (qr.getValue() == QueryResult.EXCEPTION) {
-            qr.getSqlException().printStackTrace();
-        }
-    }
-
-    private void selectTablesOnRootConfig(ResultSet rs, boolean rsValues, SQLException ex) throws SQLException {
+    // QUERY------------------------------------------
+    private void selectUsers(ResultSet rs, boolean rsValues, SQLException ex) throws SQLException {
         if (rsValues) {
-            String tableName = rs.getString(1);
+            vlc.getTfUserAC().clearItems();
 
-            if (tableName.equals(MSQL.TABLE_USERS)) {
-                tableUsersExist = true;
-            }
-            if (tableName.equals(MSQL.TABLE_USER_DEFAULTS)) {
-                tableUserDefaultsExist = true;
-            }
-            if (tableName.equals(MSQL.TABLE_DATABASES)) {
-                tableDatabasesExist = true;
-            }
+            int id = rs.getInt(1);
+            String user = rs.getString(2);
+
+            Users.getInstance().addUser(new User(id, user));
+            vlc.getTfUserAC().addItem(user);
+
+        } else if (ex != null) {
+            ex.printStackTrace();
         }
     }
 
-    // INIT--------------------------------------------------------
+    private void selectOptions(ResultSet rs, boolean rsValues, SQLException ex) throws SQLException{
+        if(rsValues){
+            int id = rs.getInt(1);
+            String optionName = rs.getString(2);
+            String defaultValue = rs.getString(3);
 
-    private void mainRootConfigTables() {
-        MSQLP msInit = new MSQLP(new DefaultConnection());
+            Options.getInstance().getOptionList().add(new Option(id, optionName, defaultValue));
+        }else{
+            //NO OPTIONS ACTION
+        }
+    }
+    // INIT--------------------------------------------------------
+    private void mainRootConfigTablesCreation() {
+        MSQLP msInit = new MSQLP(new DefaultConnection());// FROM mysql DATABASE
         msInit.executeStringUpdate(MSQL.CREATE_DB_ROOTCONFIG);
 
         msInit.executeStringUpdate(MSQL.CREATE_TABLE_USERS);
-        msInit.executeStringUpdate(MSQL.CREATE_TABLE_USERS_DEFAULTS);
+
+        msInit.executeStringUpdate(MSQL.CREATE_TABLE_DEFAULT_USER);
         msInit.executeStringUpdate(MSQL.CREATE_TABLE_DATABASES);
+        msInit.executeStringUpdate(MSQL.CREATE_TABLE_USERS_DEFAULTS);
+
+        msInit.executeStringUpdate(MSQL.CREATE_TABLE_USER_OPTIONS);
+        msInit.executeStringUpdate(MSQL.CREATE_TABLE_USER_DEFAULTS_OPTIONS);
 
         msInit.close();
     }
@@ -97,24 +86,23 @@ public class VL extends Application {
         // AFTER INIT-------------------------------------------------
         vlc = (VLController) loader.getController();
         // QUERYS----------------------------------
-        mainRootConfigTables();
-
+        mainRootConfigTablesCreation();
         MSQLP msRoot = new MSQLP(new RootConfigConnection());
         vlc.setMsRoot(msRoot);
-        Users.getInstance().setMs(msRoot);
         // SELECT USER-----------------------------------
         msRoot.selectData(MSQL.TABLE_USERS, this::selectUsers);
-        // XML DEFAULTS READ --------------------------------
-        // Users.getInstance().startDefaultProperty(msRoot);
-        Users.readDefaultUser();
-        if (Users.getDefaultUser() != null) {
-            Users.getInstance().setCurrentUser(Users.getDefaultUser());
+        // SELECT OPTIONS--------------------------------
+        msRoot.selectData(MSQL.TABLE_USER_OPTIONS, this::selectOptions);
+        // DEFAULT USER --------------------------------
+        Object[] defaultUserArray = msRoot.selectValues(MSQL.TABLE_DEFAULT_USER, "id_user", 1);
+        if (defaultUserArray.length > 0) {
+            User defaultUser = Users.getUser((int) defaultUserArray[0]);
+            Users.setDefaultUser(defaultUser);
+            Users.getInstance().setCurrentUser(defaultUser);
         }
-        // DEFAULT USER------------------------
+        // ------------------------
         boolean showStage = false;
         if (Users.getInstance().getCurrenUser() != null/* || option.equals("login") */) {
-            // vlc.getMsRoot().selectUsers(new ShowUsers(vlc));
-            msRoot.selectData(MSQL.TABLE_USERS, new ShowUsers(vlc));
             showStage = true;
         }
         // ----------------------------------------

@@ -1,5 +1,6 @@
 package com.cofii.ts.first;
 
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import com.cofii.ts.cu.VC;
@@ -53,12 +54,22 @@ public class Menus {
     private PKS pks = PKS.getInstance();
     private FKS fks = FKS.getInstance();
 
+    // QUERYS-----------------------------------------------------
+    private void selectTables(ResultSet rs, boolean rsValues, SQLException ex) throws SQLException {
+        if (rsValues) {
+            Table table = new Table(rs.getInt(1), rs.getString(2).replace(" ", "_"), rs.getString(3), rs.getString(4),
+                    rs.getString(5));
+
+            currentDatabase.addTable(table);
+        }
+    }
+
     // LISTENERS ---------------------------------------------------
     private void openChangeUserDBAction(ActionEvent e) {
         vfc.getVl().getStage().show();
     }
 
-    private void optionsCreateDatabaseAction(ActionEvent e){
+    private void optionsCreateDatabaseAction(ActionEvent e) {
         new VCD(vfc);
     }
 
@@ -129,26 +140,36 @@ public class Menus {
     // ------------------------------------------------------
     public void addTablesToTfTableReset(VFController vfc) {
         currentDatabase = Users.getInstance().getCurrenUser().getCurrentDatabase();
-        vfc.getMs().executeQuery(MSQL.SELECT_TABLE_NAMES, new SelectTableNames(false, vfc));
-        
+        //SELECT TABLES-------------------------------
+        currentDatabase.clearTables();
+        vfc.getMs().selectData(MSQL.TABLE_NAMES, this::selectTables);
+        if (!Database.getTables().isEmpty()) {
+            vfc.getTfTable().setPromptText("select a table");
+        }else{
+            vfc.getTfTable().setPromptText("no tables found");
+            vfc.getVf().setNoTablesForCurrentDatabase(true);
+        }
+        //------------------------------------------------
         vfc.getTfTableAutoC().clearItems();
         if (currentDatabase.size() == 0) {
-            //vfc.getMenuSelection().getItems().clear();
+            // vfc.getMenuSelection().getItems().clear();
             optionsTableDelete.getItems().clear();
-            //vfc.getMenuSelection().getItems().add(new MenuItem("No tables added"));
+            // vfc.getMenuSelection().getItems().add(new MenuItem("No tables added"));
             vfc.getTfTable().setPromptText(VFController.NO_DATABASE_SELECTED);
             optionsTableDelete.getItems().add(new MenuItem("No tables added"));
         } else {
-            //vfc.getMenuSelection().getItems().clear();
+            // vfc.getMenuSelection().getItems().clear();
             optionsTableDelete.getItems().clear();
-            for (int a = 0; a < currentDatabase.size(); a++) {//TABLES SIZE
-                //vfc.getMenuSelection().getItems().add(new MenuItem(currentDatabase.getTableName(a)));
+            for (int a = 0; a < currentDatabase.size(); a++) {// TABLES SIZE
+                // vfc.getMenuSelection().getItems().add(new
+                // MenuItem(currentDatabase.getTableName(a)));
                 vfc.getTfTableAutoC().addItem(currentDatabase.getTableName(a));
                 optionsTableDelete.getItems().add(new MenuItem(currentDatabase.getTableName(a)));
             }
         }
 
-        //vfc.getMenuSelection().getItems().forEach(e -> e.setOnAction(this::selectionForEachTable));
+        // vfc.getMenuSelection().getItems().forEach(e ->
+        // e.setOnAction(this::selectionForEachTable));
         optionsTableDelete.getItems().forEach(e -> e.setOnAction(this::deleteTables));
         optionsTableDeleteThis.setOnAction(this::deleteThisTable);
     }
@@ -253,8 +274,9 @@ public class Menus {
 
     private Menus() {
         vfc.getMenuOpen().getItems().addAll(openChangeUserDB, openTableMain, new SeparatorMenuItem(), openGame);
-        vfc.getMenuOptions().getItems().addAll(optionsGeneralOptions, new SeparatorMenuItem(), optionsCreateDatabase, new SeparatorMenuItem(), optionsTableInfo, optionsTableOp,
-                new SeparatorMenuItem(), optionsTableChangeDTable, new SeparatorMenuItem(), optionsTableCreate, optionsTableUpdate,
+        vfc.getMenuOptions().getItems().addAll(optionsGeneralOptions, new SeparatorMenuItem(), optionsCreateDatabase,
+                new SeparatorMenuItem(), optionsTableInfo, optionsTableOp, new SeparatorMenuItem(),
+                optionsTableChangeDTable, new SeparatorMenuItem(), optionsTableCreate, optionsTableUpdate,
                 optionsTableDelete, optionsTableDeleteThis);
         // LISTENERS----------------------------------------------
         optionsGeneralOptions.setOnAction(e -> new VO(vfc));

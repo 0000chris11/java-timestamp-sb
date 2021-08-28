@@ -40,7 +40,7 @@ public class Keys {
 
             String currentTable = Users.getInstance().getCurrenUser().getCurrentDatabase().getCurrentTable().getName()
                     .replace(" ", "_").toLowerCase();
-            String currentDatabase = MSQL.getDatabase().toLowerCase();
+            String currentDatabase = Users.getInstance().getCurrenUser().getCurrentDatabase().getName().toLowerCase();
 
             String database = key.getDatabase();
             String table = key.getTableName();

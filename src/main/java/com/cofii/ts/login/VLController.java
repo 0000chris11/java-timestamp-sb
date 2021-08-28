@@ -235,8 +235,6 @@ public class VLController implements Initializable {
 
         boolean correctPassword = msRoot.selectCorrectPassword(MSQL.TABLE_USERS, "user_password", user, password);
         if (correctPassword) {
-            MSQL.setUser(user);
-            MSQL.setPassword(password);
             // ADDING CURRENT USER--------------------------------------------
             Object[] valueId = msRoot.selectValues(MSQL.TABLE_USERS, "id", "user_name", user);
             if (valueId.length == 1 && valueId[0] instanceof Integer) {
@@ -247,7 +245,7 @@ public class VLController implements Initializable {
             }
             // DEFAULT USER------------------------------------------
             if (cbRemember.isSelected()) {
-                msRoot.executeStringUpdate(MSQL.UPDATE_TABLE_DEFAULT_USER);
+                //SET DEFAULT USER
             }
             // ---------------------------------------------
             disableCenter(true);

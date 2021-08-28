@@ -21,6 +21,8 @@ public class User {
 
     private static ObjectProperty<Database> defaultDatabaseProperty = new SimpleObjectProperty<>(null);
 
+    private final List<Option> options = new ArrayList<>();
+
     private static boolean insertClear = false;
     private static boolean updateClear = false;
 
@@ -57,34 +59,6 @@ public class User {
     public void setCurrentDatabaseById(int id) {
         this.currentDatabase = databases.stream().filter(d -> d.getId() == id).toArray(size -> new Database[size])[0];
     }
-
-    // INIT --------------------------------------------
-    public static void readDefaultDatabase() {
-        new ResourceXML(Users.DEFAULT_RESOURCE, ResourceXML.READ_XML, doc -> {
-            Element currentUserElement = (Element) doc.getDocumentElement().getElementsByTagName("defaultUser").item(0);
-
-            int defaultDatabaseId = Integer.parseInt(currentUserElement.getElementsByTagName("database").item(0)
-                    .getAttributes().item(0).getTextContent());
-            setDefaultDatabaseById(defaultDatabaseId);
-
-            return doc;
-        });
-    }
-
-    public static void readDefaultOptions() {
-        new ResourceXML(Users.DEFAULT_RESOURCE, ResourceXML.READ_XML, doc -> {
-            Element currentUserElement = (Element) doc.getDocumentElement().getElementsByTagName("defaultUser").item(0);
-            Element options = (Element) currentUserElement.getElementsByTagName("options").item(0);
-
-            insertClear = Boolean.getBoolean(
-                    options.getElementsByTagName("insertClear").item(0).getAttributes().item(0).getTextContent());
-            updateClear = Boolean.getBoolean(
-                    options.getElementsByTagName("updateClear").item(0).getAttributes().item(0).getTextContent());
-
-            return doc;
-        });
-    }
-
     // CONSTRUCTORS----------------------------------------
     public User(int id, String name) {
         this.id = id;
@@ -148,6 +122,10 @@ public class User {
 
     public static void setUpdateClear(boolean updateClear) {
         User.updateClear = updateClear;
+    }
+
+    public List<Option> getOptions() {
+        return options;
     }
 
 

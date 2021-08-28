@@ -121,13 +121,13 @@ public class ShowColumns implements IActions {
 
     @Override
     public void afterQuery(String query, boolean rsValue) {
-        MSQL.setColumnsLength(rows);
+        //MSQL.setColumnsLength(rows);
 
         String[] columns = new String[rows];
         for (int a = 0; a < rows; a++) {
             columns[a] = ((Text)vf.getLbs()[a].getChildren().get(0)).getText();
         }
-        MSQL.setColumns(columns);
+        //MSQL.setColumns(columns);
     }
 
 }

@@ -41,7 +41,7 @@ public class SelectData implements IActions {
     @Override
     public void beforeQuery() {
         vfc.getTable().getItems().clear();
-        columnCount = MSQL.getColumns().length;
+        columnCount = currentTable.getColumns().size();
     }
 
     @Override

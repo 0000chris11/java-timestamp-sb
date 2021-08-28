@@ -3,9 +3,7 @@ package com.cofii.ts.sql.querys;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import com.cofii.ts.first.VF;
 import com.cofii.ts.first.VFController;
-import com.cofii.ts.sql.MSQL;
 import com.cofii.ts.store.main.Database;
 import com.cofii.ts.store.main.Table;
 import com.cofii.ts.store.main.Users;
@@ -52,7 +50,6 @@ public class SelectTableNames implements IActions {
     public void afterQuery(String query, boolean rsValue) {
         if (vfc != null) {
             if (rsValue) {
-                MSQL.setTablesOnTableNames(true);// DELETE
                 vfc.getTfTable().setPromptText("select a table");
             } else {
                 vfc.getTfTable().setPromptText("no tables found");

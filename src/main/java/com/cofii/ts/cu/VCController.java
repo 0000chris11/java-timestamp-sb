@@ -1540,7 +1540,7 @@ public class VCController implements Initializable {
         // DROP FK-----------------------------------
         boolean dropFK = true;
         if (updateTable.getFks().get(indexs[0]++).equals("Yes")) {// DROP FOREIGN KEY
-            String constraint = fks.getConstraintName(MSQL.getDatabase(), tableName, indexs[0]++);
+            String constraint = fks.getConstraintName(Users.getInstance().getCurrenUser().getCurrentDatabase().getName(), tableName, indexs[0]++);
             dropFK = ms.dropForeignKey(tableName, constraint);
         }
         if (dropFK) {
@@ -2019,7 +2019,7 @@ public class VCController implements Initializable {
 
         }
         // CREATE UPDATE ---------------------------------------
-        MSQLCreate msc = new MSQLCreate(new CurrenConnection());
+        MSQLCreate msc = new MSQLCreate(new RootConfigConnection());
         for (int a = 0; a < currentRowLength; a++) {
             msc.addTypesWidth(new DInt(a + 1, typesLengths[a]));
             msc.addAllowsNull(new IntBoolean(a + 1, nulls[a]));

@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.cofii.ts.sql.MSQL;
+import com.cofii.ts.store.main.Database;
 import com.cofii.ts.store.main.Table;
 import com.cofii.ts.store.main.Users;
 
@@ -34,8 +35,9 @@ public class PKS {
     }
 
     public PK[] getCurrentTablePKS() {
-        Table currentTable = Users.getInstance().getCurrenUser().getCurrentDatabase().getCurrentTable();
-        return pksList.stream().filter(e -> e.getDatabase().equalsIgnoreCase(MSQL.getDatabase())
+        Database currentDatabase = Users.getInstance().getCurrenUser().getCurrentDatabase();
+        Table currentTable = currentDatabase.getCurrentTable();
+        return pksList.stream().filter(e -> e.getDatabase().equalsIgnoreCase(currentDatabase.getName())
                 && e.getTable().equalsIgnoreCase(currentTable.getName().replace(" ", "_"))).toArray(PK[]::new);
     }
 

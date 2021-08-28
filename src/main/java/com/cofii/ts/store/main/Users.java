@@ -22,9 +22,6 @@ public class Users {
     private static User defaultUser;
 
     public static final String DEFAULT_RESOURCE = "/com/cofii/ts/login/defaults.xml";
-
-    private MSQLP ms;
-
     // ---------------------------------------
     public void clearUsers() {
         usersList.clear();
@@ -60,63 +57,6 @@ public class Users {
         return instance;
     }
 
-    // INIT----------------------------------------
-    public static void readDefaultUser() {
-        new ResourceXML(DEFAULT_RESOURCE, ResourceXML.UPDATE_XML, doc -> {
-            Element currentUserElement = (Element) doc.getDocumentElement().getElementsByTagName("defaultUser").item(0);
-
-            int defaultUserId = Integer.parseInt(currentUserElement.getAttributes().item(0).getTextContent());// DEFAULT
-
-            if (defaultUserId > 0) {
-                defaultUser = new User(defaultUserId, getUser(defaultUserId).getName());
-            }
-
-            return doc;
-        });
-    }
-
-    private void userChangeSetDefaults(final int id) {
-        new ResourceXML(DEFAULT_RESOURCE, ResourceXML.UPDATE_XML, doc -> {
-            Element currentUserElement = (Element) doc.getDocumentElement().getElementsByTagName("defaultUser").item(0);
-
-            ms.selectDataWhere(MSQL.TABLE_USER_DEFAULTS, "user_id", id, (rs, rsValues, ex) -> {
-                if (rsValues) {
-                    int defaultDatabaseId = rs.getInt(2);
-                    String defaultTableId = rs.getString(3);
-
-                    currentUserElement.getElementsByTagName("database").item(0).getAttributes().item(0)
-                            .setTextContent(Integer.toString(defaultDatabaseId));
-                    currentUserElement.getElementsByTagName("table").item(0).getAttributes().item(0)
-                            .setTextContent(defaultTableId);
-                }
-            });
-
-            Element options = (Element) currentUserElement.getElementsByTagName("options").item(0);
-            ms.selectDataWhere(MSQL.TABLE_USER_DEFAULTS_OPTIONS, "id_user", id, (rs, rsValues, ex) -> {
-                if (rsValues) {
-                    boolean insertClear = rs.getBoolean(2);
-                    boolean updateClear = rs.getBoolean(3);
-
-                    options.getElementsByTagName("insertClear").item(0).getAttributes().item(0)
-                            .setTextContent(Boolean.toString(insertClear));
-                            options.getElementsByTagName("updateClear").item(0).getAttributes().item(0)
-                            .setTextContent(Boolean.toString(updateClear));
-                }
-            });
-            // currentUserElement.getAttributes().item(0).setTextContent(Integer.toString(defaultUserId));//
-
-            return doc;
-        });
-    }
-
-    private Users(){
-        currentUser.addListener((obs, oldValue, newValue) -> {
-            if(newValue != null && !usersList.isEmpty()){
-                userChangeSetDefaults(newValue.getId());
-            }
-        });
-    }
-
     // GETTER & SETTERS----------------------------
     public List<User> getUsers() {
         return usersList;
@@ -150,11 +90,4 @@ public class Users {
         Users.defaultUser = defaultUser;
     }
 
-    public MSQLP getMs() {
-        return ms;
-    }
-
-    public void setMs(MSQLP ms) {
-        this.ms = ms;
-    }
 }
