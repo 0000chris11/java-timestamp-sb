@@ -53,8 +53,8 @@ public class VC {
 
             GridPane.setValignment(vcc.getLbsN().get(a), VPos.TOP);
             // RIGHT-----------------------------------------
-            vcc.getGridPaneRight().add(vcc.getBtnsDist().get(a), 0, row);
-            vcc.getGridPaneRight().add(vcc.getBtnsImageC().get(a), 1, row);
+            //vcc.getGridPaneRight().add(vcc.getBtnsDist().get(a), 0, row);
+            //vcc.getGridPaneRight().add(vcc.getBtnsImageC().get(a), 1, row);
 
             GridPane.setValignment(vcc.getBtnsDist().get(a), VPos.TOP);
             GridPane.setValignment(vcc.getBtnsImageC().get(a), VPos.TOP);
@@ -94,14 +94,16 @@ public class VC {
         vcc.getBtnUpdateExtra().setDisable(true);
         */
         // RIGHT ROW-------------------------------------------------------
+        /*
         vcc.getGridPaneRight().getRowConstraints().forEach(e -> {
             e.setValignment(VPos.TOP);
             e.setVgrow(Priority.NEVER);
         });
+        */
         // RIGHT-BOTTOM------------------------------------------------
         //vcc.getHbRightUpdate().setDisable(true);
         vcc.getBtnUpdateDist().setDisable(true);
-        vcc.getBtnUpdateImageC().setDisable(true);
+        //vcc.getBtnUpdateImageC().setDisable(true);
     }
 
     private void setUpdateStore() {
@@ -186,7 +188,7 @@ public class VC {
             
         }
         if (!currentTable.getImageCPath().equals("NONE")) {
-            vcc.getTfImageCPath().setText(currentTable.getImageCPath());
+            //vcc.getTfImageCPath().setText(currentTable.getImageCPath());
         }
 
         // ----------------------------------------------------
@@ -284,10 +286,10 @@ public class VC {
         vcc.getBtnUpdateExtra().setId(Integer.toString(-1));
         // RIGHT-BOTTOM------------------------------------------------
         vcc.getBtnUpdateDist().setOnAction(vcc::btnUpdateDist);
-        vcc.getBtnUpdateImageC().setOnAction(vcc::btnUpdateImageC);
+        //vcc.getBtnUpdateImageC().setOnAction(vcc::btnUpdateImageC);
 
         vcc.getBtnUpdateDist().setId(Integer.toString(-1));
-        vcc.getBtnUpdateImageC().setId(Integer.toString(-1));
+        //vcc.getBtnUpdateImageC().setId(Integer.toString(-1));
         // BOTTOM-----------------------------------------------------
         vcc.getBtnCreateUpdate().setVisible(false);
         vcc.setUpdateControl(true);
@@ -322,7 +324,7 @@ public class VC {
             }
             // OTHERS----------------------------
             boolean disable = vcc.getBtnsImageC().stream().anyMatch(btn -> btn.isSelected());
-            vcc.getTfImageCPath().setDisable(!disable);
+            //vcc.getTfImageCPath().setDisable(!disable);
             vcc.getBtnSelectImageC().setDisable(!disable);
         } catch (IOException e) {
             e.printStackTrace();

@@ -15,13 +15,11 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
-import com.cofii.ts.cu.store.ICStore;
 import com.cofii.ts.first.VF;
 import com.cofii.ts.first.VFController;
 import com.cofii.ts.other.CSS;
 import com.cofii.ts.other.NonCSS;
 import com.cofii.ts.other.Timers;
-import com.cofii.ts.sql.CurrenConnection;
 import com.cofii.ts.sql.MSQL;
 import com.cofii.ts.store.FKS;
 import com.cofii.ts.store.PK;
@@ -44,6 +42,7 @@ import com.cofii2.custom.Custom;
 import com.cofii2.methods.MList;
 import com.cofii2.mysql.MSQLCreate;
 import com.cofii2.mysql.MSQLP;
+import com.cofii2.mysql.RootConfigConnection;
 import com.cofii2.stores.CC;
 import com.cofii2.stores.DInt;
 import com.cofii2.stores.IntBoolean;
@@ -104,7 +103,21 @@ public class VCController implements Initializable {
 
     @FXML
     private BorderPane bpMain;
-    // HEADERS-------------------------------------------------
+    // TOP--------------------------------------------------
+    @FXML
+    private HBox hbTop;
+    @FXML
+    private Label lbTable;
+    @FXML
+    private TextField tfTable;
+    @FXML
+    private Button btnRenameTable;
+    // CENTER---------------------------------------------
+    @FXML
+    private ScrollPane scGridPane;
+    @FXML
+    private GridPane gridPane;
+
     @FXML
     private Label lbhColumnNames;
     @FXML
@@ -117,20 +130,6 @@ public class VCController implements Initializable {
     private Label lbhDist;
     @FXML
     private Label lbhTextArea;
-    // TOP--------------------------------------------------
-    @FXML
-    private HBox hbTop;
-    @FXML
-    private Label lbTable;
-    @FXML
-    private TextField tfTable;
-    @FXML
-    private Button btnRenameTable;
-    // LEFT---------------------------------------------
-    @FXML
-    private ScrollPane scGridPane;
-    @FXML
-    private GridPane gridPane;
     // BOTTOM----------------------------------------
     @FXML
     private Label lbUpdate;
@@ -145,25 +144,17 @@ public class VCController implements Initializable {
 
     @FXML
     private Button btnSelectImageC;
-    // RIGHT---------------------------------------------
+
     @FXML
-    private ScrollPane spGridPaneRight;
-    @FXML
-    private GridPane gridPaneRight;
-    // RIGHT-BOTTOM-------------------------------------
-    
-    @FXML
-    private Button btnUpdateImageC;
-    // BOTTOM------------------------------------------
-    @FXML
-    private HBox hbStatus;
-    private LabelStatus lbStatus = new LabelStatus();
+    private Button btnCancel;
     @FXML
     private Button btnCreateUpdate;
     @FXML
     private Button btnCreateHelp;
+
     @FXML
-    private Button btnCancel;
+    private HBox hbStatus;
+    private LabelStatus lbStatus = new LabelStatus();
 
     @FXML
     private Region regionLeft;// IDR
@@ -235,6 +226,7 @@ public class VCController implements Initializable {
     private PopupKV updateAddColumnHelpPopup = new PopupKV(updateAddColumnHelpMap);
     // ---------------------------------------------
     private VFController vf;
+    private VImageCController vicc;
     private MSQLP ms;
 
     private Database currentDatabse = Users.getInstance().getCurrenUser().getCurrentDatabase();
@@ -242,7 +234,6 @@ public class VCController implements Initializable {
     private SQLTypes types = SQLTypes.getInstance();
     private PKS pks = PKS.getInstance();
     private FKS fks = FKS.getInstance();
-    private ICStore icStore;
 
     private Timers timers = Timers.getInstance(vf);
     private UpdateTable updateTable;
@@ -611,8 +602,8 @@ public class VCController implements Initializable {
         cksNull.get(index).setVisible(true);
         cksDefault.get(index).setVisible(true);
 
-        gridPaneRight.add(btnsDist.get(index), 0, row);
-        gridPaneRight.add(btnsImageC.get(index), 1, row);
+        //gridPaneRight.add(btnsDist.get(index), 0, row);
+        //gridPaneRight.add(btnsImageC.get(index), 1, row);
         // --------------------------------------------------
         listColumns.add(tfsColumn.get(index).getText());
         listImageC.add(false);
@@ -635,7 +626,7 @@ public class VCController implements Initializable {
         gridPane.getChildren().removeAll(hbsN.get(index), hbsName.get(index), hbsType.get(index), hbsNull.get(index),
                 hbsPK.get(index), hbsFK.get(index), hbsDefault.get(index), hbsExtra.get(index));
 
-        gridPaneRight.getChildren().removeAll(btnsDist.get(index), btnsImageC.get(index));
+        //gridPaneRight.getChildren().removeAll(btnsDist.get(index), btnsImageC.get(index));
         // ---------------------------------------------------------
         listColumns.remove(index);
         listImageC.remove(index);
@@ -663,7 +654,7 @@ public class VCController implements Initializable {
                 gridPane.getChildren().removeAll(hbsN.get(a), hbsName.get(a), hbsType.get(a), hbsNull.get(a),
                         hbsPK.get(a), hbsFK.get(a), hbsDefault.get(a), hbsExtra.get(a));
 
-                gridPaneRight.getChildren().removeAll(btnsDist.get(a), btnsImageC.get(a));
+                //gridPaneRight.getChildren().removeAll(btnsDist.get(a), btnsImageC.get(a));
             }
         }
         // ADDING-------------------------
@@ -678,8 +669,8 @@ public class VCController implements Initializable {
             gridPane.add(hbsDefault.get(a), 6, row);
             gridPane.add(hbsExtra.get(a), 7, row);
 
-            gridPaneRight.add(btnsDist.get(a), 0, row);
-            gridPaneRight.add(btnsImageC.get(a), 1, row);
+            //gridPaneRight.add(btnsDist.get(a), 0, row);
+            //gridPaneRight.add(btnsImageC.get(a), 1, row);
         }
 
     }
@@ -690,7 +681,7 @@ public class VCController implements Initializable {
             gridPane.getChildren().removeAll(hbsN.get(a), hbsName.get(a), hbsType.get(a), hbsNull.get(a), hbsPK.get(a),
                     hbsFK.get(a), hbsDefault.get(a), hbsExtra.get(a));
 
-            gridPaneRight.getChildren().removeAll(btnsDist.get(a), btnsImageC.get(a));
+            //gridPaneRight.getChildren().removeAll(btnsDist.get(a), btnsImageC.get(a));
         }
         // REMOVING INDEX---------------------------
         currentRowLength--;
@@ -754,8 +745,8 @@ public class VCController implements Initializable {
             gridPane.add(hbsDefault.get(a), 6, row);
             gridPane.add(hbsExtra.get(a), 7, row);
 
-            gridPaneRight.add(btnsDist.get(a), 0, row);
-            gridPaneRight.add(btnsImageC.get(a), 1, row);
+            //gridPaneRight.add(btnsDist.get(a), 0, row);
+            //gridPaneRight.add(btnsImageC.get(a), 1, row);
         }
     }
 
@@ -1978,8 +1969,11 @@ public class VCController implements Initializable {
         String dist = Custom.getOldDist(currentRowLength, btnsDist.toArray(new ToggleButton[btnsDist.size()]));
         String imageC = getImageCBeforeUpdate();
 
-        String imageCPath = Custom.getImageCPath(currentRowLength, tfImageCPath.getText(),
-                btnsImageC.toArray(new ToggleButton[btnsImageC.size()]));
+        if(vicc != null){
+            
+        }
+        //String imageCPath = Custom.getImageCPath(currentRowLength, tfImageCPath.getText(),
+                //btnsImageC.toArray(new ToggleButton[btnsImageC.size()]));
         // ADDING VALUES -------------------------------------------------
         for (int a = 0; a < currentRowLength; a++) {
             // LEFT-------------------
@@ -2031,8 +2025,8 @@ public class VCController implements Initializable {
         boolean createTable = msc.createTable(tableName, columnsNames, typesNames);
         // INSERT -----------------------------------------------
         if (createTable) {
-            Object[] values = new Object[] { null, tableName.replace("_", " "), dist, imageC,
-                    imageCPath.replace("\\", "\\\\") };
+            Object[] values = new Object[] { null, tableName.replace("_", " "), dist, imageC/*,
+        imageCPath.replace("\\", "\\\\") */};
             boolean insert = ms.insert(MSQL.TABLE_NAMES, values);
             if (insert) {
                 // Menus.getInstance(vf).addMenuItemsReset();// NOT TESTED
@@ -2157,6 +2151,7 @@ public class VCController implements Initializable {
     }
 
     // IMAGEC================================================
+    /*
     private void btnsImageCAction(ActionEvent e) {
         setQOLVariables(e);
         if (btnsImageC.get(index).isSelected()) {
@@ -2172,21 +2167,22 @@ public class VCController implements Initializable {
         // UPDATE---------------------------------------
         imageCUpdate();
     }
+    */
 
     private void listImageCChange(Change<? extends Boolean> c) {
         while (c.next()) {
             if (c.wasAdded() || c.wasRemoved() || c.wasUpdated() || c.wasReplaced()) {
                 if (listImageC.stream().allMatch(bool -> !bool)) {
-                    tfImageCPath.setDisable(true);
+                    //tfImageCPath.setDisable(true);
                     btnSelectImageC.setDisable(true);
 
                     imageCPathOk = true;
                 } else {
-                    tfImageCPath.setDisable(false);
+                    //tfImageCPath.setDisable(false);
                     btnSelectImageC.setDisable(false);
 
-                    boolean exist = new File(tfImageCPath.getText()).exists();
-                    imageCPathOk = exist;
+                    //boolean exist = new File(tfImageCPath.getText()).exists();
+                    //imageCPathOk = exist;
 
                 }
             }
@@ -2196,12 +2192,15 @@ public class VCController implements Initializable {
     }
 
     private void btnSelectImageCAction(ActionEvent e) {
+        /*
         File file = directoryChooser.showDialog(vf.getStage());
         if (file != null) {
             tfImageCPath.setText(file.getPath());
         }
+        */
     }
 
+    /*
     private void tfImageCPathTextProperty(ObservableValue<? extends String> observable, String oldValue,
             String newValue) {
         Path path = Paths.get(tfImageCPath.getText());
@@ -2227,7 +2226,8 @@ public class VCController implements Initializable {
         imageCUpdate();
         masterControl();
     }
-
+    */
+    /*
     private void imageCUpdate() {
         if (updateControl) {
             if (currentRowLength <= updateTable.getRowLength()) {
@@ -2240,7 +2240,7 @@ public class VCController implements Initializable {
                      * 
                      * String imageC = Custom.getOldImageC(currentRowLength, btnsImageC.toArray(new
                      * ToggleButton[btnsImageC.size()]));
-                     */
+                     
                     String imageCO = updateTable.getImageCHole();
                     String imageC = getImageCBeforeUpdate();
 
@@ -2263,6 +2263,7 @@ public class VCController implements Initializable {
             }
         }
     }
+    */
 
     void btnUpdateImageC(ActionEvent e) {
         System.out.println(CC.CYAN + "Update ImageC" + CC.RESET);
@@ -2272,7 +2273,7 @@ public class VCController implements Initializable {
         String imageC = getImageCBeforeUpdate();
 
         String imageCPathO = updateTable.getImageCPathHole();
-        String imageCPath = !tfImageCPath.isDisable() ? tfImageCPath.getText() : "NONE";
+        //String imageCPath = !tfImageCPath.isDisable() ? tfImageCPath.getText() : "NONE";
 
         int allOk = 0;
         String message = null;
@@ -2309,6 +2310,7 @@ public class VCController implements Initializable {
             allOk++;
         }
         // IMAGECPATH UPDATE--------------------------------------
+        /*
         if (!imageCPathO.equals(imageCPath)) {
             boolean updateImageCPath = ms.updateRow(MSQL.TABLE_NAMES, "Name", tableName.replace("_", " "),
                     "ImageC_Path", imageCPath.replace("\\", "\\\\"));
@@ -2326,6 +2328,7 @@ public class VCController implements Initializable {
         } else {
             allOk++;
         }
+        */
         // MESSAGE--------------------------------------
         Color color = null;
         if (allOk == 2) {
@@ -2341,7 +2344,7 @@ public class VCController implements Initializable {
 
         lbStatus.setText(message, color);
         if (allOk > 0) {
-            btnUpdateImageC.setDisable(true);
+            //btnUpdateImageC.setDisable(true);
         }
     }
 
@@ -2450,7 +2453,7 @@ public class VCController implements Initializable {
 
             // RIGHT LISTENERS------------------------------
             btnsDist.get(index).setOnAction(this::btnsDistAction);
-            btnsImageC.get(index).addEventHandler(ActionEvent.ACTION, this::btnsImageCAction);
+            //btnsImageC.get(index).addEventHandler(ActionEvent.ACTION, this::btnsImageCAction);
             // ----------------------------------------
             addIndex = index;
             columnAdd = true;
@@ -2742,7 +2745,7 @@ public class VCController implements Initializable {
         rbsExtra.forEach(rb -> rb.addEventHandler(ActionEvent.ACTION, this::rbsExtraAction));
 
         btnsDist.forEach(btn -> btn.setOnAction(this::btnsDistAction));
-        btnsImageC.forEach(btn -> btn.addEventHandler(ActionEvent.ACTION, this::btnsImageCAction));
+        //btnsImageC.forEach(btn -> btn.addEventHandler(ActionEvent.ACTION, this::btnsImageCAction));
 
     }
 
@@ -2793,7 +2796,6 @@ public class VCController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        icStore = ICStore.getInstance();
         // NODES------------------------
         presetSomeInit();
         restartNodes(-1);
@@ -2805,8 +2807,8 @@ public class VCController implements Initializable {
         beforeAfterOptionTooltip.setShowDelay(Duration.millis(100));
 
         scGridPane.setHbarPolicy(ScrollBarPolicy.ALWAYS);
-        spGridPaneRight.setHbarPolicy(ScrollBarPolicy.ALWAYS);
-        tfImageCPathPopup = new PopupMessage(tfImageCPath);
+        //spGridPaneRight.setHbarPolicy(ScrollBarPolicy.ALWAYS);
+        //tfImageCPathPopup = new PopupMessage(tfImageCPath);
         lbUpdate.setDisable(true);
         directoryChooser.setTitle("Select Image for a column");
         // TOP-----------------------------------------------
@@ -2823,7 +2825,7 @@ public class VCController implements Initializable {
         // RIGHT LISTENERS--------------------------------------
         btnSelectImageC.setOnAction(this::btnSelectImageCAction);
         listImageC.addListener(this::listImageCChange);
-        tfImageCPath.textProperty().addListener(this::tfImageCPathTextProperty);
+        //tfImageCPath.textProperty().addListener(this::tfImageCPathTextProperty);
         // BOTTOM -------------------------------------
         lbStatus.setStyle(CSS.LB_STATUS);
         lbStatus.getBtnCloseStatus().setStyle(CSS.LB_STATUS_BUTTON);
@@ -2842,14 +2844,6 @@ public class VCController implements Initializable {
 
     public void setGridPaneLeft(GridPane gridPaneLeft) {
         this.gridPane = gridPaneLeft;
-    }
-
-    public GridPane getGridPaneRight() {
-        return gridPaneRight;
-    }
-
-    public void setGridPaneRight(GridPane gridPaneRight) {
-        this.gridPaneRight = gridPaneRight;
     }
 
     public List<Label> getLbsN() {
@@ -3132,14 +3126,6 @@ public class VCController implements Initializable {
         this.tfTable = tfTable;
     }
 
-    public TextField getTfImageCPath() {
-        return tfImageCPath;
-    }
-
-    public void setTfImageCPath(TextField tfImageCPath) {
-        this.tfImageCPath = tfImageCPath;
-    }
-
     public Button getBtnCreateUpdate() {
         return btnCreateUpdate;
     }
@@ -3178,14 +3164,6 @@ public class VCController implements Initializable {
 
     public void setHbsN(List<HBox> hbsN) {
         this.hbsN = hbsN;
-    }
-
-    public Button getBtnUpdateImageC() {
-        return btnUpdateImageC;
-    }
-
-    public void setBtnUpdateImageC(Button btnUpdateImageC) {
-        this.btnUpdateImageC = btnUpdateImageC;
     }
 
     public List<ToggleButton> getBtnsSelectedFK() {

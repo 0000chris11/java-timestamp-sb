@@ -98,13 +98,13 @@ public class VF {
     }
 
     private void selectCurrentUserDefaultOptions(ResultSet rs, boolean rsValues, SQLException ex) throws SQLException {
-        if(rsValues){
+        if (rsValues) {
             int idOption = rs.getInt(2);
             String userValue = rs.getString(3);
 
-            String optionName = Options.getInstance().getOptionById(idOption).getOptionName();
-            Users.getInstance().getCurrenUser().getOptions().add(new Option(idOption, optionName, userValue));
-            //REPLACE User static options field for this
+            Option option = Options.getInstance().getOptionById(idOption);
+            option.setValue(userValue);
+            Options.getInstance().setOptionById(idOption, option);
         }
     }
 
@@ -115,7 +115,8 @@ public class VF {
     void mainTablesCreation() {
         // ms.selectTables(new CurrentDatabaseTablesExist());
         ms.executeStringUpdate(MSQL.CREATE_TABLE_NAMES);
-        ms.executeStringUpdate(MSQL.CREATE_TABLE_CONFIG);
+        ms.executeStringUpdate(MSQL.CREATE_PATHS);
+        ms.executeStringUpdate(MSQL.CREATE_TABLE_PATHS);
     }
 
     private void querysStart() {
@@ -191,11 +192,14 @@ public class VF {
 
         // OTHERS LISTENERS--------------------
         ms.setSQLException((ex, s) -> vfc.getLbStatus().setText(ex.getMessage(), NonCSS.TEXT_FILL_ERROR));
-        // SHOW------------------------
+        // STAGE LEVEL OPTIONS-----------------
+        boolean alwaysOnTop = Options.getInstance().getOptionByName(Option.ALWAYS_ON_TOP).getValue().equals("true");
+        stage.setAlwaysOnTop(alwaysOnTop);
+
+        // SHOW--------------------------------
         if (startFromLogin) {
             vlc.getStage().close();
             stage.show();
-
         }
     }
 

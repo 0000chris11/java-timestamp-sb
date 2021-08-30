@@ -22,6 +22,8 @@ import com.cofii.ts.sql.querys.SelectData;
 import com.cofii.ts.sql.querys.SelectTableNames;
 import com.cofii.ts.sql.querys.ShowColumns;
 import com.cofii.ts.store.main.Database;
+import com.cofii.ts.store.main.Option;
+import com.cofii.ts.store.main.Options;
 import com.cofii.ts.store.main.Table;
 import com.cofii.ts.store.main.User;
 import com.cofii.ts.store.main.Users;
@@ -475,7 +477,8 @@ public class VFController implements Initializable {
             ms.selectData(tableName, new SelectData(this, SelectData.MESSAGE_UPDATED_ROW + tableName));
             dist.distAction();
 
-            if (User.getUpdateClear()) {
+            boolean updateClear = Options.getInstance().getOptionByName(Option.UPDATE_CLEAR).getValue().equals("true");
+            if (updateClear) {
                 ClearNodesDisplayed clearNodes = new ClearNodesDisplayed();
                 forEachAction(length, clearNodes);
             }
@@ -492,7 +495,8 @@ public class VFController implements Initializable {
 
     @FXML
     private void btnAddAction() {
-        currentTable = Users.getInstance().getCurrenUser().getCurrentDatabase().getCurrentTable();
+        User user = Users.getInstance().getCurrenUser();
+        currentTable = user.getCurrentDatabase().getCurrentTable();
 
         System.out.println(CC.CYAN + "\nINSERT ROW" + CC.RESET);
         int length = currentTable.getColumns().size();
@@ -513,7 +517,8 @@ public class VFController implements Initializable {
             ms.selectData(tableName, new SelectData(this, SelectData.MESSAGE_INSERT + tableName));
             dist.distAction();
 
-            if (User.getInsertClear()) {
+            boolean insertClear = Options.getInstance().getOptionByName(Option.INSERT_CLEAR).getValue().equals("true");
+            if (insertClear) {
                 ClearNodesDisplayed clearNodes = new ClearNodesDisplayed();
                 forEachAction(length, clearNodes);
 

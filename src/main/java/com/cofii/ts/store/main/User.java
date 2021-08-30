@@ -20,12 +20,6 @@ public class User {
     private Database currentDatabase;
 
     private static ObjectProperty<Database> defaultDatabaseProperty = new SimpleObjectProperty<>(null);
-
-    private final List<Option> options = new ArrayList<>();
-
-    private static boolean insertClear = false;
-    private static boolean updateClear = false;
-
     // --------------------------------------------
     public void clearDatabases() {
         databases.clear();
@@ -108,26 +102,4 @@ public class User {
         User.defaultDatabaseProperty.setValue(defaultDatabase);
     }
 
-    public static boolean getInsertClear() {
-        return insertClear;
-    }
-
-    public static void setInsertClear(boolean insertClear) {
-        User.insertClear = insertClear;
-    }
-
-    public static boolean getUpdateClear() {
-        return updateClear;
-    }
-
-    public static void setUpdateClear(boolean updateClear) {
-        User.updateClear = updateClear;
-    }
-
-    public List<Option> getOptions() {
-        return options;
-    }
-
-
-    
 }

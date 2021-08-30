@@ -75,12 +75,10 @@ public class Menus {
 
     private void tableCreateAction(ActionEvent e) {
         new VC(vfc, true);
-        new VImageC();
     }
 
     private void tableUpdateAction(ActionEvent e) {
         new VC(vfc, false);
-        new VImageC();
     }
 
     // DELETE---------------------------------------------------

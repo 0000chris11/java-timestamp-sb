@@ -10,7 +10,7 @@ public class VImageC {
 
     private Stage stage = new Stage();
 
-    public VImageC() {
+    public VImageC(boolean create) {
         try {
             FXMLLoader loader = new FXMLLoader(VImageC.class.getResource("/com/cofii/ts/cu/VImageC.fxml"));
             Scene scene = new Scene(loader.load());

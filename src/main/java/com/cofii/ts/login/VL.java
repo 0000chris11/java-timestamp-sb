@@ -23,7 +23,7 @@ import javafx.stage.Stage;
 public class VL extends Application {
 
     private VLController vlc;
-    private String option = "";
+    private String optionArgs = "";
 
     // QUERY------------------------------------------
     private void selectUsers(ResultSet rs, boolean rsValues, SQLException ex) throws SQLException {
@@ -47,7 +47,9 @@ public class VL extends Application {
             String optionName = rs.getString(2);
             String defaultValue = rs.getString(3);
 
-            Options.getInstance().getOptionList().add(new Option(id, optionName, defaultValue));
+            Option option = new Option(id, optionName, defaultValue);
+            option.setDefaultValue(defaultValue);
+            Options.getInstance().getOptionList().add(option);
         }else{
             //NO OPTIONS ACTION
         }
@@ -73,9 +75,9 @@ public class VL extends Application {
     public void start(Stage stage) throws Exception {
         System.out.println("START");
         // ARGS-----------------------------------
-        option = "";
+        optionArgs = "";
         if (!getParameters().getRaw().isEmpty()) {
-            option = getParameters().getRaw().get(0);
+            optionArgs = getParameters().getRaw().get(0);
         }
         // CONTROLLER CLASS START--------------------
         FXMLLoader loader = new FXMLLoader(VL.class.getResource("/com/cofii/ts/login/VL.fxml"));
