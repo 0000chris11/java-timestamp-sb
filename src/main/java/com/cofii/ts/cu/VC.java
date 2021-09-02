@@ -300,13 +300,15 @@ public class VC {
         try {
             FXMLLoader loader = new FXMLLoader(VC.class.getResource("/com/cofii/ts/cu/VC.fxml"));
 
-            
+            /*
             SceneZoom sz = new SceneZoom(loader.load(), zoomProperty);
             vcc = (VCController) loader.getController();
             sz.setParent(vcc.getBpMain());
             Scene scene = sz.getScene();
-
-            scene.getStylesheets().add(VC.class.getResource("/com/cofii/ts/first/VF.css").toExternalForm());
+            */
+            Scene scene = new Scene(loader.load());
+            //vf.getStage().setScene(scene);
+            scene.getStylesheets().add(VC.class.getResource("/com/cofii/ts/cu/Test.css").toExternalForm());
             vf.getStage().setScene(scene);
             // ------------------------------------------------------
             vcc.setVf(vf);
@@ -322,6 +324,8 @@ public class VC {
                 System.out.println(CC.CYAN + "\nUPDATE TABLE" + CC.RESET);
                 updateOption();
             }
+
+            
             // OTHERS----------------------------
             boolean disable = vcc.getBtnsImageC().stream().anyMatch(btn -> btn.isSelected());
             //vcc.getTfImageCPath().setDisable(!disable);

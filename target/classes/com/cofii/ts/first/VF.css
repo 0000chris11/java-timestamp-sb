@@ -56,7 +56,14 @@
     -fx-background-color: -fx-root-background-color;
     background-color: -fx-root-background-color;
 }
-
+.grid-pane{
+    -fx-background-color: -fx-root-background-color;
+    background-color: -fx-root-background-color;
+}
+.border-pane .top{
+    -fx-background-color: transparent;
+    background-color: transparent;
+}
 /*SCROLL PANE*/
 .scroll-pane > .viewport {
     -fx-background-color: transparent;
@@ -351,14 +358,25 @@
     background-color: #160f72;
 }
 /*VC ID---------------------------*/
+
 #hbTop{
     -fx-background-color: -fx-root-background-color;
     background-color: -fx-root-background-color;
 }
-#regionLeft{
-    -fx-background-color: -fx-region-left-background-color;
-    background-color: -fx-region-left-background-color;
+#bpMain .top{
+    -fx-background-color: -fx-root-background-color;
+    background-color: -fx-root-background-color;
 }
+/*
+#gridPane{
+    -fx-background-color: -fx-root-background-color;
+    background-color: -fx-root-background-color;
+}
+#scGridPane{
+    -fx-background-color: -fx-root-background-color;
+    background-color: -fx-root-background-color;
+}
+*/
 /*VG ID-------------------------*/
 .lbGuess{
     -fx-font-size: 28;
