@@ -22,16 +22,29 @@
       </HBox>
    </top>
    <bottom>
-      <HBox fx:id="hbStatus" spacing="2.0" BorderPane.alignment="CENTER">
+      <HBox fx:id="hbStatus" alignment="CENTER" spacing="2.0" BorderPane.alignment="CENTER">
          <children>
-            <Label fx:id="lbUpdate" prefHeight="26.0" prefWidth="44.0" text="Updates" />
-            <Region prefWidth="10.0" />
-            <Button fx:id="btnUpdatePK" disable="true" mnemonicParsing="false" text="Primary Key" HBox.hgrow="NEVER" />
-            <Button fx:id="btnUpdateFK" disable="true" mnemonicParsing="false" text="Foreign Key" HBox.hgrow="NEVER" />
-            <Button fx:id="btnUpdateExtra" disable="true" mnemonicParsing="false" text="Extra" HBox.hgrow="NEVER" />
-            <Button fx:id="btnUpdateDist" mnemonicParsing="false" text="Dist" />
+            <HBox fx:id="hbUpdates" alignment="CENTER" spacing="4.0">
+               <children>
+                  <Label fx:id="lbUpdate" alignment="CENTER_RIGHT" prefHeight="26.0" prefWidth="70.0" text="Updates" HBox.hgrow="ALWAYS" />
+                  <Button fx:id="btnUpdatePK" disable="true" mnemonicParsing="false" text="Primary Key" HBox.hgrow="NEVER" />
+                  <Button fx:id="btnUpdateFK" disable="true" mnemonicParsing="false" text="Foreign Key" HBox.hgrow="NEVER" />
+                  <Button fx:id="btnUpdateExtra" disable="true" mnemonicParsing="false" text="Extra" HBox.hgrow="NEVER" />
+                  <Button fx:id="btnUpdateDist" mnemonicParsing="false" text="Dist" HBox.hgrow="SOMETIMES" />
+               </children>
+               <padding>
+                  <Insets bottom="4.0" top="4.0" />
+               </padding>
+            </HBox>
             <Region prefWidth="20.0" />
-            <Button fx:id="btnSelectImageC" mnemonicParsing="false" text="ImageC Select" />
+            <HBox alignment="CENTER">
+               <children>
+                  <Button fx:id="btnSelectImageC" alignment="CENTER" mnemonicParsing="false" prefWidth="100.0" text="ImageC Select">
+                     <padding>
+                        <Insets bottom="4.0" top="4.0" />
+                     </padding></Button>
+               </children>
+            </HBox>
             <Region HBox.hgrow="ALWAYS" />
             <Button fx:id="btnCancel" mnemonicParsing="false" text="Go Back" />
             <Button fx:id="btnCreateUpdate" disable="true" mnemonicParsing="false" text="Create" HBox.hgrow="NEVER" />

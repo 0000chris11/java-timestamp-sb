@@ -5,7 +5,16 @@
     -fx-scrollpane-track-background-color:-fx-textfield-background-color;
     -fx-scrollpane-track-thump-background-color: #130b77;
 }
-
+.root{
+    -fx-background-color: -fx-root-background-color;
+    background-color: -fx-root-background-color;
+}
+/*
+.hbox{
+    -fx-background-color: -fx-root-background-color;
+    background-color: -fx-root-background-color;
+}
+*/
 /*SCROLL PANE*/
 .scroll-pane > .viewport {
     -fx-background-color: transparent;
@@ -41,7 +50,4 @@
     -fx-background-color: blue;
     background-color: blue;
 }
-.hbox{
-    -fx-background-color: -fx-root-background-color;
-    background-color: -fx-root-background-color;
-}
+

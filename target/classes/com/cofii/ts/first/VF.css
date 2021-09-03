@@ -39,6 +39,7 @@
     -fx-background-color: -fx-root-background-color;
     background-color: -fx-root-background-color;
 }
+/*
 .vbox{
     -fx-background-color: -fx-root-background-color;
     background-color: -fx-root-background-color;
@@ -47,7 +48,7 @@
     -fx-background-color: -fx-root-background-color;
     background-color: -fx-root-background-color;
 }
-
+*/
 .split-pane:horizontal{
     -fx-background-color: -fx-root-background-color;
     background-color: -fx-root-background-color;
@@ -366,6 +367,14 @@
 #bpMain .top{
     -fx-background-color: -fx-root-background-color;
     background-color: -fx-root-background-color;
+}
+#hbUpdates{
+    -fx-border-style: solid solid solid solid;
+    border-style: solid solid solid solid;
+    -fx-border-width: 2;
+    border-width: 2;
+    -fx-border-color: white;
+    border-color: white;
 }
 /*
 #gridPane{

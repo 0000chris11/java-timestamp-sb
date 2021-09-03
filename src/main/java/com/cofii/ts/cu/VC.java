@@ -42,22 +42,18 @@ public class VC {
         for (int a = 0; a < size; a++) {
             int row = a + 1;
 
-            vcc.getGridPaneLeft().add(vcc.getHbsN().get(a), 0, row);
-            vcc.getGridPaneLeft().add(vcc.getHbsName().get(a), 1, row);
-            vcc.getGridPaneLeft().add(vcc.getHbsType().get(a), 2, row);
-            vcc.getGridPaneLeft().add(vcc.getHbsNull().get(a), 3, row);
-            vcc.getGridPaneLeft().add(vcc.getHbsPK().get(a), 4, row);
-            vcc.getGridPaneLeft().add(vcc.getHbsFK().get(a), 5, row);
-            vcc.getGridPaneLeft().add(vcc.getHbsDefault().get(a), 6, row);
-            vcc.getGridPaneLeft().add(vcc.getHbsExtra().get(a), 7, row);
+            vcc.getGridPane().add(vcc.getHbsN().get(a), 0, row);
+            vcc.getGridPane().add(vcc.getHbsName().get(a), 1, row);
+            vcc.getGridPane().add(vcc.getHbsType().get(a), 2, row);
+            vcc.getGridPane().add(vcc.getHbsNull().get(a), 3, row);
+            vcc.getGridPane().add(vcc.getHbsPK().get(a), 4, row);
+            vcc.getGridPane().add(vcc.getHbsFK().get(a), 5, row);
+            vcc.getGridPane().add(vcc.getHbsDefault().get(a), 6, row);
+            vcc.getGridPane().add(vcc.getHbsExtra().get(a), 7, row);
+            vcc.getGridPane().add(vcc.getBtnsDist().get(a), 8, row);
 
             GridPane.setValignment(vcc.getLbsN().get(a), VPos.TOP);
-            // RIGHT-----------------------------------------
-            //vcc.getGridPaneRight().add(vcc.getBtnsDist().get(a), 0, row);
-            //vcc.getGridPaneRight().add(vcc.getBtnsImageC().get(a), 1, row);
-
             GridPane.setValignment(vcc.getBtnsDist().get(a), VPos.TOP);
-            GridPane.setValignment(vcc.getBtnsImageC().get(a), VPos.TOP);
         }
     }
 
@@ -68,8 +64,8 @@ public class VC {
         // TOP--------------------------------------------------------
         vcc.getBtnRenameTable().setVisible(false);
         rowDisplay(vcc.getPresetRowsLenght());
-        // LEFT-------------------------------------------------------
-        vcc.getGridPaneLeft().getRowConstraints().forEach(e -> {
+        // CENTER-------------------------------------------------------
+        vcc.getGridPane().getRowConstraints().forEach(e -> {
             e.setValignment(VPos.TOP);
             e.setVgrow(Priority.NEVER);
         });
@@ -83,27 +79,11 @@ public class VC {
             vcc.getBtnsChangeDefault().get(a).setVisible(false);
         }
         vcc.btnAddRemoveColumnInit();
-        // LEFT-BOTTOM------------------------------------------------
+        // BOTTOM------------------------------------------------
         vcc.getBtnUpdatePK().setDisable(true);
         vcc.getBtnUpdateFK().setDisable(true);
         vcc.getBtnUpdateExtra().setDisable(true);
         vcc.getBtnUpdateDist().setDisable(true);
-        /*
-        vcc.getBtnUpdatePK().setDisable(true);
-        vcc.getBtnUpdateFK().setDisable(true);
-        vcc.getBtnUpdateExtra().setDisable(true);
-        */
-        // RIGHT ROW-------------------------------------------------------
-        /*
-        vcc.getGridPaneRight().getRowConstraints().forEach(e -> {
-            e.setValignment(VPos.TOP);
-            e.setVgrow(Priority.NEVER);
-        });
-        */
-        // RIGHT-BOTTOM------------------------------------------------
-        //vcc.getHbRightUpdate().setDisable(true);
-        vcc.getBtnUpdateDist().setDisable(true);
-        //vcc.getBtnUpdateImageC().setDisable(true);
     }
 
     private void setUpdateStore() {
@@ -302,13 +282,13 @@ public class VC {
 
             /*
             SceneZoom sz = new SceneZoom(loader.load(), zoomProperty);
-            vcc = (VCController) loader.getController();
             sz.setParent(vcc.getBpMain());
             Scene scene = sz.getScene();
             */
             Scene scene = new Scene(loader.load());
+            vcc = (VCController) loader.getController();
             //vf.getStage().setScene(scene);
-            scene.getStylesheets().add(VC.class.getResource("/com/cofii/ts/cu/Test.css").toExternalForm());
+            scene.getStylesheets().add(VC.class.getResource("/com/cofii/ts/first/VF.css").toExternalForm());
             vf.getStage().setScene(scene);
             // ------------------------------------------------------
             vcc.setVf(vf);
