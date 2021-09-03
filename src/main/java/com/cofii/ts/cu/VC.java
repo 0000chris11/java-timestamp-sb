@@ -164,7 +164,7 @@ public class VC {
             vcc.getRbsExtra().get(a).setSelected(extra == a);
             // DISTS---------------------------------------------
             vcc.getBtnsDist().get(a).setSelected(dists.get(a));
-            vcc.getBtnsImageC().get(a).setSelected(imageCS.get(a));// ERROR IF THERE IS MORE THAN ONE
+            //vcc.getBtnsImageC().get(a).setSelected(imageCS.get(a));// ERROR IF THERE IS MORE THAN ONE
             
         }
         if (!currentTable.getImageCPath().equals("NONE")) {
@@ -305,11 +305,6 @@ public class VC {
                 updateOption();
             }
 
-            
-            // OTHERS----------------------------
-            boolean disable = vcc.getBtnsImageC().stream().anyMatch(btn -> btn.isSelected());
-            //vcc.getTfImageCPath().setDisable(!disable);
-            vcc.getBtnSelectImageC().setDisable(!disable);
         } catch (IOException e) {
             e.printStackTrace();
         }

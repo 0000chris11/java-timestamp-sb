@@ -376,6 +376,15 @@
     -fx-border-color: white;
     border-color: white;
 }
+/*VImageC ID-------------------*/
+#scGridpane{
+    -fx-border-style: solid solid solid solid;
+    border-style: solid solid solid solid;
+    -fx-border-width: 2;
+    border-width: 2;
+    -fx-border-color: white;
+    border-color: white;
+}
 /*
 #gridPane{
     -fx-background-color: -fx-root-background-color;
