@@ -39,7 +39,7 @@
             <Region prefWidth="20.0" />
             <HBox alignment="CENTER">
                <children>
-                  <Button fx:id="btnSelectImageC" alignment="CENTER" mnemonicParsing="false" prefWidth="100.0" text="ImageC Select">
+                  <Button fx:id="btnSelectImageC" disable="true" alignment="CENTER" mnemonicParsing="false" prefWidth="100.0" text="ImageC Select">
                      <padding>
                         <Insets bottom="4.0" top="4.0" />
                      </padding></Button>

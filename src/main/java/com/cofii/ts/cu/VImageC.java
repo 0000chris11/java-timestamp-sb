@@ -2,8 +2,11 @@ package com.cofii.ts.cu;
 
 import java.io.IOException;
 
+import com.cofii.ts.sql.MSQL;
+
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
 public class VImageC {
@@ -31,6 +34,21 @@ public class VImageC {
 
             scene.getStylesheets().add(VImageC.class.getResource("/com/cofii/ts/first/VF.css").toExternalForm());
             stage.setScene(scene);
+
+            //AFTER CONTROLLER INIT---------------------------------
+            int columnsLength = vc.getCurrentRowLength();
+            String[] columns = vc.getTfsColumn().stream().map(TextField::getText).limit(columnsLength).toArray(size -> new String[size]);
+            vicc.getCbColumnSelect().getItems().addAll(columns);
+            vicc.getCbColumnSelect().getSelectionModel().select(0);
+
+            vicc.getTfNumberImageC().setText(Integer.toString(MSQL.DEFAULT_IMAGES_LENGTH));
+
+            vicc.getCbDisplayOrder().getItems().addAll("Ascended", "Random");
+            vicc.getCbDisplayOrder().getSelectionModel().select(0);
+            
+            vicc.getCbType().getItems().addAll("File", "Folder");
+            vicc.getCbType().getSelectionModel().select(0);
+            //------------------------------------------------------
             stage.show();
         } catch (IOException e) {
             e.printStackTrace();
@@ -44,6 +62,10 @@ public class VImageC {
 
     public void setVicc(VImageCController vicc) {
         this.vicc = vicc;
+    }
+
+    public static void setInstance(VImageC instance) {
+        VImageC.instance = instance;
     }
 
     

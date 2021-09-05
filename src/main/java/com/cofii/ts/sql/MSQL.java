@@ -22,7 +22,9 @@ public class MSQL {
         // MAIN VARIABLES
         public static final int MAX_COLUMNS = 10;
 
-        public static final int MAX_IMAGES = 4;
+        public static final int DEFAULT_IMAGES_LENGTH = 4;
+        public static final int MAX_IMAGES_LENGTH = 10;
+
         public static final int MAX_PATHS = 6;
 
         // QUERYS ============================================

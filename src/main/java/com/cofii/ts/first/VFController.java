@@ -138,7 +138,7 @@ public class VFController implements Initializable {
 
     private Table currentTable;
 
-    private ImageView[] ivImageC = new ImageView[MSQL.MAX_IMAGES];
+    private ImageView[] ivImageC = new ImageView[MSQL.DEFAULT_IMAGES_LENGTH];
     public static final String NO_IMAGE = "ImageC is set to NONE";
     private Label lbImageC = new Label(NO_IMAGE);
 
@@ -381,7 +381,7 @@ public class VFController implements Initializable {
                                 isFile[0] = true;
                             } else if (toShow.isDirectory() && !isFile[0]) {// ALWAYS SHOUL BE ONE MATCH
                                 imageCounter[0] = 0;
-                                Arrays.asList(toShow.listFiles()).stream().limit(MSQL.MAX_IMAGES)
+                                Arrays.asList(toShow.listFiles()).stream().limit(MSQL.DEFAULT_IMAGES_LENGTH)
                                         .forEach(file -> ivImageC[imageCounter[0]++]
                                                 .setImage(new Image(file.toURI().toString())));
                                 isDirectory[0] = true;
@@ -601,7 +601,7 @@ public class VFController implements Initializable {
             gridPane.getRowConstraints().get(a).setMaxHeight(-1);
         }
         // Arrays.fill(ivImageC, new ImageView());//DUPLICATED CHILDREN
-        for (int a = 0; a < MSQL.MAX_IMAGES; a++) {
+        for (int a = 0; a < MSQL.DEFAULT_IMAGES_LENGTH; a++) {
             ivImageC[a] = new ImageView();
             ivImageC[a].setPreserveRatio(true);
             // ivImageC[a].fitHeightProperty().bind(fpImages.heightProperty());

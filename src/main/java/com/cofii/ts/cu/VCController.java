@@ -374,6 +374,11 @@ public class VCController implements Initializable {
         }
     }
 
+    private void btnSelectImageCControl(){
+        boolean ok = columnSNOK && columnBWOK;
+        btnSelectImageC.setDisable(!ok);
+    }
+
     // LISTENERS---------------------------------------------
     // TABLE-------------------------------------
     private void tfTableKeyReleased(KeyEvent e) {
@@ -498,6 +503,7 @@ public class VCController implements Initializable {
         tfsColumnUpdate(index, text);
         // ---------------------------------------------------------
         masterControl();
+        btnSelectImageCControl();
     }
 
     private void listColumnsChange(Change<? extends String> c) {
@@ -624,7 +630,9 @@ public class VCController implements Initializable {
         tfsTypeLengthCreateControl(-1);
         tfasFKControl(-1, true);
         tfsDefaultControl(-1);
+
         masterControl();
+        btnSelectImageCControl();
     }
 
     void btnsRemoveCreateAction(ActionEvent e) {
@@ -650,6 +658,7 @@ public class VCController implements Initializable {
         tfsDefaultControl(-1);
 
         masterControl();
+        btnSelectImageCControl();
     }
 
     // UPDATE========================================
@@ -778,7 +787,9 @@ public class VCController implements Initializable {
         tfsTypeLengthCreateControl(-1);
         tfasFKControl(-1, true);
         tfsDefaultControl(-1);
+
         masterControl();
+        btnSelectImageCControl();
     }
 
     // ADD UPDATE QUERY----------
@@ -863,7 +874,9 @@ public class VCController implements Initializable {
         tfsTypeLengthCreateControl(-1);
         tfasFKControl(-1, true);
         tfsDefaultControl(-1);
+
         masterControl();
+        btnSelectImageCControl();
     }
 
     void btnsRemoveUpdateAction(ActionEvent e) {
@@ -910,7 +923,9 @@ public class VCController implements Initializable {
         tfsTypeLengthCreateControl(-1);
         tfasFKControl(-1, true);
         tfsDefaultControl(-1);
+
         masterControl();
+        btnSelectImageCControl();
     }
 
     // EXIT & OTHERS----------
@@ -2199,7 +2214,6 @@ public class VCController implements Initializable {
     private void btnSelectImageCAction(ActionEvent e) {
         VImageC vImageC = VImageC.getInstance(this, !updateControl);
         vicc = vImageC.getVicc();
-
         
     }
 
