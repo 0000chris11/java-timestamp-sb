@@ -48,7 +48,7 @@ public class VImageC {
             stage.setScene(scene);
             // AFTER CONTROLLER INIT---------------------------------
             vicc.getCbDisplayOrder().getItems().addAll("Ascended", "Random");
-            vicc.getCbType().getItems().addAll("File", "Folder");
+            vicc.getCbType().getItems().addAll("File", "Folder", "All-Sub-Files");
 
             if (create) {
                 vicc.getTfNumberImageC().setText(Integer.toString(MSQL.DEFAULT_IMAGES_LENGTH));

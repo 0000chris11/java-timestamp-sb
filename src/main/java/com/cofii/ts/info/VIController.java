@@ -137,7 +137,7 @@ public class VIController implements Initializable {
             }
 
             if (imageC.equals("Yes")) {
-                lbImageC[a].setText(imageC + "\n" + table.getImageCPath());
+                lbImageC[a].setText(imageC + "\n" + table.getImageCPaths());
             } else {
                 lbImageC[a].setText("No");
             }

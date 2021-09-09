@@ -15,9 +15,12 @@ public class Table {
 
     private String dist = "NONE";
     private List<Boolean> distYN;
-
-    private String imageC = "NONE";
-    private String imageCPath = "NONE";
+    //IMAGECS------------------------------
+    private String imageCColumnName = "NONE";
+    private int imageCLength = 0;
+    private String displayOrder = "Ascended";
+    private String imageType = "File";
+    private String[] imageCPaths = null;
     //-------------------------------------------------
     private int max = MSQL.MAX_COLUMNS;
     // GETS -------------------------------------------------
@@ -85,12 +88,10 @@ public class Table {
         distYN = new ArrayList<>();
     }
     //-------------------------------------------------
-    public Table(int id, String name, String dist, String imageC, String imageCPath) {
+    public Table(int id, String name, String dist) {
         this.id = id;
         this.name = name;
         this.dist = dist;
-        this.imageC = imageC;
-        this.imageCPath = imageCPath;
     }
     //-------------------------------------------------
     public int getId() {
@@ -117,20 +118,20 @@ public class Table {
         this.dist = dist;
     }
 
-    public String getImageC() {
-        return imageC;
+    public String getImageCColumnName() {
+        return imageCColumnName;
     }
 
-    public void setImageC(String imageC) {
-        this.imageC = imageC;
+    public void setImageCColumnName(String imageCColumnName) {
+        this.imageCColumnName = imageCColumnName;
     }
 
-    public String getImageCPath() {
-        return imageCPath;
+    public String[] getImageCPaths() {
+        return imageCPaths;
     }
 
-    public void setImageCPath(String imageCPath) {
-        this.imageCPath = imageCPath;
+    public void setImageCPaths(String[] imageCPaths) {
+        this.imageCPaths = imageCPaths;
     }
     public List<Column> getColumns() {
         return columns;
@@ -149,6 +150,24 @@ public class Table {
     }
     public void setExtra(int extra) {
         this.extra = extra;
+    }
+    public int getImageCLength() {
+        return imageCLength;
+    }
+    public void setImageCLength(int imageCLength) {
+        this.imageCLength = imageCLength;
+    }
+    public String getDisplayOrder() {
+        return displayOrder;
+    }
+    public void setDisplayOrder(String displayOrder) {
+        this.displayOrder = displayOrder;
+    }
+    public String getImageType() {
+        return imageType;
+    }
+    public void setImageType(String image_type) {
+        this.imageType = image_type;
     }
     
 }

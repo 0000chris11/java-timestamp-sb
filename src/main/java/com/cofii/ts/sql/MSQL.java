@@ -69,12 +69,12 @@ public class MSQL {
                         + "(id_table INT NOT NULL, " + "id_path INT NOT NULL, " + "FOREIGN KEY(id_table) REFERENCES "
                         + Users.getInstance().getCurrenUser().getCurrentDatabase().getName() + ".table_names(id), "
                         + "FOREIGN KEY(id_path) REFERENCES "
-                        + Users.getInstance().getCurrenUser().getCurrentDatabase().getName() + ".paths(id))";
-
+                        + Users.getInstance().getCurrenUser().getCurrentDatabase().getName() + ".paths(id), "
+                        + "UNIQUE INDEX idx_row (id_table, id_path))";
         public static final String CREATE_TABLE_IMAGECS = "CREATE TABLE IF NOT EXISTS " + TABLE_IMAGECS
                         + "(id_table INT NOT NULL, " + "columns_names CHAR(255) NOT NULL, "
-                        + "images_length INT NOT NULL, " + "display_order CHAR(50) NOT NULL, "
-                        + "image_type CHAR(50) NOT NULL, " + "FOREIGN KEY(id_table) REFERENCES "
+                        + "images_length INT NOT NULL, " + "display_order ENUM(\"Ascended\", \"Random\") NOT NULL, "
+                        + "image_type ENUM(\"File\", \"Folder\", \"All-Sub-Files\") NOT NULL, " + "FOREIGN KEY(id_table) REFERENCES "
                         + Users.getInstance().getCurrenUser().getCurrentDatabase().getName()
                         + ".table_names(id), UNIQUE INDEX idx_id_table (id_table))";
 

@@ -57,10 +57,14 @@ public class Menus {
     // QUERYS-----------------------------------------------------
     private void selectTables(ResultSet rs, boolean rsValues, SQLException ex) throws SQLException {
         if (rsValues) {
-            Table table = new Table(rs.getInt(1), rs.getString(2).replace(" ", "_"), rs.getString(3), rs.getString(4),
-                    rs.getString(5));
+            Table table = new Table(rs.getInt(1), rs.getString(2).replace(" ", "_"), rs.getString(3));
 
             currentDatabase.addTable(table);
+        }
+    }
+    private void selectPaths(ResultSet rs, boolean rsValues, SQLException ex) throws SQLException {
+        if(rsValues){
+
         }
     }
 
@@ -141,6 +145,8 @@ public class Menus {
         //SELECT TABLES-------------------------------
         currentDatabase.clearTables();
         vfc.getMs().selectData(MSQL.TABLE_NAMES, this::selectTables);
+        vfc.getMs().selectData(MSQL.PATHS, vfc.getVf()::selectPathsForCurrentUser);
+
         if (!Database.getTables().isEmpty()) {
             vfc.getTfTable().setPromptText("select a table");
         }else{

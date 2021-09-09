@@ -19,8 +19,8 @@ import javafx.scene.layout.GridPane;
 public class Dist {
 
     private static VFController vf;
-    //private ColumnS columns = ColumnS.getInstance();
-    //private ColumnDS columnsd = ColumnDS.getInstance();
+    // private ColumnS columns = ColumnS.getInstance();
+    // private ColumnDS columnsd = ColumnDS.getInstance();
     // private Keys keys = Keys.getInstance();
 
     private List<String> imageCFiles = new ArrayList<>();
@@ -48,8 +48,8 @@ public class Dist {
                         vf.getTfs()[c].setPromptText("AUTO_INCREMENT");
                     }
 
-                    //???????????????????????
-                    //columnsd.getList().get(c).setDist("Yes");
+                    // ???????????????????????
+                    // columnsd.getList().get(c).setDist("Yes");
                     currentTable.getColumns().get(c).setDist(true);
                     // QUERY --------------------------------------------------
                     String tableName = currentTable.getName().replace(" ", "_");
@@ -65,33 +65,36 @@ public class Dist {
     }
 
     private void imageC(Table currentTable) {
-        String imageC = currentTable.getImageC();
-        String imageCPath = currentTable.getImageCPath();
+        String imageCColumnName = currentTable.getImageCColumnName();
 
-        if (!imageCPath.equals("NONE")) {
-            int index = currentTable.getColumnIndex(imageC);
-            //columnsd.getList().get(index).setImageC("Yes");
+        if (currentTable.getImageCPaths() != null) {
+            List<String> imageCPath = Arrays.asList(currentTable.getImageCPaths());
+
+            int index = currentTable.getColumnIndex(imageCColumnName);
             currentTable.getColumns().get(index).setImageC(true);
-            currentTable.setImageCPath(imageCPath);
-            //columnsd.getList().get(index).setImageCPath(imageCPath);
+            // currentTable.setImageCPaths(imageCPath); ????
 
             vf.getSplitLeft().setDividerPositions(0.6);
-            File imageCDirectory = new File(imageCPath);
+            boolean allPathsExists = imageCPath.stream().allMatch(path -> {
+                File file = new File(path);
+                return file.exists() && file.isDirectory();
+            });
 
             vf.getHbImages().getChildren().clear();
-            if (imageCDirectory.exists()) {
-                vf.getHbImages().getChildren().add(vf.getIvImageC()[0]);
+            if (allPathsExists) {
+                // RESET IMAGEC-DISPLAY AND PATHS-LISTS
+                vf.getHbImages().getChildren().add(vf.getIvImageC()[0]); // DEFAULT 1
                 imageCFilesPath.clear();
                 imageCFiles.clear();
-
-                if (imageCDirectory.isDirectory()) {
-                    int[] indexs = { 0 };
+                //ADDING PATHS FROM THE ALL THE IMAGECS-PATHS
+                imageCPath.forEach(path -> {
+                    File imageCDirectory = new File(path);
                     Arrays.asList(imageCDirectory.listFiles(f -> f.isDirectory() || f.isFile())).stream().forEach(f -> {
                         imageCFilesPath.add(f.getPath());
                         imageCFiles.add(MString.getRemoveCustomFormattedString(f.getName()));
-                        indexs[0]++;
                     });
-                }
+                });
+
             } else {
                 // GET HBOX of imageView TO REPLACED WITH 'path to ImageC not found'
                 vf.getHbImages().getChildren().add(new Label("Path '" + imageCPath + "' not found"));
@@ -103,9 +106,9 @@ public class Dist {
 
     public void distStart() {
         Table currentTable = Users.getInstance().getCurrenUser().getCurrentDatabase().getCurrentTable();
-        //columnsd.clear();
+        // columnsd.clear();
         for (int a = 0; a < currentTable.getColumns().size(); a++) {
-            //columnsd.addColumnD(new ColumnD());
+            // columnsd.addColumnD(new ColumnD());
             currentTable.getColumns().get(a).setDist(false);
             currentTable.getColumns().get(a).setImageC(false);
         }
@@ -117,9 +120,8 @@ public class Dist {
     public void distAction() {
         Table currentTable = Users.getInstance().getCurrenUser().getCurrentDatabase().getCurrentTable();
 
-        
         for (int a = 0; a < currentTable.getColumns().size(); a++) {
-            if (currentTable.getColumns().get(a).getDist()){
+            if (currentTable.getColumns().get(a).getDist()) {
                 String tableName = currentTable.getName().replace(" ", "_");
                 String column = currentTable.getColumns().get(a).getName();
                 ms.setDistinctOrder(MSQLP.MOST_USE_ORDER);// WORK 50 50 WITH TAGS

@@ -167,9 +167,6 @@ public class VC {
             //vcc.getBtnsImageC().get(a).setSelected(imageCS.get(a));// ERROR IF THERE IS MORE THAN ONE
             
         }
-        if (!currentTable.getImageCPath().equals("NONE")) {
-            //vcc.getTfImageCPath().setText(currentTable.getImageCPath());
-        }
 
         // ----------------------------------------------------
         // updateTable = new UpdateTable(table, columnsName, types, typesLength, nulls,
@@ -190,9 +187,9 @@ public class VC {
         updateTable.setDistHole(currentTable.getDist());
         updateTable.setDists(dists);
         //updateTable.setDistYN(dists);
-        updateTable.setImageCHole(currentTable.getImageC());
+        updateTable.setImageCHole(currentTable.getImageCColumnName());
         updateTable.setImageCS(imageCS);
-        updateTable.setImageCPathHole(currentTable.getImageCPath());
+        //updateTable.setImageCPathHole(currentTable.getImageCPaths());
 
         updateTable.setRowLength(columnCount);
         vcc.setUpdateTable(updateTable);

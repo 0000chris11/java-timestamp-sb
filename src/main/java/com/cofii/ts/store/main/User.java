@@ -15,12 +15,13 @@ public class User {
 
     private int id;
     private String name;
+    private final List<Path> paths = new ArrayList<>();
 
     private static final List<Database> databases = new ArrayList<>();
     private Database currentDatabase;
-
     private static ObjectProperty<Database> defaultDatabaseProperty = new SimpleObjectProperty<>(null);
-    // --------------------------------------------
+
+    // DATABASE--------------------------------------------
     public void clearDatabases() {
         databases.clear();
     }
@@ -53,6 +54,12 @@ public class User {
     public void setCurrentDatabaseById(int id) {
         this.currentDatabase = databases.stream().filter(d -> d.getId() == id).toArray(size -> new Database[size])[0];
     }
+
+    // PATH--------------------------------------------------
+    public int getPathIdByName(String name) {
+        return paths.stream().filter(path -> path.getPathName().equals(name)).toArray(s -> new Path[s])[0].getId();
+    }
+
     // CONSTRUCTORS----------------------------------------
     public User(int id, String name) {
         this.id = id;
@@ -100,6 +107,10 @@ public class User {
 
     public static void setDefaultDatabase(Database defaultDatabase) {
         User.defaultDatabaseProperty.setValue(defaultDatabase);
+    }
+
+    public List<Path> getPaths() {
+        return paths;
     }
 
 }

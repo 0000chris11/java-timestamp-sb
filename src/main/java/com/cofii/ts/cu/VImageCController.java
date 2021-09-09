@@ -75,7 +75,7 @@ public class VImageCController implements Initializable {
     private final DirectoryChooser directoryChooser = new DirectoryChooser();
     // BOTTOM---------------------------
     @FXML
-    private Button btnCancel;
+    private Button btnReset;
     @FXML
     private Button btnSaveUpdate;
     @FXML
@@ -112,6 +112,7 @@ public class VImageCController implements Initializable {
         btnSaveUpdateHelpMap.put("Paths Unique", pathsSameOk);
         btnSaveUpdateHelpMap.put("Paths Exists", pathsExists);
     }
+
     // LISTENERS------------------------------------
     private void cbColumnSelectTextProperty(String newValue) {
         columnSelectOk = cbColumnSelect.getItems().stream().anyMatch(item -> item.equals(newValue));
@@ -170,7 +171,12 @@ public class VImageCController implements Initializable {
             List<String> list = tfsPath.stream().map(tf -> {
                 File file = new File(tf.getText());
                 if (file.exists()) {
-                    tf.setStyle(CSS.TEXT_FILL);
+                    if (file.isDirectory()) {
+                        tf.setStyle(CSS.TEXT_FILL);
+                    } else {
+                        tf.setStyle(CSS.TEXT_FILL_ERROR);
+                        pathsExists = false;
+                    }
                 } else {
                     tf.setStyle(CSS.TEXT_FILL_ERROR);
                     pathsExists = false;
@@ -216,16 +222,17 @@ public class VImageCController implements Initializable {
         removeRow(index[0]);
     }
 
-    private void btnResetAction(ActionEvent e){
+    private void btnResetAction(ActionEvent e) {
         VImageC.setInstance(null);
         stage.close();
     }
 
-    void btnSaveCreateAction(ActionEvent e){
+    void btnSaveCreateAction(ActionEvent e) {
         stage.close();
     }
-    void btnSaveUpdateAction(ActionEvent e){
-        //ADD UPDATE QUERY !!!!!!!!!!!!!!
+
+    void btnSaveUpdateAction(ActionEvent e) {
+        // ADD UPDATE QUERY !!!!!!!!!!!!!!
     }
 
     // INIT-----------------------------------------
@@ -317,8 +324,8 @@ public class VImageCController implements Initializable {
 
         tfsPath.addListener(this::tfsPathChangeListener);
 
-        btnCancel.setOnAction(this::btnResetAction);
-        //btnSaveUpdate.setOnAction(this::btnSaveCreateAction);
+        btnReset.setOnAction(this::btnResetAction);
+        // btnSaveUpdate.setOnAction(this::btnSaveCreateAction);
         btnSaveUpdateHelp.setOnAction(e -> btnSaveUpdateHelpKV.showPopup());
     }
 

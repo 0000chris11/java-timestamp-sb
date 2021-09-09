@@ -138,7 +138,7 @@ public class VFController implements Initializable {
 
     private Table currentTable;
 
-    private ImageView[] ivImageC = new ImageView[MSQL.DEFAULT_IMAGES_LENGTH];
+    private ImageView[] ivImageC = new ImageView[MSQL.MAX_IMAGES_LENGTH];
     public static final String NO_IMAGE = "ImageC is set to NONE";
     private Label lbImageC = new Label(NO_IMAGE);
 
@@ -243,7 +243,7 @@ public class VFController implements Initializable {
     }
 
     // TABLE------------------------------------
-    private void selectionForEachDatabase(String newValue) {
+    public void selectionForEachDatabase(String newValue) {
         System.out.println(CC.CYAN + "\nCHANGE DATABASE" + CC.RESET);
         User user = Users.getInstance().getCurrenUser();
         boolean databaseMatch = user.getDatabases().stream().anyMatch(d -> d.getName().equals(newValue));
@@ -314,6 +314,7 @@ public class VFController implements Initializable {
 
             String tableA = tableName.replace(" ", "_");
             ms.selectDataWhere(MSQL.TABLE_NAMES, "name", tableName, new SelectTableNames(true));
+            ms.selectDataWhere(MSQL.TABLE_IMAGECS, "id_table", currentTable.getId(), vf::selectImageCSForCurrentTable);
             ms.selectColumns(tableA, new ShowColumns(this));
 
             Menus.getInstance(this).resetKeys();
@@ -322,9 +323,6 @@ public class VFController implements Initializable {
                     + currentTable.getDist());
 
             dist.distStart();
-            // IDK HOW TF-TABLE-AUTOC IS LOOSING IT'S SELECTION-FOR-EACH-TABLE LISTENER
-            // tfTableAutoC.getLv().getSelectionModel().selectedItemProperty().removeListener(selectionForEachTableListener);
-            // tfTableAutoC.getLv().getSelectionModel().selectedItemProperty().addListener(selectionForEachTableListener);
 
             ms.selectData(tableA, new SelectData(this, SelectData.MESSGE_TABLE_CHANGE + tableName));
         }
@@ -339,10 +337,11 @@ public class VFController implements Initializable {
             GetRowSelectedImpl nr = new GetRowSelectedImpl(this, selectedRow);
             forEachAction(rowData.length, nr);
             // ImageC----------------------------------------
-            if (!currentTable.getImageC().equals("NONE")) {
-                String imageCPath = currentTable.getImageCPath();
-                if (new File(imageCPath).exists()) {
-                    int imageCIndex = currentTable.getColumnIndex(currentTable.getImageC());
+            if (!currentTable.getImageCColumnName().equals("NONE")) {
+                List<String> imageCPaths = Arrays.asList(currentTable.getImageCPaths());
+                if (imageCPaths.stream().allMatch(s -> new File(s).exists())) {
+
+                    int imageCIndex = currentTable.getColumnIndex(currentTable.getImageCColumnName());
                     String itemSelected = list.get(0).get(imageCIndex).toString();
                     // System.out.println("itemSelected: " + itemSelected);
                     String formattedSelectedText = MString.getCustomFormattedString(itemSelected);
@@ -350,9 +349,7 @@ public class VFController implements Initializable {
                     // System.out.println("--------------------------------------------------");
                     List<String> itemsMatch = dist.getImageCFilesPath().stream().filter(e -> {
                         String subFile = e.replaceAll("(.jpg|.png|.gif)$", "");
-                        // System.out.println("\tsubFile: " + subFile);
-                        // System.out.println("\nsubFile: [" + subFile + "]");
-                        if (formattedSelectedText.contains("; ")) {
+                        if (formattedSelectedText.contains("; ") && !currentTable.getImageType().equals("Folder")) {
                             String[] split = formattedSelectedText.split("; ");
                             List<String> spList = Arrays.asList(split);
                             // System.out.println("SPLITS");
@@ -365,11 +362,11 @@ public class VFController implements Initializable {
                     }).collect(Collectors.toList());
                     // System.out.println("SIZE: " + itemsMatch.size() + "
                     // ---------------------------------------------");
-
                     hbImages.getChildren().clear();
                     Arrays.asList(ivImageC).forEach(e -> e.setImage(null));
+
                     if (!itemsMatch.isEmpty()) {
-                        // ivImageC.setImage(new Image(new File(filePath).toURI().toString()));
+
                         int[] imageCounter = { 0 };
                         final boolean[] isDirectory = { false };
                         final boolean[] isFile = { false };
@@ -601,7 +598,7 @@ public class VFController implements Initializable {
             gridPane.getRowConstraints().get(a).setMaxHeight(-1);
         }
         // Arrays.fill(ivImageC, new ImageView());//DUPLICATED CHILDREN
-        for (int a = 0; a < MSQL.DEFAULT_IMAGES_LENGTH; a++) {
+        for (int a = 0; a < MSQL.MAX_IMAGES_LENGTH; a++) {
             ivImageC[a] = new ImageView();
             ivImageC[a].setPreserveRatio(true);
             // ivImageC[a].fitHeightProperty().bind(fpImages.heightProperty());

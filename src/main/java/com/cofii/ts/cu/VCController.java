@@ -5,10 +5,14 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.cofii.ts.first.VF;
@@ -23,7 +27,9 @@ import com.cofii.ts.store.SQLType;
 import com.cofii.ts.store.SQLTypes;
 import com.cofii.ts.store.UpdateTable;
 import com.cofii.ts.store.main.Database;
+import com.cofii.ts.store.main.Path;
 import com.cofii.ts.store.main.Table;
+import com.cofii.ts.store.main.User;
 import com.cofii.ts.store.main.Users;
 import com.cofii2.components.javafx.LabelStatus;
 import com.cofii2.components.javafx.ToggleGroupD;
@@ -212,7 +218,7 @@ public class VCController implements Initializable {
     private ObservableMap<String, Boolean> updateAddColumnHelpMap = FXCollections.observableHashMap();
     private PopupKV updateAddColumnHelpPopup = new PopupKV(updateAddColumnHelpMap);
     // ---------------------------------------------
-    private VFController vf;
+    private VFController vfc;
     private VImageCController vicc;
     private MSQLP ms;
 
@@ -366,7 +372,7 @@ public class VCController implements Initializable {
         }
     }
 
-    private void btnSelectImageCControl(){
+    private void btnSelectImageCControl() {
         boolean ok = columnSNOK && columnBWOK;
         btnSelectImageC.setDisable(!ok);
     }
@@ -437,8 +443,7 @@ public class VCController implements Initializable {
                     ResultSet rs = ms.selectRow(MSQL.TABLE_NAMES, "Name", newTable.replace("_", " "));
                     Table ctable = null;
                     while (rs.next()) {
-                        ctable = new Table(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getString(4),
-                                rs.getString(5));
+                        ctable = new Table(rs.getInt(1), rs.getString(2), rs.getString(3));
                     }
 
                     Users.getInstance().getCurrenUser().getCurrentDatabase().setCurrentTable(ctable);
@@ -1966,6 +1971,34 @@ public class VCController implements Initializable {
         new VF(this);
     }
 
+    // CREATE TABLE--------------------------------------------
+    private boolean insertPaths(int tableId) {
+        User currentUser = Users.getInstance().getCurrenUser();
+
+        String imageCColumn = vicc.getCbColumnSelect().getSelectionModel().getSelectedItem();
+        int imagesLength = Integer.parseInt(vicc.getTfNumberImageC().getText());
+        String displayOrder = vicc.getCbDisplayOrder().getSelectionModel().getSelectedItem();
+        String type = vicc.getCbType().getSelectionModel().getSelectedItem();
+
+        List<String> paths = vicc.getTfsPath().stream().map(TextField::getText).collect(Collectors.toList());
+        // INSERTING PATHS-------------------------
+        paths.forEach(path -> {
+            ms.setInsertIgnore(true);
+            ms.insert(MSQL.PATHS, new Object[] { null, path });
+        });
+
+        Users.getInstance().getCurrenUser().getPaths().clear();
+        ms.selectData(MSQL.PATHS, vfc.getVf()::selectPathsForCurrentUser);
+        // INSERTING TABLE-PATHS--------------------
+        paths.forEach(path -> {
+            ms.setInsertIgnore(true);
+            ms.insert(MSQL.TABLE_PATHS, new Object[] { tableId, currentUser.getPathIdByName(path) });
+        });
+
+        Object[] valuesTableImageC = new Object[] { tableId, imageCColumn, imagesLength, displayOrder, type };
+        return ms.insert(MSQL.TABLE_IMAGECS, valuesTableImageC);
+    }
+
     private void btnCreateTableAction(ActionEvent e) {
         System.out.println(CC.CYAN + "CREATE TABLE" + CC.RESET);
         String tableName = tfTable.getText().toLowerCase().trim().replace(" ", "_");
@@ -1982,16 +2015,6 @@ public class VCController implements Initializable {
         int extra = 0;
         // RIGHT-------------------
         String dist = Custom.getOldDist(currentRowLength, btnsDist.toArray(new ToggleButton[btnsDist.size()]));
-        String imageC = null;// !!!!!!!!!!!!
-
-        if (vicc != null) {
-            String imageCColumn = vicc.getCbColumnSelect().getSelectionModel().getSelectedItem();
-            int imagesLength = Integer.parseInt(vicc.getTfNumberImageC().getText());
-            String displayOrder = vicc.getCbDisplayOrder().getSelectionModel().getSelectedItem();
-            String type = vicc.getCbType().getSelectionModel().getSelectedItem();
-
-            String[] paths = vicc.getTfsPath().stream().map(tf -> tf.getText()).toArray(size -> new String[size]);
-        }
         // ADDING VALUES -------------------------------------------------
         for (int a = 0; a < currentRowLength; a++) {
             // LEFT-------------------
@@ -2040,31 +2063,42 @@ public class VCController implements Initializable {
         msc.addAllPrimaryKeys(cpks);
         msc.addAllForeignKeys(cfks);
         msc.setAutoIncrement(extra);
+
         boolean createTable = msc.createTable(tableName, columnsNames, typesNames);
         // INSERT -----------------------------------------------
+        StringBuilder message = new StringBuilder();
+        boolean fullSuccess = true;
         if (createTable) {
-            Object[] valuesTableNames = new Object[] { null, tableName.replace("_", " "), dist,
-                    imageC, "NONE"};
-                    //GET ID OF THE TABLE !!!!!!!
-            Object[] valuesTableImageC = new Object[] {};
+            Object[] valuesTableNames = new Object[] { null, tableName, dist, "NONE", "NONE" };
 
             boolean insertTableNames = ms.insert(MSQL.TABLE_NAMES, valuesTableNames);
             if (insertTableNames) {
-                // Menus.getInstance(vf).addMenuItemsReset();// NOT TESTED
-                lbStatus.setText("Table '" + tableName.replace("_", " ") + "' has been created!", NonCSS.TEXT_FILL_OK,
-                        Duration.seconds(3));
+                message.append("Table '" + tableName.replace("_", " ") + "' has been created!");
                 System.out.println("\tSUCCESS");
             } else {
                 // DELETE CREATED TABLE
-                lbStatus.setText("FATAL: (Table has been create but not inserted on " + MSQL.TABLE_NAMES,
-                        NonCSS.TEXT_FILL_ERROR);
+                fullSuccess = false;
+                message.append("FATAL: (Table has been create but not inserted on " + MSQL.TABLE_NAMES);
                 System.out.println("\tFATAL");
             }
+            // IMAGECS-----------------------
+            if (vicc != null && !btnSelectImageC.isDisable()) {
+                int newTableId = (int) ms.selectValues(MSQL.TABLE_NAMES, "id", "name", tableName)[0];
+                boolean imageCS = insertPaths(newTableId);
+
+                if (imageCS) {
+                    message.append(", imagecs data has been inserted successfully!");
+                } else {
+                    message.append(", imagecs data failed to be inserted");
+                    fullSuccess = false;
+                }
+            }
         } else {
-            lbStatus.setText("Table Failed to be created", NonCSS.TEXT_FILL_ERROR);
+            fullSuccess = false;
+            message.append("Table Failed to be created");
             System.out.println("\tFAILED");
         }
-
+        lbStatus.setText(message.toString(), fullSuccess ? Color.GREEN : Color.YELLOW);
     }
 
     private void btnHelpAction(ActionEvent e) {
@@ -2995,11 +3029,11 @@ public class VCController implements Initializable {
     }
 
     public VFController getVf() {
-        return vf;
+        return vfc;
     }
 
     public void setVf(VFController vf) {
-        this.vf = vf;
+        this.vfc = vf;
     }
 
     public MSQLP getMs() {

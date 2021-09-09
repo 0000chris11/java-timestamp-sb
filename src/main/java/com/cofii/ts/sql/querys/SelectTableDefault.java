@@ -19,7 +19,7 @@ public class SelectTableDefault implements IActions {
     @Override
     public void setData(ResultSet rs, int row) throws SQLException {
         Users.getInstance().getCurrenUser().getCurrentDatabase().setCurrentTable(
-                new Table(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5)));
+                new Table(rs.getInt(1), rs.getString(2), rs.getString(3)));
     }
 
     @Override

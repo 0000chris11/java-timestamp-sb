@@ -13,6 +13,7 @@ import com.cofii.ts.sql.querys.SelectDatabases;
 import com.cofii.ts.store.main.Database;
 import com.cofii.ts.store.main.Option;
 import com.cofii.ts.store.main.Options;
+import com.cofii.ts.store.main.Path;
 import com.cofii.ts.store.main.Table;
 import com.cofii.ts.store.main.User;
 import com.cofii.ts.store.main.Users;
@@ -59,7 +60,7 @@ public class VF {
              * s.equals("No"))) { vf.getSplitLeft().setDividerPositions(1.0); }
              */
             if (currentTable != null) {
-                if (currentTable.getImageC().equals("NONE")) {
+                if (currentTable.getImageCColumnName().equals("NONE")) {
                     vfc.getSplitLeft().setDividerPositions(1.0);
                 }
             }
@@ -73,7 +74,7 @@ public class VF {
          * s.equals("No"))) { vf.getSplitLeft().setDividerPositions(1.0); }
          */
         if (currentTable != null) {
-            if (currentTable.getImageC().equals("NONE")) {
+            if (currentTable.getImageCColumnName().equals("NONE")) {
                 vfc.getSplitLeft().setDividerPositions(1.0);
             }
         }
@@ -108,6 +109,34 @@ public class VF {
         }
     }
 
+    public void selectPathsForCurrentUser(ResultSet rs, boolean rsValues, SQLException ex) throws SQLException {
+        if (rsValues) {
+            int id = rs.getInt(1);
+            String path = rs.getString(2);
+
+            Users.getInstance().getCurrenUser().getPaths().add(new Path(id, path));
+        }
+    }
+
+    public void selectImageCSForCurrentTable(ResultSet rs, boolean rsValues, SQLException ex) throws SQLException {
+        if (rsValues) {
+            String columnName = rs.getString(2);
+            int imageLength = rs.getInt(3);
+            String displayOrder = rs.getString(4);
+            String imageType = rs.getString(5);
+
+            Table currentTable = null;
+            if (currentTable == null) {
+                currentTable = Users.getInstance().getCurrenUser().getCurrentDatabase().getCurrentTable();
+            }
+
+            currentTable.setImageCColumnName(columnName);
+            currentTable.setImageCLength(imageLength);
+            currentTable.setDisplayOrder(displayOrder);
+            currentTable.setImageType(imageType);
+        }
+    }
+
     // INIT-----------------------------------------
     /**
      * Does main tables exist (at selected Database level)
@@ -134,18 +163,16 @@ public class VF {
 
                 ms.selectDataWhere(MSQL.TABLE_USER_DEFAULTS_OPTIONS, "user_id", currentUserId,
                         this::selectCurrentUserDefaultOptions);
+
             }
 
             String databaseName = users.getCurrenUser().getCurrentDatabase().getName();
             vfc.getTfDatabase().setText(databaseName);
             vfc.getTfDatabaseAutoC().getDisableItems().add(databaseName);
-
             // TABLES ------------------------------------------
-            // EXIST---------------------
             if (startFromLogin) {
                 mainTablesCreation();
             }
-
             // SELECT TABLES FROM CURRENT DATABASE
             menus.addTablesToTfTableReset(vfc);
 
@@ -164,9 +191,11 @@ public class VF {
                 vfc.getTfTableAutoC().getDisableItems().add(tableName);
                 vfc.getTfTable().setText(tableName);
             }
-            // TABLE SELECT-----------------------------------
+            // DATABASE & TABLE SELECT-----------------------------------
             if (currentDatabase.getCurrentTable() != null) {
+                databaseName = currentDatabase.getName();
                 String tableName = currentDatabase.getCurrentTable().getName();
+                vfc.selectionForEachDatabase(databaseName);
                 vfc.selectionForEachTable(tableName);
                 /*
                  * vfc.getLbDatabaseTable().setText(databaseName + "." + tableName);
