@@ -18,6 +18,7 @@ public class MSQL {
         public static final String TABLE_NAMES = "table_names";
         public static final String PATHS = "paths";
         public static final String TABLE_PATHS = "table_paths";
+        public static final String TABLE_IMAGECS = "table_imagecs";
 
         // MAIN VARIABLES
         public static final int MAX_COLUMNS = 10;
@@ -67,8 +68,15 @@ public class MSQL {
         public static final String CREATE_TABLE_PATHS = "CREATE TABLE IF NOT EXISTS " + TABLE_PATHS
                         + "(id_table INT NOT NULL, " + "id_path INT NOT NULL, " + "FOREIGN KEY(id_table) REFERENCES "
                         + Users.getInstance().getCurrenUser().getCurrentDatabase().getName() + ".table_names(id), "
-                        + "FOREIGN KEY(id_path) REFERENCES " + Users.getInstance().getCurrenUser().getCurrentDatabase().getName()
-                        + ".paths(id))";
+                        + "FOREIGN KEY(id_path) REFERENCES "
+                        + Users.getInstance().getCurrenUser().getCurrentDatabase().getName() + ".paths(id))";
+
+        public static final String CREATE_TABLE_IMAGECS = "CREATE TABLE IF NOT EXISTS " + TABLE_IMAGECS
+                        + "(id_table INT NOT NULL, " + "columns_names CHAR(255) NOT NULL, "
+                        + "images_length INT NOT NULL, " + "display_order CHAR(50) NOT NULL, "
+                        + "image_type CHAR(50) NOT NULL, " + "FOREIGN KEY(id_table) REFERENCES "
+                        + Users.getInstance().getCurrenUser().getCurrentDatabase().getName()
+                        + ".table_names(id), UNIQUE INDEX idx_id_table (id_table))";
 
         // -------------------------------------------------
         private MSQL() {

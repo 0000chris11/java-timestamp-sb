@@ -1,10 +1,6 @@
 package com.cofii.ts.cu;
 
-import java.io.File;
 import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -19,7 +15,6 @@ import com.cofii.ts.first.VF;
 import com.cofii.ts.first.VFController;
 import com.cofii.ts.other.CSS;
 import com.cofii.ts.other.NonCSS;
-import com.cofii.ts.other.Timers;
 import com.cofii.ts.sql.MSQL;
 import com.cofii.ts.store.FKS;
 import com.cofii.ts.store.PK;
@@ -27,7 +22,6 @@ import com.cofii.ts.store.PKS;
 import com.cofii.ts.store.SQLType;
 import com.cofii.ts.store.SQLTypes;
 import com.cofii.ts.store.UpdateTable;
-import com.cofii.ts.store.VCGridNodes;
 import com.cofii.ts.store.main.Database;
 import com.cofii.ts.store.main.Table;
 import com.cofii.ts.store.main.Users;
@@ -79,9 +73,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
-import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
-import javafx.stage.DirectoryChooser;
 import javafx.stage.Popup;
 import javafx.util.Duration;
 
@@ -1974,7 +1966,7 @@ public class VCController implements Initializable {
         new VF(this);
     }
 
-    private void btnCreateAction(ActionEvent e) {
+    private void btnCreateTableAction(ActionEvent e) {
         System.out.println(CC.CYAN + "CREATE TABLE" + CC.RESET);
         String tableName = tfTable.getText().toLowerCase().trim().replace(" ", "_");
         // LEFT-------------------
@@ -1993,11 +1985,13 @@ public class VCController implements Initializable {
         String imageC = null;// !!!!!!!!!!!!
 
         if (vicc != null) {
+            String imageCColumn = vicc.getCbColumnSelect().getSelectionModel().getSelectedItem();
+            int imagesLength = Integer.parseInt(vicc.getTfNumberImageC().getText());
+            String displayOrder = vicc.getCbDisplayOrder().getSelectionModel().getSelectedItem();
+            String type = vicc.getCbType().getSelectionModel().getSelectedItem();
 
+            String[] paths = vicc.getTfsPath().stream().map(tf -> tf.getText()).toArray(size -> new String[size]);
         }
-        // String imageCPath = Custom.getImageCPath(currentRowLength,
-        // tfImageCPath.getText(),
-        // btnsImageC.toArray(new ToggleButton[btnsImageC.size()]));
         // ADDING VALUES -------------------------------------------------
         for (int a = 0; a < currentRowLength; a++) {
             // LEFT-------------------
@@ -2049,13 +2043,13 @@ public class VCController implements Initializable {
         boolean createTable = msc.createTable(tableName, columnsNames, typesNames);
         // INSERT -----------------------------------------------
         if (createTable) {
-            Object[] values = new Object[] { null, tableName.replace("_", " "), dist,
-                    imageC/*
-                           * , imageCPath.replace("\\", "\\\\")
-                           */ };
+            Object[] valuesTableNames = new Object[] { null, tableName.replace("_", " "), dist,
+                    imageC, "NONE"};
+                    //GET ID OF THE TABLE !!!!!!!
+            Object[] valuesTableImageC = new Object[] {};
 
-            boolean insert = ms.insert(MSQL.TABLE_NAMES, values);
-            if (insert) {
+            boolean insertTableNames = ms.insert(MSQL.TABLE_NAMES, valuesTableNames);
+            if (insertTableNames) {
                 // Menus.getInstance(vf).addMenuItemsReset();// NOT TESTED
                 lbStatus.setText("Table '" + tableName.replace("_", " ") + "' has been created!", NonCSS.TEXT_FILL_OK,
                         Duration.seconds(3));
@@ -2214,7 +2208,6 @@ public class VCController implements Initializable {
     private void btnSelectImageCAction(ActionEvent e) {
         VImageC vImageC = VImageC.getInstance(this, !updateControl);
         vicc = vImageC.getVicc();
-        
     }
 
     /*
@@ -2785,7 +2778,7 @@ public class VCController implements Initializable {
         fkReferencesInit();
         // BOTTOM --------------------------------------------
         btnCancel.setOnAction(this::btnCancelAction);
-        btnCreateUpdate.setOnAction(this::btnCreateAction);
+        btnCreateUpdate.setOnAction(this::btnCreateTableAction);
         btnCreateHelp.setOnAction(this::btnHelpAction);
 
         btnSelectImageC.setOnAction(this::btnSelectImageCAction);

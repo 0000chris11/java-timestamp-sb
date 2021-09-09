@@ -12,14 +12,26 @@ import javafx.stage.Stage;
 public class VImageC {
 
     private static Stage stage = new Stage();
-    private VImageCController vicc;
+    private static VImageCController vicc;
+    private static String[] columns;
 
     private static VImageC instance;
-    public static VImageC getInstance(VCController vc, boolean create){
-        if(instance == null){
+
+    public static VImageC getInstance(VCController vc, boolean create) {
+        if (instance == null) {
             instance = new VImageC(vc, create);
-        }else{
+        } else {
             stage.show();
+        }
+        // ADDING COLUMNS-------------------------------
+        if (create) {
+            int columnsLength = vc.getCurrentRowLength();
+            columns = vc.getTfsColumn().stream().map(TextField::getText).limit(columnsLength)
+                    .toArray(size -> new String[size]);
+            if (vicc != null) {
+                vicc.getCbColumnSelect().getItems().addAll(columns);
+                vicc.getCbColumnSelect().getSelectionModel().select(0);
+            }
         }
         return instance;
     }
@@ -34,21 +46,22 @@ public class VImageC {
 
             scene.getStylesheets().add(VImageC.class.getResource("/com/cofii/ts/first/VF.css").toExternalForm());
             stage.setScene(scene);
-
-            //AFTER CONTROLLER INIT---------------------------------
-            int columnsLength = vc.getCurrentRowLength();
-            String[] columns = vc.getTfsColumn().stream().map(TextField::getText).limit(columnsLength).toArray(size -> new String[size]);
-            vicc.getCbColumnSelect().getItems().addAll(columns);
-            vicc.getCbColumnSelect().getSelectionModel().select(0);
-
-            vicc.getTfNumberImageC().setText(Integer.toString(MSQL.DEFAULT_IMAGES_LENGTH));
-
+            // AFTER CONTROLLER INIT---------------------------------
             vicc.getCbDisplayOrder().getItems().addAll("Ascended", "Random");
-            vicc.getCbDisplayOrder().getSelectionModel().select(0);
-            
             vicc.getCbType().getItems().addAll("File", "Folder");
-            vicc.getCbType().getSelectionModel().select(0);
-            //------------------------------------------------------
+
+            if (create) {
+                vicc.getTfNumberImageC().setText(Integer.toString(MSQL.DEFAULT_IMAGES_LENGTH));
+
+                vicc.getCbDisplayOrder().getSelectionModel().select(0);
+                vicc.getCbType().getSelectionModel().select(0);
+                //LISTENERS-----------------------------
+                vicc.getBtnSaveUpdate().setOnAction(vicc::btnSaveCreateAction);
+            }else{
+                //LISTENERS-----------------------------
+                vicc.getBtnSaveUpdate().setOnAction(vicc::btnSaveUpdateAction);
+            }
+            // ------------------------------------------------------
             stage.show();
         } catch (IOException e) {
             e.printStackTrace();
@@ -68,5 +81,4 @@ public class VImageC {
         VImageC.instance = instance;
     }
 
-    
 }

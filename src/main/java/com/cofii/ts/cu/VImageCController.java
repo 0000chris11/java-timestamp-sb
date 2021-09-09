@@ -77,11 +77,11 @@ public class VImageCController implements Initializable {
     @FXML
     private Button btnCancel;
     @FXML
-    private Button btnAddImageC;
+    private Button btnSaveUpdate;
     @FXML
-    private Button btnAddImageCHelp;
-    private PopupKV btnAddImageCHelpKV;
-    private ObservableMap<String, Boolean> btnAddImageCHelpMap;
+    private Button btnSaveUpdateHelp;
+    private PopupKV btnSaveUpdateHelpKV;
+    private ObservableMap<String, Boolean> btnSaveUpdateHelpMap;
     // CONTROL----------------------------------
     private boolean columnSelectOk = true;
     private boolean numberImageC = true;
@@ -101,16 +101,16 @@ public class VImageCController implements Initializable {
 
         boolean ok = columnSelectOk && numberImageC && columnDisplayOrderOk && columnTypeOk && pathsSameOk
                 && pathsExists;
-        btnAddImageC.setDisable(!ok);
+        btnSaveUpdate.setDisable(!ok);
     }
 
     private void restartAddImageCMap() {
-        btnAddImageCHelpMap.put("Select Column", columnSelectOk);
-        btnAddImageCHelpMap.put("Number of ImageCs", numberImageC);
-        btnAddImageCHelpMap.put("Column Display Order", columnDisplayOrderOk);
-        btnAddImageCHelpMap.put("Type", columnTypeOk);
-        btnAddImageCHelpMap.put("Paths Unique", pathsSameOk);
-        btnAddImageCHelpMap.put("Paths Exists", pathsExists);
+        btnSaveUpdateHelpMap.put("Select Column", columnSelectOk);
+        btnSaveUpdateHelpMap.put("Number of ImageCs", numberImageC);
+        btnSaveUpdateHelpMap.put("Column Display Order", columnDisplayOrderOk);
+        btnSaveUpdateHelpMap.put("Type", columnTypeOk);
+        btnSaveUpdateHelpMap.put("Paths Unique", pathsSameOk);
+        btnSaveUpdateHelpMap.put("Paths Exists", pathsExists);
     }
     // LISTENERS------------------------------------
     private void cbColumnSelectTextProperty(String newValue) {
@@ -216,13 +216,16 @@ public class VImageCController implements Initializable {
         removeRow(index[0]);
     }
 
-    private void btnCancelAction(ActionEvent e){
+    private void btnResetAction(ActionEvent e){
         VImageC.setInstance(null);
         stage.close();
     }
 
-    private void btnAddImageCAction(ActionEvent e){
+    void btnSaveCreateAction(ActionEvent e){
         stage.close();
+    }
+    void btnSaveUpdateAction(ActionEvent e){
+        //ADD UPDATE QUERY !!!!!!!!!!!!!!
     }
 
     // INIT-----------------------------------------
@@ -298,8 +301,8 @@ public class VImageCController implements Initializable {
         lbDisplayOrder.setText(MATCH_A_ITEM);
         lbType.setText(MATCH_A_ITEM);
 
-        btnAddImageCHelpMap = FXCollections.observableHashMap();
-        btnAddImageCHelpKV = new PopupKV(btnAddImageCHelp, btnAddImageCHelpMap);
+        btnSaveUpdateHelpMap = FXCollections.observableHashMap();
+        btnSaveUpdateHelpKV = new PopupKV(btnSaveUpdateHelp, btnSaveUpdateHelpMap);
         restartAddImageCMap();
 
         // LISTENERS & BINDS----------------------------------
@@ -314,9 +317,9 @@ public class VImageCController implements Initializable {
 
         tfsPath.addListener(this::tfsPathChangeListener);
 
-        btnCancel.setOnAction(this::btnCancelAction);
-        btnAddImageC.setOnAction(this::btnAddImageCAction);
-        btnAddImageCHelp.setOnAction(e -> btnAddImageCHelpKV.showPopup());
+        btnCancel.setOnAction(this::btnResetAction);
+        //btnSaveUpdate.setOnAction(this::btnSaveCreateAction);
+        btnSaveUpdateHelp.setOnAction(e -> btnSaveUpdateHelpKV.showPopup());
     }
 
     // GETTERS & SETTERS----------------------------
@@ -358,6 +361,18 @@ public class VImageCController implements Initializable {
 
     public void setTfNumberImageC(TextField tfNumberImageC) {
         this.tfNumberImageC = tfNumberImageC;
+    }
+
+    public Button getBtnSaveUpdate() {
+        return btnSaveUpdate;
+    }
+
+    public void setBtnSaveUpdate(Button btnSaveUpdate) {
+        this.btnSaveUpdate = btnSaveUpdate;
+    }
+
+    public ObservableList<TextField> getTfsPath() {
+        return tfsPath;
     }
 
 }
