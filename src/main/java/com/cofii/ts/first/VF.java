@@ -109,6 +109,14 @@ public class VF {
         }
     }
 
+    /**
+     * Path * query Must happen each time the user change or when opening VF
+     * 
+     * @param rs       ResultSet data
+     * @param rsValues rows found
+     * @param ex       SQLException at PrepareStatement level
+     * @throws SQLException Others Exceptions
+     */
     public void selectPathsForCurrentUser(ResultSet rs, boolean rsValues, SQLException ex) throws SQLException {
         if (rsValues) {
             int id = rs.getInt(1);
@@ -118,6 +126,28 @@ public class VF {
         }
     }
 
+    public void selectTablePathsForEachTable(ResultSet rs, boolean rsValues, SQLException ex) throws SQLException {
+        if (rsValues) {
+            int pathId = rs.getInt(2);
+
+            Table currentTable = null;
+            if (currentTable == null) {
+                currentTable = Users.getInstance().getCurrenUser().getCurrentDatabase().getCurrentTable();
+            }
+            Path path = Users.getInstance().getCurrenUser().getPathById(pathId);
+            currentTable.getImageCPaths().add(path);
+
+        }
+    }
+
+    /**
+     * Table_ImageCS * query Must happen each time you select a table
+     * 
+     * @param rs       ResulSet data
+     * @param rsValues rows found
+     * @param ex       Exception ocurred at PrepareStatement level
+     * @throws SQLException Other SQLExceptions
+     */
     public void selectImageCSForCurrentTable(ResultSet rs, boolean rsValues, SQLException ex) throws SQLException {
         if (rsValues) {
             String columnName = rs.getString(2);

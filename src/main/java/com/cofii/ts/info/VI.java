@@ -16,7 +16,7 @@ public class VI {
         try {
             FXMLLoader loader = new FXMLLoader(VI.class.getResource("/com/cofii/ts/info/VI.fxml"));
             Scene scene = new Scene(loader.load());
-            scene.getStylesheets().add(VI.class.getResource("/com/cofii/ts/info/VI.css").toExternalForm());
+            scene.getStylesheets().add(VI.class.getResource("/com/cofii/ts/first/VF.css").toExternalForm());
 
             stage.setScene(scene);
             stage.show();

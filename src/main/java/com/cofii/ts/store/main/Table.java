@@ -20,7 +20,7 @@ public class Table {
     private int imageCLength = 0;
     private String displayOrder = "Ascended";
     private String imageType = "File";
-    private String[] imageCPaths = null;
+    private final List<Path> imageCPaths = new ArrayList<>();
     //-------------------------------------------------
     private int max = MSQL.MAX_COLUMNS;
     // GETS -------------------------------------------------
@@ -126,13 +126,10 @@ public class Table {
         this.imageCColumnName = imageCColumnName;
     }
 
-    public String[] getImageCPaths() {
+    public List<Path> getImageCPaths() {
         return imageCPaths;
     }
 
-    public void setImageCPaths(String[] imageCPaths) {
-        this.imageCPaths = imageCPaths;
-    }
     public List<Column> getColumns() {
         return columns;
     }

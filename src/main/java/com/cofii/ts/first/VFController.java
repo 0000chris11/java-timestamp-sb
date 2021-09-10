@@ -24,6 +24,7 @@ import com.cofii.ts.sql.querys.ShowColumns;
 import com.cofii.ts.store.main.Database;
 import com.cofii.ts.store.main.Option;
 import com.cofii.ts.store.main.Options;
+import com.cofii.ts.store.main.Path;
 import com.cofii.ts.store.main.Table;
 import com.cofii.ts.store.main.User;
 import com.cofii.ts.store.main.Users;
@@ -265,7 +266,7 @@ public class VFController implements Initializable {
     }
 
     public void selectionForEachTable(String newValue) {
-        System.out.println(CC.CYAN + "\nCHANGE TABLE" + CC.RESET);
+        System.out.println(CC.CYAN + "\nCHANGE TABLE [" + newValue + "]" + CC.RESET);
         Database currenDatabase = Users.getInstance().getCurrenUser().getCurrentDatabase();
         currentTable = currenDatabase.getCurrentTable();
         boolean tableMatch = Database.getTables().stream().anyMatch(t -> t.getName().equals(newValue));
@@ -283,6 +284,7 @@ public class VFController implements Initializable {
                 tfs[a].setStyle(CSS.TFS_DEFAULT_LOOK);
                 // }
                 tfs[a].setVisible(false);
+                tfs[a].getStyleClass().remove("imageCTF");
                 btns[a].setVisible(false);
 
                 tfs[a].setText("");
@@ -299,6 +301,7 @@ public class VFController implements Initializable {
 
             // ---------------------------------------
             currenDatabase.setCurrentTable(currenDatabase.getTable(newValue));
+            currentTable = currenDatabase.getCurrentTable();
 
             String databaseName = currenDatabase.getName();
             String tableName = newValue;
@@ -311,9 +314,10 @@ public class VFController implements Initializable {
             tfTableAutoC.getDisableItems().add(tableName);
             // tfTableAutoC.getLv().getSelectionModel().clearSelection();
             // SELECT -------------------------------------
-
             String tableA = tableName.replace(" ", "_");
+            currentTable.getImageCPaths().clear();
             ms.selectDataWhere(MSQL.TABLE_NAMES, "name", tableName, new SelectTableNames(true));
+            ms.selectDataWhere(MSQL.TABLE_PATHS, "id_table", currentTable.getId(), vf::selectTablePathsForEachTable);
             ms.selectDataWhere(MSQL.TABLE_IMAGECS, "id_table", currentTable.getId(), vf::selectImageCSForCurrentTable);
             ms.selectColumns(tableA, new ShowColumns(this));
 
@@ -338,8 +342,8 @@ public class VFController implements Initializable {
             forEachAction(rowData.length, nr);
             // ImageC----------------------------------------
             if (!currentTable.getImageCColumnName().equals("NONE")) {
-                List<String> imageCPaths = Arrays.asList(currentTable.getImageCPaths());
-                if (imageCPaths.stream().allMatch(s -> new File(s).exists())) {
+                List<Path> imageCPaths = currentTable.getImageCPaths();
+                if (imageCPaths.stream().allMatch(path -> new File(path.getPathName()).exists())) {
 
                     int imageCIndex = currentTable.getColumnIndex(currentTable.getImageCColumnName());
                     String itemSelected = list.get(0).get(imageCIndex).toString();

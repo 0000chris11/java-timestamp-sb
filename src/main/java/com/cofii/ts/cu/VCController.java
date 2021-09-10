@@ -1984,6 +1984,7 @@ public class VCController implements Initializable {
         // INSERTING PATHS-------------------------
         paths.forEach(path -> {
             ms.setInsertIgnore(true);
+            System.out.println("Insert in Path");
             ms.insert(MSQL.PATHS, new Object[] { null, path });
         });
 
@@ -1992,6 +1993,7 @@ public class VCController implements Initializable {
         // INSERTING TABLE-PATHS--------------------
         paths.forEach(path -> {
             ms.setInsertIgnore(true);
+            System.out.println("Insert in Table_Paths");
             ms.insert(MSQL.TABLE_PATHS, new Object[] { tableId, currentUser.getPathIdByName(path) });
         });
 

@@ -16,12 +16,21 @@ import com.cofii.ts.store.main.Users;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 
 public class VIController implements Initializable {
 
+    // TOP----------------------------
+    @FXML
+    private HBox hbTop;
+    @FXML
+    private ScrollPane scGridPaneTop;
+    @FXML
+    private GridPane gridPaneTop;
     @FXML
     private HBox hbColumnName;
     @FXML
@@ -38,18 +47,56 @@ public class VIController implements Initializable {
     private HBox hbDefault;
     @FXML
     private HBox hbExtra;
+    // BOTTOM --------------------------------------
+    @FXML
+    private HBox hbBottom;
+    // CUSTOM------------
+    @FXML
+    private VBox vbCustom;
+    @FXML
+    private HBox hbCustomHeader;
+    @FXML
+    private ScrollPane scGridPaneCustom;
+    @FXML
+    private GridPane gridPaneCustom;
     @FXML
     private HBox hbDist;
     @FXML
-    private HBox hbImageC;
-    // --------------------------------------
+    private HBox hbTextArea;
+    // IMAGEC-------------
     @FXML
-    private GridPane gridPaneLeft;
+    private VBox vbImageC;
     @FXML
-    private GridPane gridPaneRight;
+    private HBox hbImageCHeader;
+    @FXML
+    private GridPane gridPaneImageC;
+    @FXML
+    private HBox hbImageCColumn;
+    @FXML
+    private Label lbImageCColumn;
+    @FXML
+    private HBox hbImageCLength;
+    @FXML
+    private Label lbImageCLength;
+    @FXML
+    private HBox hbImageCDisplayOrder;
+    @FXML
+    private Label lbImageCDisplayOrder;
+    @FXML
+    private HBox hbImageCType;
+    @FXML
+    private Label lbImageCType;
+    // IMAGEC PATH----------------------------
+    @FXML
+    private VBox vbImageCPathMain;
+    @FXML
+    private HBox hbImageCPathHeader;
+    @FXML
+    private ScrollPane scImageCPaths;
+    @FXML
+    private VBox vbImageCPath;
+
     // --------------------------------------
-    //private ColumnS columns = ColumnS.getInstance();
-    //private ColumnDS columnsd = ColumnDS.getInstance();
     private PKS pks = PKS.getInstance();
     private FKS fks = FKS.getInstance();
 
@@ -64,11 +111,18 @@ public class VIController implements Initializable {
     private Label[] lbExtras = new Label[MSQL.MAX_COLUMNS];
 
     private Label[] lbDist = new Label[MSQL.MAX_COLUMNS];
+    private Label[] lbTextAreas = new Label[MSQL.MAX_COLUMNS];
+
     private Label[] lbImageC = new Label[MSQL.MAX_COLUMNS];
+
+    private Label[] lbPath = new Label[MSQL.MAX_COLUMNS];
 
     // -----------------------------------------------------------
     private void nonFXMLNodeInit() {
-        for (int a = 0; a < MSQL.MAX_COLUMNS; a++) {
+        Table currentTable = Users.getInstance().getCurrenUser().getCurrentDatabase().getCurrentTable();
+        int columnsLength = currentTable.getColumns().size();
+
+        for (int a = 0; a < columnsLength; a++) {
             lbColumns[a] = new Label();
             lbTypes[a] = new Label();
             lbTypeslength[a] = new Label();
@@ -79,36 +133,42 @@ public class VIController implements Initializable {
             lbExtras[a] = new Label();
 
             lbDist[a] = new Label();
-            lbImageC[a] = new Label();
+            lbTextAreas[a] = new Label("No");
 
             int row = a + 1;
-            gridPaneLeft.add(lbColumns[a], 0, row);
-            gridPaneLeft.add(lbTypes[a], 1, row);
-            gridPaneLeft.add(lbTypeslength[a], 2, row);
-            gridPaneLeft.add(lbNulls[a], 3, row);
-            gridPaneLeft.add(lbPK[a], 4, row);
-            gridPaneLeft.add(lbFK[a], 5, row);
-            gridPaneLeft.add(lbDefaults[a], 6, row);
-            gridPaneLeft.add(lbExtras[a], 7, row);
+            gridPaneTop.add(lbColumns[a], 0, row);
+            gridPaneTop.add(lbTypes[a], 1, row);
+            gridPaneTop.add(lbTypeslength[a], 2, row);
+            gridPaneTop.add(lbNulls[a], 3, row);
+            gridPaneTop.add(lbPK[a], 4, row);
+            gridPaneTop.add(lbFK[a], 5, row);
+            gridPaneTop.add(lbDefaults[a], 6, row);
+            gridPaneTop.add(lbExtras[a], 7, row);
 
-            gridPaneRight.add(lbDist[a], 0, row);
-            gridPaneRight.add(lbImageC[a], 1, row);
+            gridPaneCustom.add(lbDist[a], 0, row);
+            gridPaneCustom.add(lbTextAreas[a], 1, row);
+
+        }
+        int pathsLength = currentTable.getImageCPaths().size();
+        for (int a = 0; a < pathsLength; a++) {
+            lbPath[a] = new Label();
+            vbImageCPath.getChildren().add(lbPath[a]);
         }
     }
 
     private void nonFXMLNodeSet() {
-        Table table = Users.getInstance().getCurrenUser().getCurrentDatabase().getCurrentTable();
-        int length = table.getColumns().size();
-        for (int a = 0; a < length; a++) {
-            String column = table.getColumns().get(a).getName();
-            String type = table.getColumns().get(a).getType();
-            int typeLength = table.getColumns().get(a).getTypeLength();
-            boolean nulll = table.getColumns().get(a).getNulll();
-            String defaultt = table.getColumns().get(a).getDefaultt();
-            String extra = table.getColumns().get(a).getExtra() ? "Yes" : "No";
+        Table currentTable = Users.getInstance().getCurrenUser().getCurrentDatabase().getCurrentTable();
+        int length = currentTable.getColumns().size();
 
-            String dist = table.getColumns().get(a).getDist() ? "Yes" : "No";
-            String imageC = table.getColumns().get(a).getImageC() ? "Yes" : "No";
+        for (int a = 0; a < length; a++) {
+            String column = currentTable.getColumns().get(a).getName();
+            String type = currentTable.getColumns().get(a).getType();
+            int typeLength = currentTable.getColumns().get(a).getTypeLength();
+            boolean nulll = currentTable.getColumns().get(a).getNulll();
+            String defaultt = currentTable.getColumns().get(a).getDefaultt();
+            String extra = currentTable.getColumns().get(a).getExtra() ? "Yes" : "No";
+
+            String dist = currentTable.getColumns().get(a).getDist() ? "Yes" : "No";
 
             lbColumns[a].setText(column);
             lbTypes[a].setText(type);
@@ -119,7 +179,7 @@ public class VIController implements Initializable {
 
             if (defaultt != null) {
                 lbDefaults[a].setText(defaultt);
-            }else{
+            } else {
                 lbDefaults[a].setText("null");
                 lbDefaults[a].setTextFill(Color.DARKGRAY);
             }
@@ -136,11 +196,6 @@ public class VIController implements Initializable {
                 lbDist[a].setStyle("-fx-font-weight: bold;");
             }
 
-            if (imageC.equals("Yes")) {
-                lbImageC[a].setText(imageC + "\n" + table.getImageCPaths());
-            } else {
-                lbImageC[a].setText("No");
-            }
         }
         // PRIMARY KEYS---------------------------------------------
         PK[] cpks = pks.getCurrentTablePKS();
@@ -162,28 +217,49 @@ public class VIController implements Initializable {
                 lbPK[ordinalPosition].setStyle("-fx-font-weight: bold;");
             });
         }
+        // IMAGEC----------------------------------------------------
+        if (!currentTable.getImageCPaths().isEmpty()) {
+            String imageCColumn = currentTable.getImageCColumnName();
+            String imageCLength = Integer.toString(currentTable.getImageCLength());
+            String imageCDisplayOrder = currentTable.getDisplayOrder();
+            String imageCType = currentTable.getImageType();
+
+            lbImageCColumn.setText(imageCColumn);
+            lbImageCLength.setText(imageCLength);
+            lbImageCDisplayOrder.setText(imageCDisplayOrder);
+            lbImageCType.setText(imageCType);
+
+            int pathsLength = currentTable.getImageCPaths().size();
+            for (int a = 0; a < pathsLength; a++) {
+                lbPath[a].setText(currentTable.getImageCPaths().get(a).getPathName());
+            }
+        }
     }
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        // TOP--------------------
-        hbColumnName.setStyle(CSS.NEW_ROW);
-        hbType.setStyle(CSS.NEW_ROW);
-        hbTypeLength.setStyle(CSS.NEW_ROW);
-        hbNull.setStyle(CSS.NEW_ROW);
-        hbPK.setStyle(CSS.NEW_ROW);
-        hbFK.setStyle(CSS.NEW_ROW);
-        hbDefault.setStyle(CSS.NEW_ROW);
-        hbExtra.setStyle(CSS.NEW_ROW);
-
-        hbDist.setStyle(CSS.NEW_ROW);
-        hbImageC.setStyle(CSS.NEW_ROW);
+        // TOP
+        hbColumnName.getStyleClass().add("vi-sub-header");
+        hbType.getStyleClass().add("vi-sub-header");
+        hbTypeLength.getStyleClass().add("vi-sub-header");
+        hbNull.getStyleClass().add("vi-sub-header");
+        hbPK.getStyleClass().add("vi-sub-header");
+        hbFK.getStyleClass().add("vi-sub-header");
+        hbDefault.getStyleClass().add("vi-sub-header");
+        hbExtra.getStyleClass().add("vi-sub-header");
+        // CUSTOM
+        hbCustomHeader.getStyleClass().add("vi-header");
+        hbDist.getStyleClass().add("vi-sub-header");
+        hbTextArea.getStyleClass().add("vi-sub-header");
+        // IMAGEC
+        hbImageCHeader.getStyleClass().add("vi-header");
+        hbImageCPathHeader.getStyleClass().add("vi-header");
         // -----------------------
         nonFXMLNodeInit();
         nonFXMLNodeSet();
 
-        gridPaneLeft.setGridLinesVisible(true);
-        gridPaneRight.setGridLinesVisible(true);
+        gridPaneTop.setGridLinesVisible(true);
+        gridPaneCustom.setGridLinesVisible(true);
     }
 
 }

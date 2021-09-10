@@ -5,113 +5,223 @@
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
 
-<HBox xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cofii.ts.info.VIController">
+
+<VBox xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cofii.ts.info.VIController">
    <children>
-      <GridPane fx:id="gridPaneLeft" hgap="6.0">
-         <columnConstraints>
-            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-         </columnConstraints>
-         <rowConstraints>
-            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-         </rowConstraints>
-         <children>
-            <HBox fx:id="hbColumnName" alignment="CENTER">
+      <SplitPane dividerPositions="0.5" orientation="VERTICAL" VBox.vgrow="ALWAYS">
+         <items>
+            <HBox fx:id="hbTop">
                <children>
-                  <Label text="Colum Name" />
+                  <ScrollPane fx:id="scGridPaneTop" prefViewportHeight="240.0" prefViewportWidth="862.0" HBox.hgrow="ALWAYS">
+                     <content>
+                        <GridPane fx:id="gridPaneTop" hgap="6.0">
+                           <columnConstraints>
+                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                           </columnConstraints>
+                           <rowConstraints>
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                           </rowConstraints>
+                           <children>
+                              <HBox fx:id="hbColumnName" alignment="CENTER">
+                                 <children>
+                                    <Label text="Colum Name" />
+                                 </children>
+                              </HBox>
+                              <HBox fx:id="hbType" alignment="CENTER" GridPane.columnIndex="1">
+                                 <children>
+                                    <Label text="Type" />
+                                 </children>
+                              </HBox>
+                              <HBox fx:id="hbTypeLength" alignment="CENTER" GridPane.columnIndex="2">
+                                 <children>
+                                    <Label text="TypeLength" />
+                                 </children>
+                              </HBox>
+                              <HBox fx:id="hbNull" alignment="CENTER" GridPane.columnIndex="3">
+                                 <children>
+                                    <Label text="Null" />
+                                 </children>
+                              </HBox>
+                              <HBox fx:id="hbPK" alignment="CENTER" GridPane.columnIndex="4">
+                                 <children>
+                                    <Label text="PK" />
+                                 </children>
+                              </HBox>
+                              <HBox fx:id="hbDefault" alignment="CENTER" GridPane.columnIndex="6">
+                                 <children>
+                                    <Label text="Default" />
+                                 </children>
+                              </HBox>
+                              <HBox fx:id="hbExtra" alignment="CENTER" GridPane.columnIndex="7">
+                                 <children>
+                                    <Label text="Extra" />
+                                 </children>
+                              </HBox>
+                              <HBox fx:id="hbFK" alignment="CENTER" GridPane.columnIndex="5">
+                                 <children>
+                                    <Label text="FK" />
+                                 </children>
+                              </HBox>
+                           </children>
+                           <padding>
+                              <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                           </padding>
+                        </GridPane>
+                     </content>
+                  </ScrollPane>
                </children>
             </HBox>
-            <HBox fx:id="hbType" alignment="CENTER" GridPane.columnIndex="1">
+            <HBox fx:id="hbBottom" prefHeight="100.0" prefWidth="200.0" spacing="6.0">
                <children>
-                  <Label text="Type" />
+                  <VBox fx:id="vbCustom" HBox.hgrow="NEVER">
+                     <children>
+                        <HBox fx:id="hbCustomHeader" alignment="CENTER_LEFT" minHeight="40.0" prefHeight="40.0" VBox.vgrow="NEVER">
+                           <children>
+                              <Label text="Custom Info">
+                                 <padding>
+                                    <Insets left="20.0" right="20.0" />
+                                 </padding>
+                              </Label>
+                           </children>
+                        </HBox>
+                        <ScrollPane fx:id="scGridPaneCustom" prefViewportHeight="240.0" prefViewportWidth="226.0" VBox.vgrow="ALWAYS">
+                           <content>
+                              <GridPane fx:id="gridPaneCustom" hgap="6.0">
+                                 <columnConstraints>
+                                    <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                    <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                 </columnConstraints>
+                                 <rowConstraints>
+                                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                 </rowConstraints>
+                                 <children>
+                                    <HBox fx:id="hbDist" alignment="CENTER">
+                                       <children>
+                                          <Label text="Dist" />
+                                       </children>
+                                    </HBox>
+                                    <HBox fx:id="hbTextArea" alignment="CENTER" GridPane.columnIndex="1">
+                                       <children>
+                                          <Label text="TextArea" />
+                                       </children>
+                                    </HBox>
+                                 </children>
+                                 <padding>
+                                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                                 </padding>
+                              </GridPane>
+                           </content>
+                        </ScrollPane>
+                     </children>
+                     <padding>
+                        <Insets bottom="10.0" />
+                     </padding>
+                  </VBox>
+                  <VBox fx:id="vbImageC" HBox.hgrow="NEVER">
+                     <children>
+                        <HBox fx:id="hbImageCHeader" alignment="CENTER_LEFT" minHeight="40.0" prefHeight="40.0" VBox.vgrow="NEVER">
+                           <children>
+                              <Label text="ImageC Info" />
+                           </children>
+                           <padding>
+                              <Insets left="20.0" right="20.0" />
+                           </padding>
+                        </HBox>
+                        <GridPane fx:id="gridPaneImageC" VBox.vgrow="ALWAYS">
+                          <columnConstraints>
+                            <ColumnConstraints hgrow="SOMETIMES" minWidth="140.0" prefWidth="140.0" />
+                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                          </columnConstraints>
+                          <rowConstraints>
+                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
+                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
+                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
+                          </rowConstraints>
+                           <children>
+                              <HBox fx:id="hbImageCColumn" alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.vgrow="NEVER">
+                                 <children>
+                                    <Label text="Column: " />
+                                 </children>
+                              </HBox>
+                              <HBox fx:id="hbImageCLength" alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.rowIndex="1" GridPane.vgrow="NEVER">
+                                 <children>
+                                    <Label text="Images Dislpay Length: " />
+                                 </children>
+                              </HBox>
+                              <HBox fx:id="hbImageCDisplayOrder" alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.rowIndex="2" GridPane.vgrow="NEVER">
+                                 <children>
+                                    <Label text="Display Order: " />
+                                 </children>
+                              </HBox>
+                              <HBox fx:id="hbImageCType" alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.rowIndex="3" GridPane.vgrow="NEVER">
+                                 <children>
+                                    <Label text="Image Type: " />
+                                 </children>
+                              </HBox>
+                              <Label fx:id="lbImageCColumn" text="none" GridPane.columnIndex="1" />
+                              <Label fx:id="lbImageCLength" text="none" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                              <Label fx:id="lbImageCDisplayOrder" text="none" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                              <Label fx:id="lbImageCType" text="none" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                           </children>
+                        </GridPane>
+                     </children>
+                     <padding>
+                        <Insets bottom="10.0" />
+                     </padding>
+                  </VBox>
+                  <VBox fx:id="vbImageCPathMain" HBox.hgrow="ALWAYS">
+                     <children>
+                        <HBox fx:id="hbImageCPathHeader" alignment="CENTER_LEFT" minHeight="40.0" prefHeight="40.0" VBox.vgrow="NEVER">
+                           <children>
+                              <Label text="ImageC Path" />
+                           </children>
+                           <padding>
+                              <Insets left="20.0" right="20.0" />
+                           </padding>
+                        </HBox>
+                        <ScrollPane fx:id="scImageCPaths" prefViewportWidth="108.0" VBox.vgrow="ALWAYS">
+                           <content>
+                              <VBox fx:id="vbImageCPath"/>
+                           </content>
+                        </ScrollPane>
+                     </children>
+                     <padding>
+                        <Insets bottom="10.0" />
+                     </padding>
+                  </VBox>
                </children>
             </HBox>
-            <HBox fx:id="hbTypeLength" alignment="CENTER" GridPane.columnIndex="2">
-               <children>
-                  <Label text="TypeLength" />
-               </children>
-            </HBox>
-            <HBox fx:id="hbNull" alignment="CENTER" GridPane.columnIndex="3">
-               <children>
-                  <Label text="Null" />
-               </children>
-            </HBox>
-            <HBox fx:id="hbPK" alignment="CENTER" GridPane.columnIndex="4">
-               <children>
-                  <Label text="PK" />
-               </children>
-            </HBox>
-            <HBox fx:id="hbDefault" alignment="CENTER" GridPane.columnIndex="6">
-               <children>
-                  <Label text="Default" />
-               </children>
-            </HBox>
-            <HBox fx:id="hbExtra" alignment="CENTER" GridPane.columnIndex="7">
-               <children>
-                  <Label text="Extra" />
-               </children>
-            </HBox>
-            <HBox fx:id="hbFK" alignment="CENTER" GridPane.columnIndex="5">
-               <children>
-                  <Label text="FK" />
-               </children>
-            </HBox>
-         </children>
-         <padding>
-            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-         </padding>
-      </GridPane>
-      <GridPane fx:id="gridPaneRight" hgap="6.0">
-         <columnConstraints>
-            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-         </columnConstraints>
-         <rowConstraints>
-            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-         </rowConstraints>
-         <children>
-            <HBox fx:id="hbDist" alignment="CENTER">
-               <children>
-                  <Label text="Dist" />
-               </children>
-            </HBox>
-            <HBox fx:id="hbImageC" alignment="CENTER" GridPane.columnIndex="1">
-               <children>
-                  <Label text="hbImageC" />
-               </children>
-            </HBox>
-         </children>
-         <padding>
-            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-         </padding>
-      </GridPane>
+         </items>
+      </SplitPane>
    </children>
-</HBox>
+</VBox>

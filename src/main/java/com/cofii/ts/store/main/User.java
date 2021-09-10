@@ -56,6 +56,13 @@ public class User {
     }
 
     // PATH--------------------------------------------------
+    public Path getPathById(int id){
+        return paths.stream().filter(path -> path.getId() == id).toArray(s -> new Path[s])[0];
+    }
+
+    public String getPathNameById(int id){
+        return paths.stream().filter(path -> path.getId() == id).toArray(s -> new Path[s])[0].getPathName();
+    }
     public int getPathIdByName(String name) {
         return paths.stream().filter(path -> path.getPathName().equals(name)).toArray(s -> new Path[s])[0].getId();
     }

@@ -99,13 +99,6 @@
 
     -fx-table-cell-border-color: transparent;
 }
-/*
-.table-view .table-cell{
-    -fx-background-color: #100c49;
-    background-color: #100c49;
-    -fx-text-fill: white;
-}
-*/
 .table-view .column-header {
     -fx-background-color: transparent;
     background-color: transparent;
@@ -231,17 +224,6 @@
     -fx-background-color: -fx-table-row-cell-selected-background-color;
     background-color: -fx-table-row-cell-selected-background-color;
 }
-/*
-.combo-box .list-cell {
-    -fx-background: rgb(200, 38, 38);
-    background: rgb(200, 38, 38);
-    -fx-background-color: transparent;
-    background-color: transparent;
-    -fx-text-fill: -fx-text-base-color;
-    /*-fx-padding: 3 0 2 7;
-    -fx-cell-size: 1.66667em; 
-}
-*/
 .button{
     -fx-background-color: -fx-button-background-color;
     background-color: -fx-button-background-color;
@@ -345,7 +327,7 @@
 #disableCell{
     -fx-text-fill: rgba(128, 128, 128, 0.418);
 }
-/*VL ID*/
+/*VL ID-----------------------------*/
 .buttonQueryAction{
     -fx-background-color: #26d113bc;
     background-color:#26d113bc;
@@ -358,8 +340,16 @@
     -fx-background-color: #160f72;
     background-color: #160f72;
 }
+/*VF ID*/
+.imageCTF{
+    -fx-border-style: solid solid solid solid;
+    border-style: solid solid solid solid;
+    -fx-border-width: 1;
+    border-width: 1;
+    -fx-border-color: blue;
+    border-color: blue;
+}
 /*VC ID---------------------------*/
-
 #hbTop{
     -fx-background-color: -fx-root-background-color;
     background-color: -fx-root-background-color;
@@ -375,6 +365,15 @@
     border-width: 2;
     -fx-border-color: white;
     border-color: white;
+}
+/*VI ID------------------------*/
+.vi-header{
+    -fx-background-color: #0c28f7;
+    background-color: #0c28f7;
+}
+.vi-sub-header{
+    -fx-background-color: #0619ad;
+    background-color: #0619ad;
 }
 /*VImageC ID-------------------*/
 #scGridpane{
