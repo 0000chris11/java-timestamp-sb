@@ -1,5 +1,9 @@
 package com.cofii.ts.sql;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import com.cofii.ts.store.main.Users;
 
 public class MSQL {
@@ -19,6 +23,7 @@ public class MSQL {
         public static final String PATHS = "paths";
         public static final String TABLE_PATHS = "table_paths";
         public static final String TABLE_IMAGECS = "table_imagecs";
+        public static final String TABLE_CUSTOMS = "table_customs";
 
         // MAIN VARIABLES
         public static final int MAX_COLUMNS = 10;
@@ -74,9 +79,23 @@ public class MSQL {
         public static final String CREATE_TABLE_IMAGECS = "CREATE TABLE IF NOT EXISTS " + TABLE_IMAGECS
                         + "(id_table INT NOT NULL, " + "columns_names CHAR(255) NOT NULL, "
                         + "images_length INT NOT NULL, " + "display_order ENUM(\"Ascended\", \"Random\") NOT NULL, "
-                        + "image_type ENUM(\"File\", \"Folder\", \"All-Sub-Files\") NOT NULL, " + "FOREIGN KEY(id_table) REFERENCES "
+                        + "image_type ENUM(\"File\", \"Folder\", \"All-Sub-Files\") NOT NULL, "
+                        + "FOREIGN KEY(id_table) REFERENCES "
                         + Users.getInstance().getCurrenUser().getCurrentDatabase().getName()
                         + ".table_names(id), UNIQUE INDEX idx_id_table (id_table))";
+        /**
+         * CREATE TABLE time_stamp.table_customs( id_table INT NOT NULL, dist
+         * VARCHAR(500) NOT NULL, textArea VARCHAR(500) NOT NULL, FOREIGN KEY(id_table)
+         * REFERENCES time_stamp.table_names(id), UNIQUE INDEX idx_id_table (id_table));
+         */
+        public static final String CREATE_TABLE_CUSTOMS = "CREATE TABLE IF NOT EXISTS " + TABLE_CUSTOMS
+                        + "(id_table INT NOT NUll, " + "dist VARCHAR(500) NOT NULL, "
+                        + "textArea VARCHAR(500) NOT NULL, " + "FOREIGN KEY(id_table) REFERENCES "
+                        + Users.getInstance().getCurrenUser().getCurrentDatabase().getName() + "." + TABLE_NAMES
+                        + "(id), UNIQUE INDEX idx_id_table (id_table))";
+        // BANDS-----------------------------------------------
+        private static final String[] BAND_COLUMNS_NAMES_ARRAY = { "NONE" };
+        public static final List<String> BAND_COLUMNS_NAMES = Arrays.asList(BAND_COLUMNS_NAMES_ARRAY);
 
         // -------------------------------------------------
         private MSQL() {

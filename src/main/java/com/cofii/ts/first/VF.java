@@ -177,6 +177,7 @@ public class VF {
         ms.executeStringUpdate(MSQL.CREATE_PATHS);
         ms.executeStringUpdate(MSQL.CREATE_TABLE_PATHS);
         ms.executeStringUpdate(MSQL.CREATE_TABLE_IMAGECS);
+        ms.executeStringUpdate(MSQL.CREATE_TABLE_CUSTOMS);
     }
 
     private void querysStart() {

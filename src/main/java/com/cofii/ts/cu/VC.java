@@ -51,6 +51,7 @@ public class VC {
             vcc.getGridPane().add(vcc.getHbsDefault().get(a), 6, row);
             vcc.getGridPane().add(vcc.getHbsExtra().get(a), 7, row);
             vcc.getGridPane().add(vcc.getBtnsDist().get(a), 8, row);
+            vcc.getGridPane().add(vcc.getBtnsTextArea().get(a), 9, row);
 
             GridPane.setValignment(vcc.getLbsN().get(a), VPos.TOP);
             GridPane.setValignment(vcc.getBtnsDist().get(a), VPos.TOP);

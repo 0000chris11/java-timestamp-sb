@@ -204,14 +204,10 @@ public class VCController implements Initializable {
 
     private List<ToggleButton> btnsDist = new ArrayList<>(MSQL.MAX_COLUMNS);
     private List<PopupMessage> btnsDistPopups = new ArrayList<>(MSQL.MAX_COLUMNS);
-    // private List<ToggleButton> btnsImageC = new ArrayList<>(MSQL.MAX_COLUMNS);
-    // private List<PopupMessage> btnsImageCPopups = new
-    // ArrayList<>(MSQL.MAX_COLUMNS);
-    // RIGHT-SUB
-    // private DirectoryChooser directoryChooser = new DirectoryChooser();
-    // private PopupMessage tfImageCPathPopup;
-    // BOTTOM
-    // private Popup createHelpPopup = new Popup();
+
+    private List<ToggleButton> btnsTextArea = new ArrayList<>(MSQL.MAX_COLUMNS);
+    private List<PopupMessage> btnsTextAreaPopups = new ArrayList<>(MSQL.MAX_COLUMNS);
+
     private ObservableMap<String, Boolean> createHelpMap = FXCollections.observableHashMap();
     private PopupKV createHelpPopup = new PopupKV(createHelpMap);
 
@@ -250,7 +246,9 @@ public class VCController implements Initializable {
     private final EventHandler<ActionEvent> cksDefaultActionListener = this::cksDefaultAction;
     private final EventHandler<KeyEvent> tfsDefaultKeyReleasedListener = this::tfsDefaultKeyReleased;
     private final EventHandler<ActionEvent> rbsExtraActionListener = this::rbsExtraAction;
+    // CUSTOM---------------------
     private final EventHandler<ActionEvent> btnsDistActionListener = this::btnsDistAction;
+    private final EventHandler<ActionEvent> btnsTextAreaActionListener = this::btnsTextAreaAction;
     // ---------------------------------------------------
     private int addIndex = -1;
     private boolean columnAdd = false;
@@ -300,7 +298,8 @@ public class VCController implements Initializable {
 
         tableName = currentTable.getName().replace(" ", "_");
         if (index >= 0 && !columnAdd && updateControl) {
-            column = updateTable.getColumns().get(index).replace(" ", "_");
+            //column = updateTable.getColumns().get(index).replace(" ", "_");
+            column = currentTable.getColumns().get(index).getName().replace("_", "_");
             type = tfsType.get(index).getText()
                     + (tfsTypeLength.get(index).isVisible() ? "(" + tfsTypeLength.get(index).getText() + ")" : "");
         } else if (columnAdd) {
@@ -309,12 +308,13 @@ public class VCController implements Initializable {
         }
     }
 
-    private String getDistBeforeUpdate() {
+    private String getCustomStringBeforeUpdate(List<ToggleButton> btns) {
         StringBuilder sb = new StringBuilder();
         int[] indexs = { 0 };
-        btnsDist.forEach(btn -> {
+        btns.forEach(btn -> {
             if (btn.isVisible() && btn.isSelected()) {
-                sb.append(updateTable.getColumns().get(indexs[0]).replace(" ", "_")).append(",");
+                //sb.append(updateTable.getColumns().get(indexs[0]).replace(" ", "_")).append(",");
+                sb.append(currentTable.getColumns().get(indexs[0]).getName().replace(" ", "_")).append(",");
             }
             indexs[0]++;
         });
@@ -322,11 +322,18 @@ public class VCController implements Initializable {
         return sb.length() == 0 ? "NONE" : sb.deleteCharAt(sb.length() - 1).toString();
     }
 
-    private String getDistFromUpdateTable(int newColumnIndex, String newColumnName) {
-        System.out.println("TEST updateTable.getColumns().size(): " + updateTable.getColumns().size());
+    private String getCustomStringFromUpdateTable(String type, int newColumnIndex, String newColumnName) {
         StringBuilder sb = new StringBuilder();
         int[] indexs = { 0 };
-        updateTable.getDists().forEach(s -> {
+
+        List<Boolean> list = null;
+        if (type.equals("dist")) {
+            //list = updateTable.getDists();
+            //currentTable.getd 
+        }else if(type.equals("textArea")){
+            //ADD updateTable for TextAre Or delete UpdateTable class and use the original variables
+        }
+        list.forEach(s -> {
             boolean dist = s == null ? false : s;
             if (dist) {
                 if (indexs[0] != newColumnIndex) {
@@ -471,6 +478,12 @@ public class VCController implements Initializable {
     }
 
     // COLUMNS=====================================================
+    private boolean getColumnMatch(String text) {
+        final String textt = text.toUpperCase();
+        matcher = patternBWTC.matcher(text);
+        return matcher.matches() && MSQL.BAND_COLUMNS_NAMES.stream().anyMatch(word -> textt.equals(word));
+    }
+
     private void tfsColumnsKeyReleased(KeyEvent e) {
         setQOLVariables(e);
 
@@ -479,7 +492,7 @@ public class VCController implements Initializable {
 
         if (!text.trim().isEmpty()) {
             matcher = patternBWTC.matcher(text);
-            if (matcher.matches()) {
+            if (getColumnMatch(text)) {
                 tfsColumn.get(index).setStyle(CSS.TEXT_FILL);
                 // popupHide(tf);
                 tfsColumnPopups.get(index).hide();
@@ -745,6 +758,7 @@ public class VCController implements Initializable {
         hbsExtra.remove(index);
         // DISTS-----------------------------------------------
         btnsDist.remove(index);
+        btnsTextArea.remove(index);
 
         restartIds();
         restartFirstUpdateAddButton();
@@ -823,13 +837,18 @@ public class VCController implements Initializable {
             ms.setAfterOrBeforeColumn(MSQLP.BEFORE);
             addColumn = ms.addColumn(tableName, column, type, afterBeforeColumn);
         }
-        // ADD DIST---------------------
+        // ADD CUSTOM---------------------
         boolean addDist = true;
-        String dist = getDistFromUpdateTable(index, column);
+        String dist = getCustomStringFromUpdateTable("dist", index, column);
         if (btnsDist.get(index).isSelected()) {
             updateTable.getDists().set(index, true);
-            dist = getDistFromUpdateTable(index, column);
+            dist = getCustomStringFromUpdateTable("dist", index, column);
             addDist = ms.updateRow(MSQL.TABLE_NAMES, "Name", tableName.replace("_", " "), "Dist1", dist);
+        }
+        boolean addTextArea = true;
+        String textArea = getCustomStringFromUpdateTable("textArea", index, column);
+        if(btnsTextArea.get(index).isSelected()){
+            //
         }
 
         if (addColumn && addDist) {
@@ -2015,8 +2034,11 @@ public class VCController implements Initializable {
         List<TString> cfks = new ArrayList<>(MSQL.MAX_COLUMNS);
         // List<IntString> defaults = new ArrayList<>(MSQL.MAX_COLUMNS);
         int extra = 0;
-        // RIGHT-------------------
-        String dist = Custom.getOldDist(currentRowLength, btnsDist.toArray(new ToggleButton[btnsDist.size()]));
+        // CUSTOM -----------------------
+        // String dist = Custom.getOldDist(currentRowLength, btnsDist.toArray(new
+        // ToggleButton[btnsDist.size()]));
+        String dist = getCustomStringBeforeUpdate(btnsDist);
+        String textArea = getCustomStringBeforeUpdate(btnsTextArea);
         // ADDING VALUES -------------------------------------------------
         for (int a = 0; a < currentRowLength; a++) {
             // LEFT-------------------
@@ -2113,7 +2135,7 @@ public class VCController implements Initializable {
     }
 
     // RIGHT-----------------------------------------
-    // DIST=================================================
+    // CUSTOM=================================================
     private void btnsDistAction(ActionEvent e) {
         // MAY HAVE TO ADD DIST BUTTONS TO AN OBSERVABLE LIST (ADD OR REMOVE COLUMN)
         setQOLVariables(e);
@@ -2143,6 +2165,10 @@ public class VCController implements Initializable {
         distUpdate();
         // --------------------------------------------------------------
         masterControl();
+    }
+
+    private void btnsTextAreaAction(ActionEvent e) {
+        // CONTROL ONLY TYPE TEXT-BASE
     }
 
     private void btnsDistControl(int index) {
@@ -2185,7 +2211,7 @@ public class VCController implements Initializable {
 
         // String dist = Custom.getOldDist(currentRowLength, btnsDist.toArray(new
         // ToggleButton[btnsDist.size()]));
-        String dist = getDistBeforeUpdate();
+        String dist = getCustomStringBeforeUpdate(btnsDist);
 
         boolean updateDist = ms.updateRow(MSQL.TABLE_NAMES, "Name", tableName.replace("_", " "), "Dist1", dist);
         if (updateDist) {
@@ -2472,9 +2498,12 @@ public class VCController implements Initializable {
             tfsDefault.get(index).setOnKeyReleased(tfsDefaultKeyReleasedListener);
             rbsExtra.get(index).removeEventHandler(ActionEvent.ACTION, rbsExtraActionListener);
             rbsExtra.get(index).addEventHandler(ActionEvent.ACTION, rbsExtraActionListener);
-
+            // CUSTOM-----------------------
             btnsDist.get(index).setStyle(CSS.NEW_ROW_DIST_BUTTONS);
             btnsDist.get(index).setOnAction(btnsDistActionListener);
+
+            btnsTextArea.get(index).setStyle(CSS.NEW_ROW_DIST_BUTTONS);
+            btnsTextArea.get(index).setOnAction(btnsTextAreaActionListener);
             // btnsImageC.get(index).addEventHandler(ActionEvent.ACTION,
             // this::btnsImageCAction);
             // NEW EMPTY ROW INDEX----------------------------------------
@@ -2523,9 +2552,12 @@ public class VCController implements Initializable {
             btnsChangeDefault.get(a).setId(Integer.toString(a));
 
             rbsExtra.get(a).setId(Integer.toString(a));
-
+            // CUSTOM----------------------------
             btnsDist.get(a).setText(Integer.toString(a + 1));
             btnsDist.get(a).setId(Integer.toString(a));
+
+            btnsTextArea.get(a).setText(Integer.toString(a + 1));
+            btnsTextArea.get(a).setId(Integer.toString(a));
         }
     }
 
@@ -2602,6 +2634,9 @@ public class VCController implements Initializable {
         // DIST----------------------
         btnsDist.add(a, new ToggleButton("" + (a + 1)));
         btnsDistPopups.add(a, new PopupMessage(btnsDist.get(a)));
+        // TEXT AREA--------------------------------------
+        btnsTextArea.add(a, new ToggleButton("" + (a + 1)));
+        btnsTextAreaPopups.add(new PopupMessage(btnsTextArea.get(a)));
     }
 
     private void initNodes(int index) {
@@ -2627,6 +2662,7 @@ public class VCController implements Initializable {
             tfsType.get(a).setStyle(null);
             tfsType.get(a).setStyle(CSS.TFS_DIST_LOOK);
             btnsDist.get(a).setStyle(CSS.BORDER_GRID_BOTTOM);
+            btnsTextArea.get(a).setStyle(CSS.BORDER_GRID_BOTTOM);
 
             hbsN.get(a).setStyle(CSS.BORDER_GRID_BOTTOM);
             hbsName.get(a).setStyle(CSS.BORDER_GRID_BOTTOM);
@@ -2654,6 +2690,8 @@ public class VCController implements Initializable {
 
             btnsDist.get(a).setMinWidth(40);
             btnsDist.get(a).setMaxWidth(40);
+            btnsTextArea.get(a).setMinWidth(40);
+            btnsTextArea.get(a).setMaxWidth(40);
             // VISIBLE PROPERTY ------------------------------------
             btnsRenameColumn.get(a).managedProperty().bind(btnsRenameColumn.get(a).visibleProperty());
             tfsTypeLength.get(a).managedProperty().bind(tfsTypeLength.get(a).visibleProperty());
@@ -2666,6 +2704,7 @@ public class VCController implements Initializable {
             btnsChangeDefault.get(a).managedProperty().bind(btnsChangeDefault.get(a).visibleProperty());
 
             btnsDist.get(a).managedProperty().bind(btnsDist.get(a).visibleProperty());
+            btnsTextArea.get(a).managedProperty().bind(btnsTextArea.get(a).visibleProperty());
             // VISIBILITY----------------------------------
             tfsFK.get(a).setVisible(false);
             tfsDefault.get(a).setVisible(false);
@@ -2692,6 +2731,7 @@ public class VCController implements Initializable {
             GridPane.setMargin(hbsExtra.get(a), INSETS);
 
             GridPane.setMargin(btnsDist.get(a), INSETS);
+            GridPane.setMargin(btnsTextArea.get(a), INSETS);
         }
 
         new ToggleGroupD<>(rbsExtra.toArray(new RadioButton[rbsExtra.size()]));
@@ -2711,6 +2751,7 @@ public class VCController implements Initializable {
                     hbsExtra.get(a).setDisable(true);
 
                     btnsDist.get(a).setDisable(true);
+                    btnsTextArea.get(a).setDisable(true);
                 }
             }
         }
@@ -2731,10 +2772,9 @@ public class VCController implements Initializable {
         tfsDefault.forEach(tf -> tf.setOnKeyReleased(this::tfsDefaultKeyReleased));
 
         rbsExtra.forEach(rb -> rb.addEventHandler(ActionEvent.ACTION, this::rbsExtraAction));
-
+        // CUSTOM----------------------
         btnsDist.forEach(btn -> btn.setOnAction(this::btnsDistAction));
-        // btnsImageC.forEach(btn -> btn.addEventHandler(ActionEvent.ACTION,
-        // this::btnsImageCAction));
+        btnsTextArea.forEach(btn -> btn.setOnAction(this::btnsTextAreaAction));
 
     }
 
@@ -3168,6 +3208,14 @@ public class VCController implements Initializable {
 
     public BorderPane getBpMain() {
         return bpMain;
+    }
+
+    public List<ToggleButton> getBtnsTextArea() {
+        return btnsTextArea;
+    }
+
+    public void setBtnsTextArea(List<ToggleButton> btnsTextArea) {
+        this.btnsTextArea = btnsTextArea;
     }
 
     public void setBpMain(BorderPane bpMain) {

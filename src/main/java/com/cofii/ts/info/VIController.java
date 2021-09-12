@@ -238,15 +238,16 @@ public class VIController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        gridPaneTop.minWidthProperty().bind(scGridPaneTop.widthProperty());
         // TOP
-        hbColumnName.getStyleClass().add("vi-sub-header");
-        hbType.getStyleClass().add("vi-sub-header");
-        hbTypeLength.getStyleClass().add("vi-sub-header");
-        hbNull.getStyleClass().add("vi-sub-header");
-        hbPK.getStyleClass().add("vi-sub-header");
-        hbFK.getStyleClass().add("vi-sub-header");
-        hbDefault.getStyleClass().add("vi-sub-header");
-        hbExtra.getStyleClass().add("vi-sub-header");
+        hbColumnName.getStyleClass().add("vi-header");
+        hbType.getStyleClass().add("vi-header");
+        hbTypeLength.getStyleClass().add("vi-header");
+        hbNull.getStyleClass().add("vi-header");
+        hbPK.getStyleClass().add("vi-header");
+        hbFK.getStyleClass().add("vi-header");
+        hbDefault.getStyleClass().add("vi-header");
+        hbExtra.getStyleClass().add("vi-header");
         // CUSTOM
         hbCustomHeader.getStyleClass().add("vi-header");
         hbDist.getStyleClass().add("vi-sub-header");
