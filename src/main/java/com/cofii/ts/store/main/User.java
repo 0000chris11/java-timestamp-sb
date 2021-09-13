@@ -15,22 +15,18 @@ public class User {
 
     private int id;
     private String name;
-    private final List<Path> paths = new ArrayList<>();
 
     private static final List<Database> databases = new ArrayList<>();
+    private final List<PK> pks = new ArrayList<>();
+    private final List<FK> fks = new ArrayList<>();
+
+    private final List<Path> paths = new ArrayList<>();
+
     private Database currentDatabase;
     private static ObjectProperty<Database> defaultDatabaseProperty = new SimpleObjectProperty<>(null);
 
     // DATABASE--------------------------------------------
-    public void clearDatabases() {
-        databases.clear();
-    }
-
-    public void addDatabase(Database database) {
-        databases.add(database);
-    }
-
-    public String getDatabaseName(int id) {
+    public String getDatabaseNameById(int id) {
         return databases.stream().filter(d -> d.getId() == id).toArray(size -> new Database[size])[0].getName();
     }
 
@@ -42,7 +38,7 @@ public class User {
         return databasesNames.toArray(new String[databasesNames.size()]);
     }
 
-    public Database getDatabase(int id) {
+    public Database getDatabaseById(int id) {
         return databases.stream().filter(d -> d.getId() == id).toArray(size -> new Database[size])[0];
     }
 
@@ -63,10 +59,10 @@ public class User {
     public String getPathNameById(int id){
         return paths.stream().filter(path -> path.getId() == id).toArray(s -> new Path[s])[0].getPathName();
     }
+    
     public int getPathIdByName(String name) {
         return paths.stream().filter(path -> path.getPathName().equals(name)).toArray(s -> new Path[s])[0].getId();
     }
-
     // CONSTRUCTORS----------------------------------------
     public User(int id, String name) {
         this.id = id;
@@ -120,4 +116,12 @@ public class User {
         return paths;
     }
 
+    public List<PK> getPks() {
+        return pks;
+    }
+
+    public List<FK> getFks() {
+        return fks;
+    }
+    
 }

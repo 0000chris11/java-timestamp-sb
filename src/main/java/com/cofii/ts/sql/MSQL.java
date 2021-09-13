@@ -83,14 +83,9 @@ public class MSQL {
                         + "FOREIGN KEY(id_table) REFERENCES "
                         + Users.getInstance().getCurrenUser().getCurrentDatabase().getName()
                         + ".table_names(id), UNIQUE INDEX idx_id_table (id_table))";
-        /**
-         * CREATE TABLE time_stamp.table_customs( id_table INT NOT NULL, dist
-         * VARCHAR(500) NOT NULL, textArea VARCHAR(500) NOT NULL, FOREIGN KEY(id_table)
-         * REFERENCES time_stamp.table_names(id), UNIQUE INDEX idx_id_table (id_table));
-         */
         public static final String CREATE_TABLE_CUSTOMS = "CREATE TABLE IF NOT EXISTS " + TABLE_CUSTOMS
-                        + "(id_table INT NOT NUll, " + "dist VARCHAR(500) NOT NULL, "
-                        + "textArea VARCHAR(500) NOT NULL, " + "FOREIGN KEY(id_table) REFERENCES "
+                        + "(id_table INT NOT NUll, " + "dist VARCHAR(500) NOT NULL DEFAULT \"NONE\", "
+                        + "textArea VARCHAR(500) NOT NULL DEFAULT \"NONE\", " + "FOREIGN KEY(id_table) REFERENCES "
                         + Users.getInstance().getCurrenUser().getCurrentDatabase().getName() + "." + TABLE_NAMES
                         + "(id), UNIQUE INDEX idx_id_table (id_table))";
         // BANDS-----------------------------------------------

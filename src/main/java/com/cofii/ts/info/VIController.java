@@ -1,15 +1,14 @@
 package com.cofii.ts.info;
 
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
 
 import com.cofii.ts.other.CSS;
 import com.cofii.ts.other.NonCSS;
 import com.cofii.ts.sql.MSQL;
-import com.cofii.ts.store.FK;
-import com.cofii.ts.store.FKS;
-import com.cofii.ts.store.PK;
-import com.cofii.ts.store.PKS;
+import com.cofii.ts.store.main.FK;
+import com.cofii.ts.store.main.PK;
 import com.cofii.ts.store.main.Table;
 import com.cofii.ts.store.main.Users;
 
@@ -97,9 +96,6 @@ public class VIController implements Initializable {
     private VBox vbImageCPath;
 
     // --------------------------------------
-    private PKS pks = PKS.getInstance();
-    private FKS fks = FKS.getInstance();
-
     // NON-FXML
     private Label[] lbColumns = new Label[MSQL.MAX_COLUMNS];
     private Label[] lbTypes = new Label[MSQL.MAX_COLUMNS];
@@ -197,24 +193,24 @@ public class VIController implements Initializable {
             }
 
         }
-        // PRIMARY KEYS---------------------------------------------
-        PK[] cpks = pks.getCurrentTablePKS();
-        for (int a = 0; a < cpks.length; a++) {
-            cpks[a].getColumns().forEach(cols -> {
-                int ordinalPosition = cols.index - 1;
+        // KEYS---------------------------------------------
+        List<PK> cpks = currentTable.getPKS();
+        for (int a = 0; a < cpks.size(); a++) {
+            cpks.forEach(pk -> {
+                int ordinalPosition = pk.getOrdinalPosition();
                 lbPK[ordinalPosition].setText("Yes");
                 lbPK[ordinalPosition].setTextFill(NonCSS.TEXT_FILL_PK);
                 lbPK[ordinalPosition].setStyle("-fx-font-weight: bold;");
             });
         }
-        // PRIMARY KEYS---------------------------------------------
-        FK[] cfks = fks.getCurrentTableFKS();
-        for (int a = 0; a < cfks.length; a++) {
-            cfks[a].getColumns().forEach(cols -> {
-                int ordinalPosition = cols.index - 1;
+        List<FK> cfks = currentTable.getFKS();
+        for (int a = 0; a < cfks.size(); a++) {
+            //REQUIERES WAY MORE INFO !!!!!!!!!!!!!!!
+            cfks.forEach(fk -> {
+                int ordinalPosition = fk.getOrdinalPosition();
                 lbFK[ordinalPosition].setText("Yes");
-                lbPK[ordinalPosition].setTextFill(NonCSS.TEXT_FILL_FK);
-                lbPK[ordinalPosition].setStyle("-fx-font-weight: bold;");
+                lbFK[ordinalPosition].setTextFill(NonCSS.TEXT_FILL_FK);
+                lbFK[ordinalPosition].setStyle("-fx-font-weight: bold;");
             });
         }
         // IMAGEC----------------------------------------------------

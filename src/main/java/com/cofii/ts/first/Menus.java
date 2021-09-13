@@ -2,22 +2,23 @@ package com.cofii.ts.first;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import com.cofii.ts.cu.VC;
 import com.cofii.ts.cu.VCD;
-import com.cofii.ts.cu.VImageC;
+
 import com.cofii.ts.game.VG;
 import com.cofii.ts.info.VI;
 import com.cofii.ts.options.VO;
 import com.cofii.ts.other.CSS;
 import com.cofii.ts.other.NonCSS;
 import com.cofii.ts.sql.MSQL;
-import com.cofii.ts.sql.querys.SelectTableNames;
-import com.cofii.ts.store.FK;
-import com.cofii.ts.store.FKS;
-import com.cofii.ts.store.PK;
-import com.cofii.ts.store.PKS;
+
 import com.cofii.ts.store.main.Database;
+import com.cofii.ts.store.main.FK;
+import com.cofii.ts.store.main.PK;
 import com.cofii.ts.store.main.Table;
 import com.cofii.ts.store.main.Users;
 import com.cofii2.components.javafx.TrueFalseWindow;
@@ -50,20 +51,18 @@ public class Menus {
     private static VFController vfc;
     private Database currentDatabase;
     private Table currentTable;
-    // private ColumnDS columnds = ColumnDS.getInstance();
-    private PKS pks = PKS.getInstance();
-    private FKS fks = FKS.getInstance();
 
     // QUERYS-----------------------------------------------------
     private void selectTables(ResultSet rs, boolean rsValues, SQLException ex) throws SQLException {
         if (rsValues) {
-            Table table = new Table(rs.getInt(1), rs.getString(2).replace(" ", "_"), rs.getString(3));
+            Table table = new Table(rs.getInt(1), rs.getString(2).replace(" ", "_"));
 
             currentDatabase.addTable(table);
         }
     }
+
     private void selectPaths(ResultSet rs, boolean rsValues, SQLException ex) throws SQLException {
-        if(rsValues){
+        if (rsValues) {
 
         }
     }
@@ -142,18 +141,18 @@ public class Menus {
     // ------------------------------------------------------
     public void addTablesToTfTableReset(VFController vfc) {
         currentDatabase = Users.getInstance().getCurrenUser().getCurrentDatabase();
-        //SELECT TABLES-------------------------------
+        // SELECT TABLES-------------------------------
         currentDatabase.clearTables();
         vfc.getMs().selectData(MSQL.TABLE_NAMES, this::selectTables);
         vfc.getMs().selectData(MSQL.PATHS, vfc.getVf()::selectPathsForCurrentUser);
 
         if (!Database.getTables().isEmpty()) {
             vfc.getTfTable().setPromptText("select a table");
-        }else{
+        } else {
             vfc.getTfTable().setPromptText("no tables found");
             vfc.getVf().setNoTablesForCurrentDatabase(true);
         }
-        //------------------------------------------------
+        // ------------------------------------------------
         vfc.getTfTableAutoC().clearItems();
         if (currentDatabase.size() == 0) {
             // vfc.getMenuSelection().getItems().clear();
@@ -178,37 +177,38 @@ public class Menus {
         optionsTableDeleteThis.setOnAction(this::deleteThisTable);
     }
 
-    public void resetKeys() {
+    public void resetCurrentTableKeys() {
+        currentTable = Users.getInstance().getCurrenUser().getCurrentDatabase().getCurrentTable();
         // PRIMARY KEYS---------------------------------------------
-        PK[] cpks = pks.getCurrentTablePKS();
-        if (cpks.length > 0) {
-            cpks[0].getColumns().forEach(cols -> {
-                int ordinalPosition = cols.index - 1;
-                String columnName = cols.string;
+        List<PK> cpks = currentTable.getPKS();
+        cpks.forEach(pk -> {
+            int ordinalPosition = pk.getOrdinalPosition();
+            String columnName = pk.getColumnName();
 
-                Text textPk = new Text("(P) ");
-                textPk.setFill(NonCSS.TEXT_FILL_PK);
+            Text textPk = new Text("(P) ");
+            textPk.setFill(NonCSS.TEXT_FILL_PK);
 
-                Text textColumnName = new Text(columnName);
-                textColumnName.setFill(NonCSS.TEXT_FILL);
+            Text textColumnName = new Text(columnName);
+            textColumnName.setFill(NonCSS.TEXT_FILL);
 
-                vfc.getLbs()[ordinalPosition].getChildren().clear();
-                vfc.getLbs()[ordinalPosition].getChildren().addAll(textPk, textColumnName);
-            });
-        }
+            vfc.getLbs()[ordinalPosition].getChildren().clear();
+            vfc.getLbs()[ordinalPosition].getChildren().addAll(textPk, textColumnName);
+        });
+
         // FOREIGN KEYS---------------------------------------------
-        FK[] cfks = fks.getCurrentTableFKS();
-        for (int a = 0; a < cfks.length; a++) {
-            final String referencedDatabase = cfks[a].getReferencedDatabase();
-            final String referencedTable = cfks[a].getReferencedTable();
+        List<FK> cfks = currentTable.getFKS();
+        Set<String> constraints = new HashSet<>();
+        int[] indexs = { 1 };
+        cfks.forEach(fk -> {
+            int ordinalPosition = fk.getOrdinalPosition() - 1;
+            String columnName = fk.getColumnName();
 
-            int[] indexs = { 0 };
-            final int aa = a;
-            cfks[a].getColumns().forEach(cols -> {
-                int ordinalPosition = cols.index - 1;
-                String columnName = cols.string;
+            String constraintType = fk.getConstraintType();
+            boolean added = constraints.add(constraintType);
+            boolean match = constraints.stream().anyMatch(cons -> cons.equals(constraintType));
 
-                Text textFk = new Text("(F) ");
+            if (match) {
+                Text textFk = new Text("(F" + (indexs[0]++) + ") ");
                 textFk.setFill(NonCSS.TEXT_FILL_FK);
 
                 Text textColumnName = new Text(columnName);
@@ -216,49 +216,19 @@ public class Menus {
 
                 vfc.getLbs()[ordinalPosition].getChildren().clear();
                 vfc.getLbs()[ordinalPosition].getChildren().addAll(textFk, textColumnName);
-
-                // vf.getTfsAutoC()[ordinalPosition].setTfParent(vf.getTfs()[ordinalPosition]);
                 vfc.getTfs()[ordinalPosition].setStyle(CSS.TFS_FK_LOOK);
-                // QUERY---------------------------
-                String column = cfks[aa].getReferencedColumns().get(indexs[0]++);
 
-                vfc.getMs().setDistinctOrder(MSQLP.MOST_USE_ORDER);// WORK 50 50 WITH TAGS
-                vfc.getMs().selectDistinctColumn(referencedDatabase + "." + referencedTable, column.replace(" ", "_"),
-                        rs -> {
-                            try {
-                                boolean rsValues = false;
-                                while (rs.next()) {
-                                    rsValues = true;
-                                    vfc.getTfsFKList().get(ordinalPosition).add(rs.getString(1));
-                                }
-                                if (!rsValues) {
-                                    vfc.addTfsFKTextProperty(ordinalPosition);
-                                }
-                            } catch (SQLException e) {
-                                e.printStackTrace();
-                            }
-                        });
-            });
-        }
-        /*
-         * for (int a = 0; a < keyRows.length; a++) { String columnName =
-         * keyRows[a].getColumnName(); String constraintType =
-         * keyRows[a].getConstraintType(); int ordinalPosition =
-         * keyRows[a].getOrdinalPosition();
-         * 
-         * vf.getLbs()[ordinalPosition - 1].getChildren().clear(); Text textColumnName =
-         * new Text(columnName); textColumnName.setFill(NonCSS.TEXT_FILL);
-         * 
-         * if (constraintType.equals("PRIMARY KEY")) { Text textPk = new Text("(P) ");
-         * textPk.setFill(NonCSS.TEXT_FILL_PK);
-         * 
-         * vf.getLbs()[ordinalPosition - 1].getChildren().addAll(textPk,
-         * textColumnName); } else if (constraintType.equals("FOREIGN KEY")) { Text
-         * textFk = new Text("(F) "); textFk.setFill(NonCSS.TEXT_FILL_PK);
-         * 
-         * vf.getLbs()[ordinalPosition - 1].getChildren().addAll(textFk,
-         * textColumnName); } }
-         */
+                if (added) {// ONCE PER GROUP
+                    String referencedDatabase = fk.getReferencedDatabaseName();
+                    String referencedTable = fk.getReferencedTableName();
+                    String referencedColumn = fk.getReferencedColumnName();
+                    vfc.getMs().setDistinctOrder(MSQLP.MOST_USE_ORDER);
+                    vfc.getMs().selectDistinctColumn(referencedDatabase + "." + referencedTable, referencedColumn,
+                            (rs, rsValues, ex) -> vfc.getTfsFKList().get(ordinalPosition).add(rs.getString(1)));
+                }
+            }
+
+        });
     }
 
     // INIT---------------------------------------------------

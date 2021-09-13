@@ -298,7 +298,7 @@ public class VCController implements Initializable {
 
         tableName = currentTable.getName().replace(" ", "_");
         if (index >= 0 && !columnAdd && updateControl) {
-            //column = updateTable.getColumns().get(index).replace(" ", "_");
+            // column = updateTable.getColumns().get(index).replace(" ", "_");
             column = currentTable.getColumns().get(index).getName().replace("_", "_");
             type = tfsType.get(index).getText()
                     + (tfsTypeLength.get(index).isVisible() ? "(" + tfsTypeLength.get(index).getText() + ")" : "");
@@ -313,7 +313,8 @@ public class VCController implements Initializable {
         int[] indexs = { 0 };
         btns.forEach(btn -> {
             if (btn.isVisible() && btn.isSelected()) {
-                //sb.append(updateTable.getColumns().get(indexs[0]).replace(" ", "_")).append(",");
+                // sb.append(updateTable.getColumns().get(indexs[0]).replace(" ",
+                // "_")).append(",");
                 sb.append(currentTable.getColumns().get(indexs[0]).getName().replace(" ", "_")).append(",");
             }
             indexs[0]++;
@@ -328,16 +329,16 @@ public class VCController implements Initializable {
 
         List<Boolean> list = null;
         if (type.equals("dist")) {
-            //list = updateTable.getDists();
-            //currentTable.getd 
-        }else if(type.equals("textArea")){
-            //ADD updateTable for TextAre Or delete UpdateTable class and use the original variables
+            // list = updateTable.getDists();
+            list = currentTable.getDistList();
+        } else if (type.equals("textArea")) {
+            list = currentTable.getTextAreaList();
         }
         list.forEach(s -> {
             boolean dist = s == null ? false : s;
             if (dist) {
                 if (indexs[0] != newColumnIndex) {
-                    sb.append(updateTable.getColumns().get(indexs[0]).replace(" ", "_")).append(",");
+                    sb.append(currentTable.getColumns().get(indexs[0]).getName().replace(" ", "_")).append(",");
                 } else {
                     sb.append(newColumnName.replace(" ", "_")).append(",");
                 }
@@ -420,7 +421,9 @@ public class VCController implements Initializable {
     private void tfTableUpdate(String text) {
         if (updateControl) {
             if (tableOK) {
-                String tableO = updateTable.getTable().toLowerCase().trim().replace(" ", "_");
+                // String tableO = updateTable.getTable().toLowerCase().trim().replace(" ",
+                // "_");
+                String tableO = currentTable.getName().toLowerCase().trim().replace(" ", "_");
                 if (!text.equals(tableO)) {
                     tfTable.setStyle(CSS.TEXT_FILL);
                     btnRenameTable.setDisable(false);
@@ -444,13 +447,14 @@ public class VCController implements Initializable {
             boolean updateTableNames = ms.updateRow(MSQL.TABLE_NAMES, "Name", oldTable.replace("_", " "), "Name",
                     newTable.replace("_", " "));
             if (updateTableNames) {
-                updateTable.setTable(newTable);
+                // updateTable.setTable(newTable);
+                currentTable.setName(newTable);
 
                 try {
                     ResultSet rs = ms.selectRow(MSQL.TABLE_NAMES, "Name", newTable.replace("_", " "));
                     Table ctable = null;
                     while (rs.next()) {
-                        ctable = new Table(rs.getInt(1), rs.getString(2), rs.getString(3));
+                        ctable = new Table(rs.getInt(1), rs.getString(2));
                     }
 
                     Users.getInstance().getCurrenUser().getCurrentDatabase().setCurrentTable(ctable);
@@ -591,7 +595,8 @@ public class VCController implements Initializable {
         if (renameColumn) {
             System.out.println("\tSUCCESS");
             // RENAME THE COLUMN AND THEN TEST THE CANCEL BUTTON TO RESET
-            updateTable.getColumns().set(index, newColumn);
+            // updateTable.getColumns().set(index, newColumn);
+            currentTable.getColumns().get(index).setName(newColumn);
 
             btnsRenameColumn.get(index).setDisable(true);
             lbStatus.setText("Column '" + column + "' changed to '" + newColumn + "'", NonCSS.TEXT_FILL_OK,
@@ -827,40 +832,58 @@ public class VCController implements Initializable {
 
         // ADD COLUMN-------------------
         try {// ATTEMPTING TO GRAB THE PREVIOUS COLUMN
-            afterBeforeColumn = updateTable.getColumns().get(index - 1).toLowerCase().trim().replace(" ", "_");
+             // afterBeforeColumn = updateTable.getColumns().get(index -
+             // 1).toLowerCase().trim().replace(" ", "_");
+            afterBeforeColumn = currentTable.getColumns().get(index - 1).getName().toLowerCase().trim().replace(" ",
+                    "_");
 
             ms.setAfterOrBeforeColumn(MSQLP.AFTER);
             addColumn = ms.addColumn(tableName, column, type, afterBeforeColumn);
         } catch (ArrayIndexOutOfBoundsException ex) {
-            afterBeforeColumn = updateTable.getColumns().get(0).toLowerCase().trim().replace(" ", "_");
+            // afterBeforeColumn =
+            // updateTable.getColumns().get(0).toLowerCase().trim().replace(" ", "_");
+            afterBeforeColumn = currentTable.getColumns().get(0).getName().toLowerCase().trim().replace(" ", "_");
+            ;
 
             ms.setAfterOrBeforeColumn(MSQLP.BEFORE);
             addColumn = ms.addColumn(tableName, column, type, afterBeforeColumn);
         }
         // ADD CUSTOM---------------------
         boolean addDist = true;
-        String dist = getCustomStringFromUpdateTable("dist", index, column);
+        // String dist = getCustomStringFromUpdateTable("dist", index, column);
         if (btnsDist.get(index).isSelected()) {
-            updateTable.getDists().set(index, true);
-            dist = getCustomStringFromUpdateTable("dist", index, column);
-            addDist = ms.updateRow(MSQL.TABLE_NAMES, "Name", tableName.replace("_", " "), "Dist1", dist);
+            // updateTable.getDists().set(index, true);
+            currentTable.getColumns().get(index).setDist(true);
+            String dist = getCustomStringFromUpdateTable("dist", index, column);
+            addDist = ms.updateRow(MSQL.TABLE_CUSTOMS, "id_table", currentTable.getId(), "dist", dist);
         }
         boolean addTextArea = true;
-        String textArea = getCustomStringFromUpdateTable("textArea", index, column);
-        if(btnsTextArea.get(index).isSelected()){
-            //
+        // String textArea = getCustomStringFromUpdateTable("textArea", index, column);
+        if (btnsTextArea.get(index).isSelected()) {
+            currentTable.getColumns().get(index).setTextArea(true);
+            String textArea = getCustomStringFromUpdateTable("textArea", index, column);
+            addTextArea = ms.updateRow(MSQL.TABLE_CUSTOMS, "id_table", currentTable.getId(), "textArea", textArea);
         }
 
-        if (addColumn && addDist) {
-            updateTable.getColumns().set(index, column);
-            updateTable.getTypes().set(index, tfsType.get(index).getText());
-            updateTable.getTypesLength().set(index, Integer.parseInt(tfsTypeLength.get(index).getText()));
-            updateTable.getNulls().set(index, cksNull.get(index).isSelected());
-            updateTable.getDefaults().set(index,
-                    cksDefault.get(index).isSelected() ? tfsDefault.get(index).getText() : null);
+        if (addColumn && addDist && addTextArea) {
+            // ADDING VALUES TO EMPTY ROW (PREVIOUSLY ADDED)
+            // updateTable.getColumns().set(index, column);
+            currentTable.getColumns().get(index).setName(column);
+            // updateTable.getTypes().set(index, tfsType.get(index).getText());
+            currentTable.getColumns().get(index).setType(tfsType.get(index).getText());
+            // updateTable.getTypesLength().set(index,
+            // Integer.parseInt(tfsTypeLength.get(index).getText()));
+            currentTable.getColumns().get(index).setTypeLength(Integer.parseInt(tfsTypeLength.get(index).getText()));
+            // updateTable.getNulls().set(index, cksNull.get(index).isSelected());
+            currentTable.getColumns().get(index).setNulll(cksNull.get(index).isSelected());
+            // updateTable.getDefaults().set(index,
+            // cksDefault.get(index).isSelected() ? tfsDefault.get(index).getText() : null);
+            currentTable.getColumns().get(index)
+                    .setDefaultt(cksDefault.get(index).isSelected() ? tfsDefault.get(index).getText() : null);
 
-            updateTable.getDists().set(index, btnsDist.get(index).isSelected());
-            updateTable.setDistHole(dist);
+            // updateTable.getDists().set(index, btnsDist.get(index).isSelected());
+            currentTable.getColumns().get(index).setDist(btnsDist.get(index).isSelected());
+            // updateTable.setDistHole(dist);
 
             exitColumnAddState(index);
 
@@ -905,13 +928,27 @@ public class VCController implements Initializable {
 
             boolean dropColumn = ms.dropColumn(tableName, column);
             if (dropColumn) {
-                if (Boolean.TRUE.equals(updateTable.getDists().get(index))) {
-                    String dist = updateTable.getDistHole();
-                    dist = dist.replace(column, "").replaceAll("(^,|,$)", "");
+                // if (Boolean.TRUE.equals(updateTable.getDists().get(index))) {
+                // REMOVE CUSTOM----------------------------------
+                // UNTESTED
+                if (currentTable.getColumns().get(index).getDist()) {
+                    // String dist = updateTable.getDistHole();
+                    String dist = currentTable.getDist();
+                    dist = dist.replace(column, "").replaceAll("(^,|,$)", "");// removing ',' at the beggining an end
                     dist = dist.isEmpty() ? "NONE" : dist;
 
-                    boolean removeDistTest = ms.updateRow(MSQL.TABLE_NAMES, "Name", tableName, "Dist1", dist);
+                    boolean removeDistTest = ms.updateRow(MSQL.TABLE_CUSTOMS, "id_table", currentTable.getId(), "dist",
+                            dist);
                     System.out.println("TEST removeDistTest: " + removeDistTest);
+                }
+                if (currentTable.getColumns().get(index).isTextArea()) {
+                    String textArea = currentTable.getTextArea();
+                    textArea = textArea.replace(column, "").replaceAll("(^,|,$)", "");
+                    textArea = textArea.isEmpty() ? "NONE" : textArea;
+
+                    boolean removeTextArea = ms.updateRow(MSQL.TABLE_CUSTOMS, "id_table", currentTable.getId(),
+                            "textArea", textArea);
+                    System.out.println("TEST removeTextArea: " + removeTextArea);
                 }
                 // -------------------------------------
                 updateRemoveVisible(index);
@@ -933,6 +970,7 @@ public class VCController implements Initializable {
             w.hide();
         });
         w.show();
+
         // --------------------------------
         tfsColumnCreateControl(-1);
         tfasTypeCreateControl(-1);
@@ -995,17 +1033,16 @@ public class VCController implements Initializable {
     }
 
     private void removeIndexUpdateTable(int index) {
-        updateTable.getColumns().remove(index);
-        updateTable.getTypes().remove(index);
-        updateTable.getTypesLength().remove(index);
-        updateTable.getNulls().remove(index);
-        updateTable.getPks().remove(index);
-        updateTable.getFks().remove(index);
-        updateTable.getFkFormed().remove(index);
-        updateTable.getDefaults().remove(index);
-
-        updateTable.getDists().remove(index);
-        updateTable.getImageCS().remove(index);
+        currentTable.getColumns().remove(index);
+        /*
+         * updateTable.getColumns().remove(index); updateTable.getTypes().remove(index);
+         * updateTable.getTypesLength().remove(index);
+         * updateTable.getNulls().remove(index); updateTable.getPks().remove(index);
+         * updateTable.getFks().remove(index); updateTable.getFkFormed().remove(index);
+         * updateTable.getDefaults().remove(index);
+         * 
+         * updateTable.getDists().remove(index); updateTable.getImageCS().remove(index);
+         */
     }
 
     // TYPES=====================================================
@@ -1052,7 +1089,7 @@ public class VCController implements Initializable {
         }
         tfsDefaultTypeControl(index);
         // UPDATE----------------------------------------------------------
-        tfsTypeUpdate(index, newValue, update);
+        typeUpdateControl(index, newValue, update);
         // ----------------------------------------------------------
         masterControl();
     }
@@ -1093,7 +1130,7 @@ public class VCController implements Initializable {
             }
             tfsDefaultTypeControl(index);
             // UPDATE-----------------------------------------------------
-            tfsTypeLengthUpdate(index, text, update);
+            typeLengthUpdateControl(index, text, update);
         }
         // -----------------------------------------------------
         masterControl();
@@ -1143,11 +1180,12 @@ public class VCController implements Initializable {
         }
     }
 
-    private void tfsTypeUpdate(int index, String newValue, boolean update) {
+    private void typeUpdateControl(int index, String newValue, boolean update) {
         if (updateControl) {
             boolean ok = false;
             if (update) {
-                type = updateTable.getTypes().get(index);
+                // type = updateTable.getTypes().get(index);
+                type = currentTable.getColumns().get(index).getType();
                 if (!newValue.equals(type)) {
                     // tfsTypePopups[index].hide();
                     tfsType.get(index).setStyle(CSS.TEXT_FILL);
@@ -1169,11 +1207,13 @@ public class VCController implements Initializable {
         }
     }
 
-    private void tfsTypeLengthUpdate(int index, String text, boolean update) {
+    private void typeLengthUpdateControl(int index, String text, boolean update) {
         if (updateControl) {
             boolean ok = false;
             if (update) {
-                String typeLength = Integer.toString(updateTable.getTypesLength().get(index)).toLowerCase().trim();
+                // String typeLength =
+                // Integer.toString(updateTable.getTypesLength().get(index)).toLowerCase().trim();
+                String typeLength = Integer.toString(currentTable.getColumns().get(index).getTypeLength());
                 if (!text.equals(typeLength)) {
                     // tfsTypeLengthPopups[index].hide();
                     tfsTypeLength.get(index).setStyle(CSS.TEXT_FILL);
@@ -1204,8 +1244,12 @@ public class VCController implements Initializable {
         if (changeType) {
             System.out.println("\tSUCCESS");
 
-            updateTable.getTypes().set(index, tfsType.get(index).getText());
-            updateTable.getTypesLength().set(index,
+            // updateTable.getTypes().set(index, tfsType.get(index).getText());
+            currentTable.getColumns().get(index).setType(tfsType.get(index).getText());
+            // updateTable.getTypesLength().set(index,
+            // tfsTypeLength.get(index).isVisible() ?
+            // Integer.parseInt(tfsTypeLength.get(index).getText()) : 0);
+            currentTable.getColumns().get(index).setTypeLength(
                     tfsTypeLength.get(index).isVisible() ? Integer.parseInt(tfsTypeLength.get(index).getText()) : 0);
 
             lbStatus.setText("Column '" + column + "' has change it's type to '" + type + "'", NonCSS.TEXT_FILL_OK,
@@ -1222,7 +1266,8 @@ public class VCController implements Initializable {
     // NULLS======================================================
     void cksNullAction(ActionEvent e) {
         setQOLVariables(e);
-        boolean nulllO = updateTable.getNulls().get(index);
+        // boolean nulllO = updateTable.getNulls().get(index);
+        boolean nulllO = currentTable.getColumns().get(index).getNulll();
         boolean nulll = cksNull.get(index).isSelected();
 
         if (nulllO != nulll) {
@@ -1237,17 +1282,22 @@ public class VCController implements Initializable {
     void btnsChangeNull(ActionEvent e) {
         System.out.println(CC.CYAN + "Change Null" + CC.RESET);
         setQOLVariables(e);
-        type = updateTable.getTypes().get(index)
-                + (updateTable.getTypesLength().get(index) > 0 ? "(" + updateTable.getTypesLength().get(index) + ")"
-                        : "");
+        /*
+         * type = updateTable.getTypes().get(index) +
+         * (updateTable.getTypesLength().get(index) > 0 ? "(" +
+         * updateTable.getTypesLength().get(index) + ")" : "");
+         */
+        type = currentTable.getColumns().get(index).getFullType();
         boolean nulll = cksNull.get(index).isSelected();
         // ----------------------------------------------
         ms.setNullValue(nulll);
-        ms.setExtraValue(index == updateTable.getExtra());
+        //ms.setExtraValue(index == updateTable.getExtra());
+        ms.setExtraValue(index == currentTable.getExtra());
         boolean changeNull = ms.changeType(tableName, column, type);
         if (changeNull) {
             System.out.println("\tSUCCESS");
-            updateTable.getNulls().set(index, nulll);
+            //updateTable.getNulls().set(index, nulll);
+            currentTable.getColumns().get(index).setNulll(nulll);
 
             cksNull.get(index).setStyle(CSS.CKS_BG_HINT);
             btnsChangeNull.get(index).setDisable(true);
@@ -1273,7 +1323,8 @@ public class VCController implements Initializable {
         // UPDATE--------------------------------
         if (updateControl) {
             for (int c = 0; c < currentRowLength; c++) {
-                boolean pkSelected = updateTable.getPks().get(c).equals("Yes");
+                //boolean pkSelected = updateTable.getPks().get(c).equals("Yes");
+                boolean pkSelected = currentTable.getColumns().get(c).isPk();
                 if (rbsPK.get(c).isSelected() != pkSelected) {
                     update = true;
                     break;
@@ -2395,9 +2446,10 @@ public class VCController implements Initializable {
     }
 
     // INIT ---------------------------------------------
+    /**
+     * List all PK for each row of FKS (to reference them)
+     */
     private void fkReferencesInit() {
-        // System.out.println("\n#####TEST FOR fkReferencesInit####");
-        // Key[] row = keys.getRowPrimaryKeys();
         List<String> list = new ArrayList<>();
         List<PK> pksList = pks.getPksList();
 

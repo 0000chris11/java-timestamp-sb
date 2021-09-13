@@ -30,7 +30,7 @@ public class SelectDatabases implements IActions{
         users = Users.getInstance();
 
         users.clearDatabases();
-        users.getCurrenUser().clearDatabases();
+        users.getCurrenUser().getDatabases().clear();
         vfc.getTfDatabaseAutoC().clearItems();
     }
 
@@ -45,7 +45,7 @@ public class SelectDatabases implements IActions{
 
         if(idUsers == currentUserId){
             urrentUserRsValues = true;
-            users.getCurrenUser().addDatabase(new Database(id, database));
+            users.getCurrenUser().getDatabases().add(new Database(id, database));
             vfc.getTfDatabaseAutoC().addItem(database);
         }
     }

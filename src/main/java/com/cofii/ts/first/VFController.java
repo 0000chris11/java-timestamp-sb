@@ -198,7 +198,7 @@ public class VFController implements Initializable {
 
     // LISTENER -----------------------------------------
     // TEXTFIELD-----------------------------------
-    public void addTfsFKTextProperty(int index) {
+    private void addTfsFKTextProperty(int index) {
         tfs[index].textProperty().addListener(tfsFKTextPropertyListener);
         // tfsFKTextProperty------------------
         boolean match = tfsFKList.get(index).stream().anyMatch(s -> tfs[index].getText().equals(s));
@@ -321,7 +321,7 @@ public class VFController implements Initializable {
             ms.selectDataWhere(MSQL.TABLE_IMAGECS, "id_table", currentTable.getId(), vf::selectImageCSForCurrentTable);
             ms.selectColumns(tableA, new ShowColumns(this));
 
-            Menus.getInstance(this).resetKeys();
+            Menus.getInstance(this).resetCurrentTableKeys();
 
             System.out.println("\tMSQL's table: " + currentTable.getId() + " - " + currentTable.getName() + " - "
                     + currentTable.getDist());

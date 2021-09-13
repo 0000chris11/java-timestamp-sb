@@ -9,9 +9,17 @@ public class Column {
     private String defaultt;
     private boolean extra;
 
-    private boolean dist;
-    private boolean imageC;
+    private boolean pk = false;
+    private boolean fk = false;
 
+    private boolean dist = false;
+    private boolean textArea = false;
+    private boolean imageC = false;
+    //QOL---------------------------------------------------------
+    public String getFullType(){
+        return type + (typeLength > 0 ? "(" + typeLength + ")" : "");
+    }
+    //CONSTRUCTOR---------------------------------------------------
     public Column(String name, String type, int typeLength, boolean nulll, String defaultt, boolean extra) {
         this.name = name;
         this.type = type;
@@ -20,7 +28,7 @@ public class Column {
         this.defaultt = defaultt;
         this.extra = extra;
     }
-
+    //GETTERS & SETTERS----------------------------------------
     public String getName() {
         return name;
     }
@@ -83,6 +91,26 @@ public class Column {
 
     public void setImageC(boolean imageC) {
         this.imageC = imageC;
+    }
+
+    public boolean isTextArea() {
+        return textArea;
+    }
+
+    public void setTextArea(boolean textArea) {
+        this.textArea = textArea;
+    }
+    public boolean isPk() {
+        return pk;
+    }
+    public void setPk(boolean pk) {
+        this.pk = pk;
+    }
+    public boolean isFk() {
+        return fk;
+    }
+    public void setFk(boolean fk) {
+        this.fk = fk;
     }
     
 }

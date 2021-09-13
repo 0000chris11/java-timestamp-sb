@@ -5,21 +5,15 @@ import java.sql.SQLException;
 
 import com.cofii.ts.first.Menus;
 import com.cofii.ts.first.VFController;
-import com.cofii.ts.other.NonCSS;
-import com.cofii.ts.sql.MSQL;
-import com.cofii.ts.store.FK;
-import com.cofii.ts.store.FKS;
-import com.cofii.ts.store.PK;
-import com.cofii.ts.store.PKS;
+import com.cofii.ts.store.main.FK;
+import com.cofii.ts.store.main.PK;
+import com.cofii.ts.store.main.Users;
 import com.cofii2.myInterfaces.IActions;
 
-import javafx.scene.text.Text;
 
 public class SelectKeys implements IActions {
 
     private VFController vf;
-    private PKS pks = PKS.getInstance();
-    private FKS fks = FKS.getInstance();
 
     private String databaseName;
     private String tableName;
@@ -37,9 +31,8 @@ public class SelectKeys implements IActions {
 
     @Override
     public void beforeQuery() {
-        /// keys.clearKeys();
-        pks.clearPKS();
-        fks.clearFKS();
+        Users.getInstance().getCurrenUser().getPks().clear();
+        Users.getInstance().getCurrenUser().getFks().clear();
     }
 
     @Override
@@ -49,20 +42,23 @@ public class SelectKeys implements IActions {
         constraintType = rs.getString(3);
         ordinalPosition = rs.getInt(4);
         columnName = rs.getString(5);
+
         referencedTableSchema = rs.getString(6);
         referencedTableName = rs.getString(7);
         referencedColumnName = rs.getString(8);
 
         //keysImplement();
-        Menus.getInstance(vf).resetKeys();
+        Menus.getInstance(vf).resetCurrentTableKeys();
         // --------------------------------------------
         if (constraintType.equals("PRIMARY")) {
             //System.out.println("ADDING PRIMARY KEY (" + databaseName + " - " + constraintType + ")");
-            pks.addPK(new PK(databaseName, tableName, ordinalPosition, columnName));
+            //pks.addPK(new PK(databaseName, tableName, ordinalPosition, columnName));
+            Users.getInstance().getCurrenUser().getPks().add(new PK(databaseName, tableName, ordinalPosition, columnName));
         } else if (referencedTableSchema != null && referencedTableName != null && referencedColumnName != null) {
             //System.out.println("ADDING FOREING KEY (" + databaseName + " - " + constraintType + ")");
-            fks.addFK(new FK(databaseName, tableName, constraintType, ordinalPosition, columnName,
-                    referencedTableSchema, referencedTableName, referencedColumnName));
+            Users.getInstance().getCurrenUser().getFks().add(new FK(databaseName, tableName, constraintType, ordinalPosition, columnName, referencedTableSchema, referencedTableName, referencedColumnName));
+            //fks.addFK(new FK(databaseName, tableName, constraintType, ordinalPosition, columnName,
+              //      referencedTableSchema, referencedTableName, referencedColumnName));
         }
 
     }
