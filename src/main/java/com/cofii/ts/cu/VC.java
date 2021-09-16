@@ -60,7 +60,7 @@ public class VC {
         // CENTER-------------------------------------------------------
         vcc.getGridPane().getRowConstraints().forEach(e -> {
             e.setValignment(VPos.TOP);
-            e.setVgrow(Priority.NEVER);
+            e.setVgrow(Priority.SOMETIMES);
         });
         for (int a = 0; a < MSQL.MAX_COLUMNS; a++) {
             vcc.getBtnsRemoveColumn().get(a).setOnAction(vcc::btnsRemoveCreateAction);
@@ -156,15 +156,15 @@ public class VC {
                 vcc.getCksDefault().get(a).setStyle(CSS.CKS_BG);
             }
         } else {
-            vcc.getTfTable().setStyle(CSS.TEXT_FILL_HINT);
+            vcc.getTfTable().setStyle(CSS.NODE_HINT);
             for (int a = 0; a < currentTable.getColumns().size() ; a++) {
-                vcc.getTfsColumn().get(a).setStyle(CSS.TEXT_FILL_HINT);
-                vcc.getTfasType().get(a).setStyle(CSS.TEXT_FILL_HINT);
-                vcc.getTfsTypeLength().get(a).setStyle(CSS.TEXT_FILL_HINT);
+                vcc.getTfsColumn().get(a).setStyle(CSS.NODE_HINT);
+                vcc.getTfasType().get(a).setStyle(CSS.NODE_HINT);
+                vcc.getTfsTypeLength().get(a).setStyle(CSS.NODE_HINT);
                 // vcc.getCksNull().get(a).setStyle(CSS.TEXT_FILL_HINT);
                 vcc.getCksNull().get(a).setStyle(CSS.CKS_BG_HINT);
                 vcc.getCksDefault().get(a).setStyle(CSS.CKS_BG_HINT);
-                vcc.getTfsDefault().get(a).setStyle(CSS.TEXT_FILL_HINT);
+                vcc.getTfsDefault().get(a).setStyle(CSS.NODE_HINT);
             }
         }
     }

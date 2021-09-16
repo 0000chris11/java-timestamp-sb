@@ -6,9 +6,8 @@ public class CSS {
     public static final String BORDER_GRID_BOTLEFT = "-fx-border-color: gray; -fx-border-width: 0 0 1 1;";
     public static final String BORDER_GRID_BOTLEFTRIGHT = "-fx-border-color: gray; -fx-border-width: 0 1 1 1;";
 
-    public static final String TEXT_FILL_ERROR = "-fx-text-fill: red";
-    public static final String TEXT_FILL = "-fx-text-fill: white";
-    public static final String TEXT_FILL_HINT = "-fx-text-fill: blue";
+    public static final String NODE_ERROR = "-fx-border-style: solid none none none; -fx-border-width: 2; -fx-border-color: red";
+    public static final String NODE_HINT = "-fx-text-fill: blue";
 
     public static final String BG_COLOR_HINT = "-fx-background-color: blue";
     public static final String BG_COLOR = "-fx-background-color: white";

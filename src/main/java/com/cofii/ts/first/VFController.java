@@ -195,7 +195,7 @@ public class VFController implements Initializable {
     // CONTROL--------------------------------------
     private void btnAddUpdateControl() {
         boolean ok = Arrays.asList(tfs).stream().filter(Node::isVisible)
-                .anyMatch(tf -> tf.getStyle().equals(CSS.TEXT_FILL));
+                .anyMatch(tf -> tf.getStyle().equals(null));
         btnAdd.setDisable(!ok);
         btnUpdate.setDisable(!ok);
     }
@@ -207,7 +207,7 @@ public class VFController implements Initializable {
         // tfsFKTextProperty------------------
         boolean match = tfsFKList.get(index).stream().anyMatch(s -> tfs[index].getText().equals(s));
         // IDK WHY IT WAS RESETING THE CSS.TFS_FK_LOOK SO I CONCAT THEM
-        tfs[index].setStyle(CSS.TFS_FK_LOOK + "; " + (match ? CSS.TEXT_FILL : CSS.TEXT_FILL_ERROR));
+        tfs[index].setStyle(CSS.TFS_FK_LOOK + "; " + (match ? null : CSS.NODE_ERROR));
     }
 
     public void tfsFKListChange(Change<? extends String> c) {
@@ -218,7 +218,7 @@ public class VFController implements Initializable {
 
             } else if (c.getList().isEmpty()) {
                 tfs[index].setStyle(CSS.TFS_DEFAULT_LOOK);
-                tfs[index].setStyle(CSS.TEXT_FILL);
+                tfs[index].setStyle(null);
                 tfs[index].textProperty().removeListener(tfsFKTextPropertyListener);
             }
         }
@@ -228,7 +228,7 @@ public class VFController implements Initializable {
     private void tfsFKTextProperty(ObservableValue<? extends String> observable, String oldValue, String newValue) {
         int index = Integer.parseInt(((TextField) ((StringProperty) observable).getBean()).getId());
         boolean match = tfsFKList.get(index).stream().anyMatch(s -> tfs[index].getText().equals(s));
-        tfs[index].setStyle(CSS.TFS_FK_LOOK + "; " + (match ? CSS.TEXT_FILL : CSS.TEXT_FILL_ERROR));
+        tfs[index].setStyle(CSS.TFS_FK_LOOK + "; " + (match ? null : CSS.NODE_ERROR));
 
         btnAddUpdateControl();
     }

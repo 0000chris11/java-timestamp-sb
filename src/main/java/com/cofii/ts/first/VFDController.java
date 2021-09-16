@@ -89,10 +89,10 @@ public class VFDController implements Initializable {
         resetResult();
 
         if (currenTable.getColumns().stream().anyMatch(col -> newValue.equals(col.getName()))) {
-            tfColumn.setStyle(CSS.TEXT_FILL);
+            tfColumn.setStyle(null);
             btnFind.setDisable(false);
         } else {
-            tfColumn.setStyle(CSS.TEXT_FILL_ERROR);
+            tfColumn.setStyle(CSS.NODE_ERROR);
             btnFind.setDisable(true);
         }
     }
@@ -100,8 +100,8 @@ public class VFDController implements Initializable {
     // ------------------------------------------------------------
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        tfText.setStyle(CSS.TEXT_FILL);
-        tfColumn.setStyle(CSS.TEXT_FILL);
+        tfText.setStyle(null);
+        tfColumn.setStyle(null);
         // ---------------------------------------
         tfText.setOnKeyReleased(this::tfTextKeyReleased);
 
