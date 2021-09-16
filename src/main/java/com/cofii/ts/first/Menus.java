@@ -61,6 +61,22 @@ public class Menus {
         }
     }
 
+    private void selectCustoms(ResultSet rs, boolean rsValues, SQLException ex) throws SQLException {
+        if(rsValues){
+            Database currentDatabase = null;
+            if(currentDatabase == null){
+            currentDatabase = Users.getInstance().getCurrenUser().getCurrentDatabase();
+            }
+            int tableId = rs.getInt(1);
+            String dist = rs.getString(2);
+            String textArea = rs.getString(3);
+
+            Table table = currentDatabase.getTable(tableId);
+            table.setDist(dist);
+            table.setTextArea(textArea);
+        }
+    }
+
     private void selectPaths(ResultSet rs, boolean rsValues, SQLException ex) throws SQLException {
         if (rsValues) {
 
@@ -144,6 +160,7 @@ public class Menus {
         // SELECT TABLES-------------------------------
         currentDatabase.clearTables();
         vfc.getMs().selectData(MSQL.TABLE_NAMES, this::selectTables);
+        //vfc.getMs().selectData(MSQL.TABLE_CUSTOMS, this::selectCustoms);MAY NOT BE NECESSARY
         vfc.getMs().selectData(MSQL.PATHS, vfc.getVf()::selectPathsForCurrentUser);
 
         if (!Database.getTables().isEmpty()) {
@@ -182,7 +199,7 @@ public class Menus {
         // PRIMARY KEYS---------------------------------------------
         List<PK> cpks = currentTable.getPKS();
         cpks.forEach(pk -> {
-            int ordinalPosition = pk.getOrdinalPosition();
+            int ordinalPosition = pk.getOrdinalPosition() - 1;
             String columnName = pk.getColumnName();
 
             Text textPk = new Text("(P) ");

@@ -161,7 +161,9 @@ public class VIController implements Initializable {
             String type = currentTable.getColumns().get(a).getType();
             int typeLength = currentTable.getColumns().get(a).getTypeLength();
             boolean nulll = currentTable.getColumns().get(a).getNulll();
-            String defaultt = currentTable.getColumns().get(a).getDefaultt();
+            String defaultt = currentTable.getColumns().get(a).getDefaultt() != null
+                    ? currentTable.getColumns().get(a).getDefaultt().toString()
+                    : null;
             String extra = currentTable.getColumns().get(a).getExtra() ? "Yes" : "No";
 
             String dist = currentTable.getColumns().get(a).getDist() ? "Yes" : "No";
@@ -197,7 +199,7 @@ public class VIController implements Initializable {
         List<PK> cpks = currentTable.getPKS();
         for (int a = 0; a < cpks.size(); a++) {
             cpks.forEach(pk -> {
-                int ordinalPosition = pk.getOrdinalPosition();
+                int ordinalPosition = pk.getOrdinalPosition() - 1;
                 lbPK[ordinalPosition].setText("Yes");
                 lbPK[ordinalPosition].setTextFill(NonCSS.TEXT_FILL_PK);
                 lbPK[ordinalPosition].setStyle("-fx-font-weight: bold;");
@@ -205,9 +207,9 @@ public class VIController implements Initializable {
         }
         List<FK> cfks = currentTable.getFKS();
         for (int a = 0; a < cfks.size(); a++) {
-            //REQUIERES WAY MORE INFO !!!!!!!!!!!!!!!
+            // REQUIERES WAY MORE INFO !!!!!!!!!!!!!!!
             cfks.forEach(fk -> {
-                int ordinalPosition = fk.getOrdinalPosition();
+                int ordinalPosition = fk.getOrdinalPosition() - 1;
                 lbFK[ordinalPosition].setText("Yes");
                 lbFK[ordinalPosition].setTextFill(NonCSS.TEXT_FILL_FK);
                 lbFK[ordinalPosition].setStyle("-fx-font-weight: bold;");

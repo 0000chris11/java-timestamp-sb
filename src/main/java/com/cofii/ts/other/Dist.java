@@ -1,9 +1,11 @@
 package com.cofii.ts.other;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.cofii.ts.first.VFController;
 import com.cofii.ts.sql.MSQL;
@@ -11,6 +13,7 @@ import com.cofii.ts.sql.querys.SelectDistinct;
 import com.cofii.ts.store.main.Path;
 import com.cofii.ts.store.main.Table;
 import com.cofii.ts.store.main.Users;
+import com.cofii2.methods.MFile;
 import com.cofii2.methods.MString;
 import com.cofii2.mysql.MSQLP;
 
@@ -24,7 +27,7 @@ public class Dist {
     // private ColumnDS columnsd = ColumnDS.getInstance();
     // private Keys keys = Keys.getInstance();
 
-    private List<String> imageCFiles = new ArrayList<>();
+    private List<String> imageCFilesFormatted = new ArrayList<>();
     private List<String> imageCFilesPath = new ArrayList<>();
     private MSQLP ms;
 
@@ -73,9 +76,10 @@ public class Dist {
 
             int index = currentTable.getColumnIndex(imageCColumnName);
             currentTable.getColumns().get(index).setImageC(true);
-            // currentTable.setImageCPaths(imageCPath); ????
+
             vfc.getTfs()[index].getStyleClass().add("imageCTF");
             vfc.getSplitLeft().setDividerPositions(0.6);
+            // ALL PATH EXIST CHECK-------------------------------------------
             boolean allPathsExists = imageCPath.stream().allMatch(path -> {
                 File file = new File(path.getPathName());
                 return file.exists() && file.isDirectory();
@@ -83,17 +87,35 @@ public class Dist {
 
             vfc.getHbImages().getChildren().clear();
             if (allPathsExists) {
-                // RESET IMAGEC-DISPLAY AND PATHS-LISTS
+                // RESET IMAGEC-DISPLAY AND PATHS-LISTS----------------
                 vfc.getHbImages().getChildren().add(vfc.getIvImageC()[0]); // DEFAULT 1
                 imageCFilesPath.clear();
-                imageCFiles.clear();
-                //ADDING PATHS FROM THE ALL THE IMAGECS-PATHS
+                imageCFilesFormatted.clear();
+                // ADDING PATHS FROM THE ALL THE IMAGECS-PATHS------------
                 imageCPath.forEach(path -> {
                     File imageCDirectory = new File(path.getPathName());
-                    Arrays.asList(imageCDirectory.listFiles(f -> f.isDirectory() || f.isFile())).stream().forEach(f -> {
-                        imageCFilesPath.add(f.getPath());
-                        imageCFiles.add(MString.getRemoveCustomFormattedString(f.getName()));
-                    });
+
+                    FileFilter fileFilter = File::isFile;
+                    if (currentTable.getImageType().equals("File")) {
+                        fileFilter = File::isFile;
+                    } else if (currentTable.getImageType().equals("Folder")) {
+                        fileFilter = File::isDirectory;
+                    } else if (currentTable.getImageType().equals("All-Sub-Files")) {
+                        fileFilter = null;
+                    }
+                    if (fileFilter != null) {
+                        // FOR EACH PATH -----------------------------------
+                        Arrays.asList(imageCDirectory.listFiles(fileFilter)).stream().forEach(f -> {
+                            imageCFilesPath.add(f.getPath());
+                            imageCFilesFormatted.add(MString.getRemoveCustomFormattedString(f.getName()));
+                        });
+                    } else {
+                        // FOR EACH PATH -----------------------------------
+                        imageCFilesPath.addAll(MFile
+                                .getAllSubFilesInDirectory(path.getPathName(),
+                                        Arrays.asList(imageCDirectory.listFiles()))
+                                .stream().map(File::getPath).collect(Collectors.toList()));
+                    }
                 });
 
             } else {
@@ -108,12 +130,12 @@ public class Dist {
     public void distStart() {
         Table currentTable = Users.getInstance().getCurrenUser().getCurrentDatabase().getCurrentTable();
         // columnsd.clear();
-        for (int a = 0; a < currentTable.getColumns().size(); a++) {
-            // columnsd.addColumnD(new ColumnD());
-            currentTable.getColumns().get(a).setDist(false);
-            currentTable.getColumns().get(a).setImageC(false);
-        }
-
+        /*
+         * for (int a = 0; a < currentTable.getColumns().size(); a++) { //
+         * columnsd.addColumnD(new ColumnD());
+         * currentTable.getColumns().get(a).setDist(false);
+         * currentTable.getColumns().get(a).setImageC(false); }
+         */
         dist(currentTable);
         imageC(currentTable);
     }
@@ -148,11 +170,11 @@ public class Dist {
     // -------------------------------------------------------
 
     public List<String> getImageCFiles() {
-        return imageCFiles;
+        return imageCFilesFormatted;
     }
 
     public void setImageCFiles(List<String> imageCFiles) {
-        this.imageCFiles = imageCFiles;
+        this.imageCFilesFormatted = imageCFiles;
     }
 
     public List<String> getImageCFilesPath() {

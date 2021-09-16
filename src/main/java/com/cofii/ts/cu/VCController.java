@@ -5,8 +5,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
@@ -20,14 +18,10 @@ import com.cofii.ts.first.VFController;
 import com.cofii.ts.other.CSS;
 import com.cofii.ts.other.NonCSS;
 import com.cofii.ts.sql.MSQL;
-import com.cofii.ts.store.FKS;
-import com.cofii.ts.store.PK;
-import com.cofii.ts.store.PKS;
 import com.cofii.ts.store.SQLType;
 import com.cofii.ts.store.SQLTypes;
-import com.cofii.ts.store.UpdateTable;
 import com.cofii.ts.store.main.Database;
-import com.cofii.ts.store.main.Path;
+import com.cofii.ts.store.main.PK;
 import com.cofii.ts.store.main.Table;
 import com.cofii.ts.store.main.User;
 import com.cofii.ts.store.main.Users;
@@ -38,7 +32,6 @@ import com.cofii2.components.javafx.popup.PopupAutoC;
 import com.cofii2.components.javafx.popup.PopupKV;
 import com.cofii2.components.javafx.popup.PopupMenu;
 import com.cofii2.components.javafx.popup.PopupMessage;
-import com.cofii2.custom.Custom;
 import com.cofii2.methods.MList;
 import com.cofii2.mysql.MSQLCreate;
 import com.cofii2.mysql.MSQLP;
@@ -221,10 +214,6 @@ public class VCController implements Initializable {
     private Database currentDatabse = Users.getInstance().getCurrenUser().getCurrentDatabase();
     private Table currentTable = currentDatabse.getCurrentTable();
     private SQLTypes types = SQLTypes.getInstance();
-    private PKS pks = PKS.getInstance();
-    private FKS fks = FKS.getInstance();
-
-    private UpdateTable updateTable;
 
     private Pattern patternBWTC = Pattern.compile("[A-Za-z](\\w| )*");
     private Pattern patternTypeLength = Pattern.compile("\\d{1,5}");
@@ -366,7 +355,7 @@ public class VCController implements Initializable {
         btnCreateUpdate.setDisable(!allOk);
     }
 
-    private void addControl() {
+    private void addColumnControl() {
         boolean disable = columnAddOk && typeAddOk && typeLenghtAddOk && defaultAddOk;
         createAddColumnHelpPopupReset();
         btnsAddColumn.get(addIndex).setDisable(!disable);
@@ -385,6 +374,12 @@ public class VCController implements Initializable {
         btnSelectImageC.setDisable(!ok);
     }
 
+    /**
+     * Dist shouldn't be selected when extra (AUTO_INCREMENT) is on
+     */
+    private void distExtraControl(){
+        
+    }
     // LISTENERS---------------------------------------------
     // TABLE-------------------------------------
     private void tfTableKeyReleased(KeyEvent e) {
@@ -485,7 +480,7 @@ public class VCController implements Initializable {
     private boolean getColumnMatch(String text) {
         final String textt = text.toUpperCase();
         matcher = patternBWTC.matcher(text);
-        return matcher.matches() && MSQL.BAND_COLUMNS_NAMES.stream().anyMatch(word -> textt.equals(word));
+        return matcher.matches() && MSQL.BAND_COLUMNS_NAMES.stream().noneMatch(word -> textt.equals(word));
     }
 
     private void tfsColumnsKeyReleased(KeyEvent e) {
@@ -581,7 +576,7 @@ public class VCController implements Initializable {
                 btnsRenameColumn.get(index).setDisable(!ok);
             } else {
                 columnAddOk = ok;
-                addControl();
+                addColumnControl();
             }
         }
     }
@@ -609,7 +604,7 @@ public class VCController implements Initializable {
 
     // ADD OR REMOVE COLUMNS-------------------------------------
     // CREATE=========================================
-    void btnsAddCreateAction(ActionEvent e) {
+    void btnsAddColumnCreateAction(ActionEvent e) {
         setQOLVariables(e);
         index++;
         int row = index + 1;
@@ -627,6 +622,9 @@ public class VCController implements Initializable {
         gridPane.add(hbsFK.get(index), 5, row);
         gridPane.add(hbsDefault.get(index), 6, row);
         gridPane.add(hbsExtra.get(index), 7, row);
+
+        gridPane.add(btnsDist.get(index), 8, row);
+        gridPane.add(btnsTextArea.get(index), 9, row);
 
         // NO IDEA WHY CKS ARE NOT VISIBLE
         cksNull.get(index).setVisible(true);
@@ -656,7 +654,8 @@ public class VCController implements Initializable {
         btnsRemoveColumn.get(index - 1).setVisible(true);
         // ---------------------------------------------------------
         gridPane.getChildren().removeAll(hbsN.get(index), hbsName.get(index), hbsType.get(index), hbsNull.get(index),
-                hbsPK.get(index), hbsFK.get(index), hbsDefault.get(index), hbsExtra.get(index));
+                hbsPK.get(index), hbsFK.get(index), hbsDefault.get(index), hbsExtra.get(index), btnsDist.get(index),
+                btnsTextArea.get(index));
 
         // gridPaneRight.getChildren().removeAll(btnsDist.get(index),
         // btnsImageC.get(index));
@@ -686,7 +685,8 @@ public class VCController implements Initializable {
         for (int a = 0; a < currentRowLength; a++) {// SKIP THE ONE ADDED
             if (index + 1 != a) {
                 gridPane.getChildren().removeAll(hbsN.get(a), hbsName.get(a), hbsType.get(a), hbsNull.get(a),
-                        hbsPK.get(a), hbsFK.get(a), hbsDefault.get(a), hbsExtra.get(a));
+                        hbsPK.get(a), hbsFK.get(a), hbsDefault.get(a), hbsExtra.get(a), btnsDist.get(a),
+                        btnsTextArea.get(a));
 
                 // gridPaneRight.getChildren().removeAll(btnsDist.get(a), btnsImageC.get(a));
             }
@@ -703,8 +703,8 @@ public class VCController implements Initializable {
             gridPane.add(hbsDefault.get(a), 6, row);
             gridPane.add(hbsExtra.get(a), 7, row);
 
-            // gridPaneRight.add(btnsDist.get(a), 0, row);
-            // gridPaneRight.add(btnsImageC.get(a), 1, row);
+            gridPane.add(btnsDist.get(a), 8, row);
+            gridPane.add(btnsTextArea.get(a), 9, row);
         }
 
     }
@@ -713,7 +713,7 @@ public class VCController implements Initializable {
         // REMOVING ROWS-------------------------
         for (int a = 0; a < currentRowLength; a++) {// SKIP THE ONE ADDED
             gridPane.getChildren().removeAll(hbsN.get(a), hbsName.get(a), hbsType.get(a), hbsNull.get(a), hbsPK.get(a),
-                    hbsFK.get(a), hbsDefault.get(a), hbsExtra.get(a));
+                    hbsFK.get(a), hbsDefault.get(a), hbsExtra.get(a), btnsDist.get(a), btnsTextArea.get(a));
 
             // gridPaneRight.getChildren().removeAll(btnsDist.get(a), btnsImageC.get(a));
         }
@@ -1055,7 +1055,11 @@ public class VCController implements Initializable {
         newValue = newValue.trim();
         matcher = patternBWTC.matcher(newValue);
         if (matcher.matches()) {
-            if (MList.isOnThisList(tfsTypePs.get(index).getLv().getItems(), newValue, false)) {
+            final String newValuee = newValue;
+            if (Arrays.asList(types.getTypeNames()).stream().anyMatch(item -> {
+                System.out.println("item: " + item);
+                return item.equals(newValuee);
+            })) {
                 int typeLength = types.getTypeLength(newValue);
                 if (typeLength > 0) {// TF-TYPE-LENGTH-POPUP
                     tfsTypeLength.get(index).setVisible(true);
@@ -1202,7 +1206,7 @@ public class VCController implements Initializable {
                 btnsChangeType.get(index).setDisable(!ok);
             } else {
                 typeAddOk = ok;
-                addControl();
+                addColumnControl();
             }
         }
     }
@@ -1231,7 +1235,7 @@ public class VCController implements Initializable {
                 btnsChangeType.get(index).setDisable(!ok);
             } else {
                 typeLenghtAddOk = ok;
-                addControl();
+                addColumnControl();
             }
         }
     }
@@ -1291,12 +1295,12 @@ public class VCController implements Initializable {
         boolean nulll = cksNull.get(index).isSelected();
         // ----------------------------------------------
         ms.setNullValue(nulll);
-        //ms.setExtraValue(index == updateTable.getExtra());
+        // ms.setExtraValue(index == updateTable.getExtra());
         ms.setExtraValue(index == currentTable.getExtra());
         boolean changeNull = ms.changeType(tableName, column, type);
         if (changeNull) {
             System.out.println("\tSUCCESS");
-            //updateTable.getNulls().set(index, nulll);
+            // updateTable.getNulls().set(index, nulll);
             currentTable.getColumns().get(index).setNulll(nulll);
 
             cksNull.get(index).setStyle(CSS.CKS_BG_HINT);
@@ -1323,7 +1327,7 @@ public class VCController implements Initializable {
         // UPDATE--------------------------------
         if (updateControl) {
             for (int c = 0; c < currentRowLength; c++) {
-                //boolean pkSelected = updateTable.getPks().get(c).equals("Yes");
+                // boolean pkSelected = updateTable.getPks().get(c).equals("Yes");
                 boolean pkSelected = currentTable.getColumns().get(c).isPk();
                 if (rbsPK.get(c).isSelected() != pkSelected) {
                     update = true;
@@ -1347,7 +1351,8 @@ public class VCController implements Initializable {
         String[] errorMessage = { null };
         ms.setSQLException((ex, s) -> errorMessage[0] = ex.getMessage());
         boolean dropPK = true;
-        if (updateTable.getPks().stream().anyMatch(p -> p.equals("Yes"))) {
+        // if (updateTable.getPks().stream().anyMatch(p -> p.equals("Yes"))) {
+        if (!currentTable.getPKS().isEmpty()) {
             dropPK = ms.dropPrimaryKey(tableName);
         }
 
@@ -1359,8 +1364,10 @@ public class VCController implements Initializable {
                 indexs[0] = 0;
                 rbsPK.forEach(el -> {
                     if (el.isSelected()) {
-                        cols.add(updateTable.getColumns().get(indexs[0]).replace(" ", "_"));
-                        updateTable.getPks().set(indexs[0], "Yes");
+                        // cols.add(updateTable.getColumns().get(indexs[0]).replace(" ", "_"));
+                        cols.add(currentTable.getColumns().get(indexs[0]).getName().replace(" ", "_"));
+                        // updateTable.getPks().set(indexs[0], "Yes");
+                        currentTable.getColumns().get(indexs[0]).setPk(true);
                     }
                     indexs[0]++;
                 });
@@ -1383,8 +1390,10 @@ public class VCController implements Initializable {
                 // SET PK TO UPDATE-TABLE---------------------------
                 indexs[0] = 0;
                 rbsPK.forEach(rb -> {
-                    if (!rb.isSelected() != updateTable.getPks().get(indexs[0]).equals("Yes")) {
-                        updateTable.getPks().set(indexs[0], "No");
+                    // if (!rb.isSelected() != updateTable.getPks().get(indexs[0]).equals("Yes")) {
+                    if (!rb.isSelected() != currentTable.getColumns().get(indexs[0]).isPk()) {
+                        // updateTable.getPks().set(indexs[0], "No");
+                        currentTable.getColumns().get(indexs[0]).setPk(false);
                     }
                     indexs[0]++;
                 });
@@ -1452,11 +1461,15 @@ public class VCController implements Initializable {
                 boolean update = false;
                 // DEPENDS ON TFS-FK TO
                 for (int c = 0; c < currentRowLength; c++) {
-                    boolean fkSelectedO = updateTable.getFks().get(c).equals("Yes");
-                    String fkText = updateTable.getFkFormed().get(c);
+                    // boolean fkSelectedO = updateTable.getFks().get(c).equals("Yes");
+                    boolean fkSelectedO = currentTable.getColumns().get(c).isFk();
+                    // String fkText = updateTable.getFkFormed().get(c);
 
-                    if (!tfsFK.get(c).getText().trim().isEmpty() != fkSelectedO
-                            || (tfsFK.get(c).getText().trim().isEmpty() && !tfsFK.get(c).getText().equals(fkText))) {
+                    if (!tfsFK.get(c).getText().trim()
+                            .isEmpty() != fkSelectedO/*
+                                                      * || (tfsFK.get(c).getText().trim().isEmpty() &&
+                                                      * !tfsFK.get(c).getText().equals(fkText)
+                                                      */) {
                         update = true;
                         break;
                     }
@@ -1563,7 +1576,9 @@ public class VCController implements Initializable {
             if (currentRowLength > indexs[0]) {
                 if (btn.isSelected()) {
                     scount[0]++;
-                    if (!updateControl ? true : updateTable.getFks().get(indexs[0]).equals("No") && !actionRem[0]) {
+                    // if (!updateControl ? true : updateTable.getFks().get(indexs[0]).equals("No")
+                    // && !actionRem[0]) {
+                    if (!updateControl ? true : currentTable.getColumns().get(indexs[0]).isFk() && !actionRem[0]) {
                         actionAdd[0] = true;
                         if (scount[0] == 1) {
                             btn.setText("ADD");
@@ -1573,14 +1588,14 @@ public class VCController implements Initializable {
                                     .forEach(btnn -> btnn.setText("ADD (A)"));
                         }
                     } else if (!updateControl ? false
-                            : updateTable.getFks().get(indexs[0]).equals("Yes") && !actionAdd[0]) {
+                            : currentTable.getColumns().get(indexs[0]).isFk() && !actionAdd[0]) {
                         actionRem[0] = true;
                         if (!btn.getText().equals("REM (A)")) {
                             btn.setText("REM");
                         }
                     }
                 } else {
-                    if (!updateControl ? true : updateTable.getFks().get(indexs[0]).equals("No")) {
+                    if (!updateControl ? true : !currentTable.getColumns().get(indexs[0]).isFk()) {
                         btn.setText("ADD");
                     }
                 }
@@ -1619,9 +1634,9 @@ public class VCController implements Initializable {
         });
         // DROP FK-----------------------------------
         boolean dropFK = true;
-        if (updateTable.getFks().get(indexs[0]++).equals("Yes")) {// DROP FOREIGN KEY
-            String constraint = fks.getConstraintName(
-                    Users.getInstance().getCurrenUser().getCurrentDatabase().getName(), tableName, indexs[0]++);
+        if (currentTable.getColumns().get(indexs[0]++).isFk()) {// DROP FOREIGN KEY
+            String constraint = Users.getInstance().getCurrenUser().getConstraintName(currentDatabse.getName(),
+                    currentTable.getName(), indexs[0]++);
             dropFK = ms.dropForeignKey(tableName, constraint);
         }
         if (dropFK) {
@@ -1633,7 +1648,8 @@ public class VCController implements Initializable {
                 if (btn.isSelected()) {
                     indexs[0] = Integer.parseInt(btn.getId());
                     indexsList.add(indexs[0]);
-                    cols.add(updateTable.getColumns().get(indexs[0]).replace(" ", "_"));
+                    // cols.add(updateTable.getColumns().get(indexs[0]).replace(" ", "_"));
+                    cols.add(currentTable.getColumns().get(indexs[0]).getName());
                 }
             });
             if (btnsSelectedFK.get(indexs[0]++).getText().contains("ADD")) {
@@ -1664,7 +1680,8 @@ public class VCController implements Initializable {
 
                     btnUpdateFK.setDisable(true);
                     indexsList.forEach(i -> {
-                        updateTable.getFks().set(i, "Yes");
+                        // updateTable.getFks().set(i, "Yes");
+                        currentTable.getColumns().get(i).setFk(true);
                         btnsSelectedFK.get(i).setSelected(false);
                     });
 
@@ -1686,7 +1703,8 @@ public class VCController implements Initializable {
                 // FK REMOVED
                 btnUpdateFK.setDisable(true);
                 indexsList.forEach(i -> {
-                    updateTable.getFks().set(i, "No");
+                    // updateTable.getFks().set(i, "No");
+                    currentTable.getColumns().get(i).setFk(false);
                     btnsSelectedFK.get(i).setSelected(false);
                     btnsSelectedFK.get(i).setText("ADD");
                 });
@@ -1780,7 +1798,7 @@ public class VCController implements Initializable {
             tfsDefaultControl(index);
         }
         // UPDATE-------------------------------------------
-        defaultUpdate(index, defaultBW, false);
+        defaultUpdateControl(index, defaultBW, false);
     }
 
     private void tfsDefaultKeyReleased(KeyEvent e) {
@@ -1842,13 +1860,14 @@ public class VCController implements Initializable {
      * } }
      */
 
-    private void defaultUpdate(int index, boolean update, boolean cks) {
+    private void defaultUpdateControl(int index, boolean update, boolean cks) {
         if (updateControl) {
             boolean ok = false;
             if (update) {
-                boolean defaultSelected = updateTable.getDefaults().get(index) != null;
-                String defaultValue = updateTable.getDefaults().get(index) != null
-                        ? updateTable.getDefaults().get(index).toString()
+                // boolean defaultSelected = updateTable.getDefaults().get(index) != null;
+                boolean defaultSelected = currentTable.getColumns().get(index).getDefaultt() != null;
+                // String defaultValue = updateTable.getDefaults().get(index) != null
+                String defaultValue = defaultSelected ? currentTable.getColumns().get(index).getDefaultt().toString()
                         : "";
                 if (cksDefault.get(index).isSelected() != defaultSelected
                         || (cksDefault.get(index).isSelected() && !tfsDefault.get(index).getText().equals(defaultValue))
@@ -1877,7 +1896,7 @@ public class VCController implements Initializable {
                 btnsChangeDefault.get(index).setDisable(!ok);
             } else {
                 defaultAddOk = ok;
-                addControl();
+                addColumnControl();
             }
         }
     }
@@ -1909,7 +1928,8 @@ public class VCController implements Initializable {
 
         boolean setDefaultValue = ms.addDefaultValue(tableName, column, defaultValue);
         if (setDefaultValue) {
-            updateTable.getDefaults().set(index, defaultValue);
+            // updateTable.getDefaults().set(index, defaultValue);
+            currentTable.getColumns().get(index).setDefaultt(defaultValue);
 
             tfsDefault.get(index).setStyle(CSS.TEXT_FILL_HINT);
             cksDefault.get(index).setStyle(CSS.CKS_BG_HINT);
@@ -1985,15 +2005,16 @@ public class VCController implements Initializable {
             extraDefaultOK = true;
         }
         // UPDATE------------------------------------------------
-        extraUpdate(index);
+        extraUpdateControl(index);
         // ------------------------------------------------
         masterControl();
     }
 
-    private void extraUpdate(int index) {
+    private void extraUpdateControl(int index) {
         if (updateControl) {
             if (extraDefaultOK && extraPKOK && extraFKOK) {
-                int extraO = updateTable.getExtra();
+                // int extraO = updateTable.getExtra();
+                int extraO = currentTable.getExtra();
                 int extra = rbsExtra.get(index).isSelected() ? index : -1;
                 if (extra != extraO) {
                     // rbsExtraPopups[index].hide();
@@ -2020,12 +2041,14 @@ public class VCController implements Initializable {
             indexs[0]++;// MAY WORK -> TEST MORE
             return selected;
         });
-        ms.setNullValue(extra ? updateTable.getNulls().get(indexs[0]) : false);
+        // ms.setNullValue(extra ? updateTable.getNulls().get(indexs[0]) : false);
+        ms.setNullValue(extra ? currentTable.getColumns().get(indexs[0]).getNulll() : false);
         ms.setExtraValue(extra);
         boolean updateExtra = ms.changeType(tableName, column, type);
         if (updateExtra) {
             System.out.println(indexs[0]);
-            updateTable.setExtra(extra ? indexs[0] : -1);
+            // updateTable.setExtra(extra ? indexs[0] : -1);
+            currentTable.setExtra(extra ? indexs[0] : -1);
 
             btnUpdateExtra.setDisable(true);
 
@@ -2239,10 +2262,10 @@ public class VCController implements Initializable {
             if (distExtraOK) {
                 boolean update = false;
                 for (int a = 0; a < currentRowLength; a++) {
-                    boolean dist = false;
-                    if (updateTable.getDists().get(a) != null) {
-                        dist = updateTable.getDists().get(a);
-                    }
+                    // boolean dist = false;
+                    // if (updateTable.getDists().get(a) != null) {
+                    boolean dist = currentTable.getColumns().get(a).getDist();
+
                     if (btnsDist.get(a).isSelected() != dist || (columnAdd)) {
                         update = true;
                         break;
@@ -2269,7 +2292,8 @@ public class VCController implements Initializable {
             int[] indexs = { 0 };
             btnsDist.forEach(btn -> {
                 if (currentRowLength > indexs[0]) {
-                    updateTable.getDists().set(indexs[0], btnsDist.get(indexs[0]).isSelected());
+                    // updateTable.getDists().set(indexs[0], btnsDist.get(indexs[0]).isSelected());
+                    currentTable.getColumns().get(indexs[0]).setDist(btnsDist.get(indexs[0]).isSelected());
                 }
                 indexs[0]++;
             });
@@ -2370,21 +2394,22 @@ public class VCController implements Initializable {
      * STATE } } }
      */
 
+    // DELETE OR SEND TO VIMageC !!!!!!!!!!!
     void btnUpdateImageC(ActionEvent e) {
         System.out.println(CC.CYAN + "Update ImageC" + CC.RESET);
         setQOLVariables(e);
         // ms.updateRow(, valuesWhere, newValues);
-        String imageCO = updateTable.getImageCHole();
+        // String imageCO = updateTable.getImageCHole();
         String imageC = null; // !!!!!!!!
 
-        String imageCPathO = updateTable.getImageCPathHole();
+        // String imageCPathO = updateTable.getImageCPathHole();
         // String imageCPath = !tfImageCPath.isDisable() ? tfImageCPath.getText() :
         // "NONE";
 
         int allOk = 0;
         String message = null;
         // IMAGEC UPDATE-------------------------------------
-        if (!imageCO.equals(imageC)) {
+        if (/* !imageCO.equals(imageC) */ true) {
             boolean updateImageC = ms.updateRow(MSQL.TABLE_NAMES, "Name", tableName.replace("_", " "), "ImageC",
                     imageC);
             if (updateImageC) {
@@ -2393,17 +2418,20 @@ public class VCController implements Initializable {
                     for (int a = 0; a < currentRowLength; a++) {
                         if (a == id) {
 
-                            updateTable.getImageCS().set(id, true);
+                            // updateTable.getImageCS().set(id, true);
+                            currentTable.getColumns().get(id).setImageC(true);
                         } else {
-                            updateTable.getImageCS().set(a, false);
+                            // updateTable.getImageCS().set(a, false);
+                            currentTable.getColumns().get(id).setImageC(false);
                         }
                     }
                     // updateTable.setImageCHole(getImageCBeforeUpdate());
                 } else {
                     for (int a = 0; a < currentRowLength; a++) {
-                        updateTable.getImageCS().set(a, false);
+                        // updateTable.getImageCS().set(a, false);
+                        currentTable.getColumns().get(a).setImageC(false);
                     }
-                    updateTable.setImageCHole("NONE");
+                    // updateTable.setImageCHole("NONE");
                 }
 
                 message = "ImageC updated";
@@ -2450,27 +2478,18 @@ public class VCController implements Initializable {
      * List all PK for each row of FKS (to reference them)
      */
     private void fkReferencesInit() {
-        List<String> list = new ArrayList<>();
-        List<PK> pksList = pks.getPksList();
-
-        for (int a = 0; a < pksList.size(); a++) {
-            String databaseName = pksList.get(a).getDatabase();
-            tableName = pksList.get(a).getTable();
-            List<IntString> columnsNames = pksList.get(a).getColumns();
-            // String column = row[a].getColumnName();
-            StringBuilder sb = new StringBuilder(databaseName).append(".").append(tableName).append(" (");
-            columnsNames.forEach(is -> sb.append(is.string).append(","));
-
-            sb.deleteCharAt(sb.length() - 1);// TEST
-            sb.append(")");
-            list.add(sb.toString());
-        }
-
-        pksReferences = list.toArray(new String[list.size()]);
-        tfsFKPs.forEach(e -> {
-            e.addAllItems(pksReferences);
-            // e.getLv().getItems().addAll(pksReferences);
+        List<String> listReferences = new ArrayList<>();
+        Map<String, List<PK>> pksMap = Users.getInstance().getCurrenUser().getPKSInGroups();
+        pksMap.forEach((s, lst) -> {
+            StringBuilder sb = new StringBuilder(s);
+            sb.append(" (");
+            lst.forEach(pk -> sb.append(pk.getColumnName()).append(","));
+            sb.deleteCharAt(sb.length() - 1).append(")");
+            listReferences.add(sb.toString());
         });
+
+        pksReferences = listReferences.toArray(new String[listReferences.size()]);
+        tfsFKPs.forEach(e -> e.addAllItems(pksReferences));
         tfsFKPs.get(0).getLv().getSelectionModel().select(0);
     }
 
@@ -2562,18 +2581,19 @@ public class VCController implements Initializable {
             addIndex = index;
             columnAdd = true;
 
-            updateTable.getColumns().add(index, null);
-            updateTable.getTypes().add(index, null);
-            updateTable.getTypesLength().add(index, -1);
-            updateTable.getNulls().add(index, null);
-            updateTable.getPks().add(index, null);
-            updateTable.getFks().add(index, null);
+            currentTable.getColumns().add(index, null);
+            // updateTable.getColumns().add(index, null);
+            // updateTable.getTypes().add(index, null);
+            // updateTable.getTypesLength().add(index, -1);
+            // updateTable.getNulls().add(index, null);
+            // updateTable.getPks().add(index, null);
+            // updateTable.getFks().add(index, null);
             // updateTable.getFksConstraint().add(index, null);
-            updateTable.getFkFormed().add(index, null);
-            updateTable.getDefaults().add(index, null);
+            // updateTable.getFkFormed().add(index, null);
+            // updateTable.getDefaults().add(index, null);
 
-            updateTable.getDists().add(index, null);
-            updateTable.getImageCS().add(index, null);
+            // updateTable.getDists().add(index, null);
+            // updateTable.getImageCS().add(index, null);
         }
     }
 
@@ -2712,7 +2732,7 @@ public class VCController implements Initializable {
             tfsFK.get(a).setPromptText("NO FOREING KEY");
             // STYLE----------------------------------------------
             tfsType.get(a).setStyle(null);
-            tfsType.get(a).setStyle(CSS.TFS_DIST_LOOK);
+            tfsType.get(a).getStyleClass().add("tf-dist");
             btnsDist.get(a).setStyle(CSS.BORDER_GRID_BOTTOM);
             btnsTextArea.get(a).setStyle(CSS.BORDER_GRID_BOTTOM);
 
@@ -2730,10 +2750,16 @@ public class VCController implements Initializable {
             tfsTypeLength.get(a).setText(Integer.toString(presetTypeSelected.get(a).getTypeLength()));
             // WIDTH & HEIGHT -----------------------------------
             tfsColumn.get(a).setPrefWidth(-1);
+            HBox.setHgrow(tfsColumn.get(a), Priority.ALWAYS);
+
             btnsRemoveColumn.get(a).setMinWidth(40);
             btnsRemoveColumn.get(a).setMaxWidth(40);
+            HBox.setHgrow(btnsRemoveColumn.get(a), Priority.NEVER);
+
             btnsAddColumn.get(a).setMinWidth(40);
             btnsAddColumn.get(a).setMaxWidth(40);
+            HBox.setHgrow(btnsAddColumn.get(a), Priority.NEVER);
+
             tfsType.get(a).setPrefWidth(140);
             tfsTypeLength.get(a).setMinWidth(40);
             tfsTypeLength.get(a).setMaxWidth(40);
@@ -2744,6 +2770,7 @@ public class VCController implements Initializable {
             btnsDist.get(a).setMaxWidth(40);
             btnsTextArea.get(a).setMinWidth(40);
             btnsTextArea.get(a).setMaxWidth(40);
+
             // VISIBLE PROPERTY ------------------------------------
             btnsRenameColumn.get(a).managedProperty().bind(btnsRenameColumn.get(a).visibleProperty());
             tfsTypeLength.get(a).managedProperty().bind(tfsTypeLength.get(a).visibleProperty());
@@ -2886,6 +2913,8 @@ public class VCController implements Initializable {
         btnRenameTable.setDisable(true);
 
         scGridPane.setHbarPolicy(ScrollBarPolicy.ALWAYS);
+        gridPane.minWidthProperty().bind(scGridPane.widthProperty());
+
         lbUpdate.setDisable(true);
 
         lbStatus.setStyle(CSS.LB_STATUS);
@@ -3176,14 +3205,6 @@ public class VCController implements Initializable {
 
     public void setBtnUpdateDist(Button btnUpdateDist) {
         this.btnUpdateDist = btnUpdateDist;
-    }
-
-    public UpdateTable getUpdateTable() {
-        return updateTable;
-    }
-
-    public void setUpdateTable(UpdateTable updateTable) {
-        this.updateTable = updateTable;
     }
 
     public TextField getTfTable() {

@@ -4,6 +4,7 @@ import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
@@ -34,11 +35,15 @@ import com.cofii2.methods.MString;
 import com.cofii2.mysql.MSQLP;
 import com.cofii2.stores.CC;
 
+import org.controlsfx.control.TaskProgressView;
+
+import javafx.application.Platform;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener.Change;
+import javafx.concurrent.Task;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -69,7 +74,6 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
 import javafx.util.Duration;
-import com.cofii.ts.store.FKS;
 
 public class VFController implements Initializable {
 
@@ -266,70 +270,89 @@ public class VFController implements Initializable {
     }
 
     public void selectionForEachTable(String newValue) {
-        System.out.println(CC.CYAN + "\nCHANGE TABLE [" + newValue + "]" + CC.RESET);
-        Database currenDatabase = Users.getInstance().getCurrenUser().getCurrentDatabase();
-        currentTable = currenDatabase.getCurrentTable();
-        boolean tableMatch = Database.getTables().stream().anyMatch(t -> t.getName().equals(newValue));
+        Task<Void> task2 = new Task<Void>() {
+            @Override
+            protected Void call() {
+                Platform.runLater(() -> {
+                    tfTableAutoC.hide();
 
-        if (tableMatch) {
-            // RESET NODES ---------------------------------
-            tfsFKList.forEach(List::clear);
+                    System.out.println(CC.CYAN + "\nCHANGE TABLE [" + newValue + "]" + CC.RESET);
+                    Database currentDatabase = Users.getInstance().getCurrenUser().getCurrentDatabase();
+                    currentTable = currentDatabase.getCurrentTable();
+                    boolean tableMatch = Database.getTables().stream().anyMatch(t -> t.getName().equals(newValue));
 
-            for (int a = 0; a < MSQL.MAX_COLUMNS; a++) {
-                lbs[a].setVisible(false);
+                    if (tableMatch) {
+                        // RESET NODES ---------------------------------
+                        tfsFKList.forEach(List::clear);
 
-                // if (Boolean.TRUE.equals(currentTable.getDistList().get(a))
-                // || FKS.getInstance().getYesAndNoFKS()[a].equals("Yes")) {// RESETING DIST
-                tfsAutoC.get(a).setTfParent(null);
-                tfs[a].setStyle(CSS.TFS_DEFAULT_LOOK);
-                // }
-                tfs[a].setVisible(false);
-                tfs[a].getStyleClass().remove("imageCTF");
-                btns[a].setVisible(false);
+                        for (int a = 0; a < MSQL.MAX_COLUMNS; a++) {
+                            lbs[a].setVisible(false);
 
-                tfs[a].setText("");
+                            // if (Boolean.TRUE.equals(currentTable.getDistList().get(a))
+                            // || FKS.getInstance().getYesAndNoFKS()[a].equals("Yes")) {// RESETING DIST
+                            tfsAutoC.get(a).setTfParent(null);
+                            tfs[a].setStyle(CSS.TFS_DEFAULT_LOOK);
+                            // }
+                            tfs[a].setVisible(false);
+                            tfs[a].getStyleClass().remove("imageCTF");
+                            btns[a].setVisible(false);
 
+                            tfs[a].setText("");
+
+                        }
+
+                        Arrays.asList(btns).forEach(btn -> btn.setSelected(true));
+                        selectedRow = null;
+
+                        btnFind.setDisable(false);
+                        btnAdd.setDisable(false);
+
+                        tfTableAutoC.getDisableItems().clear();
+
+                        // ---------------------------------------
+                        currentDatabase.setCurrentTable(currentDatabase.getTable(newValue));
+                        currentTable = currentDatabase.getCurrentTable();
+
+                        String databaseName = currentDatabase.getName();
+                        String tableName = newValue;
+                        System.out.println("\ttable: " + tableName);
+
+                        lbDatabaseTable.setText(databaseName + "." + tableName);
+                        lbDatabaseTable.setTooltip(new Tooltip(lbDatabaseTable.getText()));
+                        lbDatabaseTable.getTooltip().setShowDelay(Duration.ZERO);
+
+                        tfTableAutoC.getDisableItems().add(tableName);
+                        // tfTableAutoC.getLv().getSelectionModel().clearSelection();
+                        // SELECT -------------------------------------
+                        String tableA = tableName.replace(" ", "_");
+                        currentTable.getImageCPaths().clear();
+
+                        ms.selectDataWhere(MSQL.TABLE_NAMES, "name", tableName, new SelectTableNames(true));
+                        ms.selectColumns(tableA, new ShowColumns(VFController.this));
+                        ms.selectDataWhere(MSQL.TABLE_CUSTOMS, "id_table", currentTable.getId(),
+                                vf::selectCustomForCurrentTable);
+                        ms.selectDataWhere(MSQL.TABLE_PATHS, "id_table", currentTable.getId(),
+                                vf::selectTablePathsForEachTable);
+                        ms.selectDataWhere(MSQL.TABLE_IMAGECS, "id_table", currentTable.getId(),
+                                vf::selectImageCSForCurrentTable);
+
+                        Menus.getInstance(VFController.this).resetCurrentTableKeys();
+
+                        dist.distStart();
+
+                        ms.selectData(tableA,
+                                new SelectData(VFController.this, SelectData.MESSGE_TABLE_CHANGE + tableName));
+
+                        currentTable = currentDatabase.getCurrentTable();
+                        System.out.println("\tMSQL's table: " + currentTable.getId() + " - " + currentTable.getName()
+                                + " - " + currentTable.getDist());
+                    }
+                });
+                return null;
             }
+        };
+        new Thread(task2).start();
 
-            Arrays.asList(btns).forEach(btn -> btn.setSelected(true));
-            selectedRow = null;
-
-            btnFind.setDisable(false);
-            btnAdd.setDisable(false);
-
-            tfTableAutoC.getDisableItems().clear();
-
-            // ---------------------------------------
-            currenDatabase.setCurrentTable(currenDatabase.getTable(newValue));
-            currentTable = currenDatabase.getCurrentTable();
-
-            String databaseName = currenDatabase.getName();
-            String tableName = newValue;
-            System.out.println("\ttable: " + tableName);
-
-            lbDatabaseTable.setText(databaseName + "." + tableName);
-            lbDatabaseTable.setTooltip(new Tooltip(lbDatabaseTable.getText()));
-            lbDatabaseTable.getTooltip().setShowDelay(Duration.ZERO);
-
-            tfTableAutoC.getDisableItems().add(tableName);
-            // tfTableAutoC.getLv().getSelectionModel().clearSelection();
-            // SELECT -------------------------------------
-            String tableA = tableName.replace(" ", "_");
-            currentTable.getImageCPaths().clear();
-            ms.selectDataWhere(MSQL.TABLE_NAMES, "name", tableName, new SelectTableNames(true));
-            ms.selectDataWhere(MSQL.TABLE_PATHS, "id_table", currentTable.getId(), vf::selectTablePathsForEachTable);
-            ms.selectDataWhere(MSQL.TABLE_IMAGECS, "id_table", currentTable.getId(), vf::selectImageCSForCurrentTable);
-            ms.selectColumns(tableA, new ShowColumns(this));
-
-            Menus.getInstance(this).resetCurrentTableKeys();
-
-            System.out.println("\tMSQL's table: " + currentTable.getId() + " - " + currentTable.getName() + " - "
-                    + currentTable.getDist());
-
-            dist.distStart();
-
-            ms.selectData(tableA, new SelectData(this, SelectData.MESSGE_TABLE_CHANGE + tableName));
-        }
     }
 
     private <T> void tableRowSelected(ObservableValue<? extends T> observable, T oldValue, T newValue) {
@@ -351,6 +374,10 @@ public class VFController implements Initializable {
                     String formattedSelectedText = MString.getCustomFormattedString(itemSelected);
 
                     // System.out.println("--------------------------------------------------");
+                    if(currentTable.getDisplayOrder().equals("Random")){
+                        Collections.shuffle(dist.getImageCFilesPath());
+                    }
+                    
                     List<String> itemsMatch = dist.getImageCFilesPath().stream().filter(e -> {
                         String subFile = e.replaceAll("(.jpg|.png|.gif)$", "");
                         if (formattedSelectedText.contains("; ") && !currentTable.getImageType().equals("Folder")) {

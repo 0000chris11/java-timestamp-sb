@@ -1,10 +1,14 @@
 package com.cofii.ts.store.main;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import com.cofii.ts.sql.MSQL;
+
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 
 public class Table {
 
@@ -14,6 +18,9 @@ public class Table {
     private List<Column> columns = new ArrayList<>(MSQL.MAX_COLUMNS);
 
     private int extra = -1;
+    // CUSTOMS----------------------------
+    private final StringProperty dist = new SimpleStringProperty("NONE");
+    private final StringProperty textArea = new SimpleStringProperty("NONE");
     // IMAGECS------------------------------
     private String imageCColumnName = "NONE";
     private int imageCLength = 0;
@@ -67,8 +74,8 @@ public class Table {
         return columnNulls;
     }
 
-    public List<String> getColumnDefaults() {
-        List<String> columnDefaults = new ArrayList<>(max);
+    public List<Object> getColumnDefaults() {
+        List<Object> columnDefaults = new ArrayList<>(max);
         for (Column col : columns) {
             columnDefaults.add(col.getDefaultt());
         }
@@ -80,21 +87,26 @@ public class Table {
         User currentUser = Users.getInstance().getCurrenUser();
         List<PK> pks = currentUser.getPks();
         String currentDatabaseName = currentUser.getCurrentDatabase().getName();
-        return pks.stream()
-                .filter(pk -> pk.getDatabaseName().equals(currentDatabaseName) && pk.getTableName().equals(getName()))
-                .collect(Collectors.toList());
+        return pks.stream().filter(pk -> {
+            String columnName = pk.getColumnName();
+            columns.stream().filter(col -> col.getName().equals(columnName)).forEach(col -> col.setPk(true));
+            return pk.getDatabaseName().equals(currentDatabaseName) && pk.getTableName().equals(getName());
+        }).collect(Collectors.toList());
     }
 
     public List<FK> getFKS() {
         User currentUser = Users.getInstance().getCurrenUser();
         List<FK> fks = currentUser.getFks();
         String currentDatabaseName = currentUser.getCurrentDatabase().getName();
-        return fks.stream()
-                .filter(fk -> fk.getDatabaseName().equals(currentDatabaseName) && fk.getTableName().equals(getName()))
-                .collect(Collectors.toList());
+        return fks.stream().filter(fk -> {
+            String columnName = fk.getColumnName();
+            columns.stream().filter(col -> col.getName().equals(columnName)).forEach(col -> col.setFk(true));
+            return fk.getDatabaseName().equals(currentDatabaseName) && fk.getTableName().equals(getName());
+        }).collect(Collectors.toList());
     }
 
     // CUSTOM ---------------------------------
+    /*
     public String getDist() {
         StringBuilder sb = new StringBuilder();
         columns.stream().filter(Column::getDist).forEach(col -> sb.append(col.getName()).append(","));
@@ -105,7 +117,7 @@ public class Table {
         }
         return sb.toString();
     }
-
+    */
     public String getTextArea() {
         StringBuilder sb = new StringBuilder();
         columns.stream().filter(Column::isTextArea).forEach(col -> sb.append(col.getName()).append(","));
@@ -138,9 +150,40 @@ public class Table {
     }
 
     // -------------------------------------------------
+    private void distChange(String newDist) {
+        if (name.equals("dragon_ball_super")) {
+            System.out.println("dragon_ball_super dist change to: " + newDist);
+        }
+        if (!newDist.equals("NONE")) {
+            List<String> split = Arrays.asList(newDist.split(","));
+            columns.forEach(col -> {
+                String columnName = col.getName();
+                col.setDist(split.stream().anyMatch(s -> s.equals(columnName)));
+            });
+        }else{
+            columns.forEach(col -> col.setDist(false));
+        }
+
+    }
+
+    private void textAreaChange(String newTextArea) {
+        if (!newTextArea.equals("NONE")) {
+            List<String> split = Arrays.asList(newTextArea.split(","));
+            columns.forEach(col -> {
+                String columnName = col.getName();
+                col.setTextArea(split.stream().anyMatch(s -> s.equals(columnName)));
+            });
+        }else{
+            columns.forEach(col -> col.setTextArea(false));
+        }
+    }
+
     public Table(int id, String name) {
         this.id = id;
         this.name = name;
+
+        dist.addListener((obs, oldValue, newValue) -> distChange(newValue));
+        textArea.addListener((obs, oldValue, newValue) -> textAreaChange(newValue));
     }
 
     // -------------------------------------------------
@@ -208,7 +251,18 @@ public class Table {
         return imageType;
     }
 
-    public void setImageType(String image_type) {
-        this.imageType = image_type;
+    public void setImageType(String imageType) {
+        this.imageType = imageType;
+    }
+    public String getDist(){
+        return this.dist.getValue();
+    }
+
+    public void setDist(String dist) {
+        this.dist.setValue(dist);
+    }
+
+    public void setTextArea(String textArea) {
+        this.textArea.setValue(textArea);
     }
 }

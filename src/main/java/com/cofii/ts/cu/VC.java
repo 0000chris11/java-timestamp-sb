@@ -1,20 +1,12 @@
 package com.cofii.ts.cu;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 import com.cofii.ts.first.VFController;
 import com.cofii.ts.other.CSS;
 import com.cofii.ts.sql.MSQL;
-import com.cofii.ts.store.FK;
-import com.cofii.ts.store.FKS;
-import com.cofii.ts.store.PKS;
-import com.cofii.ts.store.UpdateTable;
 import com.cofii.ts.store.main.Table;
 import com.cofii.ts.store.main.Users;
-import com.cofii2.components.javafx.SceneZoom;
 import com.cofii2.mysql.MSQLP;
 import com.cofii2.stores.CC;
 
@@ -72,7 +64,7 @@ public class VC {
         });
         for (int a = 0; a < MSQL.MAX_COLUMNS; a++) {
             vcc.getBtnsRemoveColumn().get(a).setOnAction(vcc::btnsRemoveCreateAction);
-            vcc.getBtnsAddColumn().get(a).setOnAction(vcc::btnsAddCreateAction);
+            vcc.getBtnsAddColumn().get(a).setOnAction(vcc::btnsAddColumnCreateAction);
 
             vcc.getBtnsRenameColumn().get(a).setVisible(false);
             vcc.getBtnsChangeType().get(a).setVisible(false);
@@ -86,11 +78,8 @@ public class VC {
         vcc.getBtnUpdateExtra().setDisable(true);
         vcc.getBtnUpdateDist().setDisable(true);
     }
-
+    /*
     private void setUpdateStore() {
-        PKS pks = PKS.getInstance();
-        FKS fks = FKS.getInstance();
-
         //ColumnDS columnds = ColumnDS.getInstance();
         int columnCount = currentTable.getColumns().size();
         String tableName = currentTable.getName().replace("_", " ");
@@ -99,12 +88,6 @@ public class VC {
         List<String> types = new ArrayList<>(currentTable.getColumnTypes());
         List<Integer> typesLength = new ArrayList<>(currentTable.getColumnTypeLengths());
         List<Boolean> nulls = new ArrayList<>(currentTable.getColumnNulls());
-
-        List<String> cpks = new ArrayList<>(Arrays.asList(pks.getYesAndNoPKS()));
-
-        FK[] cfks = fks.getCurrentTableFKS();
-        List<String> yfks = new ArrayList<>(Arrays.asList(fks.getYesAndNoFKS()));
-        String[] fksFormed = new String[currentTable.getColumns().size()];
 
         List<Object> defaults = new ArrayList<>(currentTable.getColumnDefaults());
         int extra = currentTable.getExtra();
@@ -121,38 +104,7 @@ public class VC {
             vcc.getTfasType().get(a).setText(types.get(a));
             vcc.getTfsTypeLength().get(a).setText(Integer.toString(typesLength.get(a)));
             vcc.getCksNull().get(a).setSelected(nulls.get(a));
-            vcc.getRbsPK().get(a).setSelected(cpks.get(a).equals("Yes"));
-            /*
-             * if (fks.get(a) != null) {// NOT TESTED vcc.getCksFK()[a].setSelected(true);
-             * fksFormed[a] = fks.get(a).getString2() + "." + fks.get(a).getString3() + "."
-             * + fks.get(a).getString4(); vcc.getTfasFK()[a].setText(fksFormed[a]); }
-             */
-            // vcc.getBtnsSelectedFK()[a].setDisable(true);
 
-            final int aa = a;
-            Arrays.asList(cfks).forEach(fk -> {
-                StringBuilder sb = new StringBuilder();
-                sb.append(fk.getReferencedDatabase()).append(".");
-                sb.append(fk.getReferencedTable()).append(" (");
-                fk.getReferencedColumns().forEach(s -> sb.append(s).append(","));
-                sb.deleteCharAt(sb.length() - 1).append(")");// TEST
-
-                fk.getColumns().forEach(is -> {
-                    if (is.index - 1 == aa) {
-                        // vcc.getCksFK()[aa].setSelected(true);
-                        // vcc.getBtnsSelectedFK()[aa].setDisable(false);
-
-                        fksFormed[aa] = sb.toString();
-                        vcc.getTfasFK().get(aa).setText(fksFormed[aa]);
-                        vcc.getTfasFK().get(aa).setVisible(true);
-
-                        vcc.getBtnsSelectedFK().get(aa).setText("REM");
-                    }
-                });
-                // FOR ONLY ONE MIX FOREIGN KEY
-                vcc.getBtnsSelectedFK().stream().filter(btn -> btn.getText().equals("REM"))
-                        .forEach(btn -> btn.setText("REM (A)"));
-            });
             // fksFormed[a] = pks.get
 
             if (defaults.get(a) != null) {
@@ -178,10 +130,7 @@ public class VC {
         updateTable.setTypes(types);
         updateTable.setTypesLength(typesLength);
         updateTable.setNulls(nulls);
-        updateTable.setPks(cpks);
-        updateTable.setFks(yfks);
-        // updateTable.setFksConstraint(fksConstraint);
-        updateTable.setFkFormed(new ArrayList<>(Arrays.asList(fksFormed)));
+
         updateTable.setDefaults(defaults);
         updateTable.setExtra(extra);
 
@@ -195,7 +144,7 @@ public class VC {
         updateTable.setRowLength(columnCount);
         vcc.setUpdateTable(updateTable);
     }
-
+    */
     private void setTextFill(boolean create) {
 
         if (create) {
@@ -221,7 +170,7 @@ public class VC {
     }
 
     private void updateOption() {
-        setUpdateStore();
+        //setUpdateStore();
         setTextFill(false);
         vcc.createAddColumnHelpPopupReset();
         vcc.pesetListInit(currentTable.getColumns().size());

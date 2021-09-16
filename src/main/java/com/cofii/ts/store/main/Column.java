@@ -6,7 +6,7 @@ public class Column {
     private String type;
     private int typeLength;
     private boolean nulll;
-    private String defaultt;
+    private Object defaultt;
     private boolean extra;
 
     private boolean pk = false;
@@ -20,7 +20,7 @@ public class Column {
         return type + (typeLength > 0 ? "(" + typeLength + ")" : "");
     }
     //CONSTRUCTOR---------------------------------------------------
-    public Column(String name, String type, int typeLength, boolean nulll, String defaultt, boolean extra) {
+    public Column(String name, String type, int typeLength, boolean nulll, Object defaultt, boolean extra) {
         this.name = name;
         this.type = type;
         this.typeLength = typeLength;
@@ -61,11 +61,11 @@ public class Column {
         this.nulll = nulll;
     }
 
-    public String getDefaultt() {
+    public Object getDefaultt() {
         return defaultt;
     }
 
-    public void setDefaultt(String defaultt) {
+    public void setDefaultt(Object defaultt) {
         this.defaultt = defaultt;
     }
 

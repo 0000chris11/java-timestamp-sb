@@ -1,7 +1,10 @@
 package com.cofii.ts.store.main;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.cofii2.xml.ResourceXML;
 
@@ -51,18 +54,43 @@ public class User {
         this.currentDatabase = databases.stream().filter(d -> d.getId() == id).toArray(size -> new Database[size])[0];
     }
 
+    // KEYS-------------------------------------------------
+    public Map<String, List<PK>> getPKSInGroups() {
+        Map<String, List<PK>> map = new HashMap<>(pks.size());
+        pks.forEach(pk -> {
+            String databaseName = pk.getDatabaseName();
+            String tableName = pk.getTableName();
+            String mix = databaseName + "." + tableName;
+
+            List<PK> added = map.putIfAbsent(mix, Arrays.asList(pk));
+            if (added == null) {
+                List<PK> pksValue = new ArrayList<>(map.get(mix));
+                pksValue.add(pk);
+                map.put(mix, pksValue);
+            }
+        });
+
+        return map;
+    }
+
+    public String getConstraintName(String database, String table, int colIndex) {
+        return fks.stream().filter(fk -> fk.getDatabaseName().equals(database) && fk.getTableName().equals(table)
+                && fk.getOrdinalPosition() - 1 == colIndex).toArray(s -> new FK[s])[0].getConstraintType();
+    }
+
     // PATH--------------------------------------------------
-    public Path getPathById(int id){
+    public Path getPathById(int id) {
         return paths.stream().filter(path -> path.getId() == id).toArray(s -> new Path[s])[0];
     }
 
-    public String getPathNameById(int id){
+    public String getPathNameById(int id) {
         return paths.stream().filter(path -> path.getId() == id).toArray(s -> new Path[s])[0].getPathName();
     }
-    
+
     public int getPathIdByName(String name) {
         return paths.stream().filter(path -> path.getPathName().equals(name)).toArray(s -> new Path[s])[0].getId();
     }
+
     // CONSTRUCTORS----------------------------------------
     public User(int id, String name) {
         this.id = id;
@@ -123,5 +151,5 @@ public class User {
     public List<FK> getFks() {
         return fks;
     }
-    
+
 }

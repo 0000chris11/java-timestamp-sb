@@ -297,6 +297,10 @@
     border-color: -fx-boreders-color;
 }
 /*ID ANY--------------------------*/
+.tf-dist{
+    -fx-background-color: #035850;
+    background-color: #035850;
+}
 #hbStatus{
     -fx-background-color: -fx-root-background-color;
     background-color: -fx-root-background-color;

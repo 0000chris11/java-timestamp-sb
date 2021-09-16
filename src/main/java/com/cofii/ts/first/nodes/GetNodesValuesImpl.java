@@ -35,7 +35,7 @@ public class GetNodesValuesImpl implements ActionForEachNode {
                     values[c] = Integer.parseInt(tf.getText().trim());
                 } else if (columns.get(c).getDefaultt() != null) {
                     // DEFAULT
-                    values[c] = Integer.parseInt(columns.get(c).getDefaultt());
+                    values[c] = (int) columns.get(c).getDefaultt();
                 }
             } catch (NumberFormatException e) {
                 throw new IllegalArgumentException("C0FII: Only integer are accepted in this column");

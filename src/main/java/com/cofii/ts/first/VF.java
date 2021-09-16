@@ -10,6 +10,7 @@ import com.cofii.ts.other.Dist;
 import com.cofii.ts.other.NonCSS;
 import com.cofii.ts.sql.MSQL;
 import com.cofii.ts.sql.querys.SelectDatabases;
+import com.cofii.ts.sql.querys.SelectKeys;
 import com.cofii.ts.store.main.Database;
 import com.cofii.ts.store.main.Option;
 import com.cofii.ts.store.main.Options;
@@ -36,10 +37,10 @@ public class VF {
     private static MSQLP ms;
 
     // INSTANCES-------------------------------------
+    private Table currentTable;
     private Menus menus;
     // private static ColumnS columns = ColumnS.getInstance();
     // private static ColumnDS columnsd = ColumnDS.getInstance();
-    private Dist dist;
     // ZOOM----------------------------------------
     private DoubleProperty scaleVF = new SimpleDoubleProperty(1.0);
 
@@ -53,7 +54,7 @@ public class VF {
 
     // STAGE LISTENERS -----------------------------------------
     private void stageMaximizedPropertyChange(boolean newValue) {
-        Table currentTable = Users.getInstance().getCurrenUser().getCurrentDatabase().getCurrentTable();
+        currentTable = Users.getInstance().getCurrenUser().getCurrentDatabase().getCurrentTable();
         if (newValue) {
             /*
              * if (Arrays.asList(columnsd.getImageCS()).stream().allMatch(s ->
@@ -68,7 +69,7 @@ public class VF {
     }
 
     private void heightPropertyChangeListener() {
-        Table currentTable = Users.getInstance().getCurrenUser().getCurrentDatabase().getCurrentTable();
+        currentTable = Users.getInstance().getCurrenUser().getCurrentDatabase().getCurrentTable();
         /*
          * if (Arrays.asList(columnsd.getImageCS()).stream().allMatch(s ->
          * s.equals("No"))) { vf.getSplitLeft().setDividerPositions(1.0); }
@@ -109,6 +110,17 @@ public class VF {
         }
     }
 
+    public void selectCustomForCurrentTable(ResultSet rs, boolean rsValues, SQLException ex) throws SQLException {
+        if (rsValues) {
+            currentTable = Users.getInstance().getCurrenUser().getCurrentDatabase().getCurrentTable();
+
+            String dist = rs.getString(2);
+            String textArea = rs.getString(3);
+            currentTable.setDist(dist);
+            currentTable.setTextArea(textArea);
+        }
+    }
+
     /**
      * Path * query Must happen each time the user change or when opening VF
      * 
@@ -130,10 +142,8 @@ public class VF {
         if (rsValues) {
             int pathId = rs.getInt(2);
 
-            Table currentTable = null;
-            if (currentTable == null) {
-                currentTable = Users.getInstance().getCurrenUser().getCurrentDatabase().getCurrentTable();
-            }
+            currentTable = Users.getInstance().getCurrenUser().getCurrentDatabase().getCurrentTable();
+
             Path path = Users.getInstance().getCurrenUser().getPathById(pathId);
             currentTable.getImageCPaths().add(path);
 
@@ -155,10 +165,7 @@ public class VF {
             String displayOrder = rs.getString(4);
             String imageType = rs.getString(5);
 
-            Table currentTable = null;
-            if (currentTable == null) {
-                currentTable = Users.getInstance().getCurrenUser().getCurrentDatabase().getCurrentTable();
-            }
+            currentTable = Users.getInstance().getCurrenUser().getCurrentDatabase().getCurrentTable();
 
             currentTable.setImageCColumnName(columnName);
             currentTable.setImageCLength(imageLength);
@@ -228,17 +235,8 @@ public class VF {
                 String tableName = currentDatabase.getCurrentTable().getName();
                 vfc.selectionForEachDatabase(databaseName);
                 vfc.selectionForEachTable(tableName);
-                /*
-                 * vfc.getLbDatabaseTable().setText(databaseName + "." + tableName);
-                 * vfc.getLbDatabaseTable().setTooltip(new
-                 * Tooltip(vfc.getLbDatabaseTable().getText()));
-                 * vfc.getLbDatabaseTable().getTooltip().setShowDelay(Duration.ZERO);
-                 * 
-                 * ms.selectColumns(tableName.replace(" ", "_"), new ShowColumns(vfc));
-                 * ms.selectKeys(Users.getInstance().getCurrenUser().getDatabasesNames(), new
-                 * SelectKeys(vfc)); dist.distStart(); ms.selectData(tableName.replace(" ",
-                 * "_"), new SelectData(vfc, null));
-                 */
+
+                ms.selectKeys(Users.getInstance().getCurrenUser().getDatabasesNames(), new SelectKeys(vfc));
             } else {
                 vfc.clearCurrentTableView();
             }
@@ -300,7 +298,7 @@ public class VF {
             }
             vfc.setMs(ms);
             // DIST START---------------------------------
-            dist = Dist.getInstance(vfc);
+            Dist.getInstance(vfc);
             // -------------------------------------------
             querysStart();
 
