@@ -68,6 +68,8 @@ public class VL extends Application {
         msInit.executeStringUpdate(MSQL.CREATE_TABLE_USER_OPTIONS);
         msInit.executeStringUpdate(MSQL.CREATE_TABLE_USER_DEFAULTS_OPTIONS);
 
+        msInit.executeStringUpdate(MSQL.CREATE_TABLE_THEMES);
+
         msInit.close();
     }
 

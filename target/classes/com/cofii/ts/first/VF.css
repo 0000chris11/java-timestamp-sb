@@ -1,7 +1,6 @@
 /*DEFAULT VARIABLES*/
 *{
     /*ROOT---------------------------*/
-    -fx-root-background-color: #100c49;
     /*MENU---------------------------*/
     -fx-menu-background-color: #05013a;
     -fx-menu-background-highlighted: #0b0375;
@@ -36,6 +35,9 @@
 }
 /*LAYOUTS ----------------------------------------*/
 .root{
+    -fx-root-background-color: #100c49;
+
+
     -fx-background-color: -fx-root-background-color;
     background-color: -fx-root-background-color;
 }

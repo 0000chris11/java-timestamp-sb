@@ -266,12 +266,15 @@ public class VF {
         try {
             FXMLLoader loader = new FXMLLoader(VF.class.getResource("/com/cofii/ts/first/VF.fxml"));
             // ZOOMIMING PANE-----------------------
+            
             SceneZoom sceneZoom = new SceneZoom(loader.load(), scaleVF);
+
             vfc = (VFController) loader.getController();
             sceneZoom.setParent(vfc.getBpMain());
             // ------------------------------------
             Scene scene = sceneZoom.getScene();
             scene.getStylesheets().add(VF.class.getResource("/com/cofii/ts/first/VF.css").toExternalForm());
+            vfc.getBpMain().setStyle("-fx-root-background-color: #000000");
             // START OR GO BACK OPTION-----------------------------
             if (vlc != null) {// NEW WINDOW
                 stage.setScene(scene);

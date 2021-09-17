@@ -18,6 +18,8 @@ public class MSQL {
         public static final String TABLE_USER_DEFAULTS = "rootconfig.user_defaults";
         public static final String TABLE_USER_DEFAULTS_OPTIONS = "rootconfig.user_defaults_options";
         public static final String TABLE_USER_OPTIONS = "rootconfig.user_options";
+
+        public static final String TABLE_THEMES = "rootconfig.themes";
         // FOR EACH DATABASE----------------------------------------------
         public static final String TABLE_NAMES = "table_names";
         public static final String PATHS = "paths";
@@ -88,6 +90,12 @@ public class MSQL {
                         + "textArea VARCHAR(500) NOT NULL DEFAULT \"NONE\", " + "FOREIGN KEY(id_table) REFERENCES "
                         + Users.getInstance().getCurrenUser().getCurrentDatabase().getName() + "." + TABLE_NAMES
                         + "(id), UNIQUE INDEX idx_id_table (id_table))";
+        public static final String CREATE_TABLE_THEMES = "CREATE TABLE IF NOT EXISTS " + TABLE_THEMES
+                        + "(id INT NOT NULL AUTO_INCREMENT, " + "theme_name CHAR(150) NOT NULL, "
+                        + "root_value CHAR(100) NOT NULL, " + "input_value CHAR(100) NOT NULL, "
+                        + "input_action_value CHAR(100) NOT NULL, " + "PRIMARY KEY(id), "
+                        + "UNIQUE INDEX idx_theme_name (theme_name), "
+                        + "UNIQUE INDEX idx_values (root_value, input_value, input_action_value))";
         // BANDS-----------------------------------------------
         private static final String[] BAND_COLUMNS_NAMES_ARRAY = { "NONE" };
         public static final List<String> BAND_COLUMNS_NAMES = Arrays.asList(BAND_COLUMNS_NAMES_ARRAY);
