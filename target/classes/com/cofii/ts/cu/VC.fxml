@@ -8,7 +8,7 @@
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane fx:id="bpMain" minHeight="100.0" minWidth="400.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cofii.ts.cu.VCController">
+<BorderPane fx:id="bpMain" minHeight="100.0" minWidth="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cofii.ts.cu.VCController">
    <top>
       <HBox fx:id="hbTop" alignment="CENTER_LEFT" spacing="6.0" BorderPane.alignment="CENTER">
          <children>
@@ -56,120 +56,129 @@
       </HBox>
    </bottom>
    <center>
-      <ScrollPane fx:id="scGridPane" prefViewportHeight="408.0" prefViewportWidth="600.0" VBox.vgrow="ALWAYS">
-         <content>
-            <GridPane fx:id="gridPane" hgap="4.0">
-              <columnConstraints>
-                <ColumnConstraints hgrow="NEVER" minWidth="10.0" prefWidth="100.0" />
-                <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" />
-                  <ColumnConstraints hgrow="NEVER" minWidth="10.0" />
-                  <ColumnConstraints hgrow="NEVER" minWidth="10.0" prefWidth="50.0" />
-                  <ColumnConstraints hgrow="NEVER" minWidth="10.0" prefWidth="50.0" />
-                  <ColumnConstraints hgrow="NEVER" maxWidth="240.0" minWidth="10.0" />
-                  <ColumnConstraints hgrow="NEVER" minWidth="10.0" />
-                  <ColumnConstraints hgrow="NEVER" minWidth="10.0" prefWidth="50.0" />
-                  <ColumnConstraints hgrow="NEVER" minWidth="10.0" />
-                  <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
-              </columnConstraints>
-              <rowConstraints>
-                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
-                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-              </rowConstraints>
-               <children>
-                  <HBox fx:id="headerId" alignment="TOP_CENTER">
+      <StackPane pickOnBounds="false">
+         <children>
+            <ScrollPane fx:id="scGridPane" prefViewportHeight="408.0" prefViewportWidth="600.0" VBox.vgrow="ALWAYS">
+               <content>
+                  <GridPane fx:id="gridPane" hgap="4.0">
+                    <columnConstraints>
+                      <ColumnConstraints hgrow="NEVER" minWidth="10.0" prefWidth="100.0" />
+                      <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" />
+                        <ColumnConstraints hgrow="NEVER" minWidth="10.0" />
+                        <ColumnConstraints hgrow="NEVER" minWidth="10.0" prefWidth="50.0" />
+                        <ColumnConstraints hgrow="NEVER" minWidth="10.0" prefWidth="50.0" />
+                        <ColumnConstraints hgrow="NEVER" maxWidth="240.0" minWidth="10.0" />
+                        <ColumnConstraints hgrow="NEVER" minWidth="10.0" />
+                        <ColumnConstraints hgrow="NEVER" minWidth="10.0" prefWidth="50.0" />
+                        <ColumnConstraints hgrow="NEVER" minWidth="10.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
+                    </columnConstraints>
+                    <rowConstraints>
+                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
+                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                    </rowConstraints>
                      <children>
-                        <Label text="Column Number">
-                           <GridPane.margin>
-                              <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
-                           </GridPane.margin>
-                        </Label>
+                        <HBox fx:id="headerId" alignment="TOP_CENTER">
+                           <children>
+                              <Label text="Column Number">
+                                 <GridPane.margin>
+                                    <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
+                                 </GridPane.margin>
+                              </Label>
+                           </children>
+                        </HBox>
+                        <HBox fx:id="headerColumns" alignment="TOP_CENTER" GridPane.columnIndex="1">
+                           <children>
+                              <Label fx:id="lbhColumnNames" text="Name" GridPane.columnIndex="1">
+                                 <GridPane.margin>
+                                    <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
+                                 </GridPane.margin>
+                              </Label>
+                           </children>
+                        </HBox>
+                        <HBox fx:id="headerTypes" alignment="TOP_CENTER" GridPane.columnIndex="2">
+                           <children>
+                              <Label fx:id="lbhTypes" text="Type" GridPane.columnIndex="2">
+                                 <GridPane.margin>
+                                    <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
+                                 </GridPane.margin>
+                              </Label>
+                           </children>
+                        </HBox>
+                        <HBox fx:id="headerNulls" alignment="TOP_CENTER" GridPane.columnIndex="3">
+                           <children>
+                              <Label text="Null" GridPane.columnIndex="3">
+                                 <GridPane.margin>
+                                    <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
+                                 </GridPane.margin>
+                              </Label>
+                           </children>
+                        </HBox>
+                        <HBox fx:id="headerPKS" alignment="TOP_CENTER" GridPane.columnIndex="4">
+                           <children>
+                              <Label text="PK" GridPane.columnIndex="4">
+                                 <GridPane.margin>
+                                    <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
+                                 </GridPane.margin>
+                              </Label>
+                           </children>
+                        </HBox>
+                        <HBox fx:id="headerFKS" alignment="TOP_CENTER" GridPane.columnIndex="5">
+                           <children>
+                              <Label fx:id="lbhFK" text="FK" GridPane.columnIndex="5">
+                                 <GridPane.margin>
+                                    <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
+                                 </GridPane.margin>
+                              </Label>
+                           </children>
+                        </HBox>
+                        <HBox fx:id="headerDefaults" alignment="TOP_CENTER" GridPane.columnIndex="6">
+                           <children>
+                              <Label text="Default" GridPane.columnIndex="6">
+                                 <GridPane.margin>
+                                    <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
+                                 </GridPane.margin>
+                              </Label>
+                           </children>
+                        </HBox>
+                        <HBox fx:id="headerExtras" alignment="TOP_CENTER" GridPane.columnIndex="7">
+                           <children>
+                              <Label fx:id="lbhExtra" text="Extra" GridPane.columnIndex="7">
+                                 <GridPane.margin>
+                                    <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
+                                 </GridPane.margin>
+                              </Label>
+                           </children>
+                        </HBox>
+                        <HBox fx:id="headerDists" alignment="TOP_CENTER" GridPane.columnIndex="8">
+                           <children>
+                              <Label fx:id="lbhDist" text="Dist" GridPane.columnIndex="8" />
+                           </children>
+                        </HBox>
+                        <HBox fx:id="headerTextAreas" alignment="TOP_CENTER" GridPane.columnIndex="9">
+                           <children>
+                              <Label fx:id="lbhTextArea" text="TextArea" GridPane.columnIndex="9" />
+                           </children>
+                        </HBox>
                      </children>
-                  </HBox>
-                  <HBox fx:id="headerColumns" alignment="TOP_CENTER" GridPane.columnIndex="1">
-                     <children>
-                        <Label fx:id="lbhColumnNames" text="Name" GridPane.columnIndex="1">
-                           <GridPane.margin>
-                              <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
-                           </GridPane.margin>
-                        </Label>
-                     </children>
-                  </HBox>
-                  <HBox fx:id="headerTypes" alignment="TOP_CENTER" GridPane.columnIndex="2">
-                     <children>
-                        <Label fx:id="lbhTypes" text="Type" GridPane.columnIndex="2">
-                           <GridPane.margin>
-                              <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
-                           </GridPane.margin>
-                        </Label>
-                     </children>
-                  </HBox>
-                  <HBox fx:id="headerNulls" alignment="TOP_CENTER" GridPane.columnIndex="3">
-                     <children>
-                        <Label text="Null" GridPane.columnIndex="3">
-                           <GridPane.margin>
-                              <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
-                           </GridPane.margin>
-                        </Label>
-                     </children>
-                  </HBox>
-                  <HBox fx:id="headerPKS" alignment="TOP_CENTER" GridPane.columnIndex="4">
-                     <children>
-                        <Label text="PK" GridPane.columnIndex="4">
-                           <GridPane.margin>
-                              <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
-                           </GridPane.margin>
-                        </Label>
-                     </children>
-                  </HBox>
-                  <HBox fx:id="headerFKS" alignment="TOP_CENTER" GridPane.columnIndex="5">
-                     <children>
-                        <Label fx:id="lbhFK" text="FK" GridPane.columnIndex="5">
-                           <GridPane.margin>
-                              <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
-                           </GridPane.margin>
-                        </Label>
-                     </children>
-                  </HBox>
-                  <HBox fx:id="headerDefaults" alignment="TOP_CENTER" GridPane.columnIndex="6">
-                     <children>
-                        <Label text="Default" GridPane.columnIndex="6">
-                           <GridPane.margin>
-                              <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
-                           </GridPane.margin>
-                        </Label>
-                     </children>
-                  </HBox>
-                  <HBox fx:id="headerExtras" alignment="TOP_CENTER" GridPane.columnIndex="7">
-                     <children>
-                        <Label fx:id="lbhExtra" text="Extra" GridPane.columnIndex="7">
-                           <GridPane.margin>
-                              <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
-                           </GridPane.margin>
-                        </Label>
-                     </children>
-                  </HBox>
-                  <HBox fx:id="headerDists" alignment="TOP_CENTER" GridPane.columnIndex="8">
-                     <children>
-                        <Label fx:id="lbhDist" text="Dist" GridPane.columnIndex="8" />
-                     </children>
-                  </HBox>
-                  <HBox fx:id="headerTextAreas" alignment="TOP_CENTER" GridPane.columnIndex="9">
-                     <children>
-                        <Label fx:id="lbhTextArea" text="TextArea" GridPane.columnIndex="9" />
-                     </children>
-                  </HBox>
-               </children>
+                     <padding>
+                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                     </padding>
+                  </GridPane>
+               </content>
+               <BorderPane.margin>
+                  <Insets />
+               </BorderPane.margin>
                <padding>
-                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                  <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
                </padding>
-            </GridPane>
-         </content>
-         <BorderPane.margin>
-            <Insets />
-         </BorderPane.margin>
-         <padding>
-            <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
-         </padding>
-      </ScrollPane>
+            </ScrollPane>
+            <VBox alignment="BOTTOM_LEFT" pickOnBounds="false" prefHeight="200.0" prefWidth="100.0">
+               <children>
+                  <ToggleButton fx:id="btnErrorDisplay" mnemonicParsing="false" text="Error Display" />
+               </children>
+            </VBox>
+         </children>
+      </StackPane>
    </center>
 </BorderPane>

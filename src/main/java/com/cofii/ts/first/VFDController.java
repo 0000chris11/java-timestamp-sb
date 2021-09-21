@@ -92,7 +92,7 @@ public class VFDController implements Initializable {
             tfColumn.setStyle(null);
             btnFind.setDisable(false);
         } else {
-            tfColumn.setStyle(CSS.NODE_ERROR);
+            tfColumn.setStyle(CSS.NODE_BORDER_ERROR);
             btnFind.setDisable(true);
         }
     }

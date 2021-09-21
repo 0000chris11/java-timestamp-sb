@@ -96,7 +96,7 @@ public class SQLTypes {
         types.add(new SQLType("BIGINT", 20, 20, "NUMBER"));
         types.add(new SQLType("FLOAT", 0, 0, "DECIMAL"));
         types.add(new SQLType("DOUBLE", 0, 0, "DECIMAL"));
-        types.add(new SQLType("CHAR", 1, 255, "STRING"));
+        types.add(new SQLType("CHAR", 100, 255, "STRING"));
         types.add(new SQLType("VARCHAR", 80, 16383, "STRING"));
         types.add(new SQLType("BOOLEAN/TINYINT(1)", 0, 0, "BOOLEAN"));
         types.add(new SQLType("TIME", 0, 0, "STRING"));

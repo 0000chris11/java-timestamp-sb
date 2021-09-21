@@ -175,11 +175,11 @@ public class VImageCController implements Initializable {
                     if (file.isDirectory()) {
                         tf.setStyle(null);
                     } else {
-                        tf.setStyle(CSS.NODE_ERROR);
+                        tf.setStyle(CSS.NODE_BORDER_ERROR);
                         pathsExists = false;
                     }
                 } else {
-                    tf.setStyle(CSS.NODE_ERROR);
+                    tf.setStyle(CSS.NODE_BORDER_ERROR);
                     pathsExists = false;
                 }
 
@@ -299,10 +299,10 @@ public class VImageCController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         newRow(0);
 
-        lbColumnSelect.setStyle(CSS.NODE_ERROR);
-        lbNumberImageC.setStyle(CSS.NODE_ERROR);
-        lbDisplayOrder.setStyle(CSS.NODE_ERROR);
-        lbType.setStyle(CSS.NODE_ERROR);
+        lbColumnSelect.setStyle(CSS.NODE_BORDER_ERROR);
+        lbNumberImageC.setStyle(CSS.NODE_BORDER_ERROR);
+        lbDisplayOrder.setStyle(CSS.NODE_BORDER_ERROR);
+        lbType.setStyle(CSS.NODE_BORDER_ERROR);
 
         lbColumnSelect.setText(MATCH_A_ITEM);
         lbNumberImageC.setText("1 to 10 images allowed");

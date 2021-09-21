@@ -4,7 +4,6 @@ import java.io.IOException;
 
 import com.cofii.ts.first.VFController;
 import com.cofii.ts.other.CSS;
-import com.cofii.ts.sql.MSQL;
 import com.cofii.ts.store.main.Table;
 import com.cofii.ts.store.main.Users;
 import com.cofii2.mysql.MSQLP;
@@ -13,10 +12,7 @@ import com.cofii2.stores.CC;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.fxml.FXMLLoader;
-import javafx.geometry.VPos;
 import javafx.scene.Scene;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Priority;
 
 public class VC {
 
@@ -28,16 +24,14 @@ public class VC {
     // private UpdateTable updateTable;
 
     private void createOption() {
-        setTextFill(true);
         vcc.createHelpPopupReset();
-        vcc.pesetListInit(vcc.getCurrentRowLength());
         // TOP--------------------------------------------------------
         vcc.getBtnRenameTable().setVisible(false);
 
-        for (int a = 0; a < vcc.getPresetRowsLenght(); a++) {
-            vcc.addRowToGridPane(a);
-            vcc.newRowCreateListeners(a);
+        for (int a = 0; a < vcc.getPresetRowsLenght(); a++) { 
+            vcc.addRow(a, true);
         }
+        setTextFill(true);
         // BOTTOM------------------------------------------------
         vcc.getBtnUpdatePK().setDisable(true);
         vcc.getBtnUpdateFK().setDisable(true);
@@ -48,60 +42,41 @@ public class VC {
     private void setTextFill(boolean create) {
         if (create) {
             for (int a = 0; a < vcc.getCurrentRowLength(); a++) {
+                /* NECESSARY ???????????
                 vcc.getCksNull().get(a).applyCss();
                 vcc.getCksNull().get(a).setStyle(CSS.CKS_BG);
                 // vcc.getCksNull().get(a).setBackground(new Background(new BackgroundFill(,
                 // CornerRadii.EMPTY, Insets.EMPTY)));
                 vcc.getCksDefault().get(a).setStyle(CSS.CKS_BG);
+                */
             }
         } else {
-            vcc.getTfTable().setStyle(CSS.NODE_HINT);
+            // TOP ------------------------------------
+            vcc.getTfTable().setStyle(CSS.NODE_TEXTFILL_HINT);
+            // CENTER ---------------------------------
             for (int a = 0; a < currentTable.getColumns().size(); a++) {
-                vcc.getTfsColumn().get(a).setStyle(CSS.NODE_HINT);
-                vcc.getTfasType().get(a).setStyle(CSS.NODE_HINT);
-                vcc.getTfsTypeLength().get(a).setStyle(CSS.NODE_HINT);
-                // vcc.getCksNull().get(a).setStyle(CSS.TEXT_FILL_HINT);
+                vcc.getTfsColumn().get(a).setStyle(CSS.NODE_TEXTFILL_HINT);
+                vcc.getTfasType().get(a).setStyle(CSS.NODE_TEXTFILL_HINT);
+                vcc.getTfsTypeLength().get(a).setStyle(CSS.NODE_TEXTFILL_HINT);
                 vcc.getCksNull().get(a).setStyle(CSS.CKS_BG_HINT);
                 vcc.getCksDefault().get(a).setStyle(CSS.CKS_BG_HINT);
-                vcc.getTfsDefault().get(a).setStyle(CSS.NODE_HINT);
+                vcc.getTfsDefault().get(a).setStyle(CSS.NODE_TEXTFILL_HINT);
             }
         }
     }
 
     private void updateOption() {
         // setUpdateStore();
-        setTextFill(false);
         vcc.createAddColumnHelpPopupReset();
-        vcc.pesetListInit(currentTable.getColumns().size());
         // TOP-------------------------------------------------------
         vcc.getBtnRenameTable().setVisible(true);
         vcc.getBtnRenameTable().setOnAction(vcc::btnRenameTableAction);
         // CENTER ---------------------------------------------------
         vcc.setCurrentRowLength(currentTable.getColumns().size());
         for (int a = 0; a < currentTable.getColumns().size(); a++) {
-            vcc.addRowToGridPane(a);
-            // LISTENRS ------------------------------
-            vcc.getBtnsRemoveColumn().get(a).setOnAction(vcc::dropColumnAction);
-            vcc.getBtnsAddColumn().get(a).setOnAction(vcc::addColumnVisibleAction);
-
-            if (a == 0) {
-                vcc.getBtnsAddColumn().get(a).setContextMenu(vcc.getBeforeAfterOptionMenu());
-                vcc.getBtnsAddColumn().get(a).setTooltip(vcc.getBeforeAfterOptionTooltip());
-            }
-            vcc.getBtnsRenameColumn().get(a).setOnAction(vcc::updateColumn);
-            vcc.getBtnsChangeType().get(a).setOnAction(vcc::updateType);
-
-            vcc.getCksNull().get(a).setOnAction(vcc::nullsAction);
-            vcc.getBtnsChangeNull().get(a).setOnAction(vcc::updateNull);
-
-            vcc.getBtnsChangeDefault().get(a).setOnAction(vcc::updateDefault);
-            //-----------------------------------------------------
-            vcc.getBtnsRenameColumn().get(a).setVisible(true);
-            vcc.getBtnsChangeType().get(a).setVisible(true);
-            vcc.getBtnsChangeNull().get(a).setVisible(true);
-            vcc.getBtnsChangeDefault().get(a).setVisible(true);
+            vcc.addRow(a, false);
         }
-        // vcc.getRbsPK().forEach(e -> e.setOnAction(vcc::cksPKAction));
+        setTextFill(false);
         // BOTTOM------------------------------------------------
         vcc.getBtnUpdatePK().setOnAction(vcc::updatePK);
         vcc.getBtnUpdateFK().setOnAction(vcc::updateFKS);
@@ -145,7 +120,6 @@ public class VC {
                 System.out.println(CC.CYAN + "\nUPDATE TABLE" + CC.RESET);
                 updateOption();
             }
-
         } catch (IOException e) {
             e.printStackTrace();
         }

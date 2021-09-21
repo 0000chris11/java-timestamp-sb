@@ -356,6 +356,12 @@
     border-color: blue;
 }
 /*VC ID---------------------------*/
+.vc-row{
+    -fx-border-color: gray; 
+    border-color: gray; 
+    -fx-border-width: 0 0 1 0;
+    border-width: 0 0 1 0;
+}
 #hbTop{
     -fx-background-color: -fx-root-background-color;
     background-color: -fx-root-background-color;
