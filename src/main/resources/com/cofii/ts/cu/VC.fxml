@@ -175,7 +175,7 @@
             </ScrollPane>
             <VBox alignment="BOTTOM_LEFT" pickOnBounds="false" prefHeight="200.0" prefWidth="100.0">
                <children>
-                  <ToggleButton fx:id="btnErrorDisplay" mnemonicParsing="false" text="Error Display" />
+                  <Button fx:id="btnErrorDisplay" mnemonicParsing="false" text="Error Display" />
                </children>
             </VBox>
          </children>

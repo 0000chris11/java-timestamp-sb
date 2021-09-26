@@ -14,6 +14,8 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import com.cofii.ts.cu.imagec.VImageC;
+import com.cofii.ts.cu.imagec.VImageCController;
 import com.cofii.ts.cu.impl.PopupAction;
 import com.cofii.ts.cu.store.VCStore;
 import com.cofii.ts.first.VF;
@@ -37,6 +39,7 @@ import com.cofii2.components.javafx.popup.PopupMenu;
 import com.cofii2.components.javafx.popup.PopupMessage;
 import com.cofii2.components.javafx.popup.config.PPosition;
 import com.cofii2.methods.MList;
+import com.cofii2.mysql.CustomConnection;
 import com.cofii2.mysql.MSQLCreate;
 import com.cofii2.mysql.MSQLP;
 import com.cofii2.mysql.RootConfigConnection;
@@ -46,6 +49,8 @@ import com.cofii2.stores.IntBoolean;
 import com.cofii2.stores.IntString;
 import com.cofii2.stores.TString;
 
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -149,7 +154,7 @@ public class VCController implements Initializable {
     private Label lbhTextArea;
 
     @FXML
-    private ToggleButton btnErrorDisplay;
+    private Button btnErrorDisplay;
     // BOTTOM----------------------------------------
     @FXML
     private HBox hbUpdates;
@@ -179,6 +184,8 @@ public class VCController implements Initializable {
     private LabelStatus lbStatus = new LabelStatus();
     // CENTER NODES LISTS
     // =================================================================
+    private PopupAction tablePopupControl;
+    private PopupAction columnSamePopupControl;
     // COLUMN ----------------------------------------------
     private final List<HBox> hbsN = new ArrayList<>(MSQL.MAX_COLUMNS);// -----------
     private final List<Label> lbsN = new ArrayList<>(MSQL.MAX_COLUMNS);
@@ -255,7 +262,7 @@ public class VCController implements Initializable {
     private Matcher matcher;
     // LISTENERS =========================================================
     // COLUMNS ---------------------------------------
-    private final EventHandler<KeyEvent> tfsColumnsKeyReleasedListener = this::tfsColumnsKeyReleased;
+    private final ChangeListener<? super String> columnsTextPropertyListener = (obs, oldValue, newValue) -> columnsTextProperty(obs);
     private final ListChangeListener<? super String> listColumnsChangeListener = this::listColumnsChange;
     // COLUMNS UPDATE ----------------------------------
     private final EventHandler<ActionEvent> addColumnUpdateVisibleActionListener = this::addColumnUpdateVisibleAction;
@@ -274,7 +281,7 @@ public class VCController implements Initializable {
     private final EventHandler<ActionEvent> fksSelectedActionListener = this::fksSelectAction;
     // DEFAULT -----------------------------------------
     private final EventHandler<ActionEvent> defaultsActionListener = this::defaultsAction;
-    private final EventHandler<KeyEvent> defaultsKeyReleasedListener = this::defaultsKeyReleased;
+    private final ChangeListener<? super String> defaultsTextPropertyListener = (obs, oldValue, newValue) -> defaultsTextProperty(obs);
     // EXTRA --------------------------------------------
     private final EventHandler<ActionEvent> extrasActionListener = this::extrasAction;
     // CUSTOM---------------------
@@ -285,10 +292,7 @@ public class VCController implements Initializable {
     private boolean columnAdd = false;
     private boolean updateControl = false;
     // BOOLEAN CONTROL =============================================================
-    // TABLE -----------------------------------------
-    private boolean tableOK = false;
     // COLUMN ----------------------------------------
-    private boolean columnSNOK = false;
     private boolean columnBWOK = false;
     private boolean columnAddOk = false;
     // TYPE ------------------------------------------
@@ -342,7 +346,7 @@ public class VCController implements Initializable {
             if (btn.isVisible() && btn.isSelected()) {
                 // sb.append(updateTable.getColumns().get(indexs[0]).replace(" ",
                 // "_")).append(",");
-                sb.append(currentTable.getColumns().get(indexs[0]).getName().replace(" ", "_")).append(",");
+                sb.append(tfsColumn.get(indexs[0]).getText().replace(" ", "_")).append(",");
             }
             indexs[0]++;
         });
@@ -397,16 +401,9 @@ public class VCController implements Initializable {
         }
 
         if (!updateControl) {
-            createControl();
+            boolean allOk = PopupAction.getPopupMaster().getVbox().getChildren().isEmpty();
+            btnCreateUpdate.setDisable(!allOk);
         }
-    }
-
-    private void createControl() {
-        createHelpPopupReset();
-        boolean allOk = tableOK && columnSNOK && columnBWOK && typeSelectionMatch && typeLengthOK && fkSelectionMatch
-                && defaultBW && defaultOK && extraPKOK && extraFKOK && extraDefaultOK && extraDistOK && imageCOK;
-
-        btnCreateUpdate.setDisable(!allOk);
     }
 
     private void addColumnControl() {
@@ -441,7 +438,7 @@ public class VCController implements Initializable {
                     }
                 }
 
-                String wrongTypeLength = VCStore.getWrongLength(typeChar.toLowerCase(),
+                String wrongTypeLength = VCStore.getWrongDefaultLength(typeChar.toLowerCase(),
                         tfsTypeLength.get(index).isVisible(), typeLength);
                 if (pattern != null ? pattern.matcher(text).matches() : true) {
                     defaultPopupsControl.get(index).getItemList().remove(wrongTypeLength);
@@ -469,7 +466,7 @@ public class VCController implements Initializable {
     }
 
     private void imageCSelectControl() {
-        boolean ok = columnSNOK && columnBWOK;
+        boolean ok = tablePopupControl.getValue() && columnBWOK;
         btnSelectImageC.setDisable(!ok);
     }
 
@@ -480,22 +477,17 @@ public class VCController implements Initializable {
      */
     private void extraAndPKControl(int index) {
         extraPKOK = true;
-        int[] indexs = { 0 };
-        rbsExtra.forEach(ex -> {
-            if (ex.isSelected()) {
-                if (!rbsPK.get(indexs[0]).isSelected()) {
-                    extraPKOK = false;
-                }
-            }
-            indexs[0]++;
-        });
+        if (rbsExtra.get(index).isSelected() && !rbsPK.get(index).isSelected()) {
+            extraPKOK = false;
+        }
+
         // DISPLAY ------------------------------------------
         if (extraPKOK) {
-            pkPopupsControl.get(index).getItemList().remove(VCStore.AUTO_INCREMENT_AND_PK);
-            extraPopupsControl.get(index).getItemList().remove(VCStore.AUTO_INCREMENT_AND_PK);
+            pkPopupsControl.get(index).getItemList().remove(VCStore.AUTO_INCREMENT_AND_PK_O);
+            extraPopupsControl.get(index).getItemList().remove(VCStore.AUTO_INCREMENT_AND_PK_EXTRA);
         } else {
-            pkPopupsControl.get(index).getItemList().add(VCStore.AUTO_INCREMENT_AND_PK);
-            extraPopupsControl.get(index).getItemList().add(VCStore.AUTO_INCREMENT_AND_PK);
+            pkPopupsControl.get(index).getItemList().add(VCStore.AUTO_INCREMENT_AND_PK_O);
+            extraPopupsControl.get(index).getItemList().add(VCStore.AUTO_INCREMENT_AND_PK_EXTRA);
         }
     }
 
@@ -506,20 +498,16 @@ public class VCController implements Initializable {
      */
     private void extraAndFKControl(int index) {
         extraFKOK = true;
-        int[] indexs = { 0 };
-        rbsExtra.forEach(ex -> {
-            if (ex.isSelected() && btnsSelectedFK.get(indexs[0]).isSelected()) {
-                extraFKOK = false;
-            }
-            indexs[0]++;
-        });
+        if (rbsExtra.get(index).isSelected() && btnsSelectedFK.get(index).isSelected()) {
+            extraFKOK = false;
+        }
         // DISPLAY ------------------------------------------
         if (extraFKOK) {
-            fkPopupsControl.get(index).getItemList().remove(VCStore.AUTO_INCREMENT_AND_FK);
-            extraPopupsControl.get(index).getItemList().remove(VCStore.AUTO_INCREMENT_AND_FK);
+            fkPopupsControl.get(index).getItemList().remove(VCStore.AUTO_INCREMENT_AND_FK_O);
+            extraPopupsControl.get(index).getItemList().remove(VCStore.AUTO_INCREMENT_AND_FK_EXTRA);
         } else {
-            fkPopupsControl.get(index).getItemList().add(VCStore.AUTO_INCREMENT_AND_FK);
-            extraPopupsControl.get(index).getItemList().add(VCStore.AUTO_INCREMENT_AND_FK);
+            fkPopupsControl.get(index).getItemList().add(VCStore.AUTO_INCREMENT_AND_FK_O);
+            extraPopupsControl.get(index).getItemList().add(VCStore.AUTO_INCREMENT_AND_FK_EXTRA);
         }
     }
 
@@ -530,20 +518,16 @@ public class VCController implements Initializable {
      */
     private void extraAndDefaultControl(int index) {
         extraDefaultOK = true;
-        int[] indexs = { 0 };
-        rbsExtra.forEach(ex -> {
-            if (ex.isSelected() && cksDefault.get(indexs[0]).isSelected()) {
-                extraDefaultOK = false;
-            }
-            indexs[0]++;
-        });
+        if (rbsExtra.get(index).isSelected() && cksDefault.get(index).isSelected()) {
+            extraDefaultOK = false;
+        }
         // DISPLAY ------------------------------------------
         if (extraDefaultOK) {
-            defaultPopupsControl.get(index).getItemList().remove(VCStore.AUTO_INCREMENT_AND_DEFAULT);
-            extraPopupsControl.get(index).getItemList().remove(VCStore.AUTO_INCREMENT_AND_DEFAULT);
+            defaultPopupsControl.get(index).getItemList().remove(VCStore.AUTO_INCREMENT_AND_DEFAULT_O);
+            extraPopupsControl.get(index).getItemList().remove(VCStore.AUTO_INCREMENT_AND_DEFAULT_EXTRA);
         } else {
-            defaultPopupsControl.get(index).getItemList().add(VCStore.AUTO_INCREMENT_AND_DEFAULT);
-            extraPopupsControl.get(index).getItemList().add(VCStore.AUTO_INCREMENT_AND_DEFAULT);
+            defaultPopupsControl.get(index).getItemList().add(VCStore.AUTO_INCREMENT_AND_DEFAULT_O);
+            extraPopupsControl.get(index).getItemList().add(VCStore.AUTO_INCREMENT_AND_DEFAULT_EXTRA);
         }
     }
 
@@ -553,59 +537,45 @@ public class VCController implements Initializable {
      */
     private void extraAndDistControl(int index) {
         extraDistOK = true;
-        int[] indexs = { 0 };
-        rbsExtra.forEach(ex -> {
-            if (ex.isSelected() && btnsDist.get(indexs[0]).isSelected()) {
-                extraDistOK = false;
-            }
-            indexs[0]++;
-        });
+        if (rbsExtra.get(index).isSelected() && btnsDist.get(index).isSelected()) {
+            extraDistOK = false;
+        }
         // DISPLAY ------------------------------------------
         if (extraDistOK) {
-            distPopupsControl.get(index).getItemList().remove(VCStore.AUTO_INCREMENT_AND_DIST);
-            extraPopupsControl.get(index).getItemList().remove(VCStore.AUTO_INCREMENT_AND_DIST);
+            distPopupsControl.get(index).getItemList().remove(VCStore.AUTO_INCREMENT_AND_DIST_O);
+            extraPopupsControl.get(index).getItemList().remove(VCStore.AUTO_INCREMENT_AND_DIST_EXTRA);
         } else {
-            distPopupsControl.get(index).getItemList().add(VCStore.AUTO_INCREMENT_AND_DIST);
-            extraPopupsControl.get(index).getItemList().add(VCStore.AUTO_INCREMENT_AND_DIST);
+            distPopupsControl.get(index).getItemList().add(VCStore.AUTO_INCREMENT_AND_DIST_O);
+            extraPopupsControl.get(index).getItemList().add(VCStore.AUTO_INCREMENT_AND_DIST_EXTRA);
         }
     }
 
     // LISTENERS ============================================================
     // TABLE-------------------------------------
-    private void tfTableKeyReleased(KeyEvent e) {
-        if (!e.getCode().isArrowKey() && !e.getCode().isFunctionKey() && !e.getCode().isMediaKey()
-                && !e.getCode().isModifierKey() && !e.getCode().isNavigationKey()) {
-            String[] tableList = currentDatabse.getTablesNames();
-            String text = tfTable.getText().toLowerCase().trim().replace(" ", "_");
+    private void tableTextProperty(String newValue) {
+        String[] tableList = currentDatabse.getTablesNames();
+        String text = tfTable.getText().toLowerCase().replace(" ", "_").trim().replaceAll("(^_|_$)", "");
 
-            matcher = patternBWTC.matcher(text);
-            if (matcher.matches()) {
-                if (MList.isOnThisList(tableList, text, true)) {
-                    lbTable.setText("This table already exist");
-                    lbTable.setTextFill(NonCSS.TEXT_FILL_ERROR);
-                    tableOK = false;
-                } else {
-                    lbTable.setText("Table Name");
-                    lbTable.setTextFill(NonCSS.TEXT_FILL);
-                    tableOK = true;
-                }
+        matcher = patternBWTC.matcher(text);
+        if (matcher.matches()) {
+            if (MList.isOnThisList(tableList, text, true)) {
+                tablePopupControl.setValue(false);
             } else {
-                lbTable.setText("Not Accepted Characters");
-                lbTable.setTextFill(NonCSS.TEXT_FILL_ERROR);
-                tableOK = false;
+                tablePopupControl.setValue(true);
             }
-
-            // UPDATE-----------------------------------------------
-            tfTableUpdate(text);
-            // -----------------------------------------
-            masterControl(false);
+        } else {
+            tablePopupControl.setValue(false);
         }
 
+        // UPDATE-----------------------------------------------
+        tfTableUpdate(text);
+        // -----------------------------------------
+        masterControl(false);
     }
 
     private void tfTableUpdate(String text) {
         if (updateControl) {
-            if (tableOK) {
+            if (tablePopupControl.getValue()) {
                 // String tableO = updateTable.getTable().toLowerCase().trim().replace(" ",
                 // "_");
                 String tableO = currentTable.getName().toLowerCase().trim().replace(" ", "_");
@@ -673,8 +643,8 @@ public class VCController implements Initializable {
         return matcher.matches() && MSQL.BAND_COLUMNS_NAMES.stream().noneMatch(word -> textt.equals(word));
     }
 
-    private void tfsColumnsKeyReleased(KeyEvent e) {
-        setQOLVariables(e);
+    private void columnsTextProperty(ObservableValue<? extends String> obs) {
+        index = Integer.parseInt(((TextField)((StringProperty) obs).getBean()).getId());
 
         String text = tfsColumn.get(index).getText().toLowerCase().trim().replace(" ", "_");
         listColumns.set(index, text);
@@ -688,7 +658,7 @@ public class VCController implements Initializable {
                 columnMatchControl(index);
             } else {
                 // popupShow(tf, ILLEGAL_CHARS);
-                columnsPopupsControl.get(index).getItemList().add(VCStore.ILLEGAL_CHARS);
+                columnsPopupsControl.get(index).getItemList().add(VCStore.ILLEGAL_CHARS_COLUMN);
                 columnBWOK = false;
             }
         } else {
@@ -710,14 +680,9 @@ public class VCController implements Initializable {
 
     private void columnSameControl() {
         if (MList.areTheyDuplicatedElementsOnList(listColumns)) {
-            lbhColumnNames.setText(LBH_COLUMN_NAMES_ERROR);
-            headerColumns.setStyle(CSS.NODE_TEXTFILL_ERROR);
-            columnSNOK = false;
+            columnSamePopupControl.setValue(false);
         } else {
-            lbhColumnNames.setText(LBH_COLUMN_NAMES);
-            headerColumns.setStyle(null);
-            columnSNOK = true;
-
+            columnSamePopupControl.setValue(true);
         }
     }
 
@@ -744,7 +709,7 @@ public class VCController implements Initializable {
     private void tfsColumnUpdate(int index, String text) {
         if (updateControl) {
             boolean ok = false;
-            if (columnBWOK && columnSNOK) {
+            if (columnBWOK && columnSamePopupControl.getValue()) {
                 if (!text.equals(column)) {
                     // tfsColumnPopups[index].hide();
                     tfsColumn.get(index).setStyle(null);
@@ -1098,7 +1063,7 @@ public class VCController implements Initializable {
         newValue = newValue.trim();
         matcher = patternBWTC.matcher(newValue);
         if (matcher.matches()) {
-            typePopupsControl.get(index).getItemList().remove(VCStore.ILLEGAL_CHARS);
+            typePopupsControl.get(index).getItemList().remove(VCStore.ILLEGAL_CHARS_TYPE);
 
             final String newValuee = newValue;
             if (Arrays.asList(types.getTypeNames()).stream().anyMatch(item -> {
@@ -1122,12 +1087,12 @@ public class VCController implements Initializable {
                 tfsTypeLength.get(index).setVisible(false);
                 tfsTypeLength.get(index).setText("1");
 
-                typePopupsControl.get(index).getItemList().add(VCStore.SELECTION_UNMATCH);
+                typePopupsControl.get(index).getItemList().add(VCStore.SELECTION_UNMATCH_TYPE);
 
                 typeSelectionMatch = false;
             }
         } else {
-            typePopupsControl.get(index).getItemList().add(VCStore.ILLEGAL_CHARS);
+            typePopupsControl.get(index).getItemList().add(VCStore.ILLEGAL_CHARS_TYPE);
             typeSelectionMatch = false;
         }
 
@@ -1160,11 +1125,12 @@ public class VCController implements Initializable {
                     update = true;
                     typeLengthControl(index);
                 } else {
-                    typePopupsControl.get(index).getItemList().add(VCStore.getWrongLength(typeMaxLength) + "%length");
+                    typePopupsControl.get(index).getItemList()
+                            .add(VCStore.getWrongTypeLength(typeMaxLength) + "%length");
                     typeLengthOK = false;
                 }
             } else {
-                typePopupsControl.get(index).getItemList().add(VCStore.getWrongLength(typeMaxLength) + "%length");
+                typePopupsControl.get(index).getItemList().add(VCStore.getWrongTypeLength(typeMaxLength) + "%length");
                 typeLengthOK = false;
 
             }
@@ -1456,17 +1422,17 @@ public class VCController implements Initializable {
 
         if (tf.isVisible()) {
             if (MList.isOnThisList(tfsFKPAutoC.get(index).getLv().getItems(), newValue, false)) {
-                fkPopupsControl.get(index).getItemList().remove(VCStore.SELECTION_UNMATCH);
+                fkPopupsControl.get(index).getItemList().remove(VCStore.SELECTION_UNMATCH_FK);
 
                 fkSelectionMatch = true;
                 fkTFSControl(index, true);
             } else {
-                fkPopupsControl.get(index).getItemList().add(VCStore.SELECTION_UNMATCH);
+                fkPopupsControl.get(index).getItemList().add(VCStore.SELECTION_UNMATCH_FK);
 
                 fkSelectionMatch = false;
             }
         } else {
-            fkPopupsControl.get(index).getItemList().remove(VCStore.SELECTION_UNMATCH);
+            fkPopupsControl.get(index).getItemList().remove(VCStore.SELECTION_UNMATCH_FK);
 
             fkSelectionMatch = true;
             fkTFSControl(index, true);
@@ -1712,16 +1678,8 @@ public class VCController implements Initializable {
 
         if (cksDefault.get(index).isSelected()) {
             tfsDefault.get(index).setVisible(true);
-            extraDefaultOK = !rbsExtra.get(index).isSelected();
-            if (!extraDefaultOK) {
-                defaultPopupsControl.get(index).getItemList().add(VCStore.AUTO_INCREMENT_AND_DEFAULT);
-            } else {
-                defaultPopupsControl.get(index).getItemList().remove(VCStore.AUTO_INCREMENT_AND_DEFAULT);
-            }
         } else {
             tfsDefault.get(index).setVisible(false);
-            extraDefaultOK = true;
-            defaultPopupsControl.get(index).getItemList().remove(VCStore.AUTO_INCREMENT_AND_DEFAULT);
             defaultOK = true;
         }
 
@@ -1734,8 +1692,8 @@ public class VCController implements Initializable {
         masterControl(false);
     }
 
-    private void defaultsKeyReleased(KeyEvent e) {
-        setQOLVariables(e);
+    private void defaultsTextProperty(ObservableValue<? extends String> obs) {
+        index = Integer.parseInt(((TextField)((StringProperty) obs).getBean()).getId());
 
         defaultAndTypesControl(index);// ++++++++++++++++
         extraAndDefaultControl(index);
@@ -1869,29 +1827,12 @@ public class VCController implements Initializable {
     // EXTRA =================================================
     void extrasAction(ActionEvent e) {
         setQOLVariables(e);
-        // ---------------------------------------------
-        // rbsExtraPopups.forEach(Popup::hide);
-        // ---------------------------------------------
-        if (rbsExtra.get(index).isSelected()) {
-            // ---------------------------------------------
-            if (cksDefault.get(index).isSelected()) {
-                // lbhExtra.setTextFill(NonCSS.TEXT_FILL_ERROR);
-                extraPopupsControl.get(index).getItemList().add(VCStore.AUTO_INCREMENT_AND_DEFAULT);
-
-                extraDefaultOK = false;
-            } else {
-                extraDefaultOK = true;
-            }
-            // ---------------------------------------------
-        } else {
-            extraDefaultOK = true;
-        }
 
         extraAndPKControl(index);
         extraAndFKControl(index);
         extraAndDefaultControl(index);
         extraAndDistControl(index);
-        
+
         extrasRestControl(index);
         // UPDATE------------------------------------------------
         extraUpdateControl(index);
@@ -1899,9 +1840,11 @@ public class VCController implements Initializable {
         masterControl(false);
     }
 
-    private void extrasRestControl(int index){
-        for(int a = 0;a < currentRowLength; a++){
-            if(a != index){
+    private void extrasRestControl(int index) {
+        rbsExtra.forEach(rb -> System.out.println("rb selected: " + rb.isSelected()));
+        for (int a = 0; a < currentRowLength; a++) {
+            if (a != index) {
+                System.out.println("TEST extrasRestControl:");
                 extraAndPKControl(a);
                 extraAndFKControl(a);
                 extraAndDefaultControl(a);
@@ -2052,7 +1995,8 @@ public class VCController implements Initializable {
 
         }
         // CREATE UPDATE ---------------------------------------
-        MSQLCreate msc = new MSQLCreate(new RootConfigConnection());
+        String databaseName = currentDatabse.getName();
+        MSQLCreate msc = new MSQLCreate(new CustomConnection(databaseName));
         for (int a = 0; a < currentRowLength; a++) {
             msc.addTypesWidth(new DInt(a + 1, typesLengths[a]));
             msc.addAllowsNull(new IntBoolean(a + 1, nulls[a]));
@@ -2067,11 +2011,23 @@ public class VCController implements Initializable {
         StringBuilder message = new StringBuilder();
         boolean fullSuccess = true;
         if (createTable) {
-            Object[] valuesTableNames = new Object[] { null, tableName, dist, "NONE", "NONE" };
-
+            // TABLE NAMES INSERTION --------------------------------------------------
+            Object[] valuesTableNames = new Object[] { null, tableName, "NONE" , "NONE", "NONE"};
             boolean insertTableNames = ms.insert(MSQL.TABLE_NAMES, valuesTableNames);
+            int newTableId = -1;
             if (insertTableNames) {
-                message.append("Table '" + tableName.replace("_", " ") + "' has been created!");
+                newTableId = (int) ms.selectValues(MSQL.TABLE_NAMES, "id", "name", tableName)[0];
+
+                message.append("Table '" + tableName.replace("_", " ") + "' has been created and Inserted!");
+                // TABLE CUSTOM INSERTION --------------------------------------------
+                Object[] valuesTableCustoms = new Object[] { newTableId, dist, textArea };
+                boolean insertTableCustoms = ms.insert(MSQL.TABLE_CUSTOMS, valuesTableCustoms);
+                if (insertTableCustoms) {
+                    message.append(", inserted on Table_Custom too");
+                } else {
+                    message.append(", fail to be inserted on Table_Custom");
+                    fullSuccess = false;
+                }
                 System.out.println("\tSUCCESS");
             } else {
                 // DELETE CREATED TABLE
@@ -2079,9 +2035,8 @@ public class VCController implements Initializable {
                 message.append("FATAL: (Table has been create but not inserted on " + MSQL.TABLE_NAMES);
                 System.out.println("\tFATAL");
             }
-            // IMAGECS-----------------------
-            if (vicc != null && !btnSelectImageC.isDisable()) {
-                int newTableId = (int) ms.selectValues(MSQL.TABLE_NAMES, "id", "name", tableName)[0];
+            // TABLE PATHS & PATHS & IMAGECS INSERTION ---------------------------------
+            if (vicc != null && !btnSelectImageC.isDisable() && newTableId > -1) {
                 boolean imageCS = insertPaths(newTableId);
 
                 if (imageCS) {
@@ -2198,8 +2153,8 @@ public class VCController implements Initializable {
     // MAIN CONFIG ==================================================
     // MAP HELPS----------------------------------------------------
     void createHelpPopupReset() {
-        createHelpMap.put("Table Name", tableOK);
-        createHelpMap.put("Columns Names", columnSNOK && columnBWOK);
+        createHelpMap.put("Table Name", tablePopupControl.getValue());
+        createHelpMap.put("Columns Names", columnSamePopupControl.getValue() && columnBWOK);
         createHelpMap.put("Types", typeSelectionMatch && typeLengthOK);
         createHelpMap.put("Foreign Keys", fkSelectionMatch);
         createHelpMap.put("Default Values", defaultBW && defaultOK);
@@ -2247,8 +2202,11 @@ public class VCController implements Initializable {
 
         hbsName.add(index, new HBox(tfsColumn.get(index), btnsRemoveColumn.get(index), btnsAddColumn.get(index),
                 btnsRenameColumn.get(index)));
-        columnsPopupsControl.add(index, new PopupAction(new PopupMessage(index, hbsName.get(index), false)));
         hbsName.get(index).setPadding(new Insets(0, 2, 0, 2));
+
+        columnsPopupsControl.add(index,
+                new PopupAction(new PopupMessage("COLUMN:" + index, hbsName.get(index), false)));
+        columnsPopupsControl.get(index).getItemList().add(VCStore.EMPTY_TEXT);
         // TYPES----------------------------------------------
         // tfasType.get(a) = new TextFieldAutoC(a, types.getTypeNames());
         tfsType.add(index, new TextField());
@@ -2260,7 +2218,7 @@ public class VCController implements Initializable {
 
         hbsType.add(index, new HBox(tfsType.get(index), tfsTypeLength.get(index), btnsChangeType.get(index)));
         // typePopups.add(index, new PopupMessage(index, hbsType.get(index)));
-        typePopupsControl.add(index, new PopupAction(new PopupMessage(index, hbsType.get(index), false)));
+        typePopupsControl.add(index, new PopupAction(new PopupMessage("TYPE:" + index, hbsType.get(index), false)));
         hbsType.get(index).setPadding(new Insets(0, 2, 0, 2));
         // NULLS----------------------------------------------
         cksNull.add(index, new CheckBox());
@@ -2271,7 +2229,7 @@ public class VCController implements Initializable {
         rbsPK.add(index, new RadioButton());
         // btnsChangePK.get(a) = new Button("C");
         hbsPK.add(index, new HBox(rbsPK.get(index)));
-        pkPopupsControl.add(index, new PopupAction(new PopupMessage(index, hbsPK.get(index), false)));
+        pkPopupsControl.add(index, new PopupAction(new PopupMessage("PK:" + index, hbsPK.get(index), false)));
         // FKS----------------------------------------------
         tfsFK.add(index, new TextField());
         tfsFKPAutoC.add(index, new PopupAutoC(tfsFK.get(index)));
@@ -2281,26 +2239,28 @@ public class VCController implements Initializable {
         // btnsSelectedFK.get(index)));
 
         hbsFK.add(index, new HBox(tfsFK.get(index), btnsSelectedFK.get(index)));
-        fkPopupsControl.add(index, new PopupAction(new PopupMessage(index, hbsFK.get(index), false)));
+        fkPopupsControl.add(index, new PopupAction(new PopupMessage("FK:" + index, hbsFK.get(index), false)));
         // DEFAULTS----------------------------------------------
         cksDefault.add(index, new CheckBox());
         tfsDefault.add(index, new TextField());
         btnsChangeDefault.add(index, new Button("C"));
 
         hbsDefault.add(index, new HBox(cksDefault.get(index), tfsDefault.get(index), btnsChangeDefault.get(index)));
-        defaultPopupsControl.add(index, new PopupAction(new PopupMessage(index, hbsDefault.get(index), false)));
+        defaultPopupsControl.add(index,
+                new PopupAction(new PopupMessage("DEFAULT:" + index, hbsDefault.get(index), false)));
         hbsDefault.get(index).setPadding(new Insets(0, 2, 0, 2));
         // EXTRA----------------------------------------------
         rbsExtra.add(index, new RadioButton());
         hbsExtra.add(index, new HBox(rbsExtra.get(index)/* , btnsChangeExtra.get(a) */));
-        extraPopupsControl.add(index, new PopupAction(new PopupMessage(index, hbsExtra.get(index), false)));
+        extraPopupsControl.add(index, new PopupAction(new PopupMessage("EXTRA:" + index, hbsExtra.get(index), false)));
         // DIST----------------------
         btnsDist.add(index, new ToggleButton("" + (index + 1)));
-        distPopupsControl.add(index, new PopupAction(new PopupMessage(index, btnsDist.get(index), false)));
+        distPopupsControl.add(index, new PopupAction(new PopupMessage("DIST:" + index, btnsDist.get(index), false)));
         // TEXT AREA--------------------------------------
         btnsTextArea.add(index, new ToggleButton("" + (index + 1)));
         // btnsTextAreaPopups.add(new PopupMessage(index, btnsTextArea.get(index)));
-        textAreaPopupsControl.add(new PopupAction(new PopupMessage(index, btnsTextArea.get(index), false)));
+        textAreaPopupsControl
+                .add(new PopupAction(new PopupMessage("TEXTAREA:" + index, btnsTextArea.get(index), false)));
     }
 
     private void rowConfig(int index) {
@@ -2416,7 +2376,7 @@ public class VCController implements Initializable {
      * Add the listener for a new row. Should happen one time for each row
      */
     private void newRowListeners(int index) {
-        tfsColumn.get(index).setOnKeyReleased(tfsColumnsKeyReleasedListener);
+        tfsColumn.get(index).textProperty().addListener(columnsTextPropertyListener);
 
         tfsType.get(index).textProperty().addListener(tfsTypeTextPropertyListener);
         tfsTypeLength.get(index).textProperty().addListener(tfsTypeLengthTextPropertyListener);
@@ -2427,7 +2387,7 @@ public class VCController implements Initializable {
         tfsFK.get(index).textProperty().addListener(fksTextPropertyListener);
 
         cksDefault.get(index).setOnAction(defaultsActionListener);
-        tfsDefault.get(index).setOnKeyReleased(defaultsKeyReleasedListener);
+        tfsDefault.get(index).textProperty().addListener(defaultsTextPropertyListener);
 
         rbsExtra.get(index).addEventHandler(ActionEvent.ACTION, extrasActionListener);
         // CUSTOM----------------------
@@ -2691,11 +2651,15 @@ public class VCController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        // NODES------------------------
+        // NODES ====================================================
+        // CENTER -------------------------------
         presetSomeInit();
         fkReferencesInit();
-        // IntStream.range(0, currentRowLength).forEach(this::addRow);
-        // HEADERS STYLING -------------------------------------
+        // TOP ----------------------------------
+        tablePopupControl = new PopupAction("id-TABLE", new SimpleBooleanProperty(true), hbTop);
+        tablePopupControl.setValue(false);
+        columnSamePopupControl = new PopupAction("id-SAMECOLUMNS", new SimpleBooleanProperty(false), headerColumns);
+        // HEADERS STYLING ===========================================
         headerId.getStyleClass().add("vi-header");
         headerColumns.getStyleClass().add("vi-header");
         headerTypes.getStyleClass().add("vi-header");
@@ -2714,16 +2678,9 @@ public class VCController implements Initializable {
         scGridPane.setHbarPolicy(ScrollBarPolicy.ALWAYS);
         gridPane.minWidthProperty().bind(scGridPane.widthProperty());
 
-        PopupMessage popupMaster = new PopupMessage(-1, btnErrorDisplay);
+        PopupMessage popupMaster = new PopupMessage("MASTER", btnErrorDisplay);
         popupMaster.setPopupPosition(PPosition.TOP);
-        btnErrorDisplay.selectedProperty().bind(popupMaster.showingProperty());
-        btnErrorDisplay.setOnAction(e -> {
-            if(btnErrorDisplay.isSelected()){
-                //popupMaster.hide();
-            }else{
-                //popupMaster.showPopup();
-            }
-        });
+        btnErrorDisplay.setOnAction(e -> popupMaster.showPopup());
         PopupAction.setPopupMaster(popupMaster);
         // BOTTOM--------------------------
         lbUpdate.setDisable(true);
@@ -2733,7 +2690,7 @@ public class VCController implements Initializable {
         hbStatus.getChildren().add(0, lbStatus);
         // LISTENERS ===================================================
         // TOP-----------------------------------------------
-        tfTable.setOnKeyReleased(this::tfTableKeyReleased);
+        tfTable.textProperty().addListener((obs, oldValue, newValue) -> tableTextProperty(newValue));
         // CENTER---------------------------
         listColumns.addListener(listColumnsChangeListener);
         // beforeAfterOptionMenu.addAction(0, e -> updateAddVisible(-1));

@@ -373,7 +373,7 @@ public class VFController implements Initializable {
                     // System.out.println("itemSelected: " + itemSelected);
                     String formattedSelectedText = MString.getCustomFormattedString(itemSelected);
 
-                    // System.out.println("--------------------------------------------------");
+                    // RANDOM (DIRECTORY OPTION ONLY!) -----------------------------------
                     if(currentTable.getDisplayOrder().equals("Random")){
                         Collections.shuffle(dist.getImageCFilesPath());
                     }

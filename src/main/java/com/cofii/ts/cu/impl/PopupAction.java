@@ -12,11 +12,15 @@ import com.cofii.ts.cu.store.VCStore;
 import com.cofii.ts.other.CSS;
 import com.cofii2.components.javafx.popup.PopupMessage;
 
+import javafx.beans.property.BooleanProperty;
 import javafx.collections.ObservableSet;
 import javafx.collections.SetChangeListener.Change;
 import javafx.scene.Node;
 
 public class PopupAction {
+
+    private static final String TABLE_WRONG = "Table name is incorrect or already exist";
+    private static final String COLUMNS_SAME_NAME = "Columns can't have the same name";
 
     private static final String NODES_ILLEGAL_CHARS = "Some nodes have 'Illegal Chars' errors";
     private static final String NODES_EMPTY_TEXT = "Some nodes have 'Empty Text' errors";
@@ -30,7 +34,10 @@ public class PopupAction {
     private PopupMessage popupMessage;
     private Node displayNode;
 
-    private static Set<String> errorData = new HashSet<>();
+    private String singleId;
+    private BooleanProperty booleanProperty;
+    private Node singleDisplayNode;
+
     private static Set<String> errorDataDisplay = new HashSet<>();
     private static PopupMessage popupMaster;
 
@@ -42,6 +49,14 @@ public class PopupAction {
 
         // errorData.add(popupMessage.getId(), popupMessage.getItemList());
         this.popupMessage = popupMessage;
+
+    }
+
+    public PopupAction(String singleId, BooleanProperty booleanProperty, Node singleDisplayNode) {
+        this.singleId = singleId;
+        booleanProperty.addListener((obs, oldValue, newValue) -> booleanPropertyChage(newValue));
+        this.booleanProperty = booleanProperty;
+        this.singleDisplayNode = singleDisplayNode;
     }
 
     // CONTROL -----------------------------------------------------------
@@ -51,35 +66,52 @@ public class PopupAction {
             errorDataDisplay.forEach(s -> {
                 if (s.contains(VCStore.ILLEGAL_CHARS)) {
                     popupMaster.getItemList().add(NODES_ILLEGAL_CHARS);
-                }else if(s.contains(VCStore.EMPTY_TEXT)){
+                } else if (s.contains(VCStore.EMPTY_TEXT)) {
                     popupMaster.getItemList().add(NODES_EMPTY_TEXT);
-                }else if(s.contains(VCStore.SELECTION_UNMATCH)){
+                } else if (s.contains(VCStore.SELECTION_UNMATCH)) {
                     popupMaster.getItemList().add(NODES_SELECTION_UNMATCH);
-                }else if(s.contains(VCStore.TYPE_AND_DEFAULT)){
+
+                } else if (s.contains(VCStore.WRONG_LENGTH) || s.contains(VCStore.WRONG_LENGTH_2)) {
                     popupMaster.getItemList().add(NODES_TYPE_AND_DEFAULT);
-                }else if(s.contains(VCStore.AUTO_INCREMENT_AND_PK)){
+                } else if (s.contains(VCStore.AUTO_INCREMENT_AND_PK)) {
                     popupMaster.getItemList().add(NODES_AUTO_INCREMENT_AND_PK);
-                }else if(s.contains(VCStore.AUTO_INCREMENT_AND_FK)){
+                } else if (s.contains(VCStore.AUTO_INCREMENT_AND_FK)) {
                     popupMaster.getItemList().add(NODES_AUTO_INCREMENT_AND_FK);
-                }else if(s.contains(VCStore.AUTO_INCREMENT_AND_DEFAULT)){
+                } else if (s.contains(VCStore.AUTO_INCREMENT_AND_DEFAULT)) {
                     popupMaster.getItemList().add(NODES_AUTO_INCREMENT_AND_DEFAULT);
-                }else if(s.contains(VCStore.AUTO_INCREMENT_AND_DIST)){
+                } else if (s.contains(VCStore.AUTO_INCREMENT_AND_DIST)) {
                     popupMaster.getItemList().add(NODES_AUTO_INCREMENT_AND_DIST);
+
+                } else if (s.equals(TABLE_WRONG)) {
+                    popupMaster.getItemList().add(TABLE_WRONG);
+                } else if (s.equals(COLUMNS_SAME_NAME)) {
+                    popupMaster.getItemList().add(COLUMNS_SAME_NAME);
                 }
             });
         }
     }
 
     // LISTENERS -----------------------------------------------------------
-    public static void popupMasterChange(Change<? extends String> c){
-        /*
-        if (!popupMaster.getVbox().getChildren().isEmpty()) {
-
+    public void booleanPropertyChage(boolean newValue) {
+        if (newValue) {
+            if (singleId.equals("id-TABLE")) {
+                errorDataDisplay.remove(TABLE_WRONG);
+            } else if (singleId.equals("id-SAMECOLUMNS")) {
+                errorDataDisplay.remove(COLUMNS_SAME_NAME);
+            }
+            singleDisplayNode.setStyle(null);
+        } else {
+            if (singleId.equals("id-TABLE")) {
+                errorDataDisplay.add(TABLE_WRONG);
+            } else if (singleId.equals("id-SAMECOLUMNS")) {
+                errorDataDisplay.add(COLUMNS_SAME_NAME);
+            }
+            singleDisplayNode.setStyle(CSS.NODE_BORDER_ERROR);
         }
-        */
+        errorDisplay();
     }
 
-    private static int count = 1;
+    // private static int count = 1;
     public void columnsPopupsChange(Change<? extends String> c) {
         if (!popupMessage.getVbox().getChildren().isEmpty()) {
             displayNode.setStyle(CSS.NODE_BORDER_ERROR);
@@ -87,14 +119,23 @@ public class PopupAction {
             displayNode.setStyle(null);
         }
 
-        int id = popupMessage.getId();
-        List<String> collection = getItemList().stream().filter(s -> !s.contains("id-")).map(s -> s + "%" + id).collect(Collectors.toList());
+        /**
+         * Illegal Chars%COLUMN%id-COLUMN:1
+         * 
+         */
+        String id = popupMessage.getId();
+        // List<String> collection =
+        // getItemList().stream().collect(Collectors.toList());
+        List<String> collection = getItemList().stream().filter(s -> !s.contains("id-")).map(s -> s + "%id" + id)
+                .collect(Collectors.toList());
 
         errorDataDisplay.addAll(collection);
-        errorDataDisplay.removeIf(s -> s.contains("%" + id) && !collection.contains(s));
+        // System.out.println("\tadded size: " + errorDataDisplay.size());
+        errorDataDisplay.removeIf(s -> s.contains("%id" + id) && !collection.stream().anyMatch(ss -> ss.contains("%id" + id)));
+        // System.out.println("\tafter removeIf size: " + errorDataDisplay.size());
 
-        System.out.println("\nTEST ERROR-DATA (" + (count++) + ")");
-        errorDataDisplay.forEach(s -> System.out.println("\tE: " + s));
+        // System.out.println("\nTEST ERROR-DATA (" + (count++) + ")");
+        // errorDataDisplay.forEach(s -> System.out.println("\tE: " + s));
         errorDisplay();
     }
 
@@ -109,6 +150,22 @@ public class PopupAction {
 
     public static void setPopupMaster(PopupMessage popupMaster) {
         PopupAction.popupMaster = popupMaster;
+    }
+
+    public String getSingleId() {
+        return singleId;
+    }
+
+    public void setSingleId(String singleId) {
+        this.singleId = singleId;
+    }
+
+    public Boolean getValue() {
+        return booleanProperty.getValue();
+    }
+
+    public void setValue(Boolean booleanProperty) {
+        this.booleanProperty.setValue(booleanProperty);
     }
 
 }

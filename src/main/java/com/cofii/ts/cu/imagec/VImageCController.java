@@ -1,28 +1,23 @@
-package com.cofii.ts.cu;
+package com.cofii.ts.cu.imagec;
 
 import java.io.File;
 import java.net.URL;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import com.cofii.ts.cu.store.ImageCRow;
 import com.cofii.ts.other.CSS;
-import com.cofii.ts.other.NonCSS;
 import com.cofii.ts.sql.MSQL;
 import com.cofii2.components.javafx.popup.PopupKV;
 import com.cofii2.methods.MList;
 
-import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener.Change;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
-import javafx.collections.ListChangeListener.Change;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -34,7 +29,6 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 

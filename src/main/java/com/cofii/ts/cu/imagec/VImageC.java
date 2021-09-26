@@ -1,7 +1,8 @@
-package com.cofii.ts.cu;
+package com.cofii.ts.cu.imagec;
 
 import java.io.IOException;
 
+import com.cofii.ts.cu.VCController;
 import com.cofii.ts.sql.MSQL;
 
 import javafx.fxml.FXMLLoader;
@@ -38,7 +39,7 @@ public class VImageC {
 
     private VImageC(VCController vc, boolean create) {
         try {
-            FXMLLoader loader = new FXMLLoader(VImageC.class.getResource("/com/cofii/ts/cu/VImageC.fxml"));
+            FXMLLoader loader = new FXMLLoader(VImageC.class.getResource("/com/cofii/ts/cu/imagec/VImageC.fxml"));
             Scene scene = new Scene(loader.load());
 
             vicc = (VImageCController) loader.getController();
