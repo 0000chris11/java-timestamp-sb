@@ -22,17 +22,18 @@ public class SelectDistinct implements IActions {
 
     private List<String> list = new ArrayList<>();
 
-    private VFController vf;
+    private VFController vfc;
     private int index;
 
-    public SelectDistinct(VFController vf, int index) {
-        this.vf = vf;
+    public SelectDistinct(VFController vfc, int index) {
+        this.vfc = vfc;
         this.index = index;
     }
 
     @Override
     public void beforeQuery() {
-        vf.getTfsAutoC().get(index).clearItems();
+        //vfc.getTfsAutoC().get(index).clearItems();
+        vfc.getRows().get(index).getTfAutoC().clearItems();
     }
 
     @Override
@@ -55,10 +56,10 @@ public class SelectDistinct implements IActions {
             List<String> list2 = new ArrayList<>(new LinkedHashSet<>(list));
             //vf.getTfsAutoC().get(index).getLv().getItems().addAll(list2);
             //vf.getTfsAutoC().set(index, TextFields.bindAutoCompletion(vf.getTfs()[index], list2));
-            vf.getTfsAutoC().get(index).addAllItems(list2);
+            vfc.getRows().get(index).getTfAutoC().addAllItems(list2);
         } else {
-            vf.getTfsAutoC().get(index).addItem(NO_DISTINCT_ELEMENTS);
-            vf.getTfsAutoC().get(index).getNoSearchableItems().add(NO_DISTINCT_ELEMENTS);
+            vfc.getRows().get(index).getTfAutoC().addItem(NO_DISTINCT_ELEMENTS);
+            vfc.getRows().get(index).getTfAutoC().getNoSearchableItems().add(NO_DISTINCT_ELEMENTS);
         }
     }
 

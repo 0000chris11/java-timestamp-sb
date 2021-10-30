@@ -35,41 +35,65 @@
                                  <children>
                                     <Label maxWidth="1.7976931348623157E308" text="Colum Name" HBox.hgrow="ALWAYS" />
                                  </children>
+                                 <padding>
+                                    <Insets bottom="6.0" left="6.0" right="6.0" top="6.0" />
+                                 </padding>
                               </HBox>
                               <HBox fx:id="hbType" alignment="CENTER" GridPane.columnIndex="1" GridPane.hgrow="NEVER">
                                  <children>
                                     <Label text="Type" HBox.hgrow="NEVER" />
                                  </children>
+                                 <padding>
+                                    <Insets bottom="6.0" left="6.0" right="6.0" top="6.0" />
+                                 </padding>
                               </HBox>
                               <HBox fx:id="hbTypeLength" alignment="CENTER" GridPane.columnIndex="2" GridPane.hgrow="NEVER">
                                  <children>
                                     <Label text="TypeLength" HBox.hgrow="NEVER" />
                                  </children>
+                                 <padding>
+                                    <Insets bottom="6.0" left="6.0" right="6.0" top="6.0" />
+                                 </padding>
                               </HBox>
                               <HBox fx:id="hbNull" alignment="CENTER" GridPane.columnIndex="3" GridPane.hgrow="NEVER">
                                  <children>
                                     <Label text="Null" HBox.hgrow="NEVER" />
                                  </children>
+                                 <padding>
+                                    <Insets bottom="6.0" left="6.0" right="6.0" top="6.0" />
+                                 </padding>
                               </HBox>
                               <HBox fx:id="hbPK" alignment="CENTER" GridPane.columnIndex="4" GridPane.hgrow="NEVER">
                                  <children>
                                     <Label text="PK" HBox.hgrow="NEVER" />
                                  </children>
+                                 <padding>
+                                    <Insets bottom="6.0" left="6.0" right="6.0" top="6.0" />
+                                 </padding>
                               </HBox>
                               <HBox fx:id="hbDefault" alignment="CENTER" GridPane.columnIndex="6" GridPane.hgrow="NEVER">
                                  <children>
                                     <Label text="Default" HBox.hgrow="NEVER" />
                                  </children>
+                                 <padding>
+                                    <Insets bottom="6.0" left="6.0" right="6.0" top="6.0" />
+                                 </padding>
                               </HBox>
                               <HBox fx:id="hbExtra" alignment="CENTER" GridPane.columnIndex="7" GridPane.hgrow="NEVER">
                                  <children>
                                     <Label text="Extra" HBox.hgrow="NEVER" />
                                  </children>
+                                 <padding>
+                                    <Insets bottom="6.0" left="6.0" right="6.0" top="6.0" />
+                                 </padding>
                               </HBox>
                               <HBox fx:id="hbFK" alignment="CENTER" GridPane.columnIndex="5" GridPane.hgrow="NEVER">
                                  <children>
                                     <Label text="FK" HBox.hgrow="NEVER" />
                                  </children>
+                                 <padding>
+                                    <Insets bottom="6.0" left="6.0" right="6.0" top="6.0" />
+                                 </padding>
                               </HBox>
                            </children>
                            <padding>

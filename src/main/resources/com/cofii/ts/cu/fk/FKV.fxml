@@ -5,56 +5,65 @@
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="542.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="542.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cofii.ts.cu.fk.VFKController">
    <children>
-      <VBox VBox.vgrow="NEVER">
+      <VBox VBox.vgrow="ALWAYS">
          <children>
-            <Label text="Columns" />
-            <ScrollPane prefHeight="53.0" prefViewportHeight="100.0" prefViewportWidth="364.0" prefWidth="364.0" VBox.vgrow="NEVER">
-               <content>
-                  <FlowPane prefHeight="100.0" prefWidth="200.0" />
-               </content>
-            </ScrollPane>
+            <StackPane VBox.vgrow="ALWAYS">
+               <children>
+                  <VBox fx:id="vbCenter" VBox.vgrow="ALWAYS">
+                     <children>
+                        <Label text="Columns" />
+                        <ScrollPane fx:id="scFPColumns" prefHeight="53.0" prefViewportHeight="100.0" prefViewportWidth="364.0" prefWidth="364.0" VBox.vgrow="NEVER">
+                           <content>
+                              <FlowPane fx:id="fpColumns" prefHeight="100.0" prefWidth="200.0" />
+                           </content>
+                        </ScrollPane>
+                        <HBox prefHeight="100.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
+                           <children>
+                              <VBox alignment="TOP_CENTER" prefHeight="200.0" prefWidth="100.0" HBox.hgrow="ALWAYS">
+                                 <children>
+                                    <Label text="Single" />
+                                    <ScrollPane fx:id="scVBSingle" prefViewportHeight="200.0" prefViewportWidth="259.0" VBox.vgrow="ALWAYS">
+                                       <content>
+                                          <VBox fx:id="vbSingle" prefWidth="100.0" />
+                                       </content>
+                                    </ScrollPane>
+                                 </children>
+                                 <padding>
+                                    <Insets bottom="6.0" left="6.0" right="6.0" top="6.0" />
+                                 </padding>
+                              </VBox>
+                              <VBox alignment="TOP_CENTER" prefHeight="200.0" prefWidth="100.0" HBox.hgrow="ALWAYS">
+                                 <children>
+                                    <Label text="Group" />
+                                    <ScrollPane fx:id="scVBGroup" prefViewportHeight="200.0" prefViewportWidth="259.0" VBox.vgrow="ALWAYS">
+                                       <content>
+                                          <VBox fx:id="vbGroup" prefWidth="100.0" />
+                                       </content>
+                                    </ScrollPane>
+                                 </children>
+                                 <padding>
+                                    <Insets bottom="6.0" left="6.0" right="6.0" top="6.0" />
+                                 </padding>
+                              </VBox>
+                           </children>
+                        </HBox>
+                     </children>
+                     <padding>
+                        <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
+                     </padding>
+                  </VBox>
+                  <Pane fx:id="paneTopCenter" pickOnBounds="false" />
+               </children>
+            </StackPane>
          </children>
-         <padding>
-            <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
-         </padding>
       </VBox>
-      <HBox prefHeight="100.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
-         <children>
-            <VBox alignment="TOP_CENTER" prefHeight="200.0" prefWidth="100.0" HBox.hgrow="ALWAYS">
-               <children>
-                  <Label text="Single" />
-                  <ScrollPane prefViewportHeight="200.0" prefViewportWidth="259.0" VBox.vgrow="ALWAYS">
-                     <content>
-                        <VBox prefHeight="200.0" prefWidth="100.0" />
-                     </content>
-                  </ScrollPane>
-               </children>
-               <padding>
-                  <Insets bottom="6.0" left="6.0" right="6.0" top="6.0" />
-               </padding>
-            </VBox>
-            <VBox alignment="TOP_CENTER" prefHeight="200.0" prefWidth="100.0" HBox.hgrow="ALWAYS">
-               <children>
-                  <Label text="Group" />
-                  <ScrollPane prefViewportHeight="200.0" prefViewportWidth="259.0" VBox.vgrow="ALWAYS">
-                     <content>
-                        <VBox prefHeight="200.0" prefWidth="100.0" />
-                     </content>
-                  </ScrollPane>
-               </children>
-               <padding>
-                  <Insets bottom="6.0" left="6.0" right="6.0" top="6.0" />
-               </padding>
-            </VBox>
-         </children>
-      </HBox>
-      <HBox alignment="CENTER_LEFT" spacing="6.0" VBox.vgrow="NEVER">
+      <HBox fx:id="hbStatus" alignment="CENTER_LEFT" spacing="6.0" VBox.vgrow="NEVER">
          <children>
             <Region HBox.hgrow="ALWAYS" />
-            <Button mnemonicParsing="false" text="Reset" />
-            <Button mnemonicParsing="false" text="Add FK Config" />
+            <Button fx:id="btnReset" mnemonicParsing="false" text="Reset and Exit" />
+            <Button fx:id="btnAddFK" disable="true" mnemonicParsing="false" text="Add FK Config and Exit" />
          </children>
          <padding>
             <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />

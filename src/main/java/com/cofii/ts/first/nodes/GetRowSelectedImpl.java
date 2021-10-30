@@ -7,17 +7,17 @@ import javafx.scene.control.TextField;
 
 public class GetRowSelectedImpl implements ActionForEachNode {
 
-    private VFController vf;
+    private VFController vfc;
     private Object[] values;
 
-    public GetRowSelectedImpl(VFController vf, Object[] values) {
-        this.vf = vf;
+    public GetRowSelectedImpl(VFController vfc, Object[] values) {
+        this.vfc = vfc;
         this.values = values;
     }
 
     @Override
     public void forTFS(TextField tf, int c) {
-        if (vf.getBtns()[c].isSelected()) {
+        if (vfc.getRows().get(c).getBtnMain().isSelected()) {
             tf.setText(values[c].toString());
         }
         
@@ -25,7 +25,7 @@ public class GetRowSelectedImpl implements ActionForEachNode {
 
     @Override
     public void forTAS(TextArea tfa, int c) {
-        if (vf.getBtns()[c].isSelected()) {
+        if (vfc.getRows().get(c).getBtnMain().isSelected()) {
             tfa.setText(values[c].toString());
         }
     }

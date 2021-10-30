@@ -6,18 +6,27 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.cofii.ts.first.VFController;
+import com.cofii.ts.first.VFRow;
+import com.cofii.ts.first.nodes.RectangelButtonImpl;
 import com.cofii.ts.other.NonCSS;
 import com.cofii.ts.sql.MSQL;
 import com.cofii.ts.store.SQLTypes;
 import com.cofii.ts.store.main.Column;
 import com.cofii.ts.store.main.Table;
 import com.cofii.ts.store.main.Users;
+import com.cofii2.components.javafx.RectangleButton;
 import com.cofii2.myInterfaces.IActions;
 
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.ObservableList;
+import javafx.geometry.VPos;
+import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.RowConstraints;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.util.StringConverter;
 
@@ -27,107 +36,112 @@ import javafx.util.StringConverter;
 public class ShowColumns implements IActions {
 
     private int rows;
-    private VFController vf;
+    private VFController vfc;
     private Table currentTable = Users.getInstance().getCurrenUser().getCurrentDatabase().getCurrentTable();
-    //private ColumnS columns = ColumnS.getInstance();
+    // private ColumnS columns = ColumnS.getInstance();
     private SQLTypes types = SQLTypes.getInstance();
 
-    public ShowColumns(VFController vf) {
-        this.vf = vf;
+    public ShowColumns(VFController vfc) {
+        this.vfc = vfc;
     }
 
     @Override
     public void beforeQuery() {
-        Arrays.asList(vf.getLbs()).forEach(e -> e.getChildren().clear());
+        // Arrays.asList(vf.getLbs()).forEach(e -> e.getChildren().clear());
+        vfc.getGridPane().getChildren().clear();
+        vfc.getRows().clear();
 
-        vf.getTable().getColumns().clear();
-        //columns.clearColumn();
+        vfc.getTable().getColumns().clear();
+        // columns.clearColumn();
         currentTable.getColumns().clear();
     }
 
     @Override
     public void setData(ResultSet rs, int row) throws SQLException {
-        String columnName = rs.getString(1).replace("_", " ");
+        String columnName = rs.getString(1);
         String typeHole = rs.getString(2).toUpperCase();
         String nulll = rs.getString(3);
         String defaultt = rs.getString(5) == null ? null : rs.getString(5);
         boolean extra = rs.getString(6).equals("auto_increment");
-        //TYPE & TYPE-LENGTH------------------------------------
+
+        VFRow vfRow = new VFRow(columnName.replace("_", " "));
+        // TYPE & TYPE-LENGTH------------------------------------
         String type = typeHole;
         int typeLength = -1;
-        if(typeHole.contains("(")){
+        if (typeHole.contains("(")) {
             type = typeHole.substring(0, typeHole.indexOf("("));
             typeLength = Integer.parseInt(typeHole.substring(typeHole.indexOf("(") + 1, typeHole.length() - 1));
-        }else if(typeHole.equalsIgnoreCase("INT")){
+        } else if (typeHole.equalsIgnoreCase("INT")) {
             typeLength = types.getTypeLength("INT");
-        } else if(typeHole.equalsIgnoreCase("SMALLINT")){
+        } else if (typeHole.equalsIgnoreCase("SMALLINT")) {
             typeLength = types.getTypeLength("SMALLINT");
-        } else if(typeHole.equalsIgnoreCase("BIGINT")){
+        } else if (typeHole.equalsIgnoreCase("BIGINT")) {
             typeLength = types.getTypeLength("BIGINT");
         }
-        //NULL------------------------------------
+        // NULL------------------------------------
         boolean nullValue;
-        if(nulll.equals("NO")){
+        if (nulll.equals("NO")) {
             nullValue = false;
-        }else{
+        } else {
             nullValue = true;
         }
-        //DEFAULT------------------------------------
-        vf.getTfs()[row - 1].setPromptText(defaultt);
-        //NODES VISIBILITY ----------------------------------------------
-        Text textColumnName = new Text(columnName);
-        textColumnName.setFill(NonCSS.TEXT_FILL);
-        vf.getLbs()[row - 1].getChildren().add(textColumnName);
-        vf.getLbs()[row - 1].setVisible(true);
-        if(extra){
-            vf.getTfs()[row - 1].setPromptText("AUTO_INCREMENT");
-        }else if(defaultt == null || defaultt.isEmpty()){
-            vf.getTfs()[row - 1].setPromptText(null);
+        // DEFAULT ------------------------------------
+        vfRow.getTf().setPromptText(defaultt);
+        // EXTRA ---------------------------------------
+        if (extra) {
+            RectangelButtonImpl rectangleButton = new RectangelButtonImpl("AUTO INC", Color.CYAN);
+            vfRow.getHbProperty().getChildren().add(rectangleButton);
         }
-        vf.getTfs()[row - 1].setVisible(true);
-        vf.getBtns()[row - 1].setVisible(true);
-        //---------------------------------------------
-        //columns.addColumn(new Column(columnName, type, typeLength, nullValue, defaultt, extra));
+
         currentTable.getColumns().add(new Column(columnName, type, typeLength, nullValue, defaultt, extra));
-        //---------------------------------------------
+        // ---------------------------------------------
         rows = row;
-        //ADDING COLUMNS-------------------------------
+        // ADDING COLUMNS =========================================
+        // TO VF GRID --------------------------
+        vfc.getRows().add(vfRow);
+
+        vfc.getGridPane().getRowConstraints().add(row - 1, new RowConstraints(-1, -1, -1, null, VPos.BOTTOM, true));
+        vfc.getGridPane().add(vfRow.getLb(), 0, row - 1);
+        vfc.getGridPane().add(vfRow.getVbCenter(), 1, row - 1);
+        vfc.getGridPane().add(vfRow.getHbBtns(), 2, row - 1);
+
+        GridPane.setValignment(vfRow.getLb(), VPos.CENTER);
+
+        // TO TABLE ----------------------------
         final int index = row - 1;
         TableColumn<ObservableList<Object>, Object> column = new TableColumn<>(columnName);
-        vf.getTable().getColumns().add(column);
-        //column.setCellValueFactory(e -> new ReadOnlyObjectWrapper<>(e.getValue().get(index)));
+        vfc.getTable().getColumns().add(column);
+
         column.setCellValueFactory(data -> {
             List<Object> rowValues = data.getValue();
-            return index >= 0 && index < rowValues.size()
-                         ? new ReadOnlyObjectWrapper<>(rowValues.get(index)) // does just the same as ReadOnlyStringWrapper in this case
-                         : null; // no value, if outside of valid index range
+            return index >= 0 && index < rowValues.size() ? new ReadOnlyObjectWrapper<>(rowValues.get(index)) : null;
         });
-        //EDITABLE CELL----------------------------------
-        column.setCellFactory(TextFieldTableCell.forTableColumn(new StringConverter<Object>(){
+        // EDITABLE CELL----------------------------------
+        column.setCellFactory(TextFieldTableCell.forTableColumn(new StringConverter<Object>() {
             @Override
             public String toString(Object object) {
                 return object != null ? object.toString() : "ERROR";
             }
+
             @Override
             public Object fromString(String string) {
                 return string;
             }
         }));
-        column.setOnEditCommit(vf::tableCellEdit);
-        //--------------------------------------------------
-        
-  
+        column.setOnEditCommit(vfc::tableCellEdit);
+        // --------------------------------------------------
+
     }
 
     @Override
     public void afterQuery(String query, boolean rsValue) {
-        //MSQL.setColumnsLength(rows);
-
-        String[] columns = new String[rows];
-        for (int a = 0; a < rows; a++) {
-            columns[a] = ((Text)vf.getLbs()[a].getChildren().get(0)).getText();
-        }
-        //MSQL.setColumns(columns);
+        // MSQL.setColumnsLength(rows);
+        /*
+         * ??????????????????? String[] columns = new String[rows]; for (int a = 0; a <
+         * rows; a++) { columns[a] =
+         * ((Text)vfc.getLbs()[a].getChildren().get(0)).getText(); }
+         */
+        // MSQL.setColumns(columns);
     }
 
 }

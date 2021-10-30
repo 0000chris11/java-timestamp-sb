@@ -309,7 +309,7 @@ public class VLController implements Initializable {
                 // TEST NEW USER AT MYSQL-WORKSPACE
                 boolean insert = msRoot.insert(MSQL.TABLE_USERS, new Object[] { null, user, password });
                 if (insert) {
-                    lbStatus.setText("User created!", Color.GREEN, Duration.seconds(3));
+                    lbStatus.setText("User created!", lbStatus.getTextFillOk(), Duration.seconds(3));
                     int id = (int) msRoot.selectValues(MSQL.TABLE_USERS, "id", "user_name", user)[0];
 
                     Users.getInstance().addUser(new User(id, user));
@@ -318,10 +318,10 @@ public class VLController implements Initializable {
                     }
                     tfUserAC.addItem(user);
                 } else {
-                    lbStatus.setText("User failed to be created.", Color.RED);
+                    lbStatus.setText("User failed to be created.", lbStatus.getTextFillError());
                 }
             } else {
-                lbStatus.setText("Confirm Password must be the same as the original", Color.RED);
+                lbStatus.setText("Confirm Password must be the same as the original", lbStatus.getTextFillError());
             }
         } else {
             createUserState.setValue(true);

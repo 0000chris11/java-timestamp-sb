@@ -55,18 +55,27 @@ public class User {
     }
 
     // KEYS-------------------------------------------------
+    /**
+     * Get all primary keys (user level) in a sinle or mix primary key
+     * 
+     * @return A map of each sinle or mix primary key
+     */
     public Map<String, List<PK>> getPKSInGroups() {
+        System.out.println("TEST getPKSInGroups °°°°°°°°°°°°°°°°°°°°°°°");
         Map<String, List<PK>> map = new HashMap<>(pks.size());
         pks.forEach(pk -> {
             String databaseName = pk.getDatabaseName();
             String tableName = pk.getTableName();
             String mix = databaseName + "." + tableName;
 
-            List<PK> added = map.putIfAbsent(mix, Arrays.asList(pk));
-            if (added == null) {
-                List<PK> pksValue = new ArrayList<>(map.get(mix));
-                pksValue.add(pk);
-                map.put(mix, pksValue);
+            if(!map.containsKey(mix)){
+                List<PK> newPk = new ArrayList<>();
+                newPk.add(pk);
+                map.put(mix, newPk);
+            }else{
+                List<PK> aPk = map.get(mix);
+                aPk.add(pk);
+                map.put(mix, aPk);
             }
         });
 

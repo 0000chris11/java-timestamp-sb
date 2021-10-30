@@ -52,15 +52,15 @@ public class VCDController implements Initializable {
             if (insert) {
                 // SELECT ALL DATABASE
                 vfc.getMs().selectData(MSQL.TABLE_DATABASES, new SelectDatabases(vfc));
-                lbStatus.setText("Database '" + database + "' has been created!", Color.GREEN, Duration.seconds(3));
+                lbStatus.setText("Database '" + database + "' has been created!", lbStatus.getTextFillOk(), Duration.seconds(3));
                 btnCreateDatabase.setDisable(true);
                 System.out.println("\tSUCCESS");
             } else {
-                lbStatus.setText("FATAL: Database was created but not inserted", Color.RED);
+                lbStatus.setText("FATAL: Database was created but not inserted", lbStatus.getTextFillError());
                 System.out.println("\tFATAL");
             }
         } else {
-            lbStatus.setText("Database '" + database + "' fail to be created", Color.RED);
+            lbStatus.setText("Database '" + database + "' fail to be created", lbStatus.getTextFillError());
             System.out.println("\tFAIL");
         }
     }

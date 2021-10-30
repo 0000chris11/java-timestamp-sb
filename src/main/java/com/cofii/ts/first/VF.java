@@ -19,6 +19,8 @@ import com.cofii.ts.store.main.Table;
 import com.cofii.ts.store.main.User;
 import com.cofii.ts.store.main.Users;
 import com.cofii2.components.javafx.SceneZoom;
+import com.cofii2.components.javafx.zoom.ZoomEnum;
+import com.cofii2.components.javafx.zoom.ZoomingPane;
 import com.cofii2.mysql.MSQLP;
 
 import javafx.beans.property.DoubleProperty;
@@ -36,13 +38,8 @@ public class VF {
     private Stage stage = new Stage();
     private static MSQLP ms;
 
-    // INSTANCES-------------------------------------
     private Table currentTable;
     private Menus menus;
-    // private static ColumnS columns = ColumnS.getInstance();
-    // private static ColumnDS columnsd = ColumnDS.getInstance();
-    // ZOOM----------------------------------------
-    private DoubleProperty scaleVF = new SimpleDoubleProperty(1.0);
 
     /**
      * true if its start from the login (not from VC)
@@ -52,28 +49,8 @@ public class VF {
     private boolean noDatabasesForCurrentUser = false;
     private boolean noTablesForCurrentDatabase = false;
 
-    // STAGE LISTENERS -----------------------------------------
-    private void stageMaximizedPropertyChange(boolean newValue) {
-        currentTable = Users.getInstance().getCurrenUser().getCurrentDatabase().getCurrentTable();
-        if (newValue) {
-            /*
-             * if (Arrays.asList(columnsd.getImageCS()).stream().allMatch(s ->
-             * s.equals("No"))) { vf.getSplitLeft().setDividerPositions(1.0); }
-             */
-            if (currentTable != null) {
-                if (currentTable.getImageCColumnName().equals("NONE")) {
-                    vfc.getSplitLeft().setDividerPositions(1.0);
-                }
-            }
-        }
-    }
-
-    private void heightPropertyChangeListener() {
-        currentTable = Users.getInstance().getCurrenUser().getCurrentDatabase().getCurrentTable();
-        /*
-         * if (Arrays.asList(columnsd.getImageCS()).stream().allMatch(s ->
-         * s.equals("No"))) { vf.getSplitLeft().setDividerPositions(1.0); }
-         */
+    // OTHER NODES =====================================================
+    private void splitCondition() {
         if (currentTable != null) {
             if (currentTable.getImageCColumnName().equals("NONE")) {
                 vfc.getSplitLeft().setDividerPositions(1.0);
@@ -81,7 +58,26 @@ public class VF {
         }
     }
 
-    // QUERYS-------------------------------------------------
+    // LISTENERS =======================================================
+    private void stageMaximizedPropertyChange(boolean newValue) {
+        currentTable = Users.getInstance().getCurrenUser().getCurrentDatabase().getCurrentTable();
+        if (newValue) {
+            splitCondition();
+        }
+    }
+
+    private void heightPropertyChangeListener() {
+        currentTable = Users.getInstance().getCurrenUser().getCurrentDatabase().getCurrentTable();
+        splitCondition();
+    }
+
+    private void zoomAction(ZoomEnum zoomEnum) {
+        if (zoomEnum == ZoomEnum.ZOOM_IN || zoomEnum == ZoomEnum.ZOOM_OUT) {
+            splitCondition();
+        }
+    }
+
+    // QUERYS ===================================================
     private void selectDefaultDatabaseAndTable(ResultSet rs, boolean rsValues, SQLException ex) throws SQLException {
         if (rsValues) {
             Users users = Users.getInstance();
@@ -174,7 +170,7 @@ public class VF {
         }
     }
 
-    // INIT-----------------------------------------
+    // INIT ======================================================
     /**
      * Does main tables exist (at selected Database level)
      */
@@ -250,7 +246,7 @@ public class VF {
          */
 
         // OTHERS LISTENERS--------------------
-        ms.setSQLException((ex, s) -> vfc.getLbStatus().setText(ex.getMessage(), NonCSS.TEXT_FILL_ERROR));
+        ms.setSQLException((ex, s) -> vfc.getLbStatus().setText(ex.getMessage(), vfc.getLbStatus().getTextFillError()));
         // STAGE LEVEL OPTIONS-----------------
         boolean alwaysOnTop = Options.getInstance().getOptionByName(Option.ALWAYS_ON_TOP).getValue().equals("true");
         stage.setAlwaysOnTop(alwaysOnTop);
@@ -266,13 +262,12 @@ public class VF {
         try {
             FXMLLoader loader = new FXMLLoader(VF.class.getResource("/com/cofii/ts/first/VF.fxml"));
             // ZOOMIMING PANE-----------------------
-            
-            SceneZoom sceneZoom = new SceneZoom(loader.load(), scaleVF);
-
+            ZoomingPane zoomingPane = new ZoomingPane(loader.load());
+            zoomingPane.setZoomAction(this::zoomAction);
             vfc = (VFController) loader.getController();
-            sceneZoom.setParent(vfc.getBpMain());
+
+            Scene scene = new Scene(zoomingPane);
             // ------------------------------------
-            Scene scene = sceneZoom.getScene();
             scene.getStylesheets().add(VF.class.getResource("/com/cofii/ts/first/VF.css").toExternalForm());
             vfc.getBpMain().setStyle("-fx-root-background-color: #000000");
             // START OR GO BACK OPTION-----------------------------
@@ -288,6 +283,7 @@ public class VF {
             // STAGE LISTENER-------------------------------------------------
             stage.maximizedProperty().addListener((obs, oldValue, newValue) -> stageMaximizedPropertyChange(newValue));
             stage.heightProperty().addListener((obs, oldValue, newValue) -> heightPropertyChangeListener());
+
             // SOME SETTERS TO VFCONTROLLER-------------------------------------------------
             vfc.setStage(vlc != null ? stage : vc.getVf().getStage());
             vfc.setScene(scene);
@@ -303,6 +299,8 @@ public class VF {
             // DIST START---------------------------------
             Dist.getInstance(vfc);
             // -------------------------------------------
+            VFRow.setVfc(vfc);
+
             querysStart();
 
         } catch (IOException e) {

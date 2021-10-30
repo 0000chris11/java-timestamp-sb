@@ -37,7 +37,6 @@
 .root{
     -fx-root-background-color: #100c49;
 
-
     -fx-background-color: -fx-root-background-color;
     background-color: -fx-root-background-color;
 }
@@ -276,6 +275,11 @@
     -fx-padding: 0.333333em 0.083333em 0.666667em 0.083333em;  4 1 8 1 
     */
 }
+/*DIALOG ------------------------------------*/
+.dialogs{
+    -fx-background-color: #100c49;;
+    background-color: #100c49;;
+}
 /*ID VL----------------------*/
 #cbRemember{
     -fx-text-fill:white;
@@ -303,18 +307,24 @@
     -fx-background-color: #035850;
     background-color: #035850;
 }
-#hbStatus{
-    -fx-background-color: -fx-root-background-color;
-    background-color: -fx-root-background-color;
-    -fx-padding: 10;
-    padding: 10;
 
-    -fx-border-style: solid none none none;
-    border-style: solid none none none;
-    -fx-border-width: 2;
-    border-width: 2;
-    -fx-border-color: -fx-boreders-color;
-    border-color: -fx-boreders-color;
+.status{
+        -fx-border-style: solid solid solid solid;  
+    border-style: solid solid solid solid;  
+
+    -fx-border-width: 2;  
+    border-width: 2;  
+
+    -fx-border-color: white; 
+    border-color: white; 
+    /*
+    -fx-padding : 6 6 6 6;
+    padding : 6 6 6 6;
+    */
+}
+.status .text-area .content{
+    -fx-background-color: black;
+    background-color: black;
 }
 
 #lbStatus{
@@ -333,6 +343,17 @@
 #disableCell{
     -fx-text-fill: rgba(128, 128, 128, 0.418);
 }
+/* POPUP MESSAGE CONTROL -------------------------------------------------*/
+.node-border-error{
+    -fx-border-style: solid solid solid solid; 
+    border-style: solid solid solid solid; 
+
+    -fx-border-width: 2; 
+    border-width: 2; 
+
+    -fx-border-color: red;
+    border-color: red;
+}
 /*VL ID-----------------------------*/
 .buttonQueryAction{
     -fx-background-color: #26d113bc;
@@ -347,6 +368,17 @@
     background-color: #160f72;
 }
 /*VF ID*/
+#hbStatus{
+    -fx-background-color: -fx-root-background-color;
+    background-color: -fx-root-background-color;
+
+    -fx-border-style: solid none none none;
+    border-style: solid none none none;
+    -fx-border-width: 2;
+    border-width: 2;
+    -fx-border-color: -fx-boreders-color;
+    border-color: -fx-boreders-color;
+}
 .imageCTF{
     -fx-border-style: solid solid solid solid;
     border-style: solid solid solid solid;
@@ -370,7 +402,7 @@
     -fx-background-color: -fx-root-background-color;
     background-color: -fx-root-background-color;
 }
-#hbUpdates{
+.hb-white-border{
     -fx-border-style: solid solid solid solid;
     border-style: solid solid solid solid;
     -fx-border-width: 2;
@@ -395,6 +427,31 @@
     border-width: 2;
     -fx-border-color: white;
     border-color: white;
+}
+/*VFK ID*/
+.sub-pane{
+    -fx-background-color: #0e0952;
+    background-color: #0e0952;
+}
+.single-or-group-vbox{
+    -fx-border-style: solid solid solid solid;
+    border-style: solid solid solid solid;
+    -fx-border-width: 1;
+    border-width: 1;
+    -fx-border-color: white;
+    border-color: white;
+}
+.verify{
+    -fx-background-color: #1fcf6b;
+    background-color: #1fcf6b;
+}
+.verify:pressed{
+    -fx-background-color: #13fa77;
+    background-color: #13fa77;
+}
+.verify:disabled{
+    -fx-background-color: #099c49;
+    background-color: #099c49;
 }
 /*
 #gridPane{

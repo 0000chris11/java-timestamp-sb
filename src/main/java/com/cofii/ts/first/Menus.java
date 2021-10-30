@@ -8,7 +8,7 @@ import java.util.Set;
 
 import com.cofii.ts.cu.VC;
 import com.cofii.ts.cu.VCD;
-
+import com.cofii.ts.first.nodes.RectangelButtonImpl;
 import com.cofii.ts.game.VG;
 import com.cofii.ts.info.VI;
 import com.cofii.ts.options.VO;
@@ -21,14 +21,18 @@ import com.cofii.ts.store.main.FK;
 import com.cofii.ts.store.main.PK;
 import com.cofii.ts.store.main.Table;
 import com.cofii.ts.store.main.Users;
+import com.cofii2.components.javafx.RectangleButton;
 import com.cofii2.components.javafx.TrueFalseWindow;
 import com.cofii2.mysql.MSQLP;
 import com.cofii2.stores.CC;
 
 import javafx.event.ActionEvent;
+import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
+import javafx.scene.control.Tooltip;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
 
@@ -62,10 +66,10 @@ public class Menus {
     }
 
     private void selectCustoms(ResultSet rs, boolean rsValues, SQLException ex) throws SQLException {
-        if(rsValues){
+        if (rsValues) {
             Database currentDatabase = null;
-            if(currentDatabase == null){
-            currentDatabase = Users.getInstance().getCurrenUser().getCurrentDatabase();
+            if (currentDatabase == null) {
+                currentDatabase = Users.getInstance().getCurrenUser().getCurrentDatabase();
             }
             int tableId = rs.getInt(1);
             String dist = rs.getString(2);
@@ -134,7 +138,7 @@ public class Menus {
         if (deleteTable) {
             boolean removeFromTableNames = vfc.getMs().deleteRow(MSQL.TABLE_NAMES, "Name", table.replace("_", " "));
             if (removeFromTableNames) {
-                vfc.getLbStatus().setText("Table '" + table + "' has been deleted", NonCSS.TEXT_FILL_OK,
+                vfc.getLbStatus().setText("Table '" + table + "' has been deleted", vfc.getLbStatus().getTextFillOk(),
                         Duration.seconds(2));
 
                 addTablesToTfTableReset(vfc);
@@ -142,10 +146,10 @@ public class Menus {
             } else {
                 vfc.getLbStatus().setText(
                         "FATAL: Table '" + table + "' has been deleted but not removed from " + MSQL.TABLE_NAMES,
-                        NonCSS.TEXT_FILL_ERROR);
+                        vfc.getLbStatus().getTextFillError());
             }
         } else {
-            vfc.getLbStatus().setText("Table '" + table + "' fail to be deleted", NonCSS.TEXT_FILL_ERROR);
+            vfc.getLbStatus().setText("Table '" + table + "' fail to be deleted", vfc.getLbStatus().getTextFillError());
         }
     }
 
@@ -160,7 +164,8 @@ public class Menus {
         // SELECT TABLES-------------------------------
         currentDatabase.clearTables();
         vfc.getMs().selectData(MSQL.TABLE_NAMES, this::selectTables);
-        //vfc.getMs().selectData(MSQL.TABLE_CUSTOMS, this::selectCustoms);MAY NOT BE NECESSARY
+        // vfc.getMs().selectData(MSQL.TABLE_CUSTOMS, this::selectCustoms);MAY NOT BE
+        // NECESSARY
         vfc.getMs().selectData(MSQL.PATHS, vfc.getVf()::selectPathsForCurrentUser);
 
         if (!Database.getTables().isEmpty()) {
@@ -199,17 +204,13 @@ public class Menus {
         // PRIMARY KEYS---------------------------------------------
         List<PK> cpks = currentTable.getPKS();
         cpks.forEach(pk -> {
-            int ordinalPosition = pk.getOrdinalPosition() - 1;
+            // int ordinalPosition = pk.getOrdinalPosition() - 1;
             String columnName = pk.getColumnName();
+            VFRow row = VFRow.getRowByColumnName(columnName);
 
-            Text textPk = new Text("(P) ");
-            textPk.setFill(NonCSS.TEXT_FILL_PK);
-
-            Text textColumnName = new Text(columnName);
-            textColumnName.setFill(NonCSS.TEXT_FILL);
-
-            vfc.getLbs()[ordinalPosition].getChildren().clear();
-            vfc.getLbs()[ordinalPosition].getChildren().addAll(textPk, textColumnName);
+            row.getHbProperty().getChildren().removeIf(VFRow.getRemoveIfPredicate("PK"));
+            RectangelButtonImpl rectangleButton = new RectangelButtonImpl("PK", Color.YELLOW);
+            row.getHbProperty().getChildren().add(rectangleButton);
         });
 
         // FOREIGN KEYS---------------------------------------------
@@ -217,32 +218,31 @@ public class Menus {
         Set<String> constraints = new HashSet<>();
         int[] indexs = { 1 };
         cfks.forEach(fk -> {
-            int ordinalPosition = fk.getOrdinalPosition() - 1;
+            // int ordinalPosition = fk.getOrdinalPosition() - 1;
             String columnName = fk.getColumnName();
-
             String constraintType = fk.getConstraintType();
+
+            String referencedDatabase = fk.getReferencedDatabaseName();
+            String referencedTable = fk.getReferencedTableName();
+            String referencedColumn = fk.getReferencedColumnName();
+
+            VFRow row = VFRow.getRowByColumnName(columnName);
+
+            // MIX !!!!!!!!!!!!!!!
             boolean added = constraints.add(constraintType);
-            boolean match = constraints.stream().anyMatch(cons -> cons.equals(constraintType));
 
-            if (match) {
-                Text textFk = new Text("(F" + (indexs[0]++) + ") ");
-                textFk.setFill(NonCSS.TEXT_FILL_FK);
+            row.getHbProperty().getChildren().removeIf(VFRow.getRemoveIfPredicate("FK"));
 
-                Text textColumnName = new Text(columnName);
-                textColumnName.setFill(NonCSS.TEXT_FILL);
+            RectangelButtonImpl rectangleButton = new RectangelButtonImpl("FK", Color.BLUE);
+            Tooltip fkTooltip = new Tooltip(referencedDatabase + "." + referencedTable);
+            fkTooltip.setShowDelay(Duration.seconds(0.5));
+            rectangleButton.getLabel().setTooltip(fkTooltip);
+            row.getHbProperty().getChildren().add(rectangleButton);
 
-                vfc.getLbs()[ordinalPosition].getChildren().clear();
-                vfc.getLbs()[ordinalPosition].getChildren().addAll(textFk, textColumnName);
-                vfc.getTfs()[ordinalPosition].setStyle(CSS.TFS_FK_LOOK);
-
-                if (added) {// ONCE PER GROUP
-                    String referencedDatabase = fk.getReferencedDatabaseName();
-                    String referencedTable = fk.getReferencedTableName();
-                    String referencedColumn = fk.getReferencedColumnName();
-                    vfc.getMs().setDistinctOrder(MSQLP.MOST_USE_ORDER);
-                    vfc.getMs().selectDistinctColumn(referencedDatabase + "." + referencedTable, referencedColumn,
-                            (rs, rsValues, ex) -> vfc.getTfsFKList().get(ordinalPosition).add(rs.getString(1)));
-                }
+            if (added) {// ONCE PER GROUP
+                vfc.getMs().setDistinctOrder(MSQLP.MOST_USE_ORDER);
+                vfc.getMs().selectDistinctColumn(referencedDatabase + "." + referencedTable, referencedColumn,
+                        (rs, rsValues, ex) -> row.getFkRefList().add(rs.getString(1)));
             }
 
         });

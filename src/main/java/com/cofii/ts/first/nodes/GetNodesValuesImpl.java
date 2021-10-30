@@ -26,7 +26,7 @@ public class GetNodesValuesImpl implements ActionForEachNode {
             } else if (columns.get(c).getDefaultt() != null) {
                 // DEFAULT
                 values[c] = columns.get(c).getDefaultt();
-            }else if(columns.get(c).getExtra()){
+            }else if(columns.get(c).isExtra()){
                 //UNNECESARY??
             }
         } else if (columns.get(c).getType().contains("INT")) {

@@ -13,7 +13,7 @@ import com.cofii2.myInterfaces.IActions;
 
 public class SelectKeys implements IActions {
 
-    private VFController vf;
+    private VFController vfc;
 
     private String databaseName;
     private String tableName;
@@ -26,7 +26,7 @@ public class SelectKeys implements IActions {
 
     // -----------------------------------------------------------
     public SelectKeys(VFController vf) {
-        this.vf = vf;
+        this.vfc = vf;
     }
 
     @Override
@@ -48,7 +48,7 @@ public class SelectKeys implements IActions {
         referencedColumnName = rs.getString(8);
 
         //keysImplement();
-        Menus.getInstance(vf).resetCurrentTableKeys();
+        //Menus.getInstance(vfc).resetCurrentTableKeys(vfc.getRows());
         // --------------------------------------------
         if (constraintType.equals("PRIMARY")) {
             //System.out.println("ADDING PRIMARY KEY (" + databaseName + " - " + constraintType + ")");

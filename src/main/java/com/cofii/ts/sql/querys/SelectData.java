@@ -64,7 +64,7 @@ public class SelectData implements IActions {
         if (rsValue) {
             vfc.getTable().setItems(data);
             if (message != null) {
-                vfc.getLbStatus().setText(message, NonCSS.TEXT_FILL_OK, Duration.seconds(2));
+                vfc.getLbStatus().setText(message, vfc.getLbStatus().getTextFillOk(), Duration.seconds(2));
 
                 Media media;
                 MediaPlayer mediaPlayer;

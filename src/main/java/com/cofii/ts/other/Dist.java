@@ -41,19 +41,13 @@ public class Dist {
             }
             ms = vfc.getMs();
 
-            GridPane gp = vfc.getGridPane();
             for (int a = 0; a < split.length; a++) {
-                int c = currentTable.getColumnIndex(split[a].replace("_", " "));
-                if (vfc.getTfsFKList().get(c).isEmpty()) {// NOT IF THIS COLUMN HAS FK
-                    vfc.getTfsAutoC().get(c).setTfParent(vfc.getTfs()[c]);
-                    vfc.getTfs()[c].setStyle(CSS.TFS_DIST_LOOK);
+                String columnName = split[a];
+                int c = currentTable.getColumnIndex(columnName);
+                //int c = currentTable.getColumnIndex(split[a]);
 
-                    if (currentTable.getColumns().get(c).getExtra()) {
-                        vfc.getTfs()[c].setPromptText("AUTO_INCREMENT");
-                    }
+                    vfc.getRows().get(c).getTf().setStyle(CSS.TFS_DIST_LOOK);
 
-                    // ???????????????????????
-                    // columnsd.getList().get(c).setDist("Yes");
                     currentTable.getColumns().get(c).setDist(true);
                     // QUERY --------------------------------------------------
                     String tableName = currentTable.getName().replace(" ", "_");
@@ -61,9 +55,9 @@ public class Dist {
 
                     ms.setDistinctOrder(MSQLP.MOST_USE_ORDER);// WORK 50 50 WITH TAGS
                     ms.selectDistinctColumn(tableName, column.replace(" ", "_"), new SelectDistinct(vfc, c));
-                }
+                
 
-                gp.getRowConstraints().get(4).setMaxHeight(Short.MAX_VALUE);
+                //gp.getRowConstraints().get(4).setMaxHeight(Short.MAX_VALUE);
             }
         }
     }
@@ -77,7 +71,8 @@ public class Dist {
             int index = currentTable.getColumnIndex(imageCColumnName);
             currentTable.getColumns().get(index).setImageC(true);
 
-            vfc.getTfs()[index].getStyleClass().add("imageCTF");
+            //vfc.getTfs()[index].getStyleClass().add("imageCTF");
+            vfc.getRows().get(index).getTf().getStyleClass().add("imageCTF");
             vfc.getSplitLeft().setDividerPositions(0.6);
             // ALL PATH EXIST CHECK-------------------------------------------
             boolean allPathsExists = imageCPath.stream().allMatch(path -> {
@@ -144,7 +139,7 @@ public class Dist {
         Table currentTable = Users.getInstance().getCurrenUser().getCurrentDatabase().getCurrentTable();
 
         for (int a = 0; a < currentTable.getColumns().size(); a++) {
-            if (currentTable.getColumns().get(a).getDist()) {
+            if (currentTable.getColumns().get(a).isDist()) {
                 String tableName = currentTable.getName().replace(" ", "_");
                 String column = currentTable.getColumns().get(a).getName();
                 ms.setDistinctOrder(MSQLP.MOST_USE_ORDER);// WORK 50 50 WITH TAGS

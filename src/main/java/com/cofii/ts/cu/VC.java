@@ -1,16 +1,20 @@
 package com.cofii.ts.cu;
 
 import java.io.IOException;
+import java.util.List;
 
 import com.cofii.ts.first.VFController;
-import com.cofii.ts.other.CSS;
+import com.cofii.ts.store.main.Column;
 import com.cofii.ts.store.main.Table;
 import com.cofii.ts.store.main.Users;
+import com.cofii2.components.javafx.popup.PopupMessage;
+import com.cofii2.components.javafx.zoom.ZoomingPane;
 import com.cofii2.mysql.MSQLP;
 import com.cofii2.stores.CC;
 
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.value.ChangeListener;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 
@@ -22,64 +26,51 @@ public class VC {
 
     private DoubleProperty zoomProperty = new SimpleDoubleProperty(1.0);
     // private UpdateTable updateTable;
+    private ChangeListener<? super Boolean> stageFocusPropertyListener = (obs, oldValue, newValue) -> {
+        if (newValue) {
+            if (!vcc.getPopupMessageControl().getPopupMaster().getParentNode().equals(vcc.getBtnErrorDisplay())) {
+                vcc.getPopupMessageControl().getPopupMaster().getPopup().hide();
+                vcc.getPopupMessageControl().setPopupMaster(new PopupMessage("MASTER", vcc.getBtnErrorDisplay()));
+            }
+        }
+    };
 
     private void createOption() {
         vcc.createHelpPopupReset();
         // TOP--------------------------------------------------------
         vcc.getBtnRenameTable().setVisible(false);
 
-        for (int a = 0; a < vcc.getPresetRowsLenght(); a++) { 
-            vcc.addRow(a, true);
+        VCRow.setVcc(vcc);
+        VCRow.setCreateRows(true);
+        for (int a = 0; a < vcc.getPresetRowsLenght(); a++) {
+            VCRow.addRowTest(a);
         }
-        setTextFill(true);
         // BOTTOM------------------------------------------------
         vcc.getBtnUpdatePK().setDisable(true);
-        vcc.getBtnUpdateFK().setDisable(true);
         vcc.getBtnUpdateExtra().setDisable(true);
         vcc.getBtnUpdateDist().setDisable(true);
     }
 
-    private void setTextFill(boolean create) {
-        if (create) {
-            for (int a = 0; a < vcc.getCurrentRowLength(); a++) {
-                /* NECESSARY ???????????
-                vcc.getCksNull().get(a).applyCss();
-                vcc.getCksNull().get(a).setStyle(CSS.CKS_BG);
-                // vcc.getCksNull().get(a).setBackground(new Background(new BackgroundFill(,
-                // CornerRadii.EMPTY, Insets.EMPTY)));
-                vcc.getCksDefault().get(a).setStyle(CSS.CKS_BG);
-                */
-            }
-        } else {
-            // TOP ------------------------------------
-            vcc.getTfTable().setStyle(CSS.NODE_TEXTFILL_HINT);
-            // CENTER ---------------------------------
-            for (int a = 0; a < currentTable.getColumns().size(); a++) {
-                vcc.getTfsColumn().get(a).setStyle(CSS.NODE_TEXTFILL_HINT);
-                vcc.getTfasType().get(a).setStyle(CSS.NODE_TEXTFILL_HINT);
-                vcc.getTfsTypeLength().get(a).setStyle(CSS.NODE_TEXTFILL_HINT);
-                vcc.getCksNull().get(a).setStyle(CSS.CKS_BG_HINT);
-                vcc.getCksDefault().get(a).setStyle(CSS.CKS_BG_HINT);
-                vcc.getTfsDefault().get(a).setStyle(CSS.NODE_TEXTFILL_HINT);
-            }
-        }
-    }
-
     private void updateOption() {
-        // setUpdateStore();
+        vcc.setUpdateControl(true);
+
         vcc.createAddColumnHelpPopupReset();
         // TOP-------------------------------------------------------
+        vcc.getTfTable().setText(currentTable.getName());
+
         vcc.getBtnRenameTable().setVisible(true);
         vcc.getBtnRenameTable().setOnAction(vcc::btnRenameTableAction);
         // CENTER ---------------------------------------------------
-        vcc.setCurrentRowLength(currentTable.getColumns().size());
+        VCRow.setVcc(vcc);
+        VCRow.setCreateRows(false);
+        vcc.setPresetRowsLenght(currentTable.getColumns().size());
         for (int a = 0; a < currentTable.getColumns().size(); a++) {
-            vcc.addRow(a, false);
+            // vcc.addRow(a, false);
+            VCRow.addRowTest(a);
         }
-        setTextFill(false);
+        rowUpdateSetValues();
         // BOTTOM------------------------------------------------
         vcc.getBtnUpdatePK().setOnAction(vcc::updatePK);
-        vcc.getBtnUpdateFK().setOnAction(vcc::updateFKS);
         vcc.getBtnUpdateExtra().setOnAction(vcc::updateExtra);
         vcc.getBtnUpdateDist().setOnAction(vcc::updateDist);
 
@@ -87,11 +78,46 @@ public class VC {
         vcc.getBtnCreateUpdate().setVisible(false);
 
         vcc.getBtnUpdatePK().setId(Integer.toString(-1));
-        vcc.getBtnUpdateFK().setId(Integer.toString(-1));
         vcc.getBtnUpdateExtra().setId(Integer.toString(-1));
         vcc.getBtnUpdateDist().setId(Integer.toString(-1));
-        //---------------------------------------------------------
-        vcc.setUpdateControl(true);
+        // ---------------------------------------------------------
+    }
+
+    private void rowUpdateSetValues() {
+        List<VCRow> rows = VCRow.getRows();
+        for (int a = 0; a < currentTable.getColumns().size(); a++) {
+            Column columnn = currentTable.getColumns().get(a);
+            VCRow row = rows.get(a);
+            // -----------------------------------------------
+            String columnName = columnn.getName();
+            String typeName = columnn.getType();
+            int typeLenght = columnn.getTypeLength();
+            boolean nulll = columnn.isNulll();
+            boolean pk = columnn.isPk();
+            Object defaultt = columnn.getDefaultt();
+            boolean extra = columnn.isExtra();
+
+            boolean dist = columnn.isDist();
+            boolean textArea = columnn.isTextArea();
+            // -----------------------------------------------
+            row.getTfColumn().setText(columnName);
+            row.getTfType().setText(typeName);
+            // May Hide either way ! --------------------------
+            row.getTfTypeLength().setText(typeLenght > 0 ? Integer.toString(typeLenght) : "");
+            row.getCkNull().setSelected(nulll);
+            row.getRbPK().setSelected(pk);
+            // Don't know if the tf-Default will turn visible (if selected) !
+            if (defaultt != null) {
+                row.getCkDefault().setSelected(true);
+                row.getTfDefault().setText(defaultt.toString());
+            }else{
+                row.getCkDefault().setSelected(false);
+            }
+            row.getRbExtra().setSelected(extra);
+
+            row.getBtnDist().setSelected(dist);
+            row.getBtnTextArea().setSelected(textArea);
+        }
     }
 
     // -----------------------------------------------------
@@ -99,14 +125,15 @@ public class VC {
         try {
             FXMLLoader loader = new FXMLLoader(VC.class.getResource("/com/cofii/ts/cu/VC.fxml"));
 
-            /*
-             * SceneZoom sz = new SceneZoom(loader.load(), zoomProperty);
-             * sz.setParent(vcc.getBpMain()); Scene scene = sz.getScene();
-             */
-            Scene scene = new Scene(loader.load());
+            // ZOOMIMING PANE -----------------------
+            ZoomingPane zoomingPane = new ZoomingPane(loader.load());
+            Scene scene = new Scene(zoomingPane);
+            // -----------------------------------------
             vcc = (VCController) loader.getController();
-            // vf.getStage().setScene(scene);
             scene.getStylesheets().add(VC.class.getResource("/com/cofii/ts/first/VF.css").toExternalForm());
+
+            vf.getStage().focusedProperty().removeListener(stageFocusPropertyListener);
+            vf.getStage().focusedProperty().addListener(stageFocusPropertyListener);
             vf.getStage().setScene(scene);
             // ------------------------------------------------------
             vcc.setVf(vf);

@@ -69,7 +69,7 @@ public class Table {
     public List<Boolean> getColumnNulls() {
         List<Boolean> columnNulls = new ArrayList<>(max);
         for (Column col : columns) {
-            columnNulls.add(col.getNulll());
+            columnNulls.add(col.isNulll());
         }
         return columnNulls;
     }
@@ -121,7 +121,7 @@ public class Table {
     public String getTextArea() {
         StringBuilder sb = new StringBuilder();
         columns.stream().filter(Column::isTextArea).forEach(col -> sb.append(col.getName()).append(","));
-        if (!sb.isEmpty()) {
+        if (sb.length() > 0) {
             sb.deleteCharAt(sb.length() - 1);
         } else {
             sb.append("NONE");
@@ -132,7 +132,7 @@ public class Table {
     public List<Boolean> getDistList() {
         List<Boolean> columnDists = new ArrayList<>(max);
         for (Column col : columns) {
-            columnDists.add(col.getDist());
+            columnDists.add(col.isDist());
         }
         return columnDists;
     }

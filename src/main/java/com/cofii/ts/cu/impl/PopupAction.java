@@ -71,7 +71,7 @@ public class PopupAction {
                 } else if (s.contains(VCStore.SELECTION_UNMATCH)) {
                     popupMaster.getItemList().add(NODES_SELECTION_UNMATCH);
 
-                } else if (s.contains(VCStore.WRONG_LENGTH) || s.contains(VCStore.WRONG_LENGTH_2)) {
+                } else if (s.contains(VCStore.WRONG_LENGTH)) {
                     popupMaster.getItemList().add(NODES_TYPE_AND_DEFAULT);
                 } else if (s.contains(VCStore.AUTO_INCREMENT_AND_PK)) {
                     popupMaster.getItemList().add(NODES_AUTO_INCREMENT_AND_PK);
@@ -119,23 +119,13 @@ public class PopupAction {
             displayNode.setStyle(null);
         }
 
-        /**
-         * Illegal Chars%COLUMN%id-COLUMN:1
-         * 
-         */
         String id = popupMessage.getId();
-        // List<String> collection =
-        // getItemList().stream().collect(Collectors.toList());
         List<String> collection = getItemList().stream().filter(s -> !s.contains("id-")).map(s -> s + "%id" + id)
                 .collect(Collectors.toList());
 
         errorDataDisplay.addAll(collection);
-        // System.out.println("\tadded size: " + errorDataDisplay.size());
         errorDataDisplay.removeIf(s -> s.contains("%id" + id) && !collection.stream().anyMatch(ss -> ss.contains("%id" + id)));
-        // System.out.println("\tafter removeIf size: " + errorDataDisplay.size());
-
-        // System.out.println("\nTEST ERROR-DATA (" + (count++) + ")");
-        // errorDataDisplay.forEach(s -> System.out.println("\tE: " + s));
+ 
         errorDisplay();
     }
 

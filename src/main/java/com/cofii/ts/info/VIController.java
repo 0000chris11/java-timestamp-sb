@@ -4,6 +4,7 @@ import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
 
+import com.cofii.ts.first.VFRow;
 import com.cofii.ts.other.CSS;
 import com.cofii.ts.other.NonCSS;
 import com.cofii.ts.sql.MSQL;
@@ -160,13 +161,13 @@ public class VIController implements Initializable {
             String column = currentTable.getColumns().get(a).getName();
             String type = currentTable.getColumns().get(a).getType();
             int typeLength = currentTable.getColumns().get(a).getTypeLength();
-            boolean nulll = currentTable.getColumns().get(a).getNulll();
+            boolean nulll = currentTable.getColumns().get(a).isNulll();
             String defaultt = currentTable.getColumns().get(a).getDefaultt() != null
                     ? currentTable.getColumns().get(a).getDefaultt().toString()
                     : null;
-            String extra = currentTable.getColumns().get(a).getExtra() ? "Yes" : "No";
+            String extra = currentTable.getColumns().get(a).isExtra() ? "Yes" : "No";
 
-            String dist = currentTable.getColumns().get(a).getDist() ? "Yes" : "No";
+            String dist = currentTable.getColumns().get(a).isDist() ? "Yes" : "No";
 
             lbColumns[a].setText(column);
             lbTypes[a].setText(type);
@@ -199,20 +200,21 @@ public class VIController implements Initializable {
         List<PK> cpks = currentTable.getPKS();
         for (int a = 0; a < cpks.size(); a++) {
             cpks.forEach(pk -> {
-                int ordinalPosition = pk.getOrdinalPosition() - 1;
-                lbPK[ordinalPosition].setText("Yes");
-                lbPK[ordinalPosition].setTextFill(NonCSS.TEXT_FILL_PK);
-                lbPK[ordinalPosition].setStyle("-fx-font-weight: bold;");
+                int index = VFRow.getIndexByColumnName(pk.getColumnName());
+                lbPK[index].setText("Yes");
+                lbPK[index].setTextFill(NonCSS.TEXT_FILL_PK);
+                lbPK[index].setStyle("-fx-font-weight: bold;");
             });
         }
         List<FK> cfks = currentTable.getFKS();
         for (int a = 0; a < cfks.size(); a++) {
             // REQUIERES WAY MORE INFO !!!!!!!!!!!!!!!
             cfks.forEach(fk -> {
-                int ordinalPosition = fk.getOrdinalPosition() - 1;
-                lbFK[ordinalPosition].setText("Yes");
-                lbFK[ordinalPosition].setTextFill(NonCSS.TEXT_FILL_FK);
-                lbFK[ordinalPosition].setStyle("-fx-font-weight: bold;");
+                //int index = fk.getOrdinalPosition() - 1;
+                int index = VFRow.getIndexByColumnName(fk.getColumnName());
+                lbFK[index].setText("Yes");
+                lbFK[index].setTextFill(NonCSS.TEXT_FILL_FK);
+                lbFK[index].setStyle("-fx-font-weight: bold;");
             });
         }
         // IMAGEC----------------------------------------------------

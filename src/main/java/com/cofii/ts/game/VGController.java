@@ -115,11 +115,11 @@ public class VGController implements Initializable {
                 lbMainStatus.reset();
             } else {
                 btnStart.setDisable(true);
-                lbMainStatus.setText("Column Guess and Answer have to be diferent", Color.RED);
+                lbMainStatus.setText("Column Guess and Answer have to be diferent", lbMainStatus.getTextFillError());
             }
         } else {
             btnStart.setDisable(true);
-            lbMainStatus.setText("Column Guess or Answer are incorrect", Color.RED);
+            lbMainStatus.setText("Column Guess or Answer are incorrect", lbMainStatus.getTextFillError());
         }
     }
 
@@ -151,7 +151,7 @@ public class VGController implements Initializable {
         boolean containsSelected = btnContains.isSelected();
 
         if (!equalsSelected && !ignoreCaseSelected && !containsSelected) {
-            lbMatchOptionsStatus.setText("At least one option has to be selected", Color.RED);
+            lbMatchOptionsStatus.setText("At least one option has to be selected", lbMatchOptionsStatus.getTextFillError());
             matchOptions = false;
         } else {
             lbMatchOptionsStatus.reset();

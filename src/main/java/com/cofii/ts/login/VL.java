@@ -2,10 +2,10 @@ package com.cofii.ts.login;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.logging.Logger;
 
 import com.cofii.ts.first.VF;
 import com.cofii.ts.sql.MSQL;
-import com.cofii.ts.sql.querys.ShowUsers;
 import com.cofii.ts.store.main.Option;
 import com.cofii.ts.store.main.Options;
 import com.cofii.ts.store.main.User;
@@ -13,7 +13,6 @@ import com.cofii.ts.store.main.Users;
 import com.cofii2.mysql.DefaultConnection;
 import com.cofii2.mysql.MSQLP;
 import com.cofii2.mysql.RootConfigConnection;
-import com.cofii2.mysql.enums.QueryResult;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -25,6 +24,7 @@ public class VL extends Application {
     private VLController vlc;
     private String optionArgs = "";
 
+    public static final Logger LOG = Logger.getGlobal();
     // QUERY------------------------------------------
     private void selectUsers(ResultSet rs, boolean rsValues, SQLException ex) throws SQLException {
         if (rsValues) {
@@ -75,7 +75,8 @@ public class VL extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
-        System.out.println("START");
+        //System.out.println("START");
+        LOG.info("START");
         // ARGS-----------------------------------
         optionArgs = "";
         if (!getParameters().getRaw().isEmpty()) {

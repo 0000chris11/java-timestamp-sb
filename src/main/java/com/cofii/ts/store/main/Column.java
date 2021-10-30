@@ -53,7 +53,7 @@ public class Column {
         this.typeLength = typeLength;
     }
 
-    public boolean getNulll() {
+    public boolean isNulll() {
         return nulll;
     }
 
@@ -69,7 +69,7 @@ public class Column {
         this.defaultt = defaultt;
     }
 
-    public boolean getExtra() {
+    public boolean isExtra() {
         return extra;
     }
 
@@ -77,7 +77,7 @@ public class Column {
         this.extra = extra;
     }
 
-    public boolean getDist() {
+    public boolean isDist() {
         return dist;
     }
 

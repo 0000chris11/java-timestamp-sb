@@ -24,26 +24,31 @@
    <bottom>
       <HBox fx:id="hbStatus" alignment="CENTER" spacing="2.0" BorderPane.alignment="CENTER">
          <children>
-            <HBox fx:id="hbUpdates" alignment="CENTER" spacing="4.0">
+            <HBox fx:id="hbUpdates" alignment="CENTER_LEFT" spacing="4.0">
                <children>
-                  <Label fx:id="lbUpdate" alignment="CENTER_RIGHT" prefHeight="26.0" prefWidth="70.0" text="Updates" HBox.hgrow="ALWAYS" />
-                  <Button fx:id="btnUpdatePK" disable="true" mnemonicParsing="false" text="Primary Key" HBox.hgrow="NEVER" />
-                  <Button fx:id="btnUpdateFK" disable="true" mnemonicParsing="false" text="Foreign Key" HBox.hgrow="NEVER" />
-                  <Button fx:id="btnUpdateExtra" disable="true" mnemonicParsing="false" text="Extra" HBox.hgrow="NEVER" />
-                  <Button fx:id="btnUpdateDist" mnemonicParsing="false" text="Dist" HBox.hgrow="SOMETIMES" />
+                  <Label fx:id="lbUpdate" prefHeight="26.0" prefWidth="70.0" text="Updates" HBox.hgrow="ALWAYS" />
+                  <Button fx:id="btnUpdatePK" disable="true" minWidth="30.0" mnemonicParsing="false" text="PK" HBox.hgrow="NEVER" />
+                  <Button fx:id="btnUpdateExtra" disable="true" minWidth="30.0" mnemonicParsing="false" text="EX" HBox.hgrow="NEVER" />
+                  <Button fx:id="btnUpdateDist" minWidth="30.0" mnemonicParsing="false" text="Dist" HBox.hgrow="NEVER" />
+                  <Button fx:id="btnUpdateTextArea" minWidth="30.0" mnemonicParsing="false" text="TextA" HBox.hgrow="NEVER" />
                </children>
                <padding>
                   <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
                </padding>
             </HBox>
-            <Region prefWidth="20.0" />
-            <HBox alignment="CENTER">
+            <HBox fx:id="hbSelects" alignment="CENTER" spacing="4.0">
                <children>
-                  <Button fx:id="btnSelectImageC" alignment="CENTER" disable="true" mnemonicParsing="false" prefWidth="100.0" text="ImageC Select">
+                  <Label prefWidth="70.0" text="Sub-Config" />
+                  <Button fx:id="btnSelectFK" disable="true" mnemonicParsing="false" text="FK" />
+                  <Button fx:id="btnSelectUI" disable="true" mnemonicParsing="false" text="UI" />
+                  <Button fx:id="btnSelectIC" alignment="CENTER" disable="true" minWidth="30.0" mnemonicParsing="false" text="IC">
                      <padding>
                         <Insets bottom="4.0" top="4.0" />
                      </padding></Button>
                </children>
+               <padding>
+                  <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
+               </padding>
             </HBox>
             <Region HBox.hgrow="ALWAYS" />
             <Button fx:id="btnCancel" mnemonicParsing="false" text="Go Back" />
@@ -67,7 +72,6 @@
                         <ColumnConstraints hgrow="NEVER" minWidth="10.0" />
                         <ColumnConstraints hgrow="NEVER" minWidth="10.0" prefWidth="50.0" />
                         <ColumnConstraints hgrow="NEVER" minWidth="10.0" prefWidth="50.0" />
-                        <ColumnConstraints hgrow="NEVER" maxWidth="240.0" minWidth="10.0" />
                         <ColumnConstraints hgrow="NEVER" minWidth="10.0" />
                         <ColumnConstraints hgrow="NEVER" minWidth="10.0" prefWidth="50.0" />
                         <ColumnConstraints hgrow="NEVER" minWidth="10.0" />
@@ -123,16 +127,7 @@
                               </Label>
                            </children>
                         </HBox>
-                        <HBox fx:id="headerFKS" alignment="TOP_CENTER" GridPane.columnIndex="5">
-                           <children>
-                              <Label fx:id="lbhFK" text="FK" GridPane.columnIndex="5">
-                                 <GridPane.margin>
-                                    <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
-                                 </GridPane.margin>
-                              </Label>
-                           </children>
-                        </HBox>
-                        <HBox fx:id="headerDefaults" alignment="TOP_CENTER" GridPane.columnIndex="6">
+                        <HBox fx:id="headerDefaults" alignment="TOP_CENTER" GridPane.columnIndex="5">
                            <children>
                               <Label text="Default" GridPane.columnIndex="6">
                                  <GridPane.margin>
@@ -141,7 +136,7 @@
                               </Label>
                            </children>
                         </HBox>
-                        <HBox fx:id="headerExtras" alignment="TOP_CENTER" GridPane.columnIndex="7">
+                        <HBox fx:id="headerExtras" alignment="TOP_CENTER" GridPane.columnIndex="6">
                            <children>
                               <Label fx:id="lbhExtra" text="Extra" GridPane.columnIndex="7">
                                  <GridPane.margin>
@@ -150,12 +145,12 @@
                               </Label>
                            </children>
                         </HBox>
-                        <HBox fx:id="headerDists" alignment="TOP_CENTER" GridPane.columnIndex="8">
+                        <HBox fx:id="headerDists" alignment="TOP_CENTER" GridPane.columnIndex="7">
                            <children>
                               <Label fx:id="lbhDist" text="Dist" GridPane.columnIndex="8" />
                            </children>
                         </HBox>
-                        <HBox fx:id="headerTextAreas" alignment="TOP_CENTER" GridPane.columnIndex="9">
+                        <HBox fx:id="headerTextAreas" alignment="TOP_CENTER" GridPane.columnIndex="8">
                            <children>
                               <Label fx:id="lbhTextArea" text="TextArea" GridPane.columnIndex="9" />
                            </children>
