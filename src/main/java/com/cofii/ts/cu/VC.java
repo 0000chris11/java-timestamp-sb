@@ -36,7 +36,6 @@ public class VC {
     };
 
     private void createOption() {
-        vcc.createHelpPopupReset();
         // TOP--------------------------------------------------------
         vcc.getBtnRenameTable().setVisible(false);
 
@@ -53,8 +52,6 @@ public class VC {
 
     private void updateOption() {
         vcc.setUpdateControl(true);
-
-        vcc.createAddColumnHelpPopupReset();
         // TOP-------------------------------------------------------
         vcc.getTfTable().setText(currentTable.getName());
 

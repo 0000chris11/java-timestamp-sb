@@ -13,6 +13,7 @@ import com.cofii.ts.other.CSS;
 import com.cofii.ts.sql.MSQL;
 import com.cofii.ts.store.SQLType;
 import com.cofii.ts.store.SQLTypes;
+import com.cofii2.components.javafx.ToggleGroupD;
 import com.cofii2.components.javafx.TrueFalseWindow;
 import com.cofii2.components.javafx.popup.Message;
 import com.cofii2.components.javafx.popup.PopupAutoC;
@@ -97,6 +98,7 @@ public class VCRow {
     // EXTRA --------------------------------------------------
     private final HBox hbExtra = new HBox();
     private final RadioButton rbExtra = new RadioButton();
+    private static final ToggleGroupD<RadioButton> extraGroup = new ToggleGroupD<>();
 
     private Message messageExtra;
     // CUSTOM -------------------------------------------------
@@ -141,18 +143,6 @@ public class VCRow {
     // IMPORTANT STATICS ========================================================
     private static void importants() {
         /*
-         * GridPane.setMargin(hbsN.get(index), INSETS);
-         * GridPane.setMargin(hbsName.get(index), INSETS);
-         * GridPane.setMargin(hbsType.get(index), INSETS);
-         * GridPane.setMargin(hbsNull.get(index), INSETS);
-         * GridPane.setMargin(hbsPK.get(index), INSETS);
-         * GridPane.setMargin(hbsDefault.get(index), INSETS);
-         * GridPane.setMargin(hbsExtra.get(index), INSETS);
-         * 
-         * GridPane.setMargin(btnsDist.get(index), INSETS);
-         * GridPane.setMargin(btnsTextArea.get(index), INSETS);
-         * 
-         * ToggleGroupD staticGroup new ToggleGroupD<>(rbsExtra.toArray(new
          * RadioButton[rbsExtra.size()]));
          */
     }
@@ -167,18 +157,20 @@ public class VCRow {
         Matcher matcher = patternBWTC.matcher(text);
         return matcher.matches() && MSQL.BAND_COLUMNS_NAMES.stream().noneMatch(word -> textt.equals(word));
     }
+
     // BOOLEANS -----------------------------------------
     static boolean isAllColumnBWOK() {
         return rows.stream().allMatch(VCRow::isColumnBWOK);
     }
-    
-    static boolean isAllTypeSelectionMatch(){
+
+    static boolean isAllTypeSelectionMatch() {
         return rows.stream().allMatch(VCRow::isTypeSelectionMatchOk);
     }
 
-    static boolean isAllTypeLengthOK(){
+    static boolean isAllTypeLengthOK() {
         return rows.stream().allMatch(VCRow::isTypeLengthOK);
     }
+
     // --------------------------------------------------
     /**
      * to determine if currentRowLength is under the size of the current table
@@ -217,6 +209,9 @@ public class VCRow {
 
             if (a == 0) {
                 PopupMenu beforeAfterOptionMenu = new PopupMenu("Before", "After");
+                beforeAfterOptionMenu.addAction(0, e -> addRowTest(0));
+                beforeAfterOptionMenu.addAction(1, e -> addRowTest(1));
+
                 Tooltip beforeAfterOptionTooltip = new Tooltip("Right click to add...");
 
                 row.getBtnAddColumn().setContextMenu(beforeAfterOptionMenu);
@@ -364,18 +359,15 @@ public class VCRow {
 
     private void textAreaTypeControl() {
         textAreaTypeOK = false;
-        if (typeSelectionMatch && typeLengthOK) {
-            String typeChar = types.getTypeChar(tfType.getText());
-            if (typeChar.equals("STRING") && btnTextArea.isSelected()) {
-                textAreaTypeOK = true;
-            }
+        String typeChar = types.getTypeChar(tfType.getText());
+        if (typeChar.equals("STRING") && btnTextArea.isSelected() || (!btnTextArea.isSelected())) {
+            textAreaTypeOK = true;
         }
 
         // DISPLAY -----------------------------------------
         if (textAreaTypeOK) {
             messageType.getItemList().remove(VCStore.TEXT_AREA_AND_TYPE);
             messageTextArea.getItemList().remove(VCStore.TEXT_AREA_AND_TYPE);
-            ;
         } else {
             messageType.getItemList().add(VCStore.TEXT_AREA_AND_TYPE);
             messageTextArea.getItemList().add(VCStore.TEXT_AREA_AND_TYPE);
@@ -388,9 +380,12 @@ public class VCRow {
         while (c.next()) {
             if (c.wasAdded()) {
                 sameColumnsList.add(c.getFrom(), "");
+                extraGroup.getToggleGroup().add(rows.get(c.getFrom()).getRbExtra());
+
             } else if (c.wasRemoved()) {
                 // UNTESTED !!!!!!!!!!!!!!!!!!!!
                 sameColumnsList.remove(c.getFrom());
+                extraGroup.getToggleGroup().remove(c.getFrom());
             }
 
             if (c.wasAdded() || c.wasRemoved()) {
@@ -482,7 +477,7 @@ public class VCRow {
         btnAddColumn.setText("+");// ADD
         btnAddColumn.setStyle(CSS.ROW_ADD_BUTTON);
         btnAddColumn.setTooltip(null);
-        btnAddColumn.setOnAction(e -> addRowTest(getThisIndex()));
+        btnAddColumn.setOnAction(e -> addRowTest(getThisIndex() + 1));
 
         btnDist.setStyle(CSS.ROW_DIST_BUTTONS);
         btnTextArea.setStyle(CSS.ROW_DIST_BUTTONS);
@@ -627,9 +622,10 @@ public class VCRow {
 
         exitAddColumnState(index);
     }
+
     // ADD AND REMOVE ---------------------------------------
     static void removeRowTest(int index) {
-        if(!createRows){
+        if (!createRows) {
             rows.get(index).dropColumn();
         }
         vcc.setCurrentRowLength(vcc.getCurrentRowLength() - 1);
@@ -664,8 +660,8 @@ public class VCRow {
                     dist = dist.replace(column, "").replaceAll("(^,|,$)", "");// removing ',' at the beggining an end
                     dist = dist.isEmpty() ? "NONE" : dist;
 
-                    boolean removeDistTest = vcc.getMs().updateRow(MSQL.TABLE_CUSTOMS, "id_table", vcc.getCurrentTable().getId(), "dist",
-                            dist);
+                    boolean removeDistTest = vcc.getMs().updateRow(MSQL.TABLE_CUSTOMS, "id_table",
+                            vcc.getCurrentTable().getId(), "dist", dist);
                     System.out.println("TEST removeDistTest: " + removeDistTest);
                 }
                 // NOT TESTED
@@ -674,15 +670,15 @@ public class VCRow {
                     textArea = textArea.replace(column, "").replaceAll("(^,|,$)", "");
                     textArea = textArea.isEmpty() ? "NONE" : textArea;
 
-                    boolean removeTextArea = vcc.getMs().updateRow(MSQL.TABLE_CUSTOMS, "id_table", vcc.getCurrentTable().getId(),
-                            "textArea", textArea);
+                    boolean removeTextArea = vcc.getMs().updateRow(MSQL.TABLE_CUSTOMS, "id_table",
+                            vcc.getCurrentTable().getId(), "textArea", textArea);
                     System.out.println("TEST removeTextArea: " + removeTextArea);
                 }
                 // ===================================================
                 vcc.getCurrentTable().getColumns().remove(index);
                 // MESSAGES --------------------------------------------------
-                vcc.getLbStatus().setText("Column '" + column.replace("_", " ") + "' has been removed", vcc.getLbStatus().getTextFillOk(),
-                        Duration.seconds(3));
+                vcc.getLbStatus().setText("Column '" + column.replace("_", " ") + "' has been removed",
+                        vcc.getLbStatus().getTextFillOk(), Duration.seconds(3));
                 System.out.println("\tSUCCESS");
             } else {
                 vcc.getLbStatus().setText("Column '" + column.replace("_", " ") + "' fail to be removed",
@@ -771,18 +767,20 @@ public class VCRow {
 
         boolean renameColumn = vcc.getMs().renameColumn(tableName, columnName, newColumnName);
         if (renameColumn) {
-            VL.LOG.log(Level.FINE, "SUCCESS");            
+            VL.LOG.log(Level.FINE, "SUCCESS");
             // RENAME THE COLUMN AND THEN TEST THE CANCEL BUTTON TO RESET !!!!!!!!
             vcc.getCurrentTable().getColumns().get(index).setName(newColumnName);
 
             btnChangeColumn.setDisable(true);
-            vcc.getLbStatus().setText("Column '" + columnName + "' changed to '" + newColumnName + "'", vcc.getLbStatus().getTextFillOk(),
-                    Duration.seconds(2));
+            vcc.getLbStatus().setText("Column '" + columnName + "' changed to '" + newColumnName + "'",
+                    vcc.getLbStatus().getTextFillOk(), Duration.seconds(2));
         } else {
-            VL.LOG.log(Level.SEVERE, "FAILED");            
-            vcc.getLbStatus().setText("Column '" + columnName + "' fail to be renamed", vcc.getLbStatus().getTextFillError());
+            VL.LOG.log(Level.SEVERE, "FAILED");
+            vcc.getLbStatus().setText("Column '" + columnName + "' fail to be renamed",
+                    vcc.getLbStatus().getTextFillError());
         }
     }
+
     // TYPE ----------------------------------------------
     private void typeTextProperty() {
         boolean updateType = false;
@@ -935,19 +933,21 @@ public class VCRow {
         if (changeType) {
             VL.LOG.log(Level.FINE, "SUCCESS");
             vcc.getCurrentTable().getColumns().get(index).setType(tfType.getText());
-            vcc.getCurrentTable().getColumns().get(index).setTypeLength(
-                    tfTypeLength.isVisible() ? Integer.parseInt(tfTypeLength.getText()) : 0);
+            vcc.getCurrentTable().getColumns().get(index)
+                    .setTypeLength(tfTypeLength.isVisible() ? Integer.parseInt(tfTypeLength.getText()) : 0);
 
-            vcc.getLbStatus().setText("Column '" + columnName + "' has change it's type to '" + type + "'", vcc.getLbStatus().getTextFillOk(),
-                    Duration.seconds(2));
+            vcc.getLbStatus().setText("Column '" + columnName + "' has change it's type to '" + type + "'",
+                    vcc.getLbStatus().getTextFillOk(), Duration.seconds(2));
 
             btnChangeType.setDisable(true);
         } else {
             VL.LOG.log(Level.SEVERE, "FAILED");
-            vcc.getLbStatus().setText("Column '" + columnName + "' fail to change it's type", vcc.getLbStatus().getTextFillError());
+            vcc.getLbStatus().setText("Column '" + columnName + "' fail to change it's type",
+                    vcc.getLbStatus().getTextFillError());
         }
 
     }
+
     // NULL ----------------------------------------------
     private void nullUpdateControl() {
         // !createRows - unecessary bc of init listeners
@@ -967,7 +967,7 @@ public class VCRow {
 
     private void updateNull() {
         VL.LOG.info("Change Null (Starts)");
-        
+
         int index = getThisIndex();
         String tableName = vcc.getCurrentTable().getName();
         String columnName = vcc.getCurrentTable().getColumns().get(index).getName();
@@ -989,9 +989,11 @@ public class VCRow {
                     vcc.getLbStatus().getTextFillOk(), Duration.seconds(2));
         } else {
             VL.LOG.log(Level.SEVERE, "FAILED");
-            vcc.getLbStatus().setText("Column '" + columnName + "' fail to be changed", vcc.getLbStatus().getTextFillError());
+            vcc.getLbStatus().setText("Column '" + columnName + "' fail to be changed",
+                    vcc.getLbStatus().getTextFillError());
         }
     }
+
     // PK ------------------------------------------------
     void pkUpdateControl() {
         // ONLY FOR UPDATE
@@ -1019,11 +1021,12 @@ public class VCRow {
         }
 
         // extraAndPKControl(index);
+        extraPKControl();
         vcc.masterControlTest();
     }
 
     // DEFAULT -------------------------------------------
-    private void defaultsAction() {
+    private void defaultAction() {
         if (ckDefault.isSelected()) {
             tfDefault.setVisible(true);
         } else {
@@ -1034,6 +1037,7 @@ public class VCRow {
         // extraAndDefaultControl(index);
         // -------------------------------------------
         typeAndDefaultControl();
+        extraDefaultControl();
         vcc.masterControlTest();
     }
 
@@ -1183,10 +1187,12 @@ public class VCRow {
                     vcc.getLbStatus().getTextFillOk(), Duration.seconds(2));
         } else {
             VL.LOG.log(Level.SEVERE, "FAILED");
-            vcc.getLbStatus().setText("Failt to change Default Value of column '" + columnName + "'", vcc.getLbStatus().getTextFillError());
+            vcc.getLbStatus().setText("Failt to change Default Value of column '" + columnName + "'",
+                    vcc.getLbStatus().getTextFillError());
         }
 
     }
+
     // EXTRA ---------------------------------------------
     private void extraSelectedProperty() {
         extraPKControl();
@@ -1294,52 +1300,57 @@ public class VCRow {
         }
     }
 
-    // CONSTRUCTOR / INIT ==============================================================
+    // CONSTRUCTOR / INIT
+    // ==============================================================
+    private static boolean singleInit = false;
     {
-        // ROWS -----------------------------------------
-        rows.addListener(VCRow::rowsChange);
-        sameColumnsList.addListener(VCRow::sameColumnsChange);
-        // SQL TYPES ------------------------------------
-        final SQLTypes types = SQLTypes.getInstance();
+        if (!singleInit) {
+            // ROWS -----------------------------------------
+            rows.addListener(VCRow::rowsChange);
+            sameColumnsList.addListener(VCRow::sameColumnsChange);
+            // SQL TYPES ------------------------------------
+            final SQLTypes types = SQLTypes.getInstance();
 
-        for (int a = 0; a < MSQL.MAX_COLUMNS; a++) {
-            if (a == 0) {
-                PRESET_TYPES.add(types.getType("INT"));
-            } else {
-                PRESET_TYPES.add(types.getType("CHAR"));
+            for (int a = 0; a < MSQL.MAX_COLUMNS; a++) {
+                if (a == 0) {
+                    PRESET_TYPES.add(types.getType("INT"));
+                } else {
+                    PRESET_TYPES.add(types.getType("CHAR"));
+                }
             }
+            singleInit = true;
         }
     }
 
-    private void initListeners(){
+    private void initListeners() {
         // COLUMN ---------------------------------------------
         tfColumn.textProperty().addListener((obs, oldValue, newValue) -> columnsTextProperty());
 
         btnRemoveColumn.setOnAction(e -> removeRowTest(getThisIndex()));
-        btnAddColumn.setOnAction(e -> addRowTest(getThisIndex()));
+        btnAddColumn.setOnAction(e -> addRowTest(getThisIndex() + 1));
 
-        if(!createRows){
+        if (!createRows) {
             btnChangeColumn.setOnAction(e -> updateColumn());
         }
         // TYPE ------------------------------------------------
         tfType.textProperty().addListener((obs, oldValue, newValue) -> typeTextProperty());
         tfTypeLength.textProperty().addListener((obs, oldValue, newValue) -> typeLengthTextProperty());
 
-        if(!createRows){
+        if (!createRows) {
             btnChangeType.setOnAction(e -> updateType());
         }
         // NULL ------------------------------------------------
-        if(!createRows){
+        if (!createRows) {
             ckNull.setOnAction(e -> nullUpdateControl());
             btnChangeNull.setOnAction(e -> updateNull());
         }
         // PK --------------------------------------------------
         rbPK.setOnAction(e -> pkUpdateControl());
         // DEFAULT ---------------------------------------------
-        ckDefault.setOnAction(e -> defaultsAction());
+        ckDefault.setOnAction(e -> defaultAction());
         tfDefault.textProperty().addListener((obs, oldValue, newValue) -> defaultsTextProperty());
 
-        if(!createRows){
+        if (!createRows) {
             btnChangeDefault.setOnAction(e -> updateDefault());
         }
         // EXTRA -----------------------------------------------
@@ -1454,18 +1465,6 @@ public class VCRow {
         vcc.getPopupMessageControl().getMessages().add(messageTextArea);
 
         initListeners();
-        /**
-         * GridPane.setMargin(hbsN.get(index), INSETS);
-         * GridPane.setMargin(hbsName.get(index), INSETS);
-         * GridPane.setMargin(hbsType.get(index), INSETS);
-         * GridPane.setMargin(hbsNull.get(index), INSETS);
-         * GridPane.setMargin(hbsPK.get(index), INSETS);
-         * GridPane.setMargin(hbsDefault.get(index), INSETS);
-         * GridPane.setMargin(hbsExtra.get(index), INSETS);
-         * 
-         * GridPane.setMargin(btnsDist.get(index), INSETS);
-         * GridPane.setMargin(btnsTextArea.get(index), INSETS);
-         */
     }
 
     // GETTERS & SETTERS =======================================================
@@ -1683,6 +1682,14 @@ public class VCRow {
 
     public void setTypeLengthOK(boolean typeLengthOK) {
         this.typeLengthOK = typeLengthOK;
+    }
+
+    public static boolean isColumnAddState() {
+        return columnAddState;
+    }
+
+    public static void setColumnAddState(boolean columnAddState) {
+        VCRow.columnAddState = columnAddState;
     }
 
 }

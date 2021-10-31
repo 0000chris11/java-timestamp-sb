@@ -79,7 +79,7 @@ public class Row extends VBox {
         boolean allSingleMatchReference = vfkc.getVbSingle().getChildren().stream().filter(onlyNonEmptyRows).allMatch(predicate);
         boolean allGroupMatchReference = vfkc.getVbGroup().getChildren().stream().filter(onlyNonEmptyRows).allMatch(predicate);
 
-        vfkc.getVcc().setFkSelectionMatch(allSingleMatchReference && allGroupMatchReference);
+        //vfkc.getVcc().setFkSelectionMatch(allSingleMatchReference && allGroupMatchReference);
 
         boolean allOk = anyNonEmptyRow && allSingleMatchReference && allGroupMatchReference;
         vfkc.getBtnAddFK().setDisable(!allOk);

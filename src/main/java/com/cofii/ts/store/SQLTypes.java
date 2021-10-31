@@ -64,7 +64,8 @@ public class SQLTypes {
                     
                 }).findFirst()
                 .orElse(null);
-        return type.getTypeChar();
+
+        return type != null ? type.getTypeChar() : "";
     }
 
     public SQLType getType(String typeName) {

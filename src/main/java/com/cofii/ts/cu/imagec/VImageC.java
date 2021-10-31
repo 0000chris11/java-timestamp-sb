@@ -3,6 +3,7 @@ package com.cofii.ts.cu.imagec;
 import java.io.IOException;
 
 import com.cofii.ts.cu.VCController;
+import com.cofii.ts.cu.VCRow;
 import com.cofii.ts.sql.MSQL;
 
 import javafx.fxml.FXMLLoader;
@@ -27,8 +28,10 @@ public class VImageC {
         // ADDING COLUMNS-------------------------------
         if (create) {
             int columnsLength = vc.getCurrentRowLength();
-            columns = vc.getTfsColumn().stream().map(TextField::getText).limit(columnsLength)
+
+            columns = VCRow.getRows().stream().map(row -> row.getTfColumn().getText()).limit(columnsLength)
                     .toArray(size -> new String[size]);
+
             if (vicc != null) {
                 vicc.getCbColumnSelect().getItems().addAll(columns);
                 vicc.getCbColumnSelect().getSelectionModel().select(0);
@@ -56,10 +59,10 @@ public class VImageC {
 
                 vicc.getCbDisplayOrder().getSelectionModel().select(0);
                 vicc.getCbType().getSelectionModel().select(0);
-                //LISTENERS-----------------------------
+                // LISTENERS-----------------------------
                 vicc.getBtnSaveUpdate().setOnAction(vicc::btnSaveCreateAction);
-            }else{
-                //LISTENERS-----------------------------
+            } else {
+                // LISTENERS-----------------------------
                 vicc.getBtnSaveUpdate().setOnAction(vicc::btnSaveUpdateAction);
             }
             // ------------------------------------------------------

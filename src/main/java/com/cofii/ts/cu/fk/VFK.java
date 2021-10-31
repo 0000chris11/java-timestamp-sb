@@ -8,6 +8,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import com.cofii.ts.cu.VCController;
+import com.cofii.ts.cu.VCRow;
 import com.cofii.ts.sql.MSQL;
 import com.cofii2.components.javafx.drag.Draggable2;
 import com.cofii2.components.javafx.drag.Target;
@@ -57,12 +58,11 @@ public class VFK {
 
     private static void addColumns(VCController vcc) {
         int columnsLength = vcc.getCurrentRowLength();
-        columns = vcc.getTfsColumn().stream().map(TextField::getText).limit(columnsLength)
+        columns = VCRow.getRows().stream().map(row -> row.getTfColumn().getText()).limit(columnsLength)
                 .toArray(size -> new String[size]);
 
         Draggable2.getTargetNodes().clear();
         vfkc.getFpColumns().getChildren().clear();
-
 
         int[] indexs = { 0 };
         if (vfkc != null) {
@@ -144,10 +144,12 @@ public class VFK {
                     stage.close();
                 } else {
                     exitAndResetConfigutation.getButtonTypes().get(0);
-                    exitAndResetConfigutation.showAndWait().filter(res -> res.getButtonData().name().equals(ButtonData.OK_DONE.name())).ifPresent(res -> {
-                        instance = null;
-                        stage.close();
-                    });
+                    exitAndResetConfigutation.showAndWait()
+                            .filter(res -> res.getButtonData().name().equals(ButtonData.OK_DONE.name()))
+                            .ifPresent(res -> {
+                                instance = null;
+                                stage.close();
+                            });
                 }
             });
             stage.focusedProperty().addListener((obs, oldValue, newValue) -> {
@@ -183,7 +185,8 @@ public class VFK {
     static VFK getInstance() {
         return instance;
     }
-    public static void setInstance(VFK instance){
+
+    public static void setInstance(VFK instance) {
         VFK.instance = instance;
     }
 }
